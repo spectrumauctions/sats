@@ -7,11 +7,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.xor.XORBid;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
-import ch.uzh.ifi.ce.mweiss.specval.model.UnequalWorldsException;
-import ch.uzh.ifi.ce.mweiss.specval.model.World;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.xor.XORBid;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.UnequalWorldsException;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.World;
 
 /**
  * This class represents the aggregated bids of the auction, one Bid per Bidder.

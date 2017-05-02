@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.Allocation;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
 
 
 /**

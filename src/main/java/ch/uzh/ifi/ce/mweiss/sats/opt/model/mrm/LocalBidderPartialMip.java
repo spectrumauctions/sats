@@ -7,8 +7,8 @@ package ch.uzh.ifi.ce.mweiss.sats.opt.model.mrm;
 
 import java.math.BigDecimal;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMLocalBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionsMap.Region;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMLocalBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionsMap.Region;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;

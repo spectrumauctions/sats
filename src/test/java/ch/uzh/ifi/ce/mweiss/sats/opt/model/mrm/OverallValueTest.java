@@ -8,15 +8,15 @@ package ch.uzh.ifi.ce.mweiss.sats.opt.model.mrm;
 import java.math.BigDecimal;
 import java.util.List;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.*;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.*;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericValue;
 
 /**
  * @author Michael Weiss

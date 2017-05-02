@@ -11,13 +11,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBand;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMGenericDefinition;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionsMap.Region;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMWorld;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBand;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMGenericDefinition;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionsMap.Region;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMWorld;
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.GenericAllocation;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 

@@ -12,7 +12,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ch.uzh.ifi.ce.mweiss.specval.util.math.ContinuousPiecewiseLinearFunction;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.MIP;

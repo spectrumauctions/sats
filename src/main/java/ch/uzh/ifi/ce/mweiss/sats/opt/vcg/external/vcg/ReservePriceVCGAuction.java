@@ -6,8 +6,8 @@ import java.util.Map;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain.Auction;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain.BidderPayment;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain.Payment;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain.AuctionResult;
 
 public class ReservePriceVCGAuction<T extends Good> extends XORVCGAuction<T> {

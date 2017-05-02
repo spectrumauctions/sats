@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMLicense;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMWorld;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMLicense;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMWorld;
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.EfficientAllocator;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.vcg.ItemAllocation;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.vcg.ItemAllocation.ItemAllocationBuilder;

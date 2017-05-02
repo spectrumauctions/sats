@@ -1,8 +1,8 @@
 package ch.uzh.ifi.ce.mweiss.sats.opt.model.srm;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.*;
-import ch.uzh.ifi.ce.mweiss.specval.util.PreconditionUtils;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.JavaUtilRNGSupplier;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.*;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.PreconditionUtils;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.JavaUtilRNGSupplier;
 import ch.uzh.ifi.ce.mweiss.sats.opt.imip.PartialMIP;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;

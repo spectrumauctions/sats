@@ -10,17 +10,17 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMLicense;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMNationalBidderSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMRegionalBidderSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMWorld;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GSVMWorldSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.gsvm.GlobalSynergyValueModel;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.DoubleInterval;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.IntegerInterval;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.JavaUtilRNGSupplier;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMLicense;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMNationalBidderSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMRegionalBidderSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMWorld;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GSVMWorldSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.gsvm.GlobalSynergyValueModel;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.DoubleInterval;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.IntegerInterval;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.JavaUtilRNGSupplier;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.vcg.ItemAllocation;
 
 public class GSVMStandardMIPTest {

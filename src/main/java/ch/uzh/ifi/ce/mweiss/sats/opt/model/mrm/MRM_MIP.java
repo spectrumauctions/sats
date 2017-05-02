@@ -11,17 +11,17 @@ import java.util.*;
 
 import com.google.common.base.Preconditions;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBand;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMGenericDefinition;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMGlobalBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMLicense;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMLocalBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionalBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionsMap.Region;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMWorld;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBand;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMGenericDefinition;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMGlobalBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMLicense;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMLocalBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionalBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionsMap.Region;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMWorld;
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.EfficientAllocator;
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.GenericAllocation;
 import edu.harvard.econcs.jopt.solver.IMIPResult;

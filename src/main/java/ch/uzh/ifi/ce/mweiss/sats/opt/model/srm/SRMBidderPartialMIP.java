@@ -6,10 +6,10 @@
 package ch.uzh.ifi.ce.mweiss.sats.opt.model.srm;
 
 import ch.uzh.ifi.ce.mweiss.sats.opt.imip.PiecewiseLinearPartialMIP;
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.Band;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.SRMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.util.math.ContinuousPiecewiseLinearFunction;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.Band;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.SRMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import ch.uzh.ifi.ce.mweiss.sats.opt.imip.PartialMIP;
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;

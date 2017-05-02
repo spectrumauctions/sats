@@ -2,9 +2,9 @@ package ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain;
 
 import java.util.Set;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.xor.XORValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.xor.XORValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
 
 /**
  * This class represents the allocation of goods to a single bidder.

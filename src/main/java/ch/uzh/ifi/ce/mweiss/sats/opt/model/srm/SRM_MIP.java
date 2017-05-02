@@ -5,11 +5,11 @@
  */
 package ch.uzh.ifi.ce.mweiss.sats.opt.model.srm;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.SRMBand;
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.SRMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.SRMWorld;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.SRMBand;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.SRMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.SRMWorld;
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.EfficientAllocator;
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.GenericAllocation;
 import com.google.common.base.Preconditions;

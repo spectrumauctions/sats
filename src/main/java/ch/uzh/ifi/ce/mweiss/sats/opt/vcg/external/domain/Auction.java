@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.xor.XORBid;
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.xor.XORValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.xor.XORBid;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.xor.XORValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
 
 /**
  * This class represents an Auction, containing a set of goods as 

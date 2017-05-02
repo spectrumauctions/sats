@@ -9,15 +9,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMGlobalBidderSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMLocalBidderSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionalBidderSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMWorldSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMWorldSetup.BandSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMWorldSetup.MRMWorldSetupBuilder;
-import ch.uzh.ifi.ce.mweiss.specval.util.math.LinearFunction;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.DoubleInterval;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.IntegerInterval;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMGlobalBidderSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMLocalBidderSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionalBidderSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMWorldSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMWorldSetup.BandSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMWorldSetup.MRMWorldSetupBuilder;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.math.LinearFunction;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.DoubleInterval;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.IntegerInterval;
 
 /**
  * @author Michael Weiss

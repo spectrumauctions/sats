@@ -14,10 +14,10 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.xor.XORBid;
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.xor.XORValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.xor.XORBid;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.xor.XORValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.EfficientAllocator;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.MockWorld.MockGood;
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain.Bids;

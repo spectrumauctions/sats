@@ -13,9 +13,9 @@ import java.util.Map;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericDefinition;
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericDefinition;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
 
 /**
  * @author Michael Weiss
@@ -30,7 +30,7 @@ public class GenericAllocation<T extends GenericDefinition> implements Allocatio
     }
     
     /* (non-Javadoc)
-     * @see Allocation#getAllocatedItems(ch.uzh.ifi.ce.mweiss.specval.model.Bidder)
+     * @see Allocation#getAllocatedItems(ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder)
      */
     @Override
     public GenericValue<T> getAllocation(Bidder<?> bidder) {

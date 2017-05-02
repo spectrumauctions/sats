@@ -12,10 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.uzh.ifi.ce.mweiss.specval.util.math.ContinuousPiecewiseLinearFunction;
-import ch.uzh.ifi.ce.mweiss.specval.util.math.LinearFunction;
-import ch.uzh.ifi.ce.mweiss.specval.util.math.NotDifferentiableException;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.DoubleInterval;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.math.ContinuousPiecewiseLinearFunction;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.math.LinearFunction;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.math.NotDifferentiableException;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.DoubleInterval;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;

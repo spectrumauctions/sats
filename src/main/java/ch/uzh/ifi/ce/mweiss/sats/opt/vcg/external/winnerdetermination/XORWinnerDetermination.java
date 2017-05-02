@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain.Auction;
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.xor.XORValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.xor.XORValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
 import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;

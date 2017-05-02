@@ -9,12 +9,12 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBand;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMGenericDefinition;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionsMap.Region;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MultiRegionModel;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBand;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMGenericDefinition;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionsMap.Region;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MultiRegionModel;
 
 /**
  * @author Michael Weiss

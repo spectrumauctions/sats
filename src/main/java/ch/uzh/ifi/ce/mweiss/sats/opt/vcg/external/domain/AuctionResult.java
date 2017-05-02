@@ -1,6 +1,6 @@
 package ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
 
 /**
  * This class represents the result of an Auction, consisting of

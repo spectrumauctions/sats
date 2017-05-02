@@ -12,10 +12,10 @@ import java.util.Map;
 
 import com.google.common.base.Preconditions;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBand;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMGlobalBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionsMap.Region;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBand;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMGlobalBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionsMap.Region;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;

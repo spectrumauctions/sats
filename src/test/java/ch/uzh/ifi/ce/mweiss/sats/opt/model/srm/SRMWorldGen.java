@@ -5,8 +5,8 @@
  */
 package ch.uzh.ifi.ce.mweiss.sats.opt.model.srm;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.SRMBidderSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.SRMWorldSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.SRMBidderSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.SRMWorldSetup;
 
 import java.util.HashSet;
 import java.util.Set;

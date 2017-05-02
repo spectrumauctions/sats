@@ -12,12 +12,12 @@ import org.junit.Test;
 
 import com.google.common.base.Preconditions;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBand;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMGlobalBidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMRegionsMap.Region;
-import ch.uzh.ifi.ce.mweiss.specval.model.mrm.MRMWorld;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.JavaUtilRNGSupplier;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBand;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMGlobalBidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMRegionsMap.Region;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.mrm.MRMWorld;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.JavaUtilRNGSupplier;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;

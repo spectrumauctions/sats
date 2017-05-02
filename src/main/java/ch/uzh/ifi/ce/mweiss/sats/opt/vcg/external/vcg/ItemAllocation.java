@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import ch.uzh.ifi.ce.mweiss.sats.opt.model.Allocation;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
-import ch.uzh.ifi.ce.mweiss.specval.model.UnequalWorldsException;
-import ch.uzh.ifi.ce.mweiss.specval.model.World;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.UnequalWorldsException;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.World;
 
 public final class ItemAllocation<T extends Good> implements Allocation<Bundle<T>> {
 

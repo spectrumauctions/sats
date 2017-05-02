@@ -6,13 +6,13 @@ import java.util.Set;
 
 import org.mockito.*;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.BiddingLanguage;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
-import ch.uzh.ifi.ce.mweiss.specval.model.BidderSetup;
-import ch.uzh.ifi.ce.mweiss.specval.model.Bundle;
-import ch.uzh.ifi.ce.mweiss.specval.model.Good;
-import ch.uzh.ifi.ce.mweiss.specval.model.UnsupportedBiddingLanguageException;
-import ch.uzh.ifi.ce.mweiss.specval.model.World;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.BiddingLanguage;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.BidderSetup;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bundle;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Good;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.UnsupportedBiddingLanguageException;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.World;
 
 @SuppressWarnings("serial") //No Serialization
 public class MockWorld extends World {

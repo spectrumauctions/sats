@@ -8,7 +8,7 @@ package ch.uzh.ifi.ce.mweiss.sats.opt.model;
 import java.math.BigDecimal;
 import java.util.Collection;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
 
 /**
  * @author Michael Weiss

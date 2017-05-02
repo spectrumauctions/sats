@@ -5,9 +5,9 @@
  */
 package ch.uzh.ifi.ce.mweiss.sats.opt.model.srm;
 
-import ch.uzh.ifi.ce.mweiss.specval.bidlang.generic.GenericValue;
-import ch.uzh.ifi.ce.mweiss.specval.model.srm.*;
-import ch.uzh.ifi.ce.mweiss.specval.util.random.JavaUtilRNGSupplier;
+import ch.uzh.ifi.ce.mweiss.sats.core.bidlang.generic.GenericValue;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.srm.*;
+import ch.uzh.ifi.ce.mweiss.sats.core.util.random.JavaUtilRNGSupplier;
 import org.junit.Test;
 
 import java.util.Collection;

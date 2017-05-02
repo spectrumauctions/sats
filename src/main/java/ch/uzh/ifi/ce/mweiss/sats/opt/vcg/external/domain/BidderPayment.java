@@ -1,6 +1,6 @@
 package ch.uzh.ifi.ce.mweiss.sats.opt.vcg.external.domain;
 
-import ch.uzh.ifi.ce.mweiss.specval.model.Bidder;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.Bidder;
 
 /**
  * This class represents the Payment made by a single {@link Bidder}.
