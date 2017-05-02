@@ -3,19 +3,19 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package ch.uzh.ifi.ce.mweiss.sats.cli;
+package org.spectrumauctions.sats.clt;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import ch.uzh.ifi.ce.mweiss.sats.core.api.BiddingLanguage;
-import ch.uzh.ifi.ce.mweiss.sats.core.api.FileType;
-import ch.uzh.ifi.ce.mweiss.sats.core.api.IllegalConfigException;
-import ch.uzh.ifi.ce.mweiss.sats.core.api.ModelCreator;
-import ch.uzh.ifi.ce.mweiss.sats.core.api.PathResult;
-import ch.uzh.ifi.ce.mweiss.sats.core.api.SeedType;
-import ch.uzh.ifi.ce.mweiss.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.api.BiddingLanguage;
+import org.spectrumauctions.sats.core.api.FileType;
+import org.spectrumauctions.sats.core.api.IllegalConfigException;
+import org.spectrumauctions.sats.core.api.ModelCreator;
+import org.spectrumauctions.sats.core.api.PathResult;
+import org.spectrumauctions.sats.core.api.SeedType;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 

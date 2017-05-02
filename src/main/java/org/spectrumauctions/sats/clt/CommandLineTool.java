@@ -1,11 +1,11 @@
-package ch.uzh.ifi.ce.mweiss.sats.cli;
+package org.spectrumauctions.sats.clt;
 
 import java.io.File;
 import java.io.IOException;
 
-import ch.uzh.ifi.ce.mweiss.sats.core.api.IllegalConfigException;
-import ch.uzh.ifi.ce.mweiss.sats.core.api.PathResult;
-import ch.uzh.ifi.ce.mweiss.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.api.IllegalConfigException;
+import org.spectrumauctions.sats.core.api.PathResult;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
