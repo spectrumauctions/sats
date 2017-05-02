@@ -7,10 +7,10 @@ package ch.uzh.ifi.ce.mweiss.sats.cli;
 
 import java.io.IOException;
 
-import ch.uzh.ifi.ce.mweiss.specval.api.IllegalConfigException;
-import ch.uzh.ifi.ce.mweiss.specval.api.MRVMModelCreator;
-import ch.uzh.ifi.ce.mweiss.specval.api.PathResult;
-import ch.uzh.ifi.ce.mweiss.specval.model.UnsupportedBiddingLanguageException;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.IllegalConfigException;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.MRVMModelCreator;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.PathResult;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.UnsupportedBiddingLanguageException;
 import joptsimple.OptionSet;
 
 /**

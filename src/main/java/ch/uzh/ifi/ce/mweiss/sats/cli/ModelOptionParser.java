@@ -9,13 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import ch.uzh.ifi.ce.mweiss.specval.api.BiddingLanguage;
-import ch.uzh.ifi.ce.mweiss.specval.api.FileType;
-import ch.uzh.ifi.ce.mweiss.specval.api.IllegalConfigException;
-import ch.uzh.ifi.ce.mweiss.specval.api.ModelCreator;
-import ch.uzh.ifi.ce.mweiss.specval.api.PathResult;
-import ch.uzh.ifi.ce.mweiss.specval.api.SeedType;
-import ch.uzh.ifi.ce.mweiss.specval.model.UnsupportedBiddingLanguageException;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.BiddingLanguage;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.FileType;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.IllegalConfigException;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.ModelCreator;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.PathResult;
+import ch.uzh.ifi.ce.mweiss.sats.core.api.SeedType;
+import ch.uzh.ifi.ce.mweiss.sats.core.model.UnsupportedBiddingLanguageException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
