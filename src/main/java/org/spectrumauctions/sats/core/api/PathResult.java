@@ -50,7 +50,5 @@ public final class PathResult {
     public void setInstanceFolder(File instanceFolder) {
         this.instanceFolder = instanceFolder;
     }
-    
-    
-    
+
 }
