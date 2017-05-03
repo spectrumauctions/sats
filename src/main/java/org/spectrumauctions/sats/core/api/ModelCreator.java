@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import org.spectrumauctions.sats.core.bidfile.FileWriter;
 import com.google.common.base.Preconditions;
@@ -111,7 +112,17 @@ public abstract class ModelCreator {
                 result.addValueFile(valueFile);
                 return result;
             }else{
-                throw new UnsupportedOperationException("Not yet implemented"); //TODO
+                Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
+                String zipId = String.valueOf(new Date().getTime());
+                File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
+                folder.mkdir();
+                for(Bidder<? extends Good> bidder : bidders){
+                    GenericLang<GenericDefinition> valueFunction = bidder.getValueFunction(langClass);
+                    writer.writeSingleBidderXORQ(valueFunction, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
+                }
+                PathResult result = new PathResult(storeWorldSerialization, null);
+                result.addValueFile(folder);
+                return result;
             }
         }else{
             @SuppressWarnings("unchecked")
@@ -127,7 +138,17 @@ public abstract class ModelCreator {
                 result.addValueFile(valueFile);
                 return result;
             }else{
-                throw new UnsupportedOperationException("Not yet implemented"); //TODO
+                Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
+                String zipId = String.valueOf(new Date().getTime());
+                File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
+                folder.mkdir();
+                for(Bidder<? extends Good> bidder : bidders){
+                    XORLanguage<Good> language = bidder.getValueFunction(langClass);
+                    writer.writeSingleBidderXOR(language, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
+                }
+                PathResult result = new PathResult(storeWorldSerialization, null);
+                result.addValueFile(folder);
+                return result;
             }
         }
     }
