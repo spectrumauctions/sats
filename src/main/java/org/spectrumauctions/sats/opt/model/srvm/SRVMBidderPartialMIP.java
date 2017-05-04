@@ -3,13 +3,13 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.srm;
+package org.spectrumauctions.sats.opt.model.srvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.srm.SRMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.opt.imip.PartialMIP;
 import org.spectrumauctions.sats.opt.imip.PiecewiseLinearPartialMIP;
@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * @author Michael Weiss
  */
-public class SRMBidderPartialMIP extends PartialMIP {
+public class SRVMBidderPartialMIP extends PartialMIP {
 
     private static final String zVariablePrefix = "Z";
     private static final String wVariablePrefix = "W";
@@ -35,10 +35,10 @@ public class SRMBidderPartialMIP extends PartialMIP {
     private Map<Band, Variable> alphaVariables;
     private Map<Band, Variable> betaVariables;
     private Map<Band, Variable> gammaVariables;
-    protected final SRMWorldPartialMip worldPartialMip;
-    private final SRMBidder bidder;
+    protected final SRVMWorldPartialMip worldPartialMip;
+    private final SRVMBidder bidder;
 
-    public SRMBidderPartialMIP(SRMBidder bidder, SRMWorldPartialMip worldMip) {
+    public SRVMBidderPartialMIP(SRVMBidder bidder, SRVMWorldPartialMip worldMip) {
         this.bidder = bidder;
         this.worldPartialMip = worldMip;
         initVariables();
@@ -310,13 +310,13 @@ public class SRMBidderPartialMIP extends PartialMIP {
     }
 
 
-    private double getBaseValue(SRMBidder bidder, Band band) {
+    private double getBaseValue(SRVMBidder bidder, Band band) {
         Preconditions.checkArgument(bidder.getBaseValues().containsKey(band.getName()));
         BigDecimal value = bidder.getBaseValues().get(band.getName());
         return value.floatValue();
     }
 
-    private double getIntrabandSynergyFactor(SRMBidder bidder, Band band) {
+    private double getIntrabandSynergyFactor(SRVMBidder bidder, Band band) {
         Preconditions.checkArgument(bidder.getIntrabandSynergyFactors().containsKey(band.getName()));
         BigDecimal value = bidder.getIntrabandSynergyFactors().get(band.getName());
         return value.floatValue();

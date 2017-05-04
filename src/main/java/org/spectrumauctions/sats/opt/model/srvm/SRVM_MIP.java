@@ -3,7 +3,7 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.srm;
+package org.spectrumauctions.sats.opt.model.srvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
@@ -14,9 +14,9 @@ import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.srm.SRMBand;
-import org.spectrumauctions.sats.core.model.srm.SRMBidder;
-import org.spectrumauctions.sats.core.model.srm.SRMWorld;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
 import org.spectrumauctions.sats.opt.model.EfficientAllocator;
 import org.spectrumauctions.sats.opt.model.GenericAllocation;
 
@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * @author Fabio Isler
  */
-public class SRM_MIP implements EfficientAllocator<GenericAllocation<SRMBand>> {
+public class SRVM_MIP implements EfficientAllocator<GenericAllocation<SRVMBand>> {
 
     public static boolean PRINT_SOLVER_RESULT = false;
 
@@ -40,12 +40,12 @@ public class SRM_MIP implements EfficientAllocator<GenericAllocation<SRMBand>> {
      * a non-zero scaling factor for the calculation is chosen.
      */
     public static BigDecimal highestValidVal = BigDecimal.valueOf(MIP.MAX_VALUE - 1000000);
-    private SRMWorldPartialMip worldPartialMip;
-    private Map<SRMBidder, SRMBidderPartialMIP> bidderPartialMips;
-    private SRMWorld world;
+    private SRVMWorldPartialMip worldPartialMip;
+    private Map<SRVMBidder, SRVMBidderPartialMIP> bidderPartialMips;
+    private SRVMWorld world;
     private MIP mip;
 
-    public SRM_MIP(Collection<SRMBidder> bidders) {
+    public SRVM_MIP(Collection<SRVMBidder> bidders) {
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
@@ -53,21 +53,21 @@ public class SRM_MIP implements EfficientAllocator<GenericAllocation<SRMBand>> {
         mip.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
         double scalingFactor = calculateScalingFactor(bidders);
         double biggestPossibleValue = biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        this.worldPartialMip = new SRMWorldPartialMip(
+        this.worldPartialMip = new SRVMWorldPartialMip(
                 bidders,
                 biggestPossibleValue,
                 scalingFactor);
         worldPartialMip.appendToMip(mip);
         bidderPartialMips = new HashMap<>();
-        for (SRMBidder bidder : bidders) {
-            SRMBidderPartialMIP bidderPartialMIP;
-            bidderPartialMIP = new SRMBidderPartialMIP(bidder, worldPartialMip);
+        for (SRVMBidder bidder : bidders) {
+            SRVMBidderPartialMIP bidderPartialMIP;
+            bidderPartialMIP = new SRVMBidderPartialMIP(bidder, worldPartialMip);
             bidderPartialMIP.appendToMip(mip);
             bidderPartialMips.put(bidder, bidderPartialMIP);
         }
     }
 
-    public static double calculateScalingFactor(Collection<SRMBidder> bidders) {
+    public static double calculateScalingFactor(Collection<SRVMBidder> bidders) {
         BigDecimal maxVal = biggestUnscaledPossibleValue(bidders);
         if (maxVal.compareTo(highestValidVal) < 0) {
             return 1;
@@ -82,9 +82,9 @@ public class SRM_MIP implements EfficientAllocator<GenericAllocation<SRMBand>> {
      *
      * @return
      */
-    public static BigDecimal biggestUnscaledPossibleValue(Collection<SRMBidder> bidders) {
+    public static BigDecimal biggestUnscaledPossibleValue(Collection<SRVMBidder> bidders) {
         BigDecimal biggestValue = BigDecimal.ZERO;
-        for (SRMBidder bidder : bidders) {
+        for (SRVMBidder bidder : bidders) {
             BigDecimal val = bidder.calculateValue(new Bundle<>(bidder.getWorld().getLicenses()));
             if (val.compareTo(biggestValue) > 0) {
                 biggestValue = val;
@@ -106,15 +106,15 @@ public class SRM_MIP implements EfficientAllocator<GenericAllocation<SRMBand>> {
      * @see EfficientAllocator#calculateEfficientAllocation()
      */
     @Override
-    public SRMMipResult calculateAllocation() {
+    public SRVMMipResult calculateAllocation() {
         IMIPResult mipResult = SOLVER.solve(mip);
         if (PRINT_SOLVER_RESULT) {
             System.out.println(mipResult);
         }
-        SRMMipResult.Builder resultBuilder = new SRMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
-        for (SRMBidder bidder : bidderPartialMips.keySet()) {
+        SRVMMipResult.Builder resultBuilder = new SRVMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
+        for (SRVMBidder bidder : bidderPartialMips.keySet()) {
             double unscaledValue = 0;
-            for (SRMBand band : world.getBands()) {
+            for (SRVMBand band : world.getBands()) {
                 Variable bidderVmVar = worldPartialMip.getVmVariable(bidder, band);
                 double mipVmUtilityResult = mipResult.getValue(bidderVmVar);
                 Variable bidderVoVar = worldPartialMip.getVoVariable(bidder, band);
@@ -123,8 +123,8 @@ public class SRM_MIP implements EfficientAllocator<GenericAllocation<SRMBand>> {
                 unscaledValue = value * worldPartialMip.getScalingFactor();
             }
 
-            GenericValue.Builder<SRMBand> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
-            for (SRMBand band : world.getBands()) {
+            GenericValue.Builder<SRVMBand> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            for (SRVMBand band : world.getBands()) {
                 Variable xVar = worldPartialMip.getXVariable(bidder, band);
                 double doubleQuantity = mipResult.getValue(xVar);
                 int quantity = (int) Math.round(doubleQuantity);
@@ -135,11 +135,11 @@ public class SRM_MIP implements EfficientAllocator<GenericAllocation<SRMBand>> {
         return resultBuilder.build();
     }
 
-    public SRMWorldPartialMip getWorldPartialMip() {
+    public SRVMWorldPartialMip getWorldPartialMip() {
         return worldPartialMip;
     }
 
-    public Map<SRMBidder, SRMBidderPartialMIP> getBidderPartialMips() {
+    public Map<SRVMBidder, SRVMBidderPartialMIP> getBidderPartialMips() {
         return bidderPartialMips;
     }
 
