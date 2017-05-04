@@ -50,7 +50,7 @@ public class MRVMModelCreator extends ModelCreator {
         private int numberOfRegionalBidders;
         
         public Builder() {
-            super(BiddingLanguage.SIZE_INCREASING);
+            super();
             numberOfLocalBidders = new MRMLocalBidderSetup.Builder().getNumberOfBidders();
             numberOfGlobalBidders = new MRMGlobalBidderSetup.Builder().getNumberOfBidders();
             numberOfRegionalBidders = new MRMRegionalBidderSetup.Builder().getNumberOfBidders();

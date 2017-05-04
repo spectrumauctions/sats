@@ -54,11 +54,8 @@ public class SRVMModelCreator extends ModelCreator {
         public int numHighFrequencyBidders;
         public int numSmallBidders;
 
-        /**
-         * @param lang
-         */
         public Builder() {
-            super(BiddingLanguage.SIZE_DECREASING);
+            super();
             numSmallBidders = new SRMBidderSetup.SmallBidderBuilder().getNumberOfBidders();
             numPrimaryBidders  = new SRMBidderSetup.PrimaryBidderBuilder().getNumberOfBidders();
             numSecondaryBidders = new SRMBidderSetup.SecondaryBidderBuilder().getNumberOfBidders();
