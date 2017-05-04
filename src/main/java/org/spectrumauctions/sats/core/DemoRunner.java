@@ -10,7 +10,7 @@ import java.util.Iterator;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.mrm.MultiRegionModel;
+import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.model.DefaultModel;

@@ -7,8 +7,8 @@ package org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset;
 
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.mrm.MRMBidder;
-import org.spectrumauctions.sats.core.model.mrm.MultiRegionModel;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class GenericPowersetTest {
     @Ignore //TODO Re-Accept Once MRVM Model is Full Size Again
     public void testLargeAuctionMustNotStart() throws UnsupportedBiddingLanguageException {
         MultiRegionModel model = new MultiRegionModel();
-        MRMBidder bidder = model.createNewPopulation(89127349).iterator().next();
+        MRVMBidder bidder = model.createNewPopulation(89127349).iterator().next();
         try{
             GenericLang<?> lang = bidder.getValueFunction(GenericPowersetDecreasing.class);
             Assert.fail();

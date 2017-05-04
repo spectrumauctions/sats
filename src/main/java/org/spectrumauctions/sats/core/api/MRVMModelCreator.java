@@ -9,10 +9,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.mrm.MRMGlobalBidderSetup;
-import org.spectrumauctions.sats.core.model.mrm.MRMLocalBidderSetup;
-import org.spectrumauctions.sats.core.model.mrm.MRMRegionalBidderSetup;
-import org.spectrumauctions.sats.core.model.mrm.MultiRegionModel;
+import org.spectrumauctions.sats.core.model.mrvm.*;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMNationalBidderSetup;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMLocalBidderSetup;
 
 /**
  * @author Michael Weiss
@@ -21,12 +20,12 @@ import org.spectrumauctions.sats.core.model.mrm.MultiRegionModel;
 public class MRVMModelCreator extends ModelCreator {
 
     private final int numberOfLocalBidders;
-    private final int numberOfGlobalBidders;
+    private final int numberOfNationalBidders;
     private final int numberOfRegionalBidders;
     
     private MRVMModelCreator(Builder builder) {
         super(builder);
-        numberOfGlobalBidders = builder.numberOfGlobalBidders;
+        numberOfNationalBidders = builder.numberOfNationalBidders;
         numberOfLocalBidders = builder.numberOfLocalBidders;
         numberOfRegionalBidders = builder.numberOfRegionalBidders;
     }
@@ -37,7 +36,7 @@ public class MRVMModelCreator extends ModelCreator {
     @Override
     public PathResult generateResult(File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException {
         MultiRegionModel model = new MultiRegionModel();
-        model.setNumberOfGlobalBidders(numberOfGlobalBidders);
+        model.setNumberOfNationalBidders(numberOfNationalBidders);
         model.setNumberOfLocalBidders(numberOfLocalBidders);
         model.setNumberOfRegionalBidders(numberOfRegionalBidders);
         return appendTopLevelParamsAndSolve(model, outputFolder);
@@ -46,14 +45,14 @@ public class MRVMModelCreator extends ModelCreator {
     public static class Builder extends ModelCreator.Builder{
 
         private int numberOfLocalBidders;
-        private int numberOfGlobalBidders;
+        private int numberOfNationalBidders;
         private int numberOfRegionalBidders;
         
         public Builder() {
             super(BiddingLanguage.SIZE_INCREASING);
-            numberOfLocalBidders = new MRMLocalBidderSetup.Builder().getNumberOfBidders();
-            numberOfGlobalBidders = new MRMGlobalBidderSetup.Builder().getNumberOfBidders();
-            numberOfRegionalBidders = new MRMRegionalBidderSetup.Builder().getNumberOfBidders();
+            numberOfLocalBidders = new MRVMLocalBidderSetup.Builder().getNumberOfBidders();
+            numberOfNationalBidders = new MRVMNationalBidderSetup.Builder().getNumberOfBidders();
+            numberOfRegionalBidders = new MRVMRegionalBidderSetup.Builder().getNumberOfBidders();
         }
 
         /* (non-Javadoc)
@@ -72,12 +71,12 @@ public class MRVMModelCreator extends ModelCreator {
             this.numberOfLocalBidders = numberOfLocalBidders;
         }
 
-        public int getNumberOfGlobalBidders() {
-            return numberOfGlobalBidders;
+        public int getNumberOfNationalBidders() {
+            return numberOfNationalBidders;
         }
 
-        public void setNumberOfGlobalBidders(int numberOfGlobalBidders) {
-            this.numberOfGlobalBidders = numberOfGlobalBidders;
+        public void setNumberOfNationalBidders(int numberOfNationalBidders) {
+            this.numberOfNationalBidders = numberOfNationalBidders;
         }
 
         public int getNumberOfRegionalBidders() {

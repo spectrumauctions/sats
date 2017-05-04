@@ -9,8 +9,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.srm.SRMBidderSetup;
-import org.spectrumauctions.sats.core.model.srm.SingleRegionModel;
+import org.spectrumauctions.sats.core.model.srvm.SRMBidderSetup;
+import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 
 /**
  * @author Michael Weiss

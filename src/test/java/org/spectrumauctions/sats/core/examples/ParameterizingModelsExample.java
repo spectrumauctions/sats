@@ -1,12 +1,12 @@
 package org.spectrumauctions.sats.core.examples;
 
-import org.spectrumauctions.sats.core.model.srm.SRMWorld;
+import org.spectrumauctions.sats.core.model.srvm.SRMWorld;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.core.model.srm.SRMBidder;
-import org.spectrumauctions.sats.core.model.srm.SRMBidderSetup;
-import org.spectrumauctions.sats.core.model.srm.SRMWorldSetup;
+import org.spectrumauctions.sats.core.model.srvm.SRMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRMBidderSetup;
+import org.spectrumauctions.sats.core.model.srvm.SRMWorldSetup;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.junit.Test;
 

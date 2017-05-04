@@ -1,12 +1,12 @@
 package org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder;
 
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.mrm.MultiRegionModel;
+import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.bm.bvm.BaseValueModel;
-import org.spectrumauctions.sats.core.model.bm.mbvm.MultiBandValueModel;
-import org.spectrumauctions.sats.core.model.srm.SingleRegionModel;
+import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
+import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
+import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

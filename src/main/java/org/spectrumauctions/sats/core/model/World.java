@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
-import org.spectrumauctions.sats.core.model.bm.BMWorld;
+import org.spectrumauctions.sats.core.model.bvm.BMWorld;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 
 public abstract class World implements Serializable {

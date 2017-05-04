@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.bm.mbvm.MultiBandValueModel;
+import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
 
 /**
  * @author Michael Weiss
