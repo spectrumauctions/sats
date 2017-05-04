@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="sats-cli" />
+        <module name="sats-clt" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="sats-cli" target="1.7" />
+      <module name="sats-clt" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
