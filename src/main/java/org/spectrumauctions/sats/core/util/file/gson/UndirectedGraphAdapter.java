@@ -25,23 +25,23 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import org.spectrumauctions.sats.core.model.mrm.MRMRegionsMap;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
 
 /**
  * @author Michael Weiss
  *
  */
-public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndirectedGraph<MRMRegionsMap.Region, DefaultEdge>>, JsonDeserializer<UnmodifiableUndirectedGraph<MRMRegionsMap.Region,DefaultEdge>>{
+public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndirectedGraph<MRVMRegionsMap.Region, DefaultEdge>>, JsonDeserializer<UnmodifiableUndirectedGraph<MRVMRegionsMap.Region,DefaultEdge>>{
 
     /* (non-Javadoc)
      * @see com.google.gson.JsonSerializer#serialize(java.lang.Object, java.lang.reflect.Type, com.google.gson.JsonSerializationContext)
      */
     @Override
-    public JsonElement serialize(UnmodifiableUndirectedGraph<MRMRegionsMap.Region, DefaultEdge> src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(UnmodifiableUndirectedGraph<MRVMRegionsMap.Region, DefaultEdge> src, Type typeOfSrc, JsonSerializationContext context) {
         JsonArray result = new JsonArray();
-        for(MRMRegionsMap.Region region : src.vertexSet()){
+        for(MRVMRegionsMap.Region region : src.vertexSet()){
             SerializedRegion r = new SerializedRegion(region);
-            for (MRMRegionsMap.Region neighborCandidate : src.vertexSet()) {
+            for (MRVMRegionsMap.Region neighborCandidate : src.vertexSet()) {
                 if(src.containsEdge(region, neighborCandidate)){
                     r.addAdjacentRegion(neighborCandidate.getId());
                 }
@@ -56,13 +56,13 @@ public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndire
      * @see com.google.gson.JsonDeserializer#deserialize(com.google.gson.JsonElement, java.lang.reflect.Type, com.google.gson.JsonDeserializationContext)
      */
     @Override
-    public UnmodifiableUndirectedGraph<MRMRegionsMap.Region, DefaultEdge> deserialize(JsonElement json, Type typeOfT,
-                                                                                      JsonDeserializationContext context) throws JsonParseException {
+    public UnmodifiableUndirectedGraph<MRVMRegionsMap.Region, DefaultEdge> deserialize(JsonElement json, Type typeOfT,
+                                                                                       JsonDeserializationContext context) throws JsonParseException {
         
         JsonArray jsonArray = json.getAsJsonArray();
         Set<SerializedRegion> serializedRegions = new HashSet<>();
-        Map<Integer, MRMRegionsMap.Region> regionsById = new HashMap<>();
-        SimpleGraph<MRMRegionsMap.Region, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
+        Map<Integer, MRVMRegionsMap.Region> regionsById = new HashMap<>();
+        SimpleGraph<MRVMRegionsMap.Region, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
         for(int i = 0; i < jsonArray.size(); i++){
            JsonElement regionElement = jsonArray.get(i);
            SerializedRegion r = context.deserialize(regionElement, SerializedRegion.class);
@@ -83,10 +83,10 @@ public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndire
 
     public static class SerializedRegion{
         
-        private final MRMRegionsMap.Region node;
+        private final MRVMRegionsMap.Region node;
         private final SortedSet<Integer> neighbors;
 
-        public SerializedRegion(MRMRegionsMap.Region node){
+        public SerializedRegion(MRVMRegionsMap.Region node){
             this.node = node;
             neighbors = new TreeSet<>();
         }
@@ -95,7 +95,7 @@ public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndire
             this.neighbors.add(id);
         }
 
-        public MRMRegionsMap.Region getNode() {
+        public MRVMRegionsMap.Region getNode() {
             return node;
         }
 

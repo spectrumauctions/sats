@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.bm.bvm.BaseValueModel;
+import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 
 /**
  * @author Michael Weiss
@@ -42,11 +42,8 @@ public final class BVMModelCreator extends ModelCreator{
 
         public int numberOfBidders;
 
-        /**
-         * @param lang
-         */
         public Builder() {
-            super(BiddingLanguage.SIZE_DECREASING);
+            super();
             this.numberOfBidders = new BaseValueModel().getNumberOfBidders();
         }
 
