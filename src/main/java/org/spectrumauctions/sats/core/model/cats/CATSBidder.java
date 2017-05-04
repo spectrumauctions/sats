@@ -1,13 +1,11 @@
 package org.spectrumauctions.sats.core.model.cats;
 
-import org.spectrumauctions.sats.core.model.World;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
+import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import com.google.common.base.Preconditions;
@@ -67,7 +65,9 @@ public final class CATSBidder extends Bidder<CATSLicense> {
         } else if (clazz.isAssignableFrom(DecreasingSizeOrderedXOR.class)) {
             return clazz.cast(
                     new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
-        } else {
+        } else if (GenericLang.class.isAssignableFrom(clazz)) {
+            throw new IncompatibleBiddingLanguageException("CATS is not suitable for XOR-Q, as it doesn't have generic items");
+        }else{
             throw new UnsupportedBiddingLanguageException();
         }
     }

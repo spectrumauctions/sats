@@ -7,6 +7,7 @@ package org.spectrumauctions.sats.core.api;
 
 import org.spectrumauctions.sats.core.bidlang.generic.BidderSpecificGeneric;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
+import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.BidderSpecificXOR;
@@ -48,7 +49,7 @@ public enum BiddingLanguage {
         }else if(type == SIZE_DECREASING){
             return GenericPowersetDecreasing.class;
         }else if(type == RANDOM){
-            throw new IllegalConfigException("Random Iterator of generic bids not yet implemented");
+            return XORQRandomOrderSimple.class;
         }else if(type == BiddingLanguage.BIDDER_SPECIFIC){
             return BidderSpecificGeneric.class;
         }else{
