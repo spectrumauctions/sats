@@ -18,14 +18,14 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
  */
 public class MultiRegionModel extends DefaultModel<MRVMWorld, MRVMBidder> {
    
-    private MRVMWorldSetup.MRMWorldSetupBuilder worldBuilder;
+    private MRVMWorldSetup.MRVMWorldSetupBuilder worldBuilder;
     private MRVMLocalBidderSetup.Builder localBidderBuilder;
     private MRVMRegionalBidderSetup.Builder regionalBidderBuilder;
     private MRVMNationalBidderSetup.Builder nationalBidderBuilder;
 
     public MultiRegionModel() {
         super();
-        this.worldBuilder = new MRVMWorldSetup.MRMWorldSetupBuilder();
+        this.worldBuilder = new MRVMWorldSetup.MRVMWorldSetupBuilder();
         this.localBidderBuilder = new MRVMLocalBidderSetup.Builder();
         this.regionalBidderBuilder = new MRVMRegionalBidderSetup.Builder();
         this.nationalBidderBuilder = new MRVMNationalBidderSetup.Builder();

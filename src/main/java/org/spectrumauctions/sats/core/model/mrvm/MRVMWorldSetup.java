@@ -42,7 +42,7 @@ public final class MRVMWorldSetup {
     private final UndirectedGraph<RegionSetup, DefaultEdge> predefinedGraph;
 
 
-    private MRVMWorldSetup(MRMWorldSetupBuilder builder) {
+    private MRVMWorldSetup(MRVMWorldSetupBuilder builder) {
         super();
         this.bandSetups = ImmutableMap.copyOf(builder.bandSetups);
         this.numberOfRegionsInterval = builder.numberOfRegionsInterval;
@@ -190,7 +190,7 @@ public final class MRVMWorldSetup {
 
     }
 
-    public static class MRMWorldSetupBuilder{
+    public static class MRVMWorldSetupBuilder {
 
 
 
@@ -207,11 +207,7 @@ public final class MRVMWorldSetup {
         private final Map<String, BandSetup> bandSetups;       
 
 
-        /**
-         * @param bandSetups
-         * @param graphStructure
-         */
-        public MRMWorldSetupBuilder() {
+        public MRVMWorldSetupBuilder() {
             super();
             this.bandSetups = new HashMap<>();
             this.usePredefinedGraph = true;

@@ -23,7 +23,7 @@ import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 public class MRMSimpleWorldGen {
 
     static MRVMWorldSetup getSimpleWorldBuilder(){
-        MRVMWorldSetup.MRMWorldSetupBuilder builder = new MRVMWorldSetup.MRMWorldSetupBuilder();
+        MRVMWorldSetup.MRVMWorldSetupBuilder builder = new MRVMWorldSetup.MRVMWorldSetupBuilder();
         builder.createGraphRandomly(new IntegerInterval(5), new IntegerInterval(2), 100, 0);
         List<MRVMWorldSetup.BandSetup> setups = new ArrayList<>(builder.bandSetups().values());
         for(MRVMWorldSetup.BandSetup bandSetup : setups ){
