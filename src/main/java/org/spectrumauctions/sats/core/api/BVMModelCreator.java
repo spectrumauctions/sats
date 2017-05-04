@@ -46,7 +46,7 @@ public final class BVMModelCreator extends ModelCreator{
          * @param lang
          */
         public Builder() {
-            super(BiddingLanguage.SIZE_DECREASING);
+            super();
             this.numberOfBidders = new BaseValueModel().getNumberOfBidders();
         }
 
