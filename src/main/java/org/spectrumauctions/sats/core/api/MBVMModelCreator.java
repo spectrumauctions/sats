@@ -45,11 +45,8 @@ public class MBVMModelCreator extends ModelCreator {
         
         public int numberOfBidders;
 
-        /**
-         * @param lang
-         */
         public Builder() {
-            super(BiddingLanguage.SIZE_DECREASING);
+            super();
             this.numberOfBidders = new MultiBandValueModel().getNumberOfBidders();
         }
 

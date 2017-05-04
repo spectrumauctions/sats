@@ -1,6 +1,6 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.api;
@@ -21,13 +21,14 @@ import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.DefaultModel;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 
 /**
  * @author Michael Weiss
  *
  */
 public abstract class ModelCreator {
-        
+
     private final boolean oneFile;
     private final FileType fileType;
     private final boolean generic;
@@ -74,7 +75,7 @@ public abstract class ModelCreator {
         return worldSeed;
     }
 
-   
+
     public long getPopulationSeed() {
         return populationSeed;
     }
@@ -84,79 +85,82 @@ public abstract class ModelCreator {
     }
 
     public abstract PathResult generateResult(File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException;
-    
-    protected PathResult appendTopLevelParamsAndSolve(DefaultModel<?, ?> model, File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException{
-        
+
+    protected PathResult appendTopLevelParamsAndSolve(DefaultModel<?, ?> model, File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException {
+
         Collection<? extends Bidder<? extends Good>> bidders;
-        if(seedType == SeedType.INDIVIDUALSEED){
+        if (seedType == SeedType.INDIVIDUALSEED) {
             bidders = model.createNewPopulation(worldSeed, populationSeed);
-        }else if(seedType == SeedType.NOSEED){
+        } else if (seedType == SeedType.NOSEED) {
             bidders = model.createNewPopulation();
-        }else if(seedType == SeedType.SUPERSEED){
+        } else if (seedType == SeedType.SUPERSEED) {
             bidders = model.createNewPopulation(superSeed);
-        }else{
+        } else {
             throw new IllegalConfigException("Seed type unknown");
         }
         FileWriter writer = FileType.getFileWriter(fileType, outputFolder);
-       
+
+        FilePathUtils filePathUtils = FilePathUtils.getInstance();
+        File instanceFolder = filePathUtils.worldFolderPath(bidders.stream().findAny().get().getWorldId());
+        PathResult result;
         if(generic){
             @SuppressWarnings("unchecked")
             Class<? extends GenericLang<GenericDefinition>> langClass = (Class<? extends GenericLang<GenericDefinition>>) BiddingLanguage.getXORQLanguage(lang);
-            if(oneFile){
+            if (oneFile) {
                 Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
-                for(Bidder<? extends Good> bidder : bidders){
+                for (Bidder<? extends Good> bidder : bidders) {
                     languages.add(bidder.getValueFunction(langClass));
                 }
                 File valueFile =  writer.writeMultiBidderXORQ(languages, bidsPerBidder, "satsvalue");
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(valueFile);
                 return result;
-            }else{
+            } else {
                 Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
                 String zipId = String.valueOf(new Date().getTime());
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();
-                for(Bidder<? extends Good> bidder : bidders){
+                for (Bidder<? extends Good> bidder : bidders) {
                     GenericLang<GenericDefinition> valueFunction = bidder.getValueFunction(langClass);
                     writer.writeSingleBidderXORQ(valueFunction, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
                 }
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(folder);
                 return result;
             }
-        }else{
+        } else {
             @SuppressWarnings("unchecked")
             Class<? extends XORLanguage<Good>> langClass = (Class<? extends XORLanguage<Good>>) BiddingLanguage.getXORLanguage(lang);
-            if(oneFile){
+            if (oneFile) {
                 Collection<XORLanguage<Good>> languages = new ArrayList<>();
-                for(Bidder<? extends Good> bidder : bidders){
+                for (Bidder<? extends Good> bidder : bidders) {
                     XORLanguage<Good> language = bidder.getValueFunction(langClass);
                     languages.add(language);
                 }
                 File valueFile =  writer.writeMultiBidderXOR(languages, bidsPerBidder, "satsvalue");
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(valueFile);
                 return result;
-            }else{
+            } else {
                 Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
                 String zipId = String.valueOf(new Date().getTime());
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();
-                for(Bidder<? extends Good> bidder : bidders){
+                for (Bidder<? extends Good> bidder : bidders) {
                     XORLanguage<Good> language = bidder.getValueFunction(langClass);
                     writer.writeSingleBidderXOR(language, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
                 }
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(folder);
                 return result;
             }
         }
     }
-    
-    
+
+
     public static abstract class Builder {
 
-        private  BiddingLanguage lang;
+        private BiddingLanguage lang;
         private boolean storeWorldSerialization;
         private long populationSeed;
         private long superSeed;
@@ -167,8 +171,8 @@ public abstract class ModelCreator {
         private FileType fileType;
         private boolean oneFile;
 
-        public Builder(BiddingLanguage lang) {
-            this.lang = lang;
+        public Builder() {
+            this.lang = BiddingLanguage.RANDOM;
             storeWorldSerialization = false;
             seedType = SeedType.NOSEED;
             bidsPerBidder = 100;
@@ -176,7 +180,7 @@ public abstract class ModelCreator {
             fileType = FileType.CATS;
             oneFile = true;
         }
-        
+
         public abstract ModelCreator build();
 
         public boolean isStoreWorldSerialization() {
@@ -184,7 +188,7 @@ public abstract class ModelCreator {
         }
 
         public void setStoreWorldSerialization(boolean storeWorldSerialization) {
-            if(storeWorldSerialization){
+            if (storeWorldSerialization) {
                 throw new UnsupportedOperationException("Storing through API not yet supported");
             }
             this.storeWorldSerialization = storeWorldSerialization;
@@ -223,9 +227,9 @@ public abstract class ModelCreator {
         }
 
         public void setBidsPerBidder(int bidsPerBidder) throws IllegalConfigException {
-            try{
+            try {
                 Preconditions.checkArgument(bidsPerBidder > 0, "%s is not a valid number of bids per bidder", bidsPerBidder);
-            }catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 throw new IllegalConfigException(e.getMessage());
             }
             this.bidsPerBidder = bidsPerBidder;
