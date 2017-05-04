@@ -3,15 +3,16 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.mrm;
+package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.generic.Band;
-import org.spectrumauctions.sats.core.model.mrm.MRMBand;
-import org.spectrumauctions.sats.core.model.mrm.MRMBidder;
-import org.spectrumauctions.sats.core.model.mrm.MRMRegionsMap.Region;
-import org.spectrumauctions.sats.core.model.mrm.MRMWorld;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
 import org.spectrumauctions.sats.opt.imip.PartialMIP;
 
 import java.util.*;
@@ -28,13 +29,13 @@ public class WorldPartialMip extends PartialMIP {
     public final static String xVariablePrefix = "X_";
     public final static String valueVariablePrefix = "v_";
 
-    private final Map<MRMBidder, Map<Region, Map<Band, Variable>>> xVariables;
-    private final Map<MRMBidder, Variable> valueVariables;
+    private final Map<MRVMBidder, Map<MRVMRegionsMap.Region, Map<Band, Variable>>> xVariables;
+    private final Map<MRVMBidder, Variable> valueVariables;
 
     private final double biggestPossibleValue;
 
-    private final Set<MRMBidder> bidders;
-    private final MRMWorld world;
+    private final Set<MRVMBidder> bidders;
+    private final MRVMWorld world;
     private final double scalingFactor;
 
     /**
@@ -42,7 +43,7 @@ public class WorldPartialMip extends PartialMIP {
      * @param biggestPossibleValue The highest (already scaled) value any bidder could have
      * @param scalingFactor
      */
-    WorldPartialMip(Collection<MRMBidder> bidders2, double biggestPossibleValue, double scalingFactor) {
+    WorldPartialMip(Collection<MRVMBidder> bidders2, double biggestPossibleValue, double scalingFactor) {
         super();
         Preconditions.checkNotNull(bidders2);
         Preconditions.checkArgument(bidders2.size() > 0);
@@ -63,11 +64,11 @@ public class WorldPartialMip extends PartialMIP {
     private Set<Constraint> createNumberOfLicensesConstraints() {
         Set<Constraint> result = new HashSet<>();
         //TODO Replace with faster implementation, possibly change key-ordering of xVariables
-        for (MRMBand band : world.getBands()) {
+        for (MRVMBand band : world.getBands()) {
             int lots = band.getNumberOfLots();
             for (Region region : world.getRegionsMap().getRegions()) {
                 Constraint numberOfLotsConstraint = new Constraint(CompareType.LEQ, lots);
-                for (MRMBidder bidder : bidders) {
+                for (MRVMBidder bidder : bidders) {
                     Variable xVar = getXVariable(bidder, region, band);
                     numberOfLotsConstraint.addTerm(1, xVar);
                 }
@@ -78,9 +79,9 @@ public class WorldPartialMip extends PartialMIP {
 
     }
 
-    private Map<MRMBidder, Variable> initValueVariables() {
-        Map<MRMBidder, Variable> result = new HashMap<>();
-        for (MRMBidder bidder : bidders) {
+    private Map<MRVMBidder, Variable> initValueVariables() {
+        Map<MRVMBidder, Variable> result = new HashMap<>();
+        for (MRVMBidder bidder : bidders) {
             String varName = new StringBuilder(valueVariablePrefix)
                     .append("_")
                     .append(bidder.getId())
@@ -91,14 +92,14 @@ public class WorldPartialMip extends PartialMIP {
         return Collections.unmodifiableMap(result);
     }
 
-    private Map<MRMBidder, Map<Region, Map<Band, Variable>>> initXVariables() {
-        Map<MRMBidder, Map<Region, Map<Band, Variable>>> result = new HashMap<>();
+    private Map<MRVMBidder, Map<Region, Map<Band, Variable>>> initXVariables() {
+        Map<MRVMBidder, Map<Region, Map<Band, Variable>>> result = new HashMap<>();
 
-        for (MRMBidder bidder : bidders) {
+        for (MRVMBidder bidder : bidders) {
             Map<Region, Map<Band, Variable>> biddersMap = new HashMap<>();
             for (Region region : world.getRegionsMap().getRegions()) {
                 Map<Band, Variable> bandMap = new HashMap<>();
-                for (MRMBand band : world.getBands()) {
+                for (MRVMBand band : world.getBands()) {
                     String varName = xVariablePrefix.concat(BidderPartialMIP.createIndex(bidder, region, band));
                     Variable var = new Variable(varName, VarType.INT, 0, band.getNumberOfLots());
                     bandMap.put(band, var);
@@ -161,7 +162,7 @@ public class WorldPartialMip extends PartialMIP {
     /**
      * @throws NullPointerException if the requested variable is not stored.
      */
-    public Variable getXVariable(MRMBidder bidder, Region region, MRMBand band) {
+    public Variable getXVariable(MRVMBidder bidder, Region region, MRVMBand band) {
         Variable var = xVariables.get(bidder).get(region).get(band);
         if (var == null) {
             throw new NullPointerException();
@@ -170,7 +171,7 @@ public class WorldPartialMip extends PartialMIP {
     }
 
 
-    public Variable getValueVariable(MRMBidder bidder) {
+    public Variable getValueVariable(MRVMBidder bidder) {
         Variable var = valueVariables.get(bidder);
         if (var == null) {
             throw new NullPointerException();

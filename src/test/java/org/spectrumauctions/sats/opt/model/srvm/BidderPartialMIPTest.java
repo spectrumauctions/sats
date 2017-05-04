@@ -1,4 +1,4 @@
-package org.spectrumauctions.sats.opt.model.srm;
+package org.spectrumauctions.sats.opt.model.srvm;
 
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
@@ -6,7 +6,7 @@ import edu.harvard.econcs.jopt.solver.mip.*;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.srm.*;
+import org.spectrumauctions.sats.core.model.srvm.*;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.opt.imip.PartialMIP;
@@ -19,46 +19,46 @@ import java.util.Map.Entry;
  */
 public class BidderPartialMIPTest {
 
-    private static Map<SRMBidder, SRMBidderPartialMIP> singleBandSingleBidderPartialMips;
-    private static Map<SRMBidder, SRMBidderPartialMIP> singleBidderPartialMips;
-    private static Map<SRMBidder, SRMBidderPartialMIP> singleBandPartialMips;
-    private static Map<SRMBidder, SRMBidderPartialMIP> singleBandTenBiddersPrtialMips;
-    private static Map<SRMBidder, SRMBidderPartialMIP> standardBidderPartialMips;
+    private static Map<SRVMBidder, SRVMBidderPartialMIP> singleBandSingleBidderPartialMips;
+    private static Map<SRVMBidder, SRVMBidderPartialMIP> singleBidderPartialMips;
+    private static Map<SRVMBidder, SRVMBidderPartialMIP> singleBandPartialMips;
+    private static Map<SRVMBidder, SRVMBidderPartialMIP> singleBandTenBiddersPrtialMips;
+    private static Map<SRVMBidder, SRVMBidderPartialMIP> standardBidderPartialMips;
 
     /**
      * @throws java.lang.Exception
      */
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        Set<SRMBidderSetup> setups = SRMWorldGen.getSimpleSmallBidderSetup(1);
+        Set<SRVMBidderSetup> setups = SRVMWorldGen.getSimpleSmallBidderSetup(1);
         // Single band, single bidder
-        singleBandSingleBidderPartialMips = createBidderPartialMIPs(SRMWorldGen.getSingleBandWorldSetup(), setups);
+        singleBandSingleBidderPartialMips = createBidderPartialMIPs(SRVMWorldGen.getSingleBandWorldSetup(), setups);
         // Standard world, single bidder
-        singleBidderPartialMips = createBidderPartialMIPs(SRMWorldGen.getStandardWorldBuilder(), setups);
+        singleBidderPartialMips = createBidderPartialMIPs(SRVMWorldGen.getStandardWorldBuilder(), setups);
         // Single band
-        singleBandPartialMips = createBidderPartialMIPs(SRMWorldGen.getSingleBandWorldSetup(), SRMWorldGen.getStandardBidderSetups());
+        singleBandPartialMips = createBidderPartialMIPs(SRVMWorldGen.getSingleBandWorldSetup(), SRVMWorldGen.getStandardBidderSetups());
         // Single band, three bidders
-        singleBandTenBiddersPrtialMips = createBidderPartialMIPs(SRMWorldGen.getSingleBandWorldSetup(), SRMWorldGen.getSimpleSmallBidderSetup(10));
+        singleBandTenBiddersPrtialMips = createBidderPartialMIPs(SRVMWorldGen.getSingleBandWorldSetup(), SRVMWorldGen.getSimpleSmallBidderSetup(10));
         // Standard world
-        standardBidderPartialMips = createBidderPartialMIPs(SRMWorldGen.getStandardWorldBuilder(), SRMWorldGen.getStandardBidderSetups());
+        standardBidderPartialMips = createBidderPartialMIPs(SRVMWorldGen.getStandardWorldBuilder(), SRVMWorldGen.getStandardBidderSetups());
     }
 
-    private static Map<SRMBidder, SRMBidderPartialMIP> createBidderPartialMIPs(SRMWorldSetup worldSetup, Set<SRMBidderSetup> bidderSetups) {
+    private static Map<SRVMBidder, SRVMBidderPartialMIP> createBidderPartialMIPs(SRVMWorldSetup worldSetup, Set<SRVMBidderSetup> bidderSetups) {
         // Standard world, single bidder
-        SRMWorld standardWorld = new SRMWorld(worldSetup, new JavaUtilRNGSupplier(153578351L));
-        List<SRMBidder> bidders = standardWorld.createPopulation(bidderSetups, new JavaUtilRNGSupplier(15434684L));
-        double scalingFactor = SRM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = SRM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        SRMWorldPartialMip worldPartialMip = new SRMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
-        Map<SRMBidder, SRMBidderPartialMIP> bidderPartialMIPs = new HashMap<>();
-        for (SRMBidder bidder : bidders) {
-            bidderPartialMIPs.put(bidder, new SRMBidderPartialMIP(bidder, worldPartialMip));
+        SRVMWorld standardWorld = new SRVMWorld(worldSetup, new JavaUtilRNGSupplier(153578351L));
+        List<SRVMBidder> bidders = standardWorld.createPopulation(bidderSetups, new JavaUtilRNGSupplier(15434684L));
+        double scalingFactor = SRVM_MIP.calculateScalingFactor(bidders);
+        double biggestScaledValue = SRVM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        SRVMWorldPartialMip worldPartialMip = new SRVMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        Map<SRVMBidder, SRVMBidderPartialMIP> bidderPartialMIPs = new HashMap<>();
+        for (SRVMBidder bidder : bidders) {
+            bidderPartialMIPs.put(bidder, new SRVMBidderPartialMIP(bidder, worldPartialMip));
         }
         return bidderPartialMIPs;
     }
 
     /**
-     * Test method for {@link SRMBidderPartialMIP#generatezConstraints()}.
+     * Test method for {@link SRVMBidderPartialMIP#generatezConstraints()}.
      */
     @Test
     public void testZConstraintsSetups() {
@@ -75,16 +75,16 @@ public class BidderPartialMIPTest {
         testWConstraints(singleBandPartialMips);
     }
 
-    private void testWConstraints(Map<SRMBidder, SRMBidderPartialMIP> bidderPartialMips) {
-        SRMWorldPartialMip worldPartialMip = bidderPartialMips.values().stream().findFirst().get().worldPartialMip;
+    private void testWConstraints(Map<SRVMBidder, SRVMBidderPartialMIP> bidderPartialMips) {
+        SRVMWorldPartialMip worldPartialMip = bidderPartialMips.values().stream().findFirst().get().worldPartialMip;
         MIP mip = new MIP();
         worldPartialMip.appendVariablesToMip(mip);
         worldPartialMip.appendConstraintsToMip(mip);
         mip.setObjectiveMax(true);
 
-        for (Map.Entry<SRMBidder, SRMBidderPartialMIP> entry : bidderPartialMips.entrySet()) {
-            SRMBidder bidder = entry.getKey();
-            SRMBidderPartialMIP bidderPartialMIP = entry.getValue();
+        for (Map.Entry<SRVMBidder, SRVMBidderPartialMIP> entry : bidderPartialMips.entrySet()) {
+            SRVMBidder bidder = entry.getKey();
+            SRVMBidderPartialMIP bidderPartialMIP = entry.getValue();
             bidderPartialMIP.appendVariablesToMip(mip);
 
             addConstraints(mip, bidderPartialMIP.generatezConstraints(), false);
@@ -94,7 +94,7 @@ public class BidderPartialMIPTest {
             addConstraints(mip, bidderPartialMIP.generatePiecewiseLinearFunctionConstraints());
             mip.addObjectiveTerm(1, bidderPartialMIP.getwVariable());
 
-            for (SRMBand band : bidder.getWorld().getBands()) {
+            for (SRVMBand band : bidder.getWorld().getBands()) {
                 mip.addObjectiveTerm(1, bidderPartialMIP.getzVariable(band));
             }
         }
@@ -104,10 +104,10 @@ public class BidderPartialMIPTest {
         IMIPResult result = solverClient.solve(mip);
 
         // Test w values
-        for (Entry<SRMBidder, SRMBidderPartialMIP> partialMip : bidderPartialMips.entrySet()) {
-            SRMBidder bidder = partialMip.getKey();
+        for (Entry<SRVMBidder, SRVMBidderPartialMIP> partialMip : bidderPartialMips.entrySet()) {
+            SRVMBidder bidder = partialMip.getKey();
             int count = 0;
-            for (SRMBand band : bidder.getWorld().getBands()) {
+            for (SRVMBand band : bidder.getWorld().getBands()) {
                 Variable zVar = partialMip.getValue().getzVariable(band);
                 if (result.getValue(zVar) == 1.0) count++;
             }
@@ -117,17 +117,17 @@ public class BidderPartialMIPTest {
         }
     }
 
-    private void testZConstraints(Map<SRMBidder, SRMBidderPartialMIP> bidderPartialMips, int falseZ) {
+    private void testZConstraints(Map<SRVMBidder, SRVMBidderPartialMIP> bidderPartialMips, int falseZ) {
         PreconditionUtils.checkNotNegative(falseZ);
-        SRMWorldPartialMip worldPartialMip = bidderPartialMips.values().stream().findFirst().get().worldPartialMip;
+        SRVMWorldPartialMip worldPartialMip = bidderPartialMips.values().stream().findFirst().get().worldPartialMip;
         MIP mip = new MIP();
         worldPartialMip.appendVariablesToMip(mip);
         worldPartialMip.appendConstraintsToMip(mip);
         mip.setObjectiveMax(true);
 
-        for (Map.Entry<SRMBidder, SRMBidderPartialMIP> entry : bidderPartialMips.entrySet()) {
-            SRMBidder bidder = entry.getKey();
-            SRMBidderPartialMIP bidderPartialMIP = entry.getValue();
+        for (Map.Entry<SRVMBidder, SRVMBidderPartialMIP> entry : bidderPartialMips.entrySet()) {
+            SRVMBidder bidder = entry.getKey();
+            SRVMBidderPartialMIP bidderPartialMIP = entry.getValue();
             bidderPartialMIP.appendVariablesToMip(mip);
 
             addConstraints(mip, bidderPartialMIP.generatezConstraints(), false);
@@ -136,7 +136,7 @@ public class BidderPartialMIPTest {
             addConstraints(mip, bidderPartialMIP.generateInterBandSynergyConstraints(), true);
             addConstraints(mip, bidderPartialMIP.generatePiecewiseLinearFunctionConstraints());
 
-            for (SRMBand band : bidder.getWorld().getBands()) {
+            for (SRVMBand band : bidder.getWorld().getBands()) {
                 mip.addObjectiveTerm(1, bidderPartialMIP.getzVariable(band));
             }
         }
@@ -149,9 +149,9 @@ public class BidderPartialMIPTest {
         boolean noAssertions = true;
         int totalZ = 0;
         int possibleZ = 0;
-        for (Entry<SRMBidder, SRMBidderPartialMIP> partialMip : bidderPartialMips.entrySet()) {
-            SRMBidder bidder = partialMip.getKey();
-            for (SRMBand band : bidder.getWorld().getBands()) {
+        for (Entry<SRVMBidder, SRVMBidderPartialMIP> partialMip : bidderPartialMips.entrySet()) {
+            SRVMBidder bidder = partialMip.getKey();
+            for (SRVMBand band : bidder.getWorld().getBands()) {
                 possibleZ++;
                 Variable var = partialMip.getValue().getzVariable(band);
                 double value = result.getValue(var);

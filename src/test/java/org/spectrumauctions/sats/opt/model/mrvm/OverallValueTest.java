@@ -3,7 +3,7 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.mrm;
+package org.spectrumauctions.sats.opt.model.mrvm;
 
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
@@ -12,7 +12,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.mrm.*;
+import org.spectrumauctions.sats.core.model.mrvm.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,11 +30,11 @@ public class OverallValueTest {
     @Test
     @Ignore
     public void mipValuesEqualSATSValues() {
-        List<MRMBidder> bidders = new MultiRegionModel().createNewPopulation();
-        MRM_MIP mip = new MRM_MIP(bidders);
+        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation();
+        MRVM_MIP mip = new MRVM_MIP(bidders);
         MipResult result = mip.calculateAllocation();
-        for (MRMBidder bidder : bidders) {
-            GenericValue<MRMGenericDefinition> outcomeVal = result.getAllocation(bidder);
+        for (MRVMBidder bidder : bidders) {
+            GenericValue<MRVMGenericDefinition> outcomeVal = result.getAllocation(bidder);
             BigDecimal satsVal = bidder.calculateValue(outcomeVal.getQuantities());
             assertAuxiliaryVariables(outcomeVal, result.getJoptResult(), bidder, mip);
             Assert.assertEquals(satsVal.doubleValue(), outcomeVal.getValue().doubleValue(), 0.1);
@@ -42,26 +42,26 @@ public class OverallValueTest {
     }
 
 
-    private void assertAuxiliaryVariables(GenericValue<MRMGenericDefinition> val, IMIPResult imipResult, MRMBidder bidder, MRM_MIP mrm_mip) {
-        for (MRMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
-            for (MRMBand band : bidder.getWorld().getBands()) {
+    private void assertAuxiliaryVariables(GenericValue<MRVMGenericDefinition> val, IMIPResult imipResult, MRVMBidder bidder, MRVM_MIP mrvm_mip) {
+        for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
+            for (MRVMBand band : bidder.getWorld().getBands()) {
                 //Check transformation to allocation is correct
                 int anyBundleSize = val.anyConsistentBundle().size();
                 Assert.assertEquals(val.getSize(), anyBundleSize);
-                Variable xVariable = mrm_mip.getWorldPartialMip().getXVariable(bidder, region, band);
+                Variable xVariable = mrvm_mip.getWorldPartialMip().getXVariable(bidder, region, band);
                 double xVarValue = imipResult.getValue(xVariable);
-                Assert.assertEquals(xVarValue, val.getQuantity(new MRMGenericDefinition(band, region)), 0.001);
+                Assert.assertEquals(xVarValue, val.getQuantity(new MRVMGenericDefinition(band, region)), 0.001);
             }
         }
-        for (MRMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
+        for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
             //Check c variables
-            BigDecimal c = MRMWorld.c(region, (Bundle<MRMLicense>) val.anyConsistentBundle());
-            Variable cVariable = mrm_mip.getBidderPartialMips().get(bidder).getCVariable(region);
+            BigDecimal c = MRVMWorld.c(region, (Bundle<MRVMLicense>) val.anyConsistentBundle());
+            Variable cVariable = mrvm_mip.getBidderPartialMips().get(bidder).getCVariable(region);
             double mipC = imipResult.getValue(cVariable);
             Assert.assertEquals(c.doubleValue(), mipC, 0.0001);
             //Check SV variable
             BigDecimal sv = bidder.svFunction(region, c);
-            Variable svVariable = mrm_mip.getBidderPartialMips().get(bidder).getSVVariable(region);
+            Variable svVariable = mrvm_mip.getBidderPartialMips().get(bidder).getSVVariable(region);
             double mipSV = imipResult.getValue(svVariable);
             Assert.assertEquals(sv.doubleValue(), mipSV, 0.0001);
 
