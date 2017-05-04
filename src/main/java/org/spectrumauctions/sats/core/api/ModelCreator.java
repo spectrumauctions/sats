@@ -21,6 +21,7 @@ import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.DefaultModel;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 
 /**
  * @author Michael Weiss
@@ -98,7 +99,10 @@ public abstract class ModelCreator {
             throw new IllegalConfigException("Seed type unknown");
         }
         FileWriter writer = FileType.getFileWriter(fileType, outputFolder);
-       
+
+        FilePathUtils filePathUtils = FilePathUtils.getInstance();
+        File instanceFolder = filePathUtils.worldFolderPath(bidders.stream().findAny().get().getWorldId());
+        PathResult result;
         if(generic){
             @SuppressWarnings("unchecked")
             Class<? extends GenericLang<GenericDefinition>> langClass = (Class<? extends GenericLang<GenericDefinition>>) BiddingLanguage.getXORQLanguage(lang);
@@ -108,7 +112,7 @@ public abstract class ModelCreator {
                     languages.add(bidder.getValueFunction(langClass));
                 }
                 File valueFile =  writer.writeMultiBidderXORQ(languages, bidsPerBidder, "satsvalue");
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(valueFile);
                 return result;
             }else{
@@ -120,7 +124,7 @@ public abstract class ModelCreator {
                     GenericLang<GenericDefinition> valueFunction = bidder.getValueFunction(langClass);
                     writer.writeSingleBidderXORQ(valueFunction, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
                 }
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(folder);
                 return result;
             }
@@ -134,7 +138,7 @@ public abstract class ModelCreator {
                     languages.add(language);
                 }
                 File valueFile =  writer.writeMultiBidderXOR(languages, bidsPerBidder, "satsvalue");
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(valueFile);
                 return result;
             }else{
@@ -146,7 +150,7 @@ public abstract class ModelCreator {
                     XORLanguage<Good> language = bidder.getValueFunction(langClass);
                     writer.writeSingleBidderXOR(language, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
                 }
-                PathResult result = new PathResult(storeWorldSerialization, null);
+                result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(folder);
                 return result;
             }
