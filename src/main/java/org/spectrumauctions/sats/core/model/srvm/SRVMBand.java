@@ -25,32 +25,32 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
  * @author Michael Weiss
  *
  */
-public final class SRMBand extends Band implements GenericDefinition {
+public final class SRVMBand extends Band implements GenericDefinition {
     
-    private final List<SRMLicense> licenses;
+    private final List<SRVMLicense> licenses;
     private final long worldId;
     
-    private transient SRMWorld world;
+    private transient SRVMWorld world;
     
     //package-private 
-    static Set<SRMBand> createBands(SRMWorld world, SRMWorldSetup setup, RNGSupplier rngSupplier){
-        Set<SRMBand> bands = new HashSet<>();
+    static Set<SRVMBand> createBands(SRVMWorld world, SRVMWorldSetup setup, RNGSupplier rngSupplier){
+        Set<SRVMBand> bands = new HashSet<>();
         int startId = 0;
         for(Entry<String, Integer> bandDefinition : setup.defineBands(rngSupplier).entrySet()){
-            bands.add(new SRMBand(bandDefinition.getKey(), world, bandDefinition.getValue(), startId));
+            bands.add(new SRVMBand(bandDefinition.getKey(), world, bandDefinition.getValue(), startId));
             startId += bandDefinition.getValue();
         }
         Preconditions.checkArgument(bands.size() != 0, "WorldSetup has to define at least one band");
         return bands;
     }
     
-    private SRMBand (String name, SRMWorld world, int numberOfLicenses, int startId){
+    private SRVMBand(String name, SRVMWorld world, int numberOfLicenses, int startId){
         super(name);
         this.world = world;
         this.worldId = world.getId();
-        List<SRMLicense> builder = new ArrayList<>();
+        List<SRVMLicense> builder = new ArrayList<>();
         for(int i = 0; i < numberOfLicenses; i++){
-            builder.add(new SRMLicense(startId++, this));
+            builder.add(new SRVMLicense(startId++, this));
         }
         this.licenses = Collections.unmodifiableList(builder);
     }
@@ -58,12 +58,12 @@ public final class SRMBand extends Band implements GenericDefinition {
     /**
      * @return
      */
-    public SRMWorld getWorld() {
+    public SRVMWorld getWorld() {
         return world;
     }
     
   
-    public List<SRMLicense> getLicenses() {
+    public List<SRVMLicense> getLicenses() {
         return Collections.unmodifiableList(licenses);
     }
 
@@ -75,12 +75,12 @@ public final class SRMBand extends Band implements GenericDefinition {
 
 
     /**
-     * See {@link SRMWorld#refreshFieldBackReferences()} for purpose of this method
+     * See {@link SRVMWorld#refreshFieldBackReferences()} for purpose of this method
      */
-    void refreshFieldBackReferences(SRMWorld world) {
+    void refreshFieldBackReferences(SRVMWorld world) {
         Preconditions.checkArgument(world.getId() == this.worldId);
         this.world = world;
-        for(SRMLicense license : licenses){
+        for(SRVMLicense license : licenses){
             license.refreshFieldBackReferences(this);
         }
     }
@@ -102,7 +102,7 @@ public final class SRMBand extends Band implements GenericDefinition {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SRMBand other = (SRMBand) obj;
+        SRVMBand other = (SRVMBand) obj;
         if (licenses == null) {
             if (other.licenses != null)
                 return false;
@@ -131,11 +131,11 @@ public final class SRMBand extends Band implements GenericDefinition {
     public boolean isPartOf(Good license) {
         if(license == null){
             return false;
-        }else if (! (license instanceof SRMLicense)){
+        }else if (! (license instanceof SRVMLicense)){
             return false;
         }
-        SRMLicense srmLicense = (SRMLicense) license;
-        return srmLicense.getBand().equals(this);
+        SRVMLicense SRVMLicense = (SRVMLicense) license;
+        return SRVMLicense.getBand().equals(this);
     }
 
     /* (non-Javadoc)
@@ -150,7 +150,7 @@ public final class SRMBand extends Band implements GenericDefinition {
      * @see GenericDefinition#allLicenses()
      */
     @Override
-    public Set<SRMLicense> allLicenses() {
+    public Set<SRVMLicense> allLicenses() {
         return new HashSet<>(licenses);
     }
 

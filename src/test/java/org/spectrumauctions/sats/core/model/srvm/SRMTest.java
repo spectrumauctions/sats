@@ -25,9 +25,9 @@ public class SRMTest {
     @Test
     public void testNoRunimeException() throws UnsupportedBiddingLanguageException {
         SingleRegionModel model = new SingleRegionModel();
-        SRMBidder bidder = model.createNewPopulation(238472).iterator().next();
-        GenericLang<SRMBand> lang = bidder.getValueFunction(GenericSizeDecreasing.class);
-        Iterator<GenericValue<SRMBand>> iter = lang.iterator();
+        SRVMBidder bidder = model.createNewPopulation(238472).iterator().next();
+        GenericLang<SRVMBand> lang = bidder.getValueFunction(GenericSizeDecreasing.class);
+        Iterator<GenericValue<SRVMBand>> iter = lang.iterator();
         for(int i = 0; i < 50 && iter.hasNext(); i++){
             iter.next();
         }

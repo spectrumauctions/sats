@@ -22,8 +22,8 @@ import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
  */
 public class SizeOrderedGenericPowersetFactory {
 
-    public static GenericPowerset<SRMBand> getSizeOrderedGenericLang(boolean increasing, SRMBidder bidder) throws UnsupportedBiddingLanguageException{
-        List<SRMBand> bands = new ArrayList<>(bidder.getWorld().getBands());
+    public static GenericPowerset<SRVMBand> getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException{
+        List<SRVMBand> bands = new ArrayList<>(bidder.getWorld().getBands());
         if(increasing){
             return new Increasing(bands, bidder);
         }else{
@@ -31,15 +31,15 @@ public class SizeOrderedGenericPowersetFactory {
         }
     }
     
-    private static final class Increasing extends GenericPowersetIncreasing<SRMBand> {
+    private static final class Increasing extends GenericPowersetIncreasing<SRVMBand> {
 
-        private SRMBidder bidder;
+        private SRVMBidder bidder;
 
         /**
          * @param genericDefinitions
          * @throws UnsupportedBiddingLanguageException 
          */
-        protected Increasing(List<SRMBand> genericDefinitions, SRMBidder bidder) throws UnsupportedBiddingLanguageException {
+        protected Increasing(List<SRVMBand> genericDefinitions, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
             super(genericDefinitions);
             this.bidder = bidder;
         }
@@ -48,7 +48,7 @@ public class SizeOrderedGenericPowersetFactory {
          * @see BiddingLanguage#getBidder()
          */
         @Override
-        public SRMBidder getBidder() {
+        public SRVMBidder getBidder() {
             return bidder;
         }
 
@@ -56,21 +56,21 @@ public class SizeOrderedGenericPowersetFactory {
          * @see GenericPowerset#getGenericBidder()
          */
         @Override
-        protected GenericValueBidder<SRMBand> getGenericBidder() {
+        protected GenericValueBidder<SRVMBand> getGenericBidder() {
             return bidder;
         }
         
     }
     
-    private static final class Decreasing extends GenericPowersetDecreasing<SRMBand> {
+    private static final class Decreasing extends GenericPowersetDecreasing<SRVMBand> {
 
-        private SRMBidder bidder;
+        private SRVMBidder bidder;
 
         /**
          * @param genericDefinitions
          * @throws UnsupportedBiddingLanguageException 
          */
-        protected Decreasing(List<SRMBand> genericDefinitions, SRMBidder bidder) throws UnsupportedBiddingLanguageException {
+        protected Decreasing(List<SRVMBand> genericDefinitions, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
             super(genericDefinitions);
             this.bidder = bidder;
         }
@@ -87,7 +87,7 @@ public class SizeOrderedGenericPowersetFactory {
          * @see GenericPowerset#getGenericBidder()
          */
         @Override
-        protected GenericValueBidder<SRMBand> getGenericBidder() {
+        protected GenericValueBidder<SRVMBand> getGenericBidder() {
             return bidder;
         }
         

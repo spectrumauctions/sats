@@ -7,8 +7,8 @@ import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
-import org.spectrumauctions.sats.core.model.srvm.SRMBidder;
-import org.spectrumauctions.sats.core.model.srvm.SRMWorld;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -31,8 +31,8 @@ public class SimpleModelAccessorsExample {
     @Test
     public void exampleOne(){
         SingleRegionModel singleRegionModel = new SingleRegionModel();
-        SRMWorld world = singleRegionModel.createWorld();
-        List<SRMBidder> bidders = singleRegionModel.createPopulation(world);
+        SRVMWorld world = singleRegionModel.createWorld();
+        List<SRVMBidder> bidders = singleRegionModel.createPopulation(world);
         treatBidders(bidders);
     }
 
@@ -43,12 +43,12 @@ public class SimpleModelAccessorsExample {
     @Test
     public void exampleTwo(){
         SingleRegionModel singleRegionModel = new SingleRegionModel();
-        SRMWorld world = singleRegionModel.createWorld();
+        SRVMWorld world = singleRegionModel.createWorld();
         singleRegionModel.setNumberOfHighFrequencyBidders(1);
         singleRegionModel.setNumberOfPrimaryBidders(2);
         singleRegionModel.setNumberOfSecondaryBidders(0);
         singleRegionModel.setNumberOfSmallBidders(0);
-        List<SRMBidder> bidders = singleRegionModel.createPopulation(world);
+        List<SRVMBidder> bidders = singleRegionModel.createPopulation(world);
         treatBidders(bidders);
     }
 
@@ -59,9 +59,9 @@ public class SimpleModelAccessorsExample {
     public void exampleThree(){
         SingleRegionModel singleRegionModel = new SingleRegionModel();
         RNGSupplier rngSupplier1 = new JavaUtilRNGSupplier("MY SEED".hashCode());
-        SRMWorld world = singleRegionModel.createWorld(rngSupplier1);
+        SRVMWorld world = singleRegionModel.createWorld(rngSupplier1);
         RNGSupplier rngSupplier2 = new JavaUtilRNGSupplier("ANOTHER SEED".hashCode());
-        List<SRMBidder> bidders = singleRegionModel.createPopulation(world, rngSupplier2); //Note that we could also continue to use rngSupplier1
+        List<SRVMBidder> bidders = singleRegionModel.createPopulation(world, rngSupplier2); //Note that we could also continue to use rngSupplier1
         treatBidders(bidders);
     }
 

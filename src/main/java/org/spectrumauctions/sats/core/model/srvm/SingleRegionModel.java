@@ -15,28 +15,28 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
  * @author Michael Weiss
  *
  */
-public class SingleRegionModel extends DefaultModel<SRMWorld, SRMBidder> {
+public class SingleRegionModel extends DefaultModel<SRVMWorld, SRVMBidder> {
 
-    SRMWorldSetup.Builder worldSetupBuilder = new SRMWorldSetup.Builder();
-    SRMBidderSetup.SmallBidderBuilder smallBidderBuilder = new SRMBidderSetup.SmallBidderBuilder();
-    SRMBidderSetup.HighFrequenceBidderBuilder highFrequencyBuilder = new SRMBidderSetup.HighFrequenceBidderBuilder();
-    SRMBidderSetup.SecondaryBidderBuilder secondaryBidderBuilder = new SRMBidderSetup.SecondaryBidderBuilder();
-    SRMBidderSetup.PrimaryBidderBuilder primaryBidderBuilder = new SRMBidderSetup.PrimaryBidderBuilder();
+    SRVMWorldSetup.Builder worldSetupBuilder = new SRVMWorldSetup.Builder();
+    SRVMBidderSetup.SmallBidderBuilder smallBidderBuilder = new SRVMBidderSetup.SmallBidderBuilder();
+    SRVMBidderSetup.HighFrequenceBidderBuilder highFrequencyBuilder = new SRVMBidderSetup.HighFrequenceBidderBuilder();
+    SRVMBidderSetup.SecondaryBidderBuilder secondaryBidderBuilder = new SRVMBidderSetup.SecondaryBidderBuilder();
+    SRVMBidderSetup.PrimaryBidderBuilder primaryBidderBuilder = new SRVMBidderSetup.PrimaryBidderBuilder();
     
     /* (non-Javadoc)
      * @see org.spectrumauctions.sats.core.model.QuickDefaultAccess#createWorld(RNGSupplier)
      */
     @Override
-    public SRMWorld createWorld(RNGSupplier worldSeed) {
-        return new SRMWorld(worldSetupBuilder.build(), worldSeed);
+    public SRVMWorld createWorld(RNGSupplier worldSeed) {
+        return new SRVMWorld(worldSetupBuilder.build(), worldSeed);
     }
 
     /* (non-Javadoc)
      * @see org.spectrumauctions.sats.core.model.QuickDefaultAccess#createPopulation(World, RNGSupplier)
      */
     @Override
-    public List<SRMBidder> createPopulation(SRMWorld world, RNGSupplier populationRNG) {
-        List<SRMBidderSetup> setups = new ArrayList<>();
+    public List<SRVMBidder> createPopulation(SRVMWorld world, RNGSupplier populationRNG) {
+        List<SRVMBidderSetup> setups = new ArrayList<>();
         setups.add(smallBidderBuilder.build());
         setups.add(highFrequencyBuilder.build());
         setups.add(secondaryBidderBuilder.build());

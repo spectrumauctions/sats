@@ -21,11 +21,11 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
  * @author Michael Weiss
  *
  */
-public class SRMWorldSetup {
+public class SRVMWorldSetup {
     
     private final ImmutableMap<String, IntegerInterval> bandDefinitions;
     
-    private SRMWorldSetup(Builder builder){
+    private SRVMWorldSetup(Builder builder){
         this.bandDefinitions = ImmutableMap.copyOf(builder.bandDefinitions);
     }
     
@@ -67,7 +67,7 @@ public class SRMWorldSetup {
         }
         
         /**
-         * Define a new band to be generated as well as the number of licenses (drawn from interval, see {@link SRMWorldSetup#defineBands(UniformDistributionRNG)})
+         * Define a new band to be generated as well as the number of licenses (drawn from interval, see {@link SRVMWorldSetup#defineBands(UniformDistributionRNG)})
          * @param bandName
          * @param numberOfLicenses
          */
@@ -84,8 +84,8 @@ public class SRMWorldSetup {
             bandDefinitions.remove(bandName);
         }
         
-        public SRMWorldSetup build() {
-            return new SRMWorldSetup(this);
+        public SRVMWorldSetup build() {
+            return new SRVMWorldSetup(this);
         }
     }
 

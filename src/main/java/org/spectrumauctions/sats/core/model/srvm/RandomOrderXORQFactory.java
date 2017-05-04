@@ -18,27 +18,27 @@ class RandomOrderXORQFactory {
 
     private static final BandComparator comparator = new BandComparator();
 
-    public static XORQRandomOrderSimple<SRMBand> getXORQRandomOrderSimpleLang(SRMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
-        Set<SRMBand> bands = bidder.getWorld().getBands();
+    public static XORQRandomOrderSimple<SRVMBand> getXORQRandomOrderSimpleLang(SRVMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
+        Set<SRVMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, rngSupplier);
     }
 
-    public static XORQRandomOrderSimple<SRMBand> getXORQRandomOrderSimpleLang(SRMBidder bidder) throws UnsupportedBiddingLanguageException {
-        Set<SRMBand> bands = bidder.getWorld().getBands();
+    public static XORQRandomOrderSimple<SRVMBand> getXORQRandomOrderSimpleLang(SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+        Set<SRVMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, new JavaUtilRNGSupplier());
     }
 
 
-    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<SRMBand> {
+    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<SRVMBand> {
 
 
-        private final SRMBidder bidder;
+        private final SRVMBidder bidder;
 
         /**
          * @param allPossibleGenericDefinitions A collection of all available goods
          * @throws UnsupportedBiddingLanguageException Thrown if the model doesn't support the requested bidding language
          */
-        SimpleRandomOrder(Collection<SRMBand> allPossibleGenericDefinitions, SRMBidder bidder, RNGSupplier rngSupplier)
+        SimpleRandomOrder(Collection<SRVMBand> allPossibleGenericDefinitions, SRVMBidder bidder, RNGSupplier rngSupplier)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefinitions, rngSupplier);
             this.bidder = bidder;
@@ -48,7 +48,7 @@ class RandomOrderXORQFactory {
          * @see BiddingLanguage#getBidder()
          */
         @Override
-        public Bidder<SRMLicense> getBidder() {
+        public Bidder<SRVMLicense> getBidder() {
             return bidder;
         }
 
@@ -56,7 +56,7 @@ class RandomOrderXORQFactory {
          * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getGenericBidder()
          */
         @Override
-        protected GenericValueBidder<SRMBand> getGenericBidder() {
+        protected GenericValueBidder<SRVMBand> getGenericBidder() {
             return bidder;
         }
 
@@ -64,18 +64,18 @@ class RandomOrderXORQFactory {
          * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<SRMBand> getDefComparator() {
+        protected Comparator<SRVMBand> getDefComparator() {
             return comparator;
         }
     }
 
-    private static class BandComparator implements Comparator<SRMBand> {
+    private static class BandComparator implements Comparator<SRVMBand> {
 
         /* (non-Javadoc)
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
         @Override
-        public int compare(SRMBand o1, SRMBand o2) {
+        public int compare(SRVMBand o1, SRVMBand o2) {
             return o1.toString().compareTo(o2.toString());
         }
 

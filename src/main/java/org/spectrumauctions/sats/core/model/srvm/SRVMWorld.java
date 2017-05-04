@@ -22,17 +22,17 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
  * @author Michael Weiss
  *
  */
-public final class SRMWorld extends World {
+public final class SRVMWorld extends World {
     
     private static final long serialVersionUID = 1766287015715986936L;
-    private final Set<SRMBand> bands;
+    private final Set<SRVMBand> bands;
     
     private transient Integer numberOfGoods = null;
-    private transient ImmutableSet<SRMLicense> licenses = null;
+    private transient ImmutableSet<SRVMLicense> licenses = null;
     
-    public SRMWorld(SRMWorldSetup setup, RNGSupplier rngSupplier){
+    public SRVMWorld(SRVMWorldSetup setup, RNGSupplier rngSupplier){
         super("Single-Region Value Model");
-        this.bands = Collections.unmodifiableSet(new HashSet<>(SRMBand.createBands(this, setup, rngSupplier)));
+        this.bands = Collections.unmodifiableSet(new HashSet<>(SRVMBand.createBands(this, setup, rngSupplier)));
         store();
     }
     
@@ -46,7 +46,7 @@ public final class SRMWorld extends World {
     public int getNumberOfGoods() {
         if(numberOfGoods == null){
             int count = 0;
-            for(SRMBand band : bands){
+            for(SRVMBand band : bands){
                 count += band.getLicenses().size();
             }
             numberOfGoods = count;
@@ -59,10 +59,10 @@ public final class SRMWorld extends World {
      * @return An immutable set containing all licenses.
      */
     @Override
-    public ImmutableSet<SRMLicense> getLicenses() {
+    public ImmutableSet<SRVMLicense> getLicenses() {
         if(licenses == null){
-            ImmutableSet.Builder<SRMLicense> builder = ImmutableSet.builder();
-            for(SRMBand band : bands){
+            ImmutableSet.Builder<SRVMLicense> builder = ImmutableSet.builder();
+            for(SRVMBand band : bands){
                 builder.addAll(band.getLicenses());
             }
             this.licenses = builder.build();
@@ -71,17 +71,17 @@ public final class SRMWorld extends World {
     }
     
     
-    public Set<SRMBand> getBands(){
+    public Set<SRVMBand> getBands(){
         return Collections.unmodifiableSet(bands);
     }
     
-    public List<SRMBidder> createPopulation(Collection<SRMBidderSetup> bidderSetups, RNGSupplier rngSupplier){
+    public List<SRVMBidder> createPopulation(Collection<SRVMBidderSetup> bidderSetups, RNGSupplier rngSupplier){
         long population = openNewPopulation();
         long currentId = 0;
-        List<SRMBidder> bidders = new ArrayList<>();
-       for(SRMBidderSetup setup : bidderSetups){
+        List<SRVMBidder> bidders = new ArrayList<>();
+       for(SRVMBidderSetup setup : bidderSetups){
            for(int i = 0; i < setup.getNumberOfBidders(); i++){
-               bidders.add(new SRMBidder(setup, this, currentId++, population, rngSupplier));
+               bidders.add(new SRVMBidder(setup, this, currentId++, population, rngSupplier));
            }
        }
        return bidders;
@@ -92,8 +92,8 @@ public final class SRMWorld extends World {
      * @see World#restorePopulation(long)
      */
     @Override
-    public Collection<? extends Bidder<SRMLicense>> restorePopulation(long populationId) {
-        return super.restorePopulation(SRMBidder.class, populationId);
+    public Collection<? extends Bidder<SRVMLicense>> restorePopulation(long populationId) {
+        return super.restorePopulation(SRVMBidder.class, populationId);
     }
 
     /* (non-Javadoc)
@@ -101,7 +101,7 @@ public final class SRMWorld extends World {
      */
     @Override
     public void refreshFieldBackReferences() {
-        for(SRMBand band : bands){
+        for(SRVMBand band : bands){
             band.refreshFieldBackReferences(this);
         }
     }

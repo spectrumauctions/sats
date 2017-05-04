@@ -23,8 +23,8 @@ public class SRVMRandomnessTest {
     @Test
     public void sameSeedSameOutcomeTestSRVM(){
         SingleRegionModel model = new SingleRegionModel();
-        SRMWorld world1 = model.createWorld(seed);
-        SRMWorld world2 = model.createWorld(seed);
+        SRVMWorld world1 = model.createWorld(seed);
+        SRVMWorld world2 = model.createWorld(seed);
         Assert.assertEquals(world1, world2);
         List<? extends Bidder<?>> bidders1 = model.createPopulation(world1, seed2);
         List<? extends Bidder<?>> bidders2 = model.createPopulation(world1, seed2);

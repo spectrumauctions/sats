@@ -30,11 +30,11 @@ import java.util.Map.Entry;
 /**
  * @author Michael Weiss
  */
-public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueBidder<SRMBand> {
+public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValueBidder<SRVMBand> {
 
     private static final int CALCSCALE = 5;
 
-    private transient SRMWorld world;
+    private transient SRVMWorld world;
     private final BigDecimal bidderStrength;
     private final Map<String, Integer> synergyThreshold;
     private final Map<String, BigDecimal> baseValues;
@@ -47,15 +47,15 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
      */
     private final BigDecimal interbandSynergyValue;
 
-    SRMBidder(SRMBidderSetup setup, SRMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
+    SRVMBidder(SRVMBidderSetup setup, SRVMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
         this.world = world;
-        Map<SRMBand, Integer> synergyThreshold = setup.drawSynergyThresholds(world, rngSupplier);
+        Map<SRVMBand, Integer> synergyThreshold = setup.drawSynergyThresholds(world, rngSupplier);
         this.synergyThreshold = bandNameMap(synergyThreshold);
         this.bidderStrength = setup.drawBidderStrength(world, rngSupplier);
-        Map<SRMBand, BigDecimal> baseValues = setup.drawBaseValues(world, bidderStrength, rngSupplier);
+        Map<SRVMBand, BigDecimal> baseValues = setup.drawBaseValues(world, bidderStrength, rngSupplier);
         this.baseValues = bandNameMap(baseValues);
-        Map<SRMBand, BigDecimal> intrabandSynergyFactors = setup.drawIntraBandSynergyFactors(world, rngSupplier);
+        Map<SRVMBand, BigDecimal> intrabandSynergyFactors = setup.drawIntraBandSynergyFactors(world, rngSupplier);
         this.intrabandSynergyFactors = bandNameMap(intrabandSynergyFactors);
         this.interbandSynergyValue = setup.drawInterBandSynergyFactor(world, rngSupplier);
         store();
@@ -67,10 +67,10 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
      * @param inputMap
      * @return
      */
-    private <T> Map<String, T> bandNameMap(Map<SRMBand, T> inputMap) {
+    private <T> Map<String, T> bandNameMap(Map<SRVMBand, T> inputMap) {
         Preconditions.checkArgument(world.getBands().containsAll(inputMap.keySet()) && world.getBands().size() == inputMap.size(), "Map is not complete for this world");
         Map<String, T> result = new HashMap<>();
-        for (Entry<SRMBand, T> inputEntry : inputMap.entrySet()) {
+        for (Entry<SRVMBand, T> inputEntry : inputMap.entrySet()) {
             result.put(inputEntry.getKey().getName(), inputEntry.getValue());
         }
         return result;
@@ -80,13 +80,13 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
      * @see Bidder#getWorld()
      */
     @Override
-    public SRMWorld getWorld() {
+    public SRVMWorld getWorld() {
         return world;
     }
 
 
     /**
-     * This random value is used exclusively in {{@link #drawBaseValues(SRMWorld, BigDecimal, RNGSupplier)}, but stored in the bidder for easier analysis.<br>
+     * This random value is used exclusively in {{@link #drawBaseValues(SRVMWorld, BigDecimal, RNGSupplier)}, but stored in the bidder for easier analysis.<br>
      * Its mean is typically 1.<br><br>
      * Note that the bidder strength is not the only random influence on the base values,
      * hence a high bidder strength does not imply that a bidder is stronger than others, it simply makes it more likely.
@@ -119,12 +119,12 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
 
 
     @Override
-    public BigDecimal calculateValue(Bundle<SRMLicense> licenses) {
-        Map<SRMBand, Integer> bandCount = new HashMap<>();
-        for (SRMBand band : this.getWorld().getBands()) {
+    public BigDecimal calculateValue(Bundle<SRVMLicense> licenses) {
+        Map<SRVMBand, Integer> bandCount = new HashMap<>();
+        for (SRVMBand band : this.getWorld().getBands()) {
             bandCount.put(band, 0);
         }
-        for (SRMLicense license : licenses) {
+        for (SRVMLicense license : licenses) {
             bandCount.put(license.getBand(), bandCount.get(license.getBand()) + 1);
         }
         return calculateValue(bandCount);
@@ -135,11 +135,11 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
      * @see GenericValueBidder#calculateValue(java.util.Map)
      */
     @Override
-    public BigDecimal calculateValue(Map<SRMBand, Integer> genericQuantities) {
+    public BigDecimal calculateValue(Map<SRVMBand, Integer> genericQuantities) {
         BigDecimal bandValuesSum = BigDecimal.ZERO;
         //We count the number of bands with more than 0 licenses in this bundle
         int synergyBandCount = 0;
-        for (Entry<SRMBand, Integer> entry : genericQuantities.entrySet()) {
+        for (Entry<SRVMBand, Integer> entry : genericQuantities.entrySet()) {
             if (entry.getValue() != 0) {
                 bandValuesSum = bandValuesSum.add(getBandValue(entry.getKey(), entry.getValue()));
                 synergyBandCount++;
@@ -153,7 +153,7 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
     }
 
 
-    private BigDecimal getBandValue(SRMBand band, int quantity) {
+    private BigDecimal getBandValue(SRVMBand band, int quantity) {
         // The min{2,n} or min{4,n} part of the value function
         int firstSummand = quantity > synergyThreshold.get(band.getName()) ? synergyThreshold.get(band.getName()) : quantity;
         // The min{3/4, (n-1)/n} * syn_i(B)} or equivalent for other bands part
@@ -224,8 +224,8 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
     @Override
     public void refreshReference(World world) {
         Preconditions.checkArgument(world.getId() == getWorldId());
-        if (world instanceof SRMWorld) {
-            this.world = (SRMWorld) world;
+        if (world instanceof SRVMWorld) {
+            this.world = (SRVMWorld) world;
         } else {
             throw new IllegalArgumentException("World is not of correct type");
         }
@@ -251,7 +251,7 @@ public final class SRMBidder extends Bidder<SRMLicense> implements GenericValueB
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SRMBidder other = (SRMBidder) obj;
+        SRVMBidder other = (SRVMBidder) obj;
         if (baseValues == null) {
             if (other.baseValues != null)
                 return false;

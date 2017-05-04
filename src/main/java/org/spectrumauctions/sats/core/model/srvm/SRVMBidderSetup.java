@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * @author Michael Weiss
  */
-public class SRMBidderSetup extends BidderSetup {
+public class SRVMBidderSetup extends BidderSetup {
 
     private final Map<String, IntegerInterval> synergyThresholds;
     private final Map<String, BigDecimal> meanBaseValues;
@@ -25,7 +25,7 @@ public class SRMBidderSetup extends BidderSetup {
     private final Map<String, DoubleInterval> randomInfluence;
     private final DoubleInterval bidderStrength;
 
-    private SRMBidderSetup(SRMBidderSetup.Builder builder) {
+    private SRVMBidderSetup(SRVMBidderSetup.Builder builder) {
         super(builder);
         this.synergyThresholds = ImmutableMap.copyOf(builder.synergyThresholds);
         this.meanBaseValues = ImmutableMap.copyOf(builder.meanBaseValues);
@@ -42,10 +42,10 @@ public class SRMBidderSetup extends BidderSetup {
      * @param rngSupplier
      * @return
      */
-    public Map<SRMBand, Integer> drawSynergyThresholds(SRMWorld world, RNGSupplier rngSupplier) {
+    public Map<SRVMBand, Integer> drawSynergyThresholds(SRVMWorld world, RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
-        Map<SRMBand, Integer> result = new HashMap<>();
-        for (SRMBand band : world.getBands()) {
+        Map<SRVMBand, Integer> result = new HashMap<>();
+        for (SRVMBand band : world.getBands()) {
             IntegerInterval interval = synergyThresholds.get(band.getName());
             if (interval == null) {
                 throw new IllegalArgumentException("No synergies defined for band " + band.getName());
@@ -66,10 +66,10 @@ public class SRMBidderSetup extends BidderSetup {
      * @param rngSupplier
      * @return
      */
-    public Map<SRMBand, BigDecimal> drawBaseValues(SRMWorld world, BigDecimal bidderStrength, RNGSupplier rngSupplier) {
+    public Map<SRVMBand, BigDecimal> drawBaseValues(SRVMWorld world, BigDecimal bidderStrength, RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
-        Map<SRMBand, BigDecimal> result = new HashMap<>();
-        for (SRMBand band : world.getBands()) {
+        Map<SRVMBand, BigDecimal> result = new HashMap<>();
+        for (SRVMBand band : world.getBands()) {
             BigDecimal meanBaseValue = meanBaseValues.get(band.getName());
             DoubleInterval randomInfluenceInterval = this.randomInfluence.get(band.getName());
             if (meanBaseValue == null) {
@@ -93,10 +93,10 @@ public class SRMBidderSetup extends BidderSetup {
      * @param rngSupplier
      * @return
      */
-    public Map<SRMBand, BigDecimal> drawIntraBandSynergyFactors(SRMWorld world, RNGSupplier rngSupplier) {
+    public Map<SRVMBand, BigDecimal> drawIntraBandSynergyFactors(SRVMWorld world, RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
-        Map<SRMBand, BigDecimal> result = new HashMap<>();
-        for (SRMBand band : world.getBands()) {
+        Map<SRVMBand, BigDecimal> result = new HashMap<>();
+        for (SRVMBand band : world.getBands()) {
             DoubleInterval interval = intraBandSynergyFactors.get(band.getName());
             if (interval == null) {
                 throw new IllegalArgumentException("No synergies defined for band " + band.getName());
@@ -116,7 +116,7 @@ public class SRMBidderSetup extends BidderSetup {
      * @param rngSupplier
      * @return
      */
-    public BigDecimal drawInterBandSynergyFactor(SRMWorld world, RNGSupplier rngSupplier) {
+    public BigDecimal drawInterBandSynergyFactor(SRVMWorld world, RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
         if (interBandSynergyFactor.getMinValue() < 1) {
             throw new IllegalArgumentException("Synergy factor must be at least one");
@@ -126,13 +126,13 @@ public class SRMBidderSetup extends BidderSetup {
     }
 
     /**
-     * Creates a random bidderStrength factor. See {@link SRMBidder#getBidderStrength()} for more information.
+     * Creates a random bidderStrength factor. See {@link SRVMBidder#getBidderStrength()} for more information.
      *
      * @param world
      * @param rngSupplier
      * @return
      */
-    public BigDecimal drawBidderStrength(SRMWorld world, RNGSupplier rngSupplier) {
+    public BigDecimal drawBidderStrength(SRVMWorld world, RNGSupplier rngSupplier) {
         return rngSupplier.getUniformDistributionRNG().nextBigDecimal(bidderStrength);
     }
 
@@ -152,12 +152,12 @@ public class SRMBidderSetup extends BidderSetup {
             meanBaseValues = new HashMap<>();
             intraBandSynergyFactors = new HashMap<>();
             randomInfluence = new HashMap<>();
-            putRandomInfluence(SRMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(0.75, 1.25));
-            putRandomInfluence(SRMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(0.75, 1.25));
-            putRandomInfluence(SRMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(0.75, 1.25));
-            putSynergyThreshold(SRMWorldSetup.Builder.BAND_NAME_A, new IntegerInterval(4));
-            putSynergyThreshold(SRMWorldSetup.Builder.BAND_NAME_B, new IntegerInterval(2));
-            putSynergyThreshold(SRMWorldSetup.Builder.BAND_NAME_C, new IntegerInterval(2));
+            putRandomInfluence(SRVMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(0.75, 1.25));
+            putRandomInfluence(SRVMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(0.75, 1.25));
+            putRandomInfluence(SRVMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(0.75, 1.25));
+            putSynergyThreshold(SRVMWorldSetup.Builder.BAND_NAME_A, new IntegerInterval(4));
+            putSynergyThreshold(SRVMWorldSetup.Builder.BAND_NAME_B, new IntegerInterval(2));
+            putSynergyThreshold(SRVMWorldSetup.Builder.BAND_NAME_C, new IntegerInterval(2));
             bidderStrength = new DoubleInterval(0.75, 1.25);
             setInterBandSynergyFactor(new DoubleInterval(1.0, 1.2));
         }
@@ -177,8 +177,8 @@ public class SRMBidderSetup extends BidderSetup {
         }
 
         @Override
-        public SRMBidderSetup build() {
-            return new SRMBidderSetup(this);
+        public SRVMBidderSetup build() {
+            return new SRVMBidderSetup(this);
         }
 
         public DoubleInterval getBidderStrength() {
@@ -241,12 +241,12 @@ public class SRMBidderSetup extends BidderSetup {
          */
         public SmallBidderBuilder() {
             super("Small Bidder Setup", 2);
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(0));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(0));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(8));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(1.75, 2.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(0));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(0));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(8));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(1.75, 2.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
         }
 
     }
@@ -258,12 +258,12 @@ public class SRMBidderSetup extends BidderSetup {
          */
         public HighFrequenceBidderBuilder() {
             super("2.6 Ghz Bidder (High Frequence Bidder) Setup", 1);
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(0));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(70));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(15));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(1.75, 2.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(0));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(70));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(15));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(1.75, 2.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
         }
 
     }
@@ -275,12 +275,12 @@ public class SRMBidderSetup extends BidderSetup {
          */
         public SecondaryBidderBuilder() {
             super("Secondary Bidder Setup", 2);
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(200));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(70));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(15));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(1.75, 2.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(200));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(70));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(15));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(1.75, 2.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
         }
 
     }
@@ -293,12 +293,12 @@ public class SRMBidderSetup extends BidderSetup {
          */
         public PrimaryBidderBuilder() {
             super("Primary Bidder Setup", 2);
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(300));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(70));
-            putMeanBaseValue(SRMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(15));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(3.75, 4.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
-            putIntraBandSynergyFactor(SRMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_A, new BigDecimal(300));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_B, new BigDecimal(70));
+            putMeanBaseValue(SRVMWorldSetup.Builder.BAND_NAME_C, new BigDecimal(15));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_A, new DoubleInterval(3.75, 4.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_B, new DoubleInterval(1.75, 2.25));
+            putIntraBandSynergyFactor(SRVMWorldSetup.Builder.BAND_NAME_C, new DoubleInterval(1.75, 2.25));
         }
 
     }

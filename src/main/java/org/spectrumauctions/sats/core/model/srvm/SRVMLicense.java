@@ -9,24 +9,24 @@ import com.google.common.base.Preconditions;
 
 import org.spectrumauctions.sats.core.model.Good;
 
-public final class SRMLicense extends Good{
+public final class SRVMLicense extends Good{
 
     private static final long serialVersionUID = 7672703280459172931L;
     
     private final String bandName;
-    private transient SRMBand band;
+    private transient SRVMBand band;
     
     /**
      * @param id
      * @param worldId
      */
-    SRMLicense(long id, SRMBand band) {
+    SRVMLicense(long id, SRVMBand band) {
         super(id, band.getWorld().getId());
         this.band = band;
         this.bandName = band.getName();
     }
     
-    public SRMBand getBand() {
+    public SRVMBand getBand() {
         return band;
     }
 
@@ -35,7 +35,7 @@ public final class SRMLicense extends Good{
      * @see Good#getWorld()
      */
     @Override
-    public SRMWorld getWorld() {
+    public SRVMWorld getWorld() {
         return band.getWorld();
     }
 
@@ -55,7 +55,7 @@ public final class SRMLicense extends Good{
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SRMLicense other = (SRMLicense) obj;
+        SRVMLicense other = (SRVMLicense) obj;
         if (bandName == null) {
             if (other.bandName != null)
                 return false;
@@ -65,9 +65,9 @@ public final class SRMLicense extends Good{
     }
 
     /**
-     * See {@link SRMWorld#refreshFieldBackReferences()} for purpose of this method
+     * See {@link SRVMWorld#refreshFieldBackReferences()} for purpose of this method
      */
-    void refreshFieldBackReferences(SRMBand band) {
+    void refreshFieldBackReferences(SRVMBand band) {
         Preconditions.checkArgument(band.getName().equals(this.bandName));
         this.band = band;
     }

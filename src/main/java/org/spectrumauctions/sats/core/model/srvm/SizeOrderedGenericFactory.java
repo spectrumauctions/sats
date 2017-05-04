@@ -24,8 +24,8 @@ public class SizeOrderedGenericFactory {
 
     static BandComparator comparator = new BandComparator();
     
-    public static GenericSizeOrdered<SRMBand> getSizeOrderedGenericLang(boolean increasing, SRMBidder bidder) throws UnsupportedBiddingLanguageException {
-        Set<SRMBand> bands = bidder.getWorld().getBands();
+    public static GenericSizeOrdered<SRVMBand> getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+        Set<SRVMBand> bands = bidder.getWorld().getBands();
         if(increasing){
             return new Increasing(bands, bidder);
         }else{
@@ -34,16 +34,16 @@ public class SizeOrderedGenericFactory {
     }
     
     
-    private static final class Increasing extends GenericSizeIncreasing<SRMBand> {
+    private static final class Increasing extends GenericSizeIncreasing<SRVMBand> {
 
         
-        private final SRMBidder bidder;
+        private final SRVMBidder bidder;
 
         /**
          * @param allPossibleGenericDefintions
          * @throws UnsupportedBiddingLanguageException
          */
-        protected Increasing(Collection<SRMBand> allPossibleGenericDefintions,SRMBidder bidder)
+        protected Increasing(Collection<SRVMBand> allPossibleGenericDefintions, SRVMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);
             this.bidder = bidder;
@@ -53,7 +53,7 @@ public class SizeOrderedGenericFactory {
          * @see BiddingLanguage#getBidder()
          */
         @Override
-        public Bidder<SRMLicense> getBidder() {
+        public Bidder<SRVMLicense> getBidder() {
             return bidder;
         }
 
@@ -61,7 +61,7 @@ public class SizeOrderedGenericFactory {
          * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getGenericBidder()
          */
         @Override
-        protected GenericValueBidder<SRMBand> getGenericBidder() {
+        protected GenericValueBidder<SRVMBand> getGenericBidder() {
             return bidder;
         }
 
@@ -69,21 +69,21 @@ public class SizeOrderedGenericFactory {
          * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<SRMBand> getDefComparator() {
+        protected Comparator<SRVMBand> getDefComparator() {
             return comparator;
         }
     }
 
-    private static final class Decreasing extends GenericSizeDecreasing<SRMBand> {
+    private static final class Decreasing extends GenericSizeDecreasing<SRVMBand> {
 
         
-        private final SRMBidder bidder;
+        private final SRVMBidder bidder;
 
         /**
          * @param allPossibleGenericDefintions
          * @throws UnsupportedBiddingLanguageException
          */
-        protected Decreasing(Collection<SRMBand> allPossibleGenericDefintions, SRMBidder bidder)
+        protected Decreasing(Collection<SRVMBand> allPossibleGenericDefintions, SRVMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);
             this.bidder = bidder;
@@ -93,7 +93,7 @@ public class SizeOrderedGenericFactory {
          * @see BiddingLanguage#getBidder()
          */
         @Override
-        public SRMBidder getBidder() {
+        public SRVMBidder getBidder() {
             return bidder;
         }
 
@@ -101,7 +101,7 @@ public class SizeOrderedGenericFactory {
          * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getGenericBidder()
          */
         @Override
-        protected GenericValueBidder<SRMBand> getGenericBidder() {
+        protected GenericValueBidder<SRVMBand> getGenericBidder() {
             return bidder;
         }
 
@@ -109,19 +109,19 @@ public class SizeOrderedGenericFactory {
          * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<SRMBand> getDefComparator() {
+        protected Comparator<SRVMBand> getDefComparator() {
             return comparator;
         }
     }
 
     
-    private static class BandComparator implements Comparator<SRMBand>{
+    private static class BandComparator implements Comparator<SRVMBand>{
 
         /* (non-Javadoc)
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
         @Override
-        public int compare(SRMBand o1, SRMBand o2) {
+        public int compare(SRVMBand o1, SRVMBand o2) {
             return o1.toString().compareTo(o2.toString());
         }
         
