@@ -15,13 +15,13 @@ import java.util.Collection;
  * @author Michael Weiss
  *
  */
-public class MipTest {
+public class MRVMMipTest {
 
     @Test
     public void testNoException() {
         Collection<MRVMBidder> bidders = (new MultiRegionModel()).createNewPopulation();
         MRVM_MIP mip = new MRVM_MIP(bidders);
-        MipResult result = mip.calculateAllocation();
+        MRVMMipResult result = mip.calculateAllocation();
         for (MRVMBidder bidder : bidders) {
             GenericValue<MRVMGenericDefinition> genVal = result.getAllocation(bidder);
             for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {

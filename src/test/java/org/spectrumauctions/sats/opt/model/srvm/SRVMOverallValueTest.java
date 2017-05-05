@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author Fabio Isler
  */
-public class OverallValueTest {
+public class SRVMOverallValueTest {
 
     @Test
     @Ignore // TODO: There's still a slight difference between the values from sats-core and sats-opt

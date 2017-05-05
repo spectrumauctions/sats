@@ -21,7 +21,7 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public class OverallValueTest {
+public class MRVMOverallValueTest {
 
     public static String LOW_PAIRED_NAME = "LOW_PAIRED";
     public static String HIGH_PAIRED_NAME = "HIGH_PAIRED";
@@ -32,7 +32,7 @@ public class OverallValueTest {
     public void mipValuesEqualSATSValues() {
         List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation();
         MRVM_MIP mip = new MRVM_MIP(bidders);
-        MipResult result = mip.calculateAllocation();
+        MRVMMipResult result = mip.calculateAllocation();
         for (MRVMBidder bidder : bidders) {
             GenericValue<MRVMGenericDefinition> outcomeVal = result.getAllocation(bidder);
             BigDecimal satsVal = bidder.calculateValue(outcomeVal.getQuantities());

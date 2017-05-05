@@ -9,7 +9,7 @@ import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionalBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMLocalBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
 
 import java.math.BigDecimal;
@@ -18,15 +18,16 @@ import java.math.BigDecimal;
  * @author Michael Weiss
  *
  */
-public class RegionalBidderPartialMip extends BidderPartialMIP {
+public class MRVMLocalBidderPartialMip extends MRVMBidderPartialMIP {
 
-    private final MRVMRegionalBidder bidder;
+    //Strore bidder twice (in superclass and here) to avoid casting
+    private final MRVMLocalBidder bidder;
 
     /**
      * @param bidder
      * @param worldMip
      */
-    public RegionalBidderPartialMip(MRVMRegionalBidder bidder, double scalingFactor, WorldPartialMip worldMip) {
+    public MRVMLocalBidderPartialMip(MRVMLocalBidder bidder, double scalingFactor, MRVMWorldPartialMip worldMip) {
         super(bidder, scalingFactor, worldMip);
         this.bidder = bidder;
     }
@@ -36,7 +37,7 @@ public class RegionalBidderPartialMip extends BidderPartialMIP {
         Variable biddersValue = worldPartialMip.getValueVariable(bidder);
         constraint.addTerm(-1, biddersValue);
         for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
-            BigDecimal gammaFactor = bidder.gammaFactor(region, null); //The discount factor in [0,1]
+            BigDecimal gammaFactor = bidder.gammaFactor(region, null); //Is either 0 or 1
             double constant = gammaFactor.doubleValue();
             Variable regionalOmega = getOmegaVariable(region);
             constraint.addTerm(constant, regionalOmega);
@@ -52,5 +53,4 @@ public class RegionalBidderPartialMip extends BidderPartialMIP {
         super.appendToMip(mip);
         mip.add(constrainValue());
     }
-
 }

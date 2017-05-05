@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * @author Fabio Isler
  */
-public class MipTest {
+public class SRVMMipTest {
 
     @Test
     public void testNoException() {

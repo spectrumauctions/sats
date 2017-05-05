@@ -21,7 +21,7 @@ import java.util.Map;
  * @author Michael Weiss
  *
  */
-public class NationalBidderPartialMip extends BidderPartialMIP {
+public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
 
     public static final String W_ir_VARIABLE_PREFIX = "GlobalBidder_W_ir_";
 
@@ -42,7 +42,7 @@ public class NationalBidderPartialMip extends BidderPartialMIP {
      * @param bidder
      * @param worldMip
      */
-    public NationalBidderPartialMip(MRVMNationalBidder bidder, double scalingFactor, WorldPartialMip worldMip) {
+    public MRVMNationalBidderPartialMip(MRVMNationalBidder bidder, double scalingFactor, MRVMWorldPartialMip worldMip) {
         super(bidder, scalingFactor, worldMip);
         this.bidder = bidder;
         psiVariables = createPsiVariables();

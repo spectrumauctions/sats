@@ -19,12 +19,12 @@ import java.util.*;
 
 /**
  * The class generating the general allocation rules (variables and constraints)<br>
- * It also provides functions to get the allocation variables, used in {@link BidderPartialMIP} instances.
+ * It also provides functions to get the allocation variables, used in {@link MRVMBidderPartialMIP} instances.
  *
  * @author Michael Weiss
  *
  */
-public class WorldPartialMip extends PartialMIP {
+public class MRVMWorldPartialMip extends PartialMIP {
 
     public final static String xVariablePrefix = "X_";
     public final static String valueVariablePrefix = "v_";
@@ -43,7 +43,7 @@ public class WorldPartialMip extends PartialMIP {
      * @param biggestPossibleValue The highest (already scaled) value any bidder could have
      * @param scalingFactor
      */
-    WorldPartialMip(Collection<MRVMBidder> bidders2, double biggestPossibleValue, double scalingFactor) {
+    MRVMWorldPartialMip(Collection<MRVMBidder> bidders2, double biggestPossibleValue, double scalingFactor) {
         super();
         Preconditions.checkNotNull(bidders2);
         Preconditions.checkArgument(bidders2.size() > 0);
@@ -100,7 +100,7 @@ public class WorldPartialMip extends PartialMIP {
             for (Region region : world.getRegionsMap().getRegions()) {
                 Map<Band, Variable> bandMap = new HashMap<>();
                 for (MRVMBand band : world.getBands()) {
-                    String varName = xVariablePrefix.concat(BidderPartialMIP.createIndex(bidder, region, band));
+                    String varName = xVariablePrefix.concat(MRVMBidderPartialMIP.createIndex(bidder, region, band));
                     Variable var = new Variable(varName, VarType.INT, 0, band.getNumberOfLots());
                     bandMap.put(band, var);
                 }

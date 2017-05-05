@@ -34,33 +34,33 @@ import static org.junit.Assert.fail;
  * @author Michael Weiss
  *
  */
-public class BidderPartialMIPTest {
+public class MRVMBidderPartialMIPTest {
 
     private static List<MRVMBidder> bidders;
-    private static WorldPartialMip worldPartialMip;
-    private static Map<MRVMBidder, BidderPartialMIP> bidderPartialMips;
+    private static MRVMWorldPartialMip worldPartialMip;
+    private static Map<MRVMBidder, MRVMBidderPartialMIP> bidderPartialMips;
 
     /**
      * @throws java.lang.Exception
      */
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        MRVMWorld world = new MRVMWorld(WorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(153578351L));
-        MRVMLocalBidderSetup setup = WorldGen.getSimpleLocalBidderSetup();
+        MRVMWorld world = new MRVMWorld(MRVMWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(153578351L));
+        MRVMLocalBidderSetup setup = MRVMWorldGen.getSimpleLocalBidderSetup();
         bidders = world.createPopulation(setup, null, null, new JavaUtilRNGSupplier(15434684L));
         double scalingFactor = MRVM_MIP.calculateScalingFactor(bidders);
         double biggestScaledValue = MRVM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        worldPartialMip = new WorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
 
         bidderPartialMips = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVMLocalBidder localBidder = (MRVMLocalBidder) bidder;
-            bidderPartialMips.put(bidder, new LocalBidderPartialMip(localBidder, 1, worldPartialMip));
+            bidderPartialMips.put(bidder, new MRVMLocalBidderPartialMip(localBidder, 1, worldPartialMip));
         }
     }
 
     /**
-     * Test method for {@link BidderPartialMIP#generateOmegaConstraints()}.
+     * Test method for {@link MRVMBidderPartialMIP#generateOmegaConstraints()}.
      */
     @Test
     public void testGenerateOmegaConstraints() {
@@ -68,10 +68,10 @@ public class BidderPartialMIPTest {
         worldPartialMip.appendVariablesToMip(mip);
         mip.setObjectiveMax(true);
 
-        Map<MRVMBidder, BidderPartialMIP> partialMips = new HashMap<>();
+        Map<MRVMBidder, MRVMBidderPartialMIP> partialMips = new HashMap<>();
 
         for (MRVMBidder bidder : bidders) {
-            BidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
+            MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
             partialMips.put(bidder, bidderPartialMIP);
             // Fix SV variables (put quality to 1/(1+regionId))
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -87,7 +87,7 @@ public class BidderPartialMIPTest {
         }
 
         // Append Omegas to Objective
-        for (Entry<MRVMBidder, BidderPartialMIP> partialMip : partialMips.entrySet()) {
+        for (Entry<MRVMBidder, MRVMBidderPartialMIP> partialMip : partialMips.entrySet()) {
             for (Region region : partialMip.getKey().getWorld().getRegionsMap().getRegions()) {
                 mip.addObjectiveTerm(1, partialMip.getValue().getOmegaVariable(region));
             }
@@ -99,7 +99,7 @@ public class BidderPartialMIPTest {
 
         // Test omega values        
         boolean noAssertions = true;
-        for (Entry<MRVMBidder, BidderPartialMIP> partialMip : partialMips.entrySet()) {
+        for (Entry<MRVMBidder, MRVMBidderPartialMIP> partialMip : partialMips.entrySet()) {
             MRVMBidder bidder = partialMip.getKey();
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 double omega = result.getValue(partialMip.getValue().getOmegaVariable(region));
@@ -139,10 +139,10 @@ public class BidderPartialMIPTest {
         worldPartialMip.appendVariablesToMip(mip);
         mip.setObjectiveMax(true);
 
-        Map<MRVMBidder, BidderPartialMIP> partialMips = new HashMap<>();
+        Map<MRVMBidder, MRVMBidderPartialMIP> partialMips = new HashMap<>();
 
         for (MRVMBidder bidder : bidders) {
-            BidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
+            MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
             partialMips.put(bidder, bidderPartialMIP);
             // Fix c-variable to equal capacity share
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -152,14 +152,14 @@ public class BidderPartialMIPTest {
             }
             // Add constraints under test
             for (PartialMIP svPartial : bidderPartialMIP.generateSVConstraints()) {
-                // Append generated constraints to MIP. Variables are already added through BidderPartialMIP
+                // Append generated constraints to MIP. Variables are already added through MRVMBidderPartialMIP
                 svPartial.appendConstraintsToMip(mip);
             }
             bidderPartialMIP.appendVariablesToMip(mip);
         }
 
         // Append Qualities to Objective
-        for (Entry<MRVMBidder, BidderPartialMIP> partialMip : partialMips.entrySet()) {
+        for (Entry<MRVMBidder, MRVMBidderPartialMIP> partialMip : partialMips.entrySet()) {
             for (Region region : partialMip.getKey().getWorld().getRegionsMap().getRegions()) {
                 mip.addObjectiveTerm(1, partialMip.getValue().getSVVariable(region));
             }
@@ -171,7 +171,7 @@ public class BidderPartialMIPTest {
 
         // Test SVFunction
         boolean noAssertions = true;
-        for (Entry<MRVMBidder, BidderPartialMIP> partialMip : partialMips.entrySet()) {
+        for (Entry<MRVMBidder, MRVMBidderPartialMIP> partialMip : partialMips.entrySet()) {
             MRVMBidder bidder = partialMip.getKey();
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 BigDecimal functionInput = BigDecimal.valueOf(capacityShare);
@@ -213,7 +213,7 @@ public class BidderPartialMIPTest {
     }
 
     /**
-     * Test method for {@link BidderPartialMIP#generateCConstraints()}.
+     * Test method for {@link MRVMBidderPartialMIP#generateCConstraints()}.
      */
     @Test
     public void testGenerateCConstraints() {
@@ -222,7 +222,7 @@ public class BidderPartialMIPTest {
         worldPartialMip.appendConstraintsToMip(mip);
         mip.setObjectiveMax(true);
         for (MRVMBidder bidder : bidders) {
-            BidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
+            MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
             bidderPartialMIP.appendVariablesToMip(mip);
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 mip.addObjectiveTerm(1, bidderPartialMIP.getCVariable(region));
@@ -243,7 +243,7 @@ public class BidderPartialMIPTest {
     }
 
     /**
-     * Test method for {@link BidderPartialMIP#generateCapConstraints()}.
+     * Test method for {@link MRVMBidderPartialMIP#generateCapConstraints()}.
      */
     @Test
     public void testGenerateCapConstraints() {
@@ -253,7 +253,7 @@ public class BidderPartialMIPTest {
 
         mip.setObjectiveMax(true);
         for (MRVMBidder bidder : bidders) {
-            BidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
+            MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
             bidderPartialMIP.appendVariablesToMip(mip);
             bidderPartialMIP.appendConstraintsToMip(mip);
         }
@@ -287,15 +287,15 @@ public class BidderPartialMIPTest {
     }
 
     /**
-     * Test method for {@link BidderPartialMIP#generateCapConstraints()}.
+     * Test method for {@link MRVMBidderPartialMIP#generateCapConstraints()}.
      */
     @Test
     public void testPerBandCapacitiesWithoutPreconstrainedInput() {
         for (MRVMBand band : bidders.iterator().next().getWorld().getBands()) {
             double maxCap = capacityOfOneBandWithoutPreconstrainedInput(band);
-            if (band.getName().equals(WorldGen.BAND_A_NAME)) {
+            if (band.getName().equals(MRVMWorldGen.BAND_A_NAME)) {
                 Assert.assertEquals(80.0, maxCap, 0.00001);
-            } else if (band.getName().equals(WorldGen.BAND_B_NAME)) {
+            } else if (band.getName().equals(MRVMWorldGen.BAND_B_NAME)) {
                 Assert.assertEquals(60.0, maxCap, 0.00001);
             } else {
                 fail("unknown band");
@@ -312,7 +312,7 @@ public class BidderPartialMIPTest {
 
         MRVMBidder bidder = bidders.iterator().next();
         Region region = bidder.getWorld().getRegionsMap().getRegion(0);
-        BidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
+        MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
 
         for (MRVMBand band : bidder.getWorld().getBands()) {
             ContinuousPiecewiseLinearFunction fct = bidderPartialMIP.capacity(band);
@@ -346,7 +346,7 @@ public class BidderPartialMIPTest {
 
         MRVMBidder bidder = bidders.iterator().next();
         Region region = band.getWorld().getRegionsMap().getRegion(0);
-        BidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
+        MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
 
 
         ContinuousPiecewiseLinearFunction fct = bidderPartialMIP.capacity(band);

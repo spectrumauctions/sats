@@ -23,7 +23,7 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public abstract class WorldGen {
+public abstract class MRVMWorldGen {
 
     public static String BAND_A_NAME = "TEST_A";
     public static String BAND_B_NAME = "TEST_B";

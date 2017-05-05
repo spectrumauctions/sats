@@ -25,14 +25,14 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public final class MipResult extends GenericAllocation<MRVMGenericDefinition> {
+public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition> {
 
 
     private final MRVMWorld world;
     private final BigDecimal totalValue;
     private final IMIPResult joptResult;
 
-    private MipResult(Builder builder) {
+    private MRVMMipResult(Builder builder) {
         super(builder);
         this.world = builder.world;
         this.totalValue = BigDecimal.valueOf(builder.objectiveValue);
@@ -139,7 +139,7 @@ public final class MipResult extends GenericAllocation<MRVMGenericDefinition> {
          *
          * @param objectiveValue
          * @param world
-         * @param joptResult The result object //TODO Use Result object here in construction to build MipResult
+         * @param joptResult The result object //TODO Use Result object here in construction to build MRVMMipResult
          */
         public Builder(double objectiveValue, MRVMWorld world, IMIPResult joptResult) {
             super();
@@ -148,8 +148,8 @@ public final class MipResult extends GenericAllocation<MRVMGenericDefinition> {
             this.joptResult = joptResult;
         }
 
-        public MipResult build() {
-            return new MipResult(this);
+        public MRVMMipResult build() {
+            return new MRVMMipResult(this);
         }
     }
 
