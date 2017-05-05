@@ -1,10 +1,10 @@
 package org.spectrumauctions.sats.core.model.cats;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.Set;
 

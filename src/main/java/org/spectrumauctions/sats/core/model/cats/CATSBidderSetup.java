@@ -1,9 +1,9 @@
 package org.spectrumauctions.sats.core.model.cats;
 
+import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.model.BidderSetup;
 import org.spectrumauctions.sats.core.util.random.GaussianDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import com.google.common.base.Preconditions;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class CATSBidderSetup extends BidderSetup {
         /**
          * Set the value interval for the private values
          *
-         * @param mean The mean of the distribution
+         * @param mean  The mean of the distribution
          * @param stdev The standard deviation of the distribution
          */
         public void setPrivateValueParameters(double mean, double stdev) {

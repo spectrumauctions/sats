@@ -1,6 +1,6 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.bvm.mbvm;
@@ -19,20 +19,20 @@ public final class MBVMWorldSetup extends BMWorldSetup {
     protected MBVMWorldSetup(MBVMWorldSetupBuilder builder) {
         super(builder);
     }
-    
+
     /**
      * Returns an unmodified default setup of the BVM world 
      * without the possibility to further change it.
      * @param numberOfBidders
      * @return
      */
-    public static MBVMWorldSetup buildDefaultSetup(){
+    public static MBVMWorldSetup buildDefaultSetup() {
         return new MBVMWorldSetup(new MBVMWorldSetupBuilder(DEFAULT_SETUP_NAME));
     }
-    
-    
+
+
     public static class MBVMWorldSetupBuilder extends BMWorldSetupBuilder {
-        
+
         public static final String BICHLER_2014_MBVM_DEFAULT_BAND_NAME_A = "A";
         public static final String BICHLER_2014_MBVM_DEFAULT_BAND_NAME_B = "B";
         public static final String BICHLER_2014_MBVM_DEFAULT_BAND_NAME_C = "C";
@@ -46,8 +46,8 @@ public final class MBVMWorldSetup extends BMWorldSetup {
             addBand(BICHLER_2014_MBVM_DEFAULT_BAND_NAME_C, 6);
             addBand(BICHLER_2014_MBVM_DEFAULT_BAND_NAME_D, 6);
         }
-        
-        
+
+
         /* (non-Javadoc)
          * @see org.spectrumauctions.sats.core.model.bvm.BMWorldSetupBuilder#build()
          */
@@ -55,8 +55,8 @@ public final class MBVMWorldSetup extends BMWorldSetup {
         public MBVMWorldSetup build() {
             return new MBVMWorldSetup(this);
         }
-        
-        
+
+
     }
 
 }

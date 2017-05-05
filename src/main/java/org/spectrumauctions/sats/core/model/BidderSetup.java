@@ -1,6 +1,6 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model;
@@ -15,12 +15,12 @@ public abstract class BidderSetup {
 
     protected final String setupName;
     protected final int numberOfBidders;
-    
-    protected BidderSetup(Builder builder){
+
+    protected BidderSetup(Builder builder) {
         this.setupName = builder.setupName;
         this.numberOfBidders = builder.numberOfBidders;
     }
-    
+
     /**
      * The setupName is used to identify the bidderSetup once the bidder is created.
      * For different setups, different setupNames should be used.
@@ -37,18 +37,18 @@ public abstract class BidderSetup {
     public int getNumberOfBidders() {
         return numberOfBidders;
     }
-  
-    
-    public abstract static class Builder{
+
+
+    public abstract static class Builder {
         private String setupName;
         private int numberOfBidders;
-        
-        
-        protected Builder(String setupName, int numberOfBidders){
+
+
+        protected Builder(String setupName, int numberOfBidders) {
             this.setupName = setupName;
             this.numberOfBidders = numberOfBidders;
         }
-        
+
         /**
          * See {@link BidderSetup#getSetupName()} for the explanation of this parameter.
          */
@@ -63,9 +63,8 @@ public abstract class BidderSetup {
             Preconditions.checkNotNull(setupName);
             this.setupName = setupName;
         }
-        
-        
-        
+
+
         /**
          * See {@link BidderSetup#getNumberOfBidders()} for the explanation of this parameter.
          */
@@ -87,5 +86,5 @@ public abstract class BidderSetup {
          */
         public abstract BidderSetup build();
     }
-    
+
 }

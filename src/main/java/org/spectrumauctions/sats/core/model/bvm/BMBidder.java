@@ -5,20 +5,20 @@
  */
 package org.spectrumauctions.sats.core.model.bvm;
 
-import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
-import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
-import org.spectrumauctions.sats.core.model.*;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
+import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
+import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -31,6 +31,7 @@ import java.util.Map.Entry;
  */
 public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BMBand> {
 
+    private static final long serialVersionUID = 3132260871321701148L;
     private transient BMWorld world;
 
     /**
@@ -86,7 +87,7 @@ public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BM
         }
         Preconditions.checkArgument(bundle.getWorld().equals(this.getWorld()), "Bundle not from same world as this bidder");
         // Count the number of licenses per band
-        Map<BMBand, Integer> quantities = new HashMap<BMBand, Integer>();
+        Map<BMBand, Integer> quantities = new HashMap<>();
         for (BMBand band : getWorld().getBands()) {
             quantities.put(band, 0);
         }
@@ -180,10 +181,10 @@ public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BM
                     new SizeBasedUniqueRandomXOR<>(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new IncreasingSizeOrderedXOR<BMLicense>(world.getLicenses(), this));
+                    new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(DecreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new DecreasingSizeOrderedXOR<BMLicense>(world.getLicenses(), this));
+                    new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(GenericSizeIncreasing.class)) {
             return clazz.cast(
                     SizeOrderedGenericFactory.getSizeOrderedGenericLang(true, this));

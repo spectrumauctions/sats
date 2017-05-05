@@ -1,15 +1,15 @@
 package org.spectrumauctions.sats.core.model.cats;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.model.*;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
+import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public final class CATSBidder extends Bidder<CATSLicense> {
 
+    private static final long serialVersionUID = -6762037404466323951L;
     private final Map<Long, BigDecimal> privateValues;
     private transient CATSWorld world;
     private transient ImmutableMap<Long, BigDecimal> privateValueMap;
@@ -67,7 +68,7 @@ public final class CATSBidder extends Bidder<CATSLicense> {
                     new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
         } else if (GenericLang.class.isAssignableFrom(clazz)) {
             throw new IncompatibleBiddingLanguageException("CATS is not suitable for XOR-Q, as it doesn't have generic items");
-        }else{
+        } else {
             throw new UnsupportedBiddingLanguageException();
         }
     }

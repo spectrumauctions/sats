@@ -1,7 +1,7 @@
 package org.spectrumauctions.sats.core.bidlang.generic;
 
-import org.spectrumauctions.sats.core.model.Good;
 import com.google.gson.JsonElement;
+import org.spectrumauctions.sats.core.model.Good;
 
 import java.util.Set;
 

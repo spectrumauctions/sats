@@ -1,11 +1,11 @@
 package org.spectrumauctions.sats.core.model.cats;
 
+import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Graph;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.*;
 

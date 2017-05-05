@@ -1,6 +1,6 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.util;
@@ -16,8 +16,8 @@ public class PreconditionUtils {
     /**
      * Ensures the all passed objects are not null.
      */
-    public static void checkNotNull(Object... objects){
-        for(int i = 0; i< objects.length; i++){
+    public static void checkNotNull(Object... objects) {
+        for (int i = 0; i < objects.length; i++) {
             Preconditions.checkNotNull(objects[i], "Item " + i + "in Array");
         }
     }
@@ -25,7 +25,7 @@ public class PreconditionUtils {
     /**
      * Ensures the all passed objects are not negative.
      */
-    public static void checkNotNegative(int value){
+    public static void checkNotNegative(int value) {
         Preconditions.checkArgument(value >= 0);
     }
 }

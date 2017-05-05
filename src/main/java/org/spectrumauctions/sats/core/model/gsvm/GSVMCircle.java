@@ -1,8 +1,8 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
+import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
-import com.google.common.base.Preconditions;
 
 import java.io.Serializable;
 import java.util.Arrays;

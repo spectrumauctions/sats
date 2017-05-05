@@ -1,11 +1,11 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import org.spectrumauctions.sats.core.model.Bundle;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -57,7 +57,6 @@ public class LSVMGrid implements Serializable {
 
     /**
      * see {@link World#refreshFieldBackReferences()} for javadoc
-     *
      */
     void refreshFieldBackReferences(LSVMWorld world) {
         Preconditions.checkArgument(world.getId() == this.worldId);

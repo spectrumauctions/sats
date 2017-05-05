@@ -1,31 +1,29 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import org.jgrapht.UndirectedGraph;
+import org.jgrapht.VertexFactory;
+import org.jgrapht.generate.RandomGraphGenerator;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
+import org.spectrumauctions.sats.core.util.math.Function;
+import org.spectrumauctions.sats.core.util.random.DoubleInterval;
+import org.spectrumauctions.sats.core.util.random.GaussianDistributionRNG;
+import org.spectrumauctions.sats.core.util.random.IntegerInterval;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
-import org.spectrumauctions.sats.core.util.math.Function;
-import org.spectrumauctions.sats.core.util.random.DoubleInterval;
-import org.spectrumauctions.sats.core.util.random.IntegerInterval;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.VertexFactory;
-import org.jgrapht.generate.RandomGraphGenerator;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-
-import org.spectrumauctions.sats.core.util.random.GaussianDistributionRNG;
 
 /**
  * @author Michael Weiss
@@ -58,19 +56,17 @@ public final class MRVMWorldSetup {
     }
 
     public UndirectedGraph<RegionSetup, DefaultEdge> drawGraphStructure(UniformDistributionRNG rng) {
-        if(usePredefinedGraph){
+        if (usePredefinedGraph) {
             return predefinedGraph;
-        }else{
+        } else {
             return nonPlanarRandomGraphStructure(
-                    populationPerRegionMean, 
-                    populationStandardDeviation, 
-                    rng, 
-                    numberOfRegionsInterval, 
+                    populationPerRegionMean,
+                    populationStandardDeviation,
+                    rng,
+                    numberOfRegionsInterval,
                     averageAdjacenciesPerRegionInterval);
         }
     }
-
-
 
 
     /**
@@ -98,17 +94,16 @@ public final class MRVMWorldSetup {
             return notice;
         }
 
-        public int drawPopulation(GaussianDistributionRNG rng){
+        public int drawPopulation(GaussianDistributionRNG rng) {
             int population = (int) rng.nextGaussian(populationMean, populationStandardDeviation);
-            if(population > 0 ){
+            if (population > 0) {
                 return population;
-            }else{
+            } else {
                 return drawPopulation(rng);
             }
         }
 
     }
-
 
 
     public static final class BandSetup {
@@ -138,16 +133,16 @@ public final class MRVMWorldSetup {
          * @param synergies2
          */
         public BandSetup(String name, IntegerInterval numberOfLotsInterval, DoubleInterval baseCapacity,
-                ImmutableMap<Integer, BigDecimal> synergies) {
+                         ImmutableMap<Integer, BigDecimal> synergies) {
             this.name = name;
             this.numberOfLotsInterval = numberOfLotsInterval;
             this.baseCapacity = baseCapacity;
             this.synergies = synergies;
-            }
+        }
 
-        private static ImmutableMap<Integer, BigDecimal> calculateSynergies(int maxNumberOfLots, Function synergyfunction){
+        private static ImmutableMap<Integer, BigDecimal> calculateSynergies(int maxNumberOfLots, Function synergyfunction) {
             ImmutableMap.Builder<Integer, BigDecimal> builder = ImmutableMap.builder();
-            for(int i = 1; i <= maxNumberOfLots; i++){
+            for (int i = 1; i <= maxNumberOfLots; i++) {
                 builder.put(i, synergyfunction.getY(new BigDecimal(i)));
             }
             return builder.build();
@@ -160,41 +155,28 @@ public final class MRVMWorldSetup {
             return name;
         }
 
-        /**
-         * @param name
-         * @param rngSupplier
-         * @return
-         */
+
         public int drawNumberOfLots(UniformDistributionRNG rng) {
             return rng.nextInt(numberOfLotsInterval);
         }
 
-        /**
-         * @param name
-         * @param rngSupplier
-         * @return
-         */
+
         public BigDecimal drawBaseCapacity(UniformDistributionRNG rng) {
             return rng.nextBigDecimal(baseCapacity);
         }
 
-        /**
-         * @param numberOfLots2
-         * @param uniformDistributionRNG
-         * @return
-         */
+
         public Map<Integer, BigDecimal> getSynergies() {
             return synergies;
         }
-        
+
 
     }
 
     public static class MRVMWorldSetupBuilder {
 
 
-
-        public static final  String LOW_PAIRED_NAME = "LOW_PAIRED";
+        public static final String LOW_PAIRED_NAME = "LOW_PAIRED";
         public static final String HIGH_PAIRED_NAME = "HIGH_PAIRED";
         public static final String UNPAIRED_NAME = "UNPAIRED";
 
@@ -204,7 +186,7 @@ public final class MRVMWorldSetup {
         private double populationPerRegionMean;
         private IntegerInterval averageAdjacenciesPerRegionInterval;
         private IntegerInterval numberOfRegionsInterval;
-        private final Map<String, BandSetup> bandSetups;       
+        private final Map<String, BandSetup> bandSetups;
 
 
         public MRVMWorldSetupBuilder() {
@@ -215,27 +197,27 @@ public final class MRVMWorldSetup {
             addDefaultBands();
         }
 
-        private void addDefaultBands(){
-            Map<BigDecimal, BigDecimal> cornerPoints = new HashMap<BigDecimal, BigDecimal>();
+        private void addDefaultBands() {
+            Map<BigDecimal, BigDecimal> cornerPoints = new HashMap<>();
             cornerPoints.put(BigDecimal.ZERO, BigDecimal.ONE);
-     //       cornerPoints.put(BigDecimal.valueOf(2), BigDecimal.valueOf(1.4));
+            //       cornerPoints.put(BigDecimal.valueOf(2), BigDecimal.valueOf(1.4));
             cornerPoints.put(BigDecimal.valueOf(2), BigDecimal.valueOf(1.2));
             cornerPoints.put(BigDecimal.valueOf(4.), BigDecimal.valueOf(1));
             ContinuousPiecewiseLinearFunction synergyFunction = new ContinuousPiecewiseLinearFunction(cornerPoints);
             this.putBandSetup(new BandSetup(LOW_PAIRED_NAME, new IntegerInterval(2),
-                    new DoubleInterval(3d,4d), synergyFunction));
+                    new DoubleInterval(3d, 4d), synergyFunction));
             this.putBandSetup(new BandSetup(HIGH_PAIRED_NAME, new IntegerInterval(3),
-                    new DoubleInterval(1.5d,2.5d), synergyFunction));
+                    new DoubleInterval(1.5d, 2.5d), synergyFunction));
             this.putBandSetup(new BandSetup(UNPAIRED_NAME, new IntegerInterval(2),
-                    new DoubleInterval(0.5d,1d), synergyFunction));       
+                    new DoubleInterval(0.5d, 1d), synergyFunction));
         }
 
 
         public void createGraphRandomly(
-                IntegerInterval numberOfRegions, 
+                IntegerInterval numberOfRegions,
                 IntegerInterval averageOfAdjacenciesPerRegion,
                 double populationPerRegionMean,
-                double populationPerRegionStandardDeviation){
+                double populationPerRegionStandardDeviation) {
             usePredefinedGraph = false;
             setNumberOfRegionsInterval(numberOfRegions);
             setAverageAdjacenciesPerRegionInterval(averageOfAdjacenciesPerRegion);
@@ -250,7 +232,7 @@ public final class MRVMWorldSetup {
             this.numberOfRegionsInterval = numberOfRegions;
         }
 
-        public void createPredefinedGraph(UndirectedGraph<RegionSetup, DefaultEdge> predefinedGraph){
+        public void createPredefinedGraph(UndirectedGraph<RegionSetup, DefaultEdge> predefinedGraph) {
             this.predefinedGraph = predefinedGraph;
             usePredefinedGraph = true;
         }
@@ -268,12 +250,13 @@ public final class MRVMWorldSetup {
         }
 
 
-        public void changeNumberOfLots(String bandName, IntegerInterval numberOfLots){
+        public void changeNumberOfLots(String bandName, IntegerInterval numberOfLots) {
             BandSetup setup = bandSetups.get(bandName);
-            if(setup == null){
+            if (setup == null) {
                 throw new IllegalArgumentException("Band Name Unknown");
             }
             BandSetup newSetup = new BandSetup(setup.name, setup.numberOfLotsInterval, setup.baseCapacity, setup.synergies);
+            bandSetups.put(bandName, newSetup);
         }
 
 
@@ -282,7 +265,7 @@ public final class MRVMWorldSetup {
          * If a bandStructure with this name already exists, it is replaced.
          * @param bandStructure
          */
-        public void putBandSetup(BandSetup bandStructure){
+        public void putBandSetup(BandSetup bandStructure) {
             bandSetups.put(bandStructure.getName(), bandStructure);
         }
 
@@ -290,7 +273,7 @@ public final class MRVMWorldSetup {
          * Remove a BandSetup
          * @param name
          */
-        public BandSetup removeBandSetup(String name){
+        public BandSetup removeBandSetup(String name) {
             return bandSetups.remove(name);
         }
 
@@ -299,15 +282,14 @@ public final class MRVMWorldSetup {
          * Gives an unmodifiable view over all currently stored BandSetups
          * @return
          */
-        public Map<String, BandSetup> bandSetups(){
+        public Map<String, BandSetup> bandSetups() {
             return Collections.unmodifiableMap(bandSetups);
         }
 
-        public MRVMWorldSetup build(){
+        public MRVMWorldSetup build() {
             return new MRVMWorldSetup(this);
 
         }
-
 
 
     }
@@ -322,28 +304,21 @@ public final class MRVMWorldSetup {
      */
     @Deprecated
     public static UndirectedGraph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(
-            final double populationPerRegionMean, 
+            final double populationPerRegionMean,
             final double populationStandardDeviation,
             UniformDistributionRNG rng,
             IntegerInterval numberOfRegionsInterval,
             IntegerInterval averageAdjacenciesPerRegionInterval
-            ) {
+    ) {
         int numberOfRegions = rng.nextInt(numberOfRegionsInterval);
-        int numberOfAdjacencies = rng.nextInt(averageAdjacenciesPerRegionInterval)*numberOfRegions;
+        int numberOfAdjacencies = rng.nextInt(averageAdjacenciesPerRegionInterval) * numberOfRegions;
         RandomGraphGenerator<RegionSetup, DefaultEdge> randomGraphGenerator = new RandomGraphGenerator<>(
                 numberOfRegions, numberOfAdjacencies, rng.nextLong());
         SimpleGraph<RegionSetup, DefaultEdge> targetGraph = new SimpleGraph<>(DefaultEdge.class);
-        VertexFactory<RegionSetup> vertexFactory = new VertexFactory<RegionSetup>() {
-
-            @Override
-            public RegionSetup createVertex() {
-                return new RegionSetup(populationPerRegionMean, populationStandardDeviation, "randomly created");
-            }
-        };
+        VertexFactory<RegionSetup> vertexFactory = () -> new RegionSetup(populationPerRegionMean, populationStandardDeviation, "randomly created");
         randomGraphGenerator.generateGraph(targetGraph, vertexFactory, null);
         return targetGraph;
     }
-
 
 
 }

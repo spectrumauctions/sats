@@ -6,7 +6,6 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 /**
  * @author Fabio Isler
- *
  */
 public class LSVMWorldSetup {
 

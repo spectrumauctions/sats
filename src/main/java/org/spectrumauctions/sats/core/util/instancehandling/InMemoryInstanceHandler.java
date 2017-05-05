@@ -1,16 +1,16 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.util.instancehandling;
-
-import java.util.Collection;
 
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.UniformJavaUtilRandomWrapper;
+
+import java.util.Collection;
 
 /**
  * A fast <b>instance handler</b> implementation.<br>
@@ -22,13 +22,13 @@ import org.spectrumauctions.sats.core.util.random.UniformJavaUtilRandomWrapper;
  *
  */
 public class InMemoryInstanceHandler extends InstanceHandler {
-    
+
     private static InMemoryInstanceHandler instance;
     private static final String UNSUPPORTED_OPERATION_MESSAGE = "The selected InstanceHandler does not support this method. Use another Instance Handler instead.";
-    
+
     private long nextWorldId;
     private long nextPopulationId;
-    
+
     /**
      * Choose the starting id's (which than are just steadily increased) randomly, but higher than {@link Integer#MAX_VALUE}
      */
@@ -37,9 +37,9 @@ public class InMemoryInstanceHandler extends InstanceHandler {
         nextPopulationId = (long) Integer.MAX_VALUE + (long) rng.nextInt();
         nextWorldId = (long) Integer.MAX_VALUE + (long) rng.nextInt();
     }
-    
-    public static InMemoryInstanceHandler getInstance(){
-        if(instance == null){
+
+    public static InMemoryInstanceHandler getInstance() {
+        if (instance == null) {
             instance = new InMemoryInstanceHandler();
         }
         return instance;
@@ -84,13 +84,13 @@ public class InMemoryInstanceHandler extends InstanceHandler {
     public <T extends Bidder<?>> Collection<T> readPopulation(Class<T> type, World world, long populationId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
-    
+
     /* (non-Javadoc)
      * @see InstanceHandler#readBidder(java.util.Map, long, long, long)
      */
     @Override
     public <T extends Bidder<?>> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId,
-            long bidderId) {
+                                                             long bidderId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
 
@@ -99,10 +99,10 @@ public class InMemoryInstanceHandler extends InstanceHandler {
      */
     @Override
     public <T extends Bidder<?>> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
-            long populationId) {
+                                                                              long populationId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
-    
+
 
     /* (non-Javadoc)
      * @see InstanceHandler#getNextWorldId()
@@ -127,7 +127,6 @@ public class InMemoryInstanceHandler extends InstanceHandler {
     public <T extends World> T readWorld(Class<T> type, long world) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
-
 
 
 }

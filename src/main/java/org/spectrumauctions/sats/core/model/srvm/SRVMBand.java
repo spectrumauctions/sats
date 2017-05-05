@@ -1,68 +1,64 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.srvm;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.spectrumauctions.sats.core.bidlang.generic.Band;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.model.Good;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
+import org.spectrumauctions.sats.core.bidlang.generic.Band;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
+import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * @author Michael Weiss
  *
  */
 public final class SRVMBand extends Band implements GenericDefinition {
-    
+
+    private static final long serialVersionUID = 8297467604786037769L;
     private final List<SRVMLicense> licenses;
     private final long worldId;
-    
+
     private transient SRVMWorld world;
-    
+
     //package-private 
-    static Set<SRVMBand> createBands(SRVMWorld world, SRVMWorldSetup setup, RNGSupplier rngSupplier){
+    static Set<SRVMBand> createBands(SRVMWorld world, SRVMWorldSetup setup, RNGSupplier rngSupplier) {
         Set<SRVMBand> bands = new HashSet<>();
         int startId = 0;
-        for(Entry<String, Integer> bandDefinition : setup.defineBands(rngSupplier).entrySet()){
+        for (Entry<String, Integer> bandDefinition : setup.defineBands(rngSupplier).entrySet()) {
             bands.add(new SRVMBand(bandDefinition.getKey(), world, bandDefinition.getValue(), startId));
             startId += bandDefinition.getValue();
         }
         Preconditions.checkArgument(bands.size() != 0, "WorldSetup has to define at least one band");
         return bands;
     }
-    
-    private SRVMBand(String name, SRVMWorld world, int numberOfLicenses, int startId){
+
+    private SRVMBand(String name, SRVMWorld world, int numberOfLicenses, int startId) {
         super(name);
         this.world = world;
         this.worldId = world.getId();
         List<SRVMLicense> builder = new ArrayList<>();
-        for(int i = 0; i < numberOfLicenses; i++){
+        for (int i = 0; i < numberOfLicenses; i++) {
             builder.add(new SRVMLicense(startId++, this));
         }
         this.licenses = Collections.unmodifiableList(builder);
     }
-    
+
     /**
      * @return
      */
     public SRVMWorld getWorld() {
         return world;
     }
-    
-  
+
+
     public List<SRVMLicense> getLicenses() {
         return Collections.unmodifiableList(licenses);
     }
@@ -80,7 +76,7 @@ public final class SRVMBand extends Band implements GenericDefinition {
     void refreshFieldBackReferences(SRVMWorld world) {
         Preconditions.checkArgument(world.getId() == this.worldId);
         this.world = world;
-        for(SRVMLicense license : licenses){
+        for (SRVMLicense license : licenses) {
             license.refreshFieldBackReferences(this);
         }
     }
@@ -129,9 +125,9 @@ public final class SRVMBand extends Band implements GenericDefinition {
      */
     @Override
     public boolean isPartOf(Good license) {
-        if(license == null){
+        if (license == null) {
             return false;
-        }else if (! (license instanceof SRVMLicense)){
+        } else if (!(license instanceof SRVMLicense)) {
             return false;
         }
         SRVMLicense SRVMLicense = (SRVMLicense) license;
@@ -164,8 +160,6 @@ public final class SRVMBand extends Band implements GenericDefinition {
         json.addProperty("band", getName());
         return json;
     }
-    
-    
 
 
 }

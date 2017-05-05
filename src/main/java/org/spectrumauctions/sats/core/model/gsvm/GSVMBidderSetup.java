@@ -1,10 +1,10 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
+import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.model.BidderSetup;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import org.spectrumauctions.sats.core.model.BidderSetup;
-import com.google.common.base.Preconditions;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -65,7 +65,7 @@ public abstract class GSVMBidderSetup extends BidderSetup {
         protected DoubleInterval regionalValueInterval;
 
         protected Builder(String setupName, int numberOfBidders,
-                DoubleInterval lnvi, DoubleInterval hnvi, DoubleInterval rvi) {
+                          DoubleInterval lnvi, DoubleInterval hnvi, DoubleInterval rvi) {
             super(setupName, numberOfBidders);
             this.lowNationalValueInterval = lnvi;
             this.highNationalValueInterval = hnvi;

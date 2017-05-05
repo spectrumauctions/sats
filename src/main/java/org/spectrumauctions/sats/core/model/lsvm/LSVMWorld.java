@@ -1,10 +1,10 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
-import org.spectrumauctions.sats.core.model.World;
+import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +12,6 @@ import java.util.List;
 
 /**
  * @author Fabio Isler
- *
  */
 public final class LSVMWorld extends World {
 
@@ -39,6 +38,7 @@ public final class LSVMWorld extends World {
 
     /**
      * {@inheritDoc}
+     *
      * @return An immutable set containing all licenses.
      */
     @Override

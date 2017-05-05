@@ -7,6 +7,7 @@ import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -15,8 +16,9 @@ import java.util.List;
 /**
  * @author Michael Weiss
  */
-public class RandomOrderXORQFactory {
+public class RandomOrderXORQFactory implements Serializable {
 
+    private static final long serialVersionUID = -5801444096946669459L;
     @SuppressWarnings("CanBeFinal")
     private static BandComparator comparator = new BandComparator();
 
@@ -83,11 +85,13 @@ public class RandomOrderXORQFactory {
     }
 
 
-    private static class BandComparator implements Comparator<MRVMGenericDefinition> {
+    private static class BandComparator implements Comparator<MRVMGenericDefinition>, Serializable {
+
+        private static final long serialVersionUID = 8703079363133628481L;
 
         /* (non-Javadoc)
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
+                 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+                 */
         @Override
         public int compare(MRVMGenericDefinition o1, MRVMGenericDefinition o2) {
             return o1.toString().compareTo(o2.toString());

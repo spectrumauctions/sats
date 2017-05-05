@@ -1,9 +1,9 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
+import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import com.google.common.base.Preconditions;
 
 import java.math.BigDecimal;
 import java.util.HashMap;

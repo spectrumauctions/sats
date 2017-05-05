@@ -1,12 +1,12 @@
 package org.spectrumauctions.sats.core.model.cats;
 
+import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Graph;
+import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Mesh2D;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Mesh2D;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 /**
  * @author Fabio Isler
