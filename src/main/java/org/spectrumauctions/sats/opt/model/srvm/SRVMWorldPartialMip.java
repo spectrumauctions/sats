@@ -58,7 +58,7 @@ public class SRVMWorldPartialMip extends PartialMIP {
         voVariables = initValueVariables(voVariablePrefix);
     }
 
-    private Set<Constraint> createNumberOfLicensesConstraints() {
+    private Set<Constraint> createNumberOfLotsConstraints() {
         Set<Constraint> result = new HashSet<>();
         for (SRVMBand band : world.getBands()) {
             Constraint numberOfLotsConstraint = new Constraint(CompareType.LEQ, band.getNumberOfLicenses());
@@ -138,7 +138,7 @@ public class SRVMWorldPartialMip extends PartialMIP {
     @Override
     public void appendConstraintsToMip(MIP mip) {
         super.appendConstraintsToMip(mip);
-        for (Constraint c : createNumberOfLicensesConstraints()) {
+        for (Constraint c : createNumberOfLotsConstraints()) {
             mip.add(c);
         }
     }
