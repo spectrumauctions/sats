@@ -15,6 +15,7 @@ public class CATSWorldSetup {
 
     private final IntegerInterval numberOfRowsInterval;
     private final IntegerInterval numberOfColumnInterval;
+    private final IntegerInterval numberOfGoodsInterval;
     private final DoubleInterval commonValueInterval;
 
     private final double threeProb;         //Probability of removing an edge adjacent to a particular vertex
@@ -27,6 +28,7 @@ public class CATSWorldSetup {
         super();
         this.numberOfRowsInterval = builder.numberOfRowsInterval;
         this.numberOfColumnInterval = builder.numberOfColumnsInterval;
+        this.numberOfGoodsInterval = builder.numberOfGoodsInterval;
         this.threeProb = builder.threeProb;
         this.additionalNeigh = builder.additionalNeigh;
         this.commonValueInterval = builder.commonValueInterval;
@@ -34,9 +36,18 @@ public class CATSWorldSetup {
         this.useQuadraticPricingOption = builder.useQuadraticPricingOption;
     }
 
-
     public double getAdditivity() {
         return additivity;
+    }
+
+    /**
+     * If the numberOfGoodsInterval is set, the number of rows and columns are ignored and the determination of those
+     * falls back to the CATS definition (int) Math.floor(Math.sqrt(numberOfGoods)).
+     *
+     * @return whether the numberOfGoodsInterval has been defined
+     */
+    public boolean hasDefinedNumberOfGoodsInterval() {
+        return this.numberOfGoodsInterval != null;
     }
 
     Integer drawNumberOfRows(RNGSupplier rngSupplier) {
@@ -47,6 +58,11 @@ public class CATSWorldSetup {
     Integer drawNumberOfColumns(RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
         return rng.nextInt(numberOfColumnInterval);
+    }
+
+    Integer drawNumberOfGoods(RNGSupplier rngSupplier) {
+        UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
+        return rng.nextInt(numberOfGoodsInterval);
     }
 
     Double drawCommonValue(RNGSupplier rngSupplier) {
@@ -114,6 +130,7 @@ public class CATSWorldSetup {
         private DoubleInterval commonValueInterval;
         private IntegerInterval numberOfRowsInterval;
         private IntegerInterval numberOfColumnsInterval;
+        private IntegerInterval numberOfGoodsInterval;
         private double threeProb;
         private double additionalNeigh;
         private double additivity;
@@ -138,6 +155,11 @@ public class CATSWorldSetup {
         public void setNumberOfColumnsInterval(IntegerInterval numberOfColumnsInterval) {
             Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() > 0);
             this.numberOfColumnsInterval = numberOfColumnsInterval;
+        }
+
+        public void setNumberOfGoodsInterval(IntegerInterval NumberOfGoodsInterval) {
+            Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() > 0);
+            this.numberOfGoodsInterval = NumberOfGoodsInterval;
         }
 
         public void setCommonValueInterval(DoubleInterval commonValueInterval) {

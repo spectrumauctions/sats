@@ -20,7 +20,9 @@ import org.spectrumauctions.sats.core.model.bvm.BMValueTest;
 import org.spectrumauctions.sats.core.model.bvm.SizeOrderedIteratorTest;
 import org.spectrumauctions.sats.core.model.bvm.SizeOrderedPowersetTest;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
+import org.spectrumauctions.sats.core.model.cats.CATSBidderTest;
 import org.spectrumauctions.sats.core.model.cats.CATSRegionModel;
+import org.spectrumauctions.sats.core.model.cats.CATSWorldTest;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidderTest;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMWorldTest;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMBidderTest;
@@ -75,6 +77,8 @@ import java.util.List;
         MRVMWorldTest.class,
         SRMTest.class,
         SRVMRandomnessTest.class,
+        CATSWorldTest.class,
+        CATSBidderTest.class,
         // Examples
         BiddingLanguagesExample.class,
         ParameterizingModelsExample.class,
