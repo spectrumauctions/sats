@@ -1,6 +1,7 @@
 package org.spectrumauctions.sats.core.model.cats;
 
 import org.spectrumauctions.sats.core.model.DefaultModel;
+import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.util.ArrayList;
@@ -34,5 +35,9 @@ public class CATSRegionModel extends DefaultModel<CATSWorld, CATSBidder> {
 
     public void setNumberOfBidders(int numberOfBidders) {
         bidderBuilder.setNumberOfBidders(numberOfBidders);
+    }
+
+    public void setNumberOfGoods(int numberOfGoods) {
+        worldSetupBuilder.setNumberOfGoodsInterval(new IntegerInterval(numberOfGoods));
     }
 }
