@@ -48,7 +48,7 @@ public class MRVMModelOptionParser extends ModelOptionParser {
         MRVMModelCreator.Builder builder = new MRVMModelCreator.Builder();
         OptionSet options = this.parse(args);
         if(options.has(KEY_GLOBALBIDDERS)){
-            builder.setNumberOfGlobalBidders((Integer)options.valueOf(KEY_GLOBALBIDDERS));
+            builder.setNumberOfNationalBidders((Integer)options.valueOf(KEY_GLOBALBIDDERS));
         }
         if(options.has(KEY_REGIONALBIDDERS)){
             builder.setNumberOfRegionalBidders((Integer)options.valueOf(KEY_REGIONALBIDDERS));       
