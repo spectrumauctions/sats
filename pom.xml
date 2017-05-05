@@ -21,7 +21,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>${project.basedir}/download-clt-file/</outputDirectory>
+                    <outputDirectory>${project.basedir}/executable/</outputDirectory>
                     <archive>
                         <manifest>
                             <mainClass>org.spectrumauctions.sats.clt.CommandLineTool</mainClass>
