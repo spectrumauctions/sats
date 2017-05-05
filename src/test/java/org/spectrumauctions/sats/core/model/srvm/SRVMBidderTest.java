@@ -41,7 +41,6 @@ public class SRVMBidderTest {
         SRVMWorld world = model.createWorld(983742L);
         List<SRVMBidder> defaultPopulation = model.createPopulation(world);
         Assert.assertEquals(defaultPopulation.size(), 7);
-        checkBidder(defaultPopulation.get(0), "SRVM Bidder Setup");
     }
 
     /**
@@ -133,7 +132,4 @@ public class SRVMBidderTest {
         return world.createPopulation(regionalSetups, new JavaUtilRNGSupplier(983742L));
     }
 
-    private void checkBidder(SRVMBidder bidder, String setupType) {
-        Assert.assertEquals(bidder.getSetupType(), setupType);
-    }
 }
