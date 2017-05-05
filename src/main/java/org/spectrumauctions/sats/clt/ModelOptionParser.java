@@ -1,23 +1,18 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.clt;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import org.spectrumauctions.sats.core.api.*;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import org.spectrumauctions.sats.core.api.BiddingLanguage;
-import org.spectrumauctions.sats.core.api.FileType;
-import org.spectrumauctions.sats.core.api.IllegalConfigException;
-import org.spectrumauctions.sats.core.api.ModelCreator;
-import org.spectrumauctions.sats.core.api.PathResult;
-import org.spectrumauctions.sats.core.api.SeedType;
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 
 /**
  * @author Michael Weiss
@@ -83,29 +78,29 @@ public abstract class ModelOptionParser extends OptionParser {
         if (options.has(KEY_SEED)) {
             List<Long> seeds = (List<Long>) options.valuesOf(KEY_SEED);
             System.out.println(seeds);
-            if(seeds.size() == 2){
-               builder.setSeedType(SeedType.INDIVIDUALSEED);
-               builder.setWorldSeed(seeds.get(0));
-               builder.setPopulationSeed(seeds.get(1));
-            }else if(seeds.size() == 1){
+            if (seeds.size() == 2) {
+                builder.setSeedType(SeedType.INDIVIDUALSEED);
+                builder.setWorldSeed(seeds.get(0));
+                builder.setPopulationSeed(seeds.get(1));
+            } else if (seeds.size() == 1) {
                 builder.setSeedType(SeedType.SUPERSEED);
                 builder.setSuperSeed(seeds.get(0));
-            }else{
+            } else {
                 System.out.println("The number of provided seeds is not valid. Default seeds were used");
             }
         }
         if (options.has(KEY_XORQ)) {
             builder.setGeneric(true);
-        }else{
+        } else {
             builder.setGeneric(false);
         }
-        
+
         if (options.has(KEY_FILETYPE)) {
             builder.setFileType((FileType) options.valueOf(KEY_FILETYPE));
         } else {
             builder.setFileType(FileType.JSON);
         }
-        
+
         File outputFolder = DEFAULTBIDSPATH;
         if (options.has(KEY_BIDSPATH)) {
             outputFolder = new File((String) options.valueOf(KEY_BIDSPATH));
@@ -116,22 +111,28 @@ public abstract class ModelOptionParser extends OptionParser {
 
     /**
      * Factory Method to create a ModelOptionParser for a specific model
-     * 
+     *
      * @param model
      * @return
      */
     public static ModelOptionParser createOptionParser(Model model) {
         switch (model) {
-        case BVM:
-            return new BVMModelOptionParser();
-        case MBVM:
-            return new MBVMModelOptionParser();
-        case SRVM:
-            return new SRVMModelOptionParser();
-        case MRVM:
-            return new MRVMModelOptionParser();
-        default:
-            throw new IllegalArgumentException("Unknown Model, No request Parser Defined");
+            case BVM:
+                return new BVMModelOptionParser();
+            case MBVM:
+                return new MBVMModelOptionParser();
+            case SRVM:
+                return new SRVMModelOptionParser();
+            case MRVM:
+                return new MRVMModelOptionParser();
+            case LSVM:
+                return new LSVMModelOptionParser();
+            case GSVM:
+                return new GSVMModelOptionParser();
+            case CATS:
+                return new CATSModelOptionParser();
+            default:
+                throw new IllegalArgumentException("Unknown Model, No request Parser Defined");
         }
     }
 

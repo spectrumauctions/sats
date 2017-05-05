@@ -6,23 +6,28 @@
 package org.spectrumauctions.sats.clt;
 
 import joptsimple.OptionSet;
+import org.spectrumauctions.sats.core.api.CATSRegionsModelCreator;
 import org.spectrumauctions.sats.core.api.IllegalConfigException;
-import org.spectrumauctions.sats.core.api.MBVMModelCreator;
 import org.spectrumauctions.sats.core.api.PathResult;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.io.IOException;
 
 /**
- * @author Michael Weiss
- *
+ * @author Fabio Isler
  */
-public class MBVMModelOptionParser extends ModelOptionParser {
+public class CATSModelOptionParser extends ModelOptionParser {
 
     public final static String KEY_NUMBIDDERS = "bidders";
+    public final static String KEY_NUMGOODS = "goods";
 
-    public MBVMModelOptionParser() {
-        this.accepts(KEY_NUMBIDDERS, "The number of Bidders in the MBVM Model")
+    /**
+     *
+     */
+    public CATSModelOptionParser() {
+        this.accepts(KEY_NUMBIDDERS, "The number of bidders in CATS")
+                .withRequiredArg().ofType(Integer.class);
+        this.accepts(KEY_NUMGOODS, "The number of goods in CATS")
                 .withRequiredArg().ofType(Integer.class);
     }
 
@@ -31,7 +36,7 @@ public class MBVMModelOptionParser extends ModelOptionParser {
      */
     @Override
     protected Model getModel() {
-        return Model.MBVM;
+        return Model.CATS;
     }
 
     /* (non-Javadoc)
@@ -40,10 +45,13 @@ public class MBVMModelOptionParser extends ModelOptionParser {
     @Override
     public PathResult treatResult(String[] args)
             throws IllegalConfigException, UnsupportedBiddingLanguageException, IOException {
-        MBVMModelCreator.Builder builder = new MBVMModelCreator.Builder();
+        CATSRegionsModelCreator.Builder builder = new CATSRegionsModelCreator.Builder();
         OptionSet options = this.parse(args);
         if (options.has(KEY_NUMBIDDERS)) {
             builder.setNumberOfBidders((Integer) options.valueOf(KEY_NUMBIDDERS));
+        }
+        if (options.has(KEY_NUMGOODS)) {
+            builder.setNumberOfGoods((Integer) options.valueOf(KEY_NUMGOODS));
         }
         return allModelsResultTreating(options, builder);
     }

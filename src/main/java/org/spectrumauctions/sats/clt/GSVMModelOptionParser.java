@@ -6,23 +6,28 @@
 package org.spectrumauctions.sats.clt;
 
 import joptsimple.OptionSet;
+import org.spectrumauctions.sats.core.api.GSVMModelCreator;
 import org.spectrumauctions.sats.core.api.IllegalConfigException;
-import org.spectrumauctions.sats.core.api.MBVMModelCreator;
 import org.spectrumauctions.sats.core.api.PathResult;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.io.IOException;
 
 /**
- * @author Michael Weiss
- *
+ * @author Fabio Isler
  */
-public class MBVMModelOptionParser extends ModelOptionParser {
+public class GSVMModelOptionParser extends ModelOptionParser {
 
-    public final static String KEY_NUMBIDDERS = "bidders";
+    public final static String KEY_NATIONALBIDDERS = "nationalb";
+    public final static String KEY_REGIONALBIDDERS = "regionalb";
 
-    public MBVMModelOptionParser() {
-        this.accepts(KEY_NUMBIDDERS, "The number of Bidders in the MBVM Model")
+    /**
+     *
+     */
+    public GSVMModelOptionParser() {
+        this.accepts(KEY_NATIONALBIDDERS, "The number of National Bidders in the GSVM")
+                .withRequiredArg().ofType(Integer.class);
+        this.accepts(KEY_REGIONALBIDDERS, "The number of Regional Bidders in the GSVM")
                 .withRequiredArg().ofType(Integer.class);
     }
 
@@ -31,7 +36,7 @@ public class MBVMModelOptionParser extends ModelOptionParser {
      */
     @Override
     protected Model getModel() {
-        return Model.MBVM;
+        return Model.GSVM;
     }
 
     /* (non-Javadoc)
@@ -40,10 +45,13 @@ public class MBVMModelOptionParser extends ModelOptionParser {
     @Override
     public PathResult treatResult(String[] args)
             throws IllegalConfigException, UnsupportedBiddingLanguageException, IOException {
-        MBVMModelCreator.Builder builder = new MBVMModelCreator.Builder();
+        GSVMModelCreator.Builder builder = new GSVMModelCreator.Builder();
         OptionSet options = this.parse(args);
-        if (options.has(KEY_NUMBIDDERS)) {
-            builder.setNumberOfBidders((Integer) options.valueOf(KEY_NUMBIDDERS));
+        if (options.has(KEY_NATIONALBIDDERS)) {
+            builder.setNumberOfNationalBidders((Integer) options.valueOf(KEY_NATIONALBIDDERS));
+        }
+        if (options.has(KEY_REGIONALBIDDERS)) {
+            builder.setNumberOfRegionalBidders((Integer) options.valueOf(KEY_REGIONALBIDDERS));
         }
         return allModelsResultTreating(options, builder);
     }
