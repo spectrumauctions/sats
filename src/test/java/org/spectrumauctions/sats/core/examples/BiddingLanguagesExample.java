@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.core.examples;
 
+import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.*;
@@ -7,7 +8,6 @@ import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
-import org.junit.Test;
 
 import java.util.Iterator;
 
@@ -21,7 +21,7 @@ public class BiddingLanguagesExample {
     /**
      * See {@link SimpleModelAccessorsExample} and {@link ParameterizingModelsExample} for examples how bidders can be generated
      */
-    private static SRVMBidder createAnyBidder(){
+    private static SRVMBidder createAnyBidder() {
         return new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
     }
 
@@ -30,18 +30,18 @@ public class BiddingLanguagesExample {
      * XOR-Based languages, amongst them:
      * <p>XOR-Based
      * <ul>
-     *     <li>{@link SizeBasedUniqueRandomXOR}- Randomly distributed XOR Bids</li>
-     *     <li>{@link IncreasingSizeOrderedXOR} and {@link DecreasingSizeOrderedXOR} - XOR Bundles deterministically returned and ordered by size</li>
-     *     <li>{@link BidderSpecificXOR} - Items are ordered in a way specific to this bidder type. Might be randomized. </li>
+     * <li>{@link SizeBasedUniqueRandomXOR}- Randomly distributed XOR Bids</li>
+     * <li>{@link IncreasingSizeOrderedXOR} and {@link DecreasingSizeOrderedXOR} - XOR Bundles deterministically returned and ordered by size</li>
+     * <li>{@link BidderSpecificXOR} - Items are ordered in a way specific to this bidder type. Might be randomized. </li>
      * </ul></p>
      * <p>XOR-Q-Based
-     *      <li>{@link GenericPowersetDecreasing} and {@link GenericPowersetIncreasing} - XOR-Q Bundles deterministically returned and ordered by size</li>
-     *      //TODO Complete list
+     * <li>{@link GenericPowersetDecreasing} and {@link GenericPowersetIncreasing} - XOR-Q Bundles deterministically returned and ordered by size</li>
+     * //TODO Complete list
      * </p>
-     *     {@link }
+     * {@link }
      */
     @Test
-    public void generateRandomOrderXORBids(){
+    public void generateRandomOrderXORBids() {
         Bidder bidder = createAnyBidder();
         SizeBasedUniqueRandomXOR<?> valueFunction;
         try {
@@ -54,7 +54,7 @@ public class BiddingLanguagesExample {
             valueFunction.setDistribution(meanBundleSize, standardDeviation, numberOfBids);
             // Do something with the generated bids
             Iterator<? extends XORValue<?>> xorBidIterator = valueFunction.iterator();
-            while (xorBidIterator.hasNext()){
+            while (xorBidIterator.hasNext()) {
                 XORValue bid = xorBidIterator.next();
                 System.out.println(bid.getLicenses().toString() + "   " + bid.value().toString());
             }

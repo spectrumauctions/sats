@@ -1,13 +1,13 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.bvm;
 
 import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
+import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 /**
@@ -20,18 +20,13 @@ public class BMLicense extends Good {
 
     private transient BMBand band;
     private final String bandName;
-    
+
     private transient BMWorld world;
-    
+
 
     /**
      * Licenses are automatically created when a new {@link BMWorld} instance is created,
      * hence, the use of this constructor is not recommended.
-     * @param world
-     * @param name
-     * @param numberOfLicenses
-     * @param licenseCounter
-     * @param rngSupplier
      */
     BMLicense(int id, BMBand band, RNGSupplier rngSupplier) {
         super(id, band.getWorldId());
@@ -47,14 +42,14 @@ public class BMLicense extends Good {
 
 
     private void setWorld(BMWorld world) {
-        if(getWorldId() != world.getId()){
+        if (getWorldId() != world.getId()) {
             throw new IncompatibleWorldException("The stored worldId does not represent the passed world reference");
         }
         this.world = world;
     }
-    
+
     private void setBand(BMBand band) {
-        if(! bandName.equals(band.getName()) || band.getWorldId() != getWorldId()){
+        if (!bandName.equals(band.getName()) || band.getWorldId() != getWorldId()) {
             throw new IncompatibleWorldException("The stored worldId / bandName do not represent the passed band reference");
         }
         this.band = band;
@@ -68,7 +63,7 @@ public class BMLicense extends Good {
      */
     public void refreshFieldBackReferences(BMBand bmBand) {
         setWorld(bmBand.getWorld());
-        setBand(bmBand);   
+        setBand(bmBand);
     }
 
 
@@ -79,8 +74,7 @@ public class BMLicense extends Good {
     public BMWorld getWorld() {
         return world;
     }
-    
-    
+
 
     @Override
     public int hashCode() {
@@ -108,7 +102,5 @@ public class BMLicense extends Good {
         return true;
     }
 
-    
-    
 
 }

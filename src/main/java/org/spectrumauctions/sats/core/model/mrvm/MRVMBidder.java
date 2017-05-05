@@ -5,37 +5,36 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
+import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
+import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
+import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
+import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
+import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
+import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
+import org.spectrumauctions.sats.core.model.*;
+import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
+import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
-import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
-import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.model.*;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import com.google.common.base.Preconditions;
-
-import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
-import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
-import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
-import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
-
 
 /**
  * @author Michael Weiss
- *
  */
 public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericValueBidder<MRVMGenericDefinition> {
-    
 
+
+    private static final long serialVersionUID = 8394009700504454313L;
     private transient MRVMWorld world;
 
     /**
@@ -48,59 +47,56 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
      * A parameter defining the target market share this bidder intends to cover, per region. <br>
      * The bidders value for a bundle increases heavily as soon as the capacity share he has in a region gets close to.
      * <p>
-     *     key: regionId, value: beta
+     * key: regionId, value: beta
      */
     private final Map<Integer, BigDecimal> beta;
 
     /**
      * <p>
-     *     key: regionId, value: beta
-     *
+     * key: regionId, value: beta
      */
     private final Map<Integer, BigDecimal> zLow;
 
     /**
      * <p>
-     *     key: regionId, value: beta
-     *
+     * key: regionId, value: beta
      */
     private final Map<Integer, BigDecimal> zHigh;
 
 
-
-
-	MRVMBidder(long id, long populationId, MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
+    MRVMBidder(long id, long populationId, MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
         super(setup, populationId, id, world.getId());
         this.world = world;
         this.alpha = setup.drawAlpha(rng);
         this.beta = drawBeta(world, setup, rng);
         this.zLow = setup.drawZLow(beta, world, rng);
-        zLow.entrySet().stream().forEach(z -> Preconditions.checkArgument(z.getValue().compareTo(BigDecimal.ZERO)  > 0 ));
+        zLow.entrySet().stream().forEach(z -> Preconditions.checkArgument(z.getValue().compareTo(BigDecimal.ZERO) > 0));
         this.zHigh = setup.drawZHigh(beta, world, rng);
         assertRegionalValuesAssigned();
     }
 
     private Map<Integer, BigDecimal> drawBeta(MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
-    	Map<Integer, BigDecimal> tempBeta = new HashMap<>();
-        for(MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()){
-        	tempBeta.put(region.getId(), setup.drawBeta(region, rng));
+        Map<Integer, BigDecimal> tempBeta = new HashMap<>();
+        for (MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()) {
+            tempBeta.put(region.getId(), setup.drawBeta(region, rng));
         }
         return Collections.unmodifiableMap(tempBeta);
     }
-   
-    private void assertRegionalValuesAssigned(){
-  for(MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()){
-    Preconditions.checkArgument(getBeta(region) != null);
-        Preconditions.checkArgument(getzLow(region)!= null);
+
+    private void assertRegionalValuesAssigned() {
+        for (MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()) {
+            Preconditions.checkArgument(getBeta(region) != null);
+            Preconditions.checkArgument(getzLow(region) != null);
             Preconditions.checkArgument(getzHigh(region) != null);
-    	}
-    	if(beta.size() != world.getRegionsMap().getNumberOfRegions()){
-        throw new IllegalArgumentException("Defined beta for region which is not part of this world");
-    	}
+        }
+        if (beta.size() != world.getRegionsMap().getNumberOfRegions()) {
+            throw new IllegalArgumentException("Defined beta for region which is not part of this world");
+        }
     }
 
     /**
      * Calculates the omega factor (i.e., the regional value)
+     *
      * @return
      */
     public BigDecimal omegaFactor(MRVMRegionsMap.Region r, BigDecimal sv) {
@@ -112,7 +108,7 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
     /**
      * Calculates the sv-function [See description in paper]
      */
-    public BigDecimal svFunction(MRVMRegionsMap.Region region, BigDecimal c){
+    public BigDecimal svFunction(MRVMRegionsMap.Region region, BigDecimal c) {
 
         Preconditions.checkArgument(c.compareTo(BigDecimal.ZERO) >= 0
                         && c.compareTo(world.getMaximumRegionalCapacity()) <= 0,
@@ -120,10 +116,10 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
                         + world.getMaximumRegionalCapacity().toString()
                         + ") but is actually "
                         + c.toString());
-    	return svFunction(region).getY(c);
+        return svFunction(region).getY(c);
     }
 
-    public ContinuousPiecewiseLinearFunction svFunction(MRVMRegionsMap.Region region){
+    public ContinuousPiecewiseLinearFunction svFunction(MRVMRegionsMap.Region region) {
         int population = region.getPopulation();
         BigDecimal beta = this.getBeta(region);
         Map<BigDecimal, BigDecimal> cornerPoints = new HashMap<>();
@@ -143,7 +139,8 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
     /**
      * Calculates the gamma factor, as explained in the model writeup. <br>
      * The gamma factor represents a bidder-specific discount of the the regional (omega) values.
-     * @param r The region for which the discount is requested
+     *
+     * @param r      The region for which the discount is requested
      * @param bundle The complete bundle (not only containing the licenses of r).
      * @return
      */
@@ -151,6 +148,7 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
 
     /**
      * Calculates the gamma factors for all regions. For explanations of the gamma factors, see {@link #gammaFactor(MRVMRegionsMap.Region, Bundle)}
+     *
      * @param bundle The bundle for which the discounts will be calculated.
      * @return
      */
@@ -216,14 +214,14 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
     private void setWorld(MRVMWorld world) {
         this.world = world;
     }
-    
-    public BigDecimal getzLow(MRVMRegionsMap.Region region) {
-		return zLow.get(region.getId());
-	}
 
-	public BigDecimal getzHigh(MRVMRegionsMap.Region region) {
-		return zHigh.get(region.getId());
-	}
+    public BigDecimal getzLow(MRVMRegionsMap.Region region) {
+        return zLow.get(region.getId());
+    }
+
+    public BigDecimal getzHigh(MRVMRegionsMap.Region region) {
+        return zHigh.get(region.getId());
+    }
 
     public BigDecimal getAlpha() {
         return alpha;
@@ -277,7 +275,7 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
             throw new UnsupportedBiddingLanguageException();
         }
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -308,6 +306,6 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
             return false;
         return true;
     }
-    
-    
+
+
 }

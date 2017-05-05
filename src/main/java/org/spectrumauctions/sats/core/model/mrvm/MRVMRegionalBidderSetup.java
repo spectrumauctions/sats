@@ -1,19 +1,18 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSortedMap;
+import org.spectrumauctions.sats.core.util.random.DoubleInterval;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSortedMap;
-
-import org.spectrumauctions.sats.core.util.random.DoubleInterval;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 /**
  * @author Michael Weiss
@@ -23,7 +22,7 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
     private final double exponentFactor;
     private final double base;
-    
+
 
     protected MRVMRegionalBidderSetup(Builder builder) {
         super(builder);
@@ -55,42 +54,39 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
         ImmutableSortedMap.Builder<Integer, BigDecimal> distanceDiscount = ImmutableSortedMap.naturalOrder();
         distanceDiscount.put(0, BigDecimal.ONE);
         int maxDistance = world.getRegionsMap().getLongestShortestPath(home);
-        for(int i = 1; i <= maxDistance ; i++){
-            double exponent = exponentFactor*i*(-1);
+        for (int i = 1; i <= maxDistance; i++) {
+            double exponent = exponentFactor * i * (-1);
             double gamma = Math.pow(base, exponent);
-            try{
+            try {
                 Preconditions.checkState(gamma >= 0 && gamma <= 1, "Invalid Gamma, some of the calculation parameters have unallowed values");
-            }catch(IllegalStateException e){
+            } catch (IllegalStateException e) {
                 //TODO Delete Try/Catch again
                 System.out.println("Invalid Gamma");
             }
             BigDecimal roundedGamma = BigDecimal.valueOf(gamma).setScale(5, BigDecimal.ROUND_HALF_DOWN);
-            distanceDiscount.put(i,roundedGamma);
+            distanceDiscount.put(i, roundedGamma);
         }
         return distanceDiscount.build();
     }
-    
 
 
-    
-    public static class Builder extends MRVMBidderSetup.Builder{
+    public static class Builder extends MRVMBidderSetup.Builder {
 
         private double exponentFactor;
         private double base;
-        
+
         /**
          * @param alphaInterval
          * @param betaInterval
          */
         public Builder() {
             super("Multi Region Model Regional Bidder",
-                4,
-                new DoubleInterval(700,950), 
-                new DoubleInterval(0.1,0.2));
+                    4,
+                    new DoubleInterval(700, 950),
+                    new DoubleInterval(0.1, 0.2));
             this.exponentFactor = 0.9;
             this.base = 2;
         }
-
 
 
         /**
@@ -100,7 +96,7 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
          * @param  Has to be greater than 0
          * @param exponentFactor Has to be greater than 0
          */
-        public void setGammaShape(double base, double exponentFactor){
+        public void setGammaShape(double base, double exponentFactor) {
             Preconditions.checkArgument(base > 0);
             Preconditions.checkArgument(exponentFactor > 0);
             this.base = base;
@@ -132,10 +128,8 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
         public MRVMRegionalBidderSetup build() {
             return new MRVMRegionalBidderSetup(this);
         }
-        
+
     }
-    
-    
-   
+
 
 }

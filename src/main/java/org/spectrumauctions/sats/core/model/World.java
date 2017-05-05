@@ -1,16 +1,16 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model;
 
+import org.spectrumauctions.sats.core.model.bvm.BMWorld;
+import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
-
-import org.spectrumauctions.sats.core.model.bvm.BMWorld;
-import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 
 public abstract class World implements Serializable {
 
@@ -18,8 +18,8 @@ public abstract class World implements Serializable {
 
     protected final String modelName;
     protected final long id;
-    
-    public World(String modelName){
+
+    public World(String modelName) {
         this.id = InstanceHandler.getDefaultHandler().getNextWorldId();
         this.modelName = modelName;
     }
@@ -30,31 +30,33 @@ public abstract class World implements Serializable {
 
     public long getId() {
         return id;
-    };
+    }
+
+    ;
 
     public abstract int getNumberOfGoods();
-    
+
     public abstract Set<? extends Good> getLicenses();
-    
-    protected void store(){
+
+    protected void store() {
         InstanceHandler.getDefaultHandler().writeWorld(this);
     }
-    
-    protected long openNewPopulation(){
+
+    protected long openNewPopulation() {
         return InstanceHandler.getDefaultHandler().getNextPopulationId(getId());
     }
-    
+
     /**
      * @param populationId
      * @return
      */
     public abstract Collection<? extends Bidder<?>> restorePopulation(long populationId);
-    
+
     /**
      * Advanced way to restore serialized {@link Bidder} instances, allowing to specify a custom {@link InstanceHandler} <br>
      * For most use cases, it's recommended to use {@link BMWorld#restorePopulation(long)}. <br><br>
-     * 
-     * Note: Bidders and World must have been serialized before, either during construction (by having set {@link InstanceHandler#setDefaultHandler(InstanceHandler)} 
+     *
+     * Note: Bidders and World must have been serialized before, either during construction (by having set {@link InstanceHandler#setDefaultHandler(InstanceHandler)}
      * to an appropriate handler or by manually storing them with an {@link InstanceHandler} afterwards. Restoring (deserialization) has to be done
      * with the same type of {@link InstanceHandler} as the serialization.
      * @param type
@@ -62,20 +64,20 @@ public abstract class World implements Serializable {
      * @param storageHandler
      * @return
      */
-    public <T extends Bidder<?>> Collection<T> restorePopulation(Class<T> type, long populationId, InstanceHandler storageHandler){
+    public <T extends Bidder<?>> Collection<T> restorePopulation(Class<T> type, long populationId, InstanceHandler storageHandler) {
         return storageHandler.readPopulationWithUnknownTypes(type, this, populationId);
-    } 
-    
-    protected <T extends Bidder<?>> Collection<T> restorePopulation(Class<T> type, long populationId){
+    }
+
+    protected <T extends Bidder<?>> Collection<T> restorePopulation(Class<T> type, long populationId) {
         return restorePopulation(type, populationId, InstanceHandler.getDefaultHandler());
     }
-    
-    
+
+
     /**
      * Some of the members of the World (e.g. licenses) have circular references back to the world.<br> 
      * As the used gsonSerializer cannot handle this yet, the circular references are not serialized
      * and have to be restored after deserialization by calling this method.<br><br>
-     * 
+     *
      * This method will be removed in a later version and the problem be solved during deserialization.
      */
     public abstract void refreshFieldBackReferences();
@@ -105,6 +107,5 @@ public abstract class World implements Serializable {
         return true;
     }
 
-    
 
 }

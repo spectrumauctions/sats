@@ -1,12 +1,12 @@
 package org.spectrumauctions.sats.core.model.srvm;
 
-import org.spectrumauctions.sats.core.util.random.DoubleInterval;
-import org.spectrumauctions.sats.core.util.random.IntegerInterval;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import org.spectrumauctions.sats.core.model.BidderSetup;
-import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import org.spectrumauctions.sats.core.model.BidderSetup;
+import org.spectrumauctions.sats.core.util.random.DoubleInterval;
+import org.spectrumauctions.sats.core.util.random.IntegerInterval;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.Collections;

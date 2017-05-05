@@ -1,10 +1,10 @@
 package org.spectrumauctions.sats.core.model.cats;
 
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

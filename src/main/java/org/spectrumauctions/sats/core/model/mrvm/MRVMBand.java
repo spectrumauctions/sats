@@ -1,30 +1,25 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableMap;
 import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import com.google.common.collect.ImmutableMap;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @author Michael Weiss
  *
  */
-public final class MRVMBand extends Band implements Serializable{
+public final class MRVMBand extends Band implements Serializable {
 
     private static final long serialVersionUID = -4482949789084377013L;
     private final long worldId;
@@ -33,14 +28,14 @@ public final class MRVMBand extends Band implements Serializable{
 
     private final List<MRVMLicense> licenses;
     private final Map<Integer, BigDecimal> synergies;
-    
+
     private transient MRVMWorld world;
 
     public static Set<MRVMBand> createBands(MRVMWorld world, MRVMWorldSetup worldSetup, MRVMRegionsMap regionsMap, UniformDistributionRNG rng) {
         Set<MRVMWorldSetup.BandSetup> bandSetups = worldSetup.getBandSetups();
         Set<MRVMBand> bands = new HashSet<>();
         int currentLicenseId = 0;
-        for(MRVMWorldSetup.BandSetup bandSetup : bandSetups){
+        for (MRVMWorldSetup.BandSetup bandSetup : bandSetups) {
             MRVMBand band = new MRVMBand(bandSetup, world, currentLicenseId, rng);
             currentLicenseId += band.getNumberOfLicenses();
             bands.add(band);
@@ -52,12 +47,13 @@ public final class MRVMBand extends Band implements Serializable{
     private MRVMBand(MRVMWorldSetup.BandSetup bandSetup, MRVMWorld world, int licenseStartId, UniformDistributionRNG rng) {
         super(bandSetup.getName());
         this.world = world;
+
         this.numberOfLots = bandSetup.drawNumberOfLots(rng);
         this.worldId = world.getId();
         this.baseCapacity = bandSetup.drawBaseCapacity(rng);
         this.synergies = ImmutableMap.copyOf(bandSetup.getSynergies());
         this.licenses = MRVMLicense.createLicenses(this, licenseStartId, world.getRegionsMap());
-    
+
     }
 
     /**
@@ -67,27 +63,27 @@ public final class MRVMBand extends Band implements Serializable{
      * @param quantity
      * @return
      */
-    public BigDecimal getSynergy(int quantity){
-        if(quantity < 0 || quantity > numberOfLots){
+    public BigDecimal getSynergy(int quantity) {
+        if (quantity < 0 || quantity > numberOfLots) {
             throw new IllegalArgumentException("Immpossible quantity");
-        }else if(quantity <= 1){
+        } else if (quantity <= 1) {
             //If quantity is 0 or 1, return synergy one 
             //(note that synergy for quantity = 0 is without effect, as it will be multiplied with 0 in the val calc)
             return BigDecimal.ONE;
-        }else{
+        } else {
             BigDecimal synergy = synergies.get(quantity);
-            if(synergy == null){
-                return getSynergy(quantity -1);
-            }else{
+            if (synergy == null) {
+                return getSynergy(quantity - 1);
+            } else {
                 return synergy;
             }
         }
     }
 
-    public BigDecimal calculateCAP(int quantity){
+    public BigDecimal calculateCAP(int quantity) {
         return MRVMWorld.capOfBand(this, quantity);
     }
-    
+
     public BigDecimal getBaseCapacity() {
         return baseCapacity;
     }
@@ -101,16 +97,16 @@ public final class MRVMBand extends Band implements Serializable{
         return Collections.unmodifiableCollection(licenses);
     }
 
-    public int getNumberOfLots(){
+    public int getNumberOfLots() {
         return numberOfLots;
     }
-    
+
     @Override
     public int getNumberOfLicenses() {
         return licenses.size();
     }
 
-    
+
     public long getWorldId() {
         return worldId;
     }
@@ -119,8 +115,8 @@ public final class MRVMBand extends Band implements Serializable{
      * Must only be called by {@link MRVMWorld#refreshFieldBackReferences()}.
      * Explicit definition of private setter to prevent from generating setter by accident.
      */
-    private void setWorld(MRVMWorld world){
-        if(getWorldId() != world.getId()){
+    private void setWorld(MRVMWorld world) {
+        if (getWorldId() != world.getId()) {
             throw new IncompatibleWorldException("The stored worldId does not represent the passed world reference");
         }
         this.world = world;
@@ -134,9 +130,9 @@ public final class MRVMBand extends Band implements Serializable{
      */
     public void refreshFieldBackReferences(MRVMWorld world) {
         setWorld(world);
-        for(MRVMLicense license : licenses){
+        for (MRVMLicense license : licenses) {
             license.refreshFieldBackReferences(this);
-        }    
+        }
     }
 
 
@@ -182,8 +178,4 @@ public final class MRVMBand extends Band implements Serializable{
     }
 
 
-
-    
-    
-    
 }

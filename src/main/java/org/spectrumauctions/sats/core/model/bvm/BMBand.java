@@ -1,38 +1,34 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.bvm;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * @author Michael Weiss
  *
  */
-public class BMBand extends Band implements GenericDefinition {
-    
+public class BMBand extends Band implements GenericDefinition, Serializable {
+
+    private static final long serialVersionUID = 1156082993361102068L;
     private final List<BMLicense> licenses;
     private final long worldId;
-    
+
     private transient BMWorld world;
-    
+
     /**
      * Creates a new Band
      * Bands are automatically created when a new {@link BMWorld} instance is created,
@@ -47,7 +43,7 @@ public class BMBand extends Band implements GenericDefinition {
         super(name);
         this.world = world;
         this.worldId = world.getId();
-        this.licenses = new ArrayList<BMLicense>();
+        this.licenses = new ArrayList<>();
         for (int i = 0; i < numberOfLicenses; i++) {
             licenses.add(new BMLicense(licenseCounter++, this, rngSupplier));
         }
@@ -66,22 +62,22 @@ public class BMBand extends Band implements GenericDefinition {
         return licenses.size();
     }
 
-    
+
     public long getWorldId() {
         return worldId;
     }
 
     /**
-     * Must only be called by {@link #refreshFieldBackReferences(World)}.
+     * Must only be called by {@link World#refreshFieldBackReferences()}.
      * Explicit definition of private setter to prevent from generating setter by accident.
      */
-    private void setWorld(BMWorld world){
-        if(getWorldId() != world.getId()){
+    private void setWorld(BMWorld world) {
+        if (getWorldId() != world.getId()) {
             throw new IncompatibleWorldException("The stored worldId does not represent the passed world reference");
         }
         this.world = world;
     }
-    
+
     /**
      * Method is called after deserialization, there is not need to call it on any other occasion.<br>
      * See {@link World#refreshFieldBackReferences()} for explanations.
@@ -89,7 +85,7 @@ public class BMBand extends Band implements GenericDefinition {
      */
     public void refreshFieldBackReferences(BMWorld world) {
         setWorld(world);
-        for(BMLicense license : licenses){
+        for (BMLicense license : licenses) {
             license.refreshFieldBackReferences(this);
         }
     }
@@ -124,9 +120,9 @@ public class BMBand extends Band implements GenericDefinition {
      */
     @Override
     public boolean isPartOf(Good license) {
-        if(license == null){
+        if (license == null) {
             return false;
-        }else if(!(license instanceof BMLicense)){
+        } else if (!(license instanceof BMLicense)) {
             return false;
         }
         BMLicense bmLicense = (BMLicense) license;
@@ -146,7 +142,7 @@ public class BMBand extends Band implements GenericDefinition {
      */
     @Override
     public Set<Good> allLicenses() {
-        return new HashSet<Good>(getLicenses());
+        return new HashSet<>(getLicenses());
     }
 
     /* (non-Javadoc)
@@ -158,8 +154,6 @@ public class BMBand extends Band implements GenericDefinition {
         json.addProperty("band", getName());
         return json;
     }
-
-
 
 
 }

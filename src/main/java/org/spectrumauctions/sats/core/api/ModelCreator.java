@@ -5,15 +5,8 @@
  */
 package org.spectrumauctions.sats.core.api;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-
-import org.spectrumauctions.sats.core.bidfile.FileWriter;
 import com.google.common.base.Preconditions;
-
+import org.spectrumauctions.sats.core.bidfile.FileWriter;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
@@ -23,9 +16,14 @@ import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+
 /**
  * @author Michael Weiss
- *
  */
 public abstract class ModelCreator {
 
@@ -103,7 +101,7 @@ public abstract class ModelCreator {
         FilePathUtils filePathUtils = FilePathUtils.getInstance();
         File instanceFolder = filePathUtils.worldFolderPath(bidders.stream().findAny().get().getWorldId());
         PathResult result;
-        if(generic){
+        if (generic) {
             @SuppressWarnings("unchecked")
             Class<? extends GenericLang<GenericDefinition>> langClass = (Class<? extends GenericLang<GenericDefinition>>) BiddingLanguage.getXORQLanguage(lang);
             if (oneFile) {
@@ -111,7 +109,7 @@ public abstract class ModelCreator {
                 for (Bidder<? extends Good> bidder : bidders) {
                     languages.add(bidder.getValueFunction(langClass));
                 }
-                File valueFile =  writer.writeMultiBidderXORQ(languages, bidsPerBidder, "satsvalue");
+                File valueFile = writer.writeMultiBidderXORQ(languages, bidsPerBidder, "satsvalue");
                 result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(valueFile);
                 return result;
@@ -137,12 +135,11 @@ public abstract class ModelCreator {
                     XORLanguage<Good> language = bidder.getValueFunction(langClass);
                     languages.add(language);
                 }
-                File valueFile =  writer.writeMultiBidderXOR(languages, bidsPerBidder, "satsvalue");
+                File valueFile = writer.writeMultiBidderXOR(languages, bidsPerBidder, "satsvalue");
                 result = new PathResult(storeWorldSerialization, instanceFolder);
                 result.addValueFile(valueFile);
                 return result;
             } else {
-                Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
                 String zipId = String.valueOf(new Date().getTime());
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();

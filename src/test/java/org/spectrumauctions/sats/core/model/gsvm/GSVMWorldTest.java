@@ -1,9 +1,9 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
-import org.spectrumauctions.sats.core.util.random.IntegerInterval;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.junit.Assert;
 import org.junit.Test;
+import org.spectrumauctions.sats.core.util.random.IntegerInterval;
+import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 /**
  * @author Michael Weiss
