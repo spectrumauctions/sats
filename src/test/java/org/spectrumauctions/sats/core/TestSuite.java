@@ -28,7 +28,8 @@ import org.spectrumauctions.sats.core.model.lsvm.LSVMWorldTest;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
-import org.spectrumauctions.sats.core.model.srvm.SRMTest;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidderTest;
+import org.spectrumauctions.sats.core.model.srvm.SRVMTest;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetTest;
@@ -73,7 +74,8 @@ import java.util.List;
         MRVMBidderTypeSpecificTest.class,
         MRMRandomnessTest.class,
         MRVMWorldTest.class,
-        SRMTest.class,
+        SRVMTest.class,
+        SRVMBidderTest.class,
         SRVMRandomnessTest.class,
         // Examples
         BiddingLanguagesExample.class,

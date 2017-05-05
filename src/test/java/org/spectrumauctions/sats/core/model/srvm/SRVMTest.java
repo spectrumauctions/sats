@@ -18,7 +18,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericS
  * @author Michael Weiss
  *
  */
-public class SRMTest {
+public class SRVMTest {
 
     //TODO RealTesting
     
