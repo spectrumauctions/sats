@@ -20,7 +20,7 @@ import java.util.List;
  */
 public abstract class ModelOptionParser extends OptionParser {
 
-    public static String KEY_NUMBEROFBIDS = "numberOfBids";
+    public static String KEY_NUMBEROFBIDS = "bidsPerBidder";
     public static String KEY_MULTIPLEFILES = "multiplefiles";
     public static String KEY_ITERATOR = "iterator";
     public static String KEY_XORQ = "xorq";
@@ -33,7 +33,7 @@ public abstract class ModelOptionParser extends OptionParser {
 
     public ModelOptionParser() {
         this.accepts("model",
-                "Chose which model to use to generate your value function. Possible models: BVM, MBVM, SRVM, MRVM")
+                "Chose which model to use to generate your value function. Possible models: " + Model.allModels())
                 .withRequiredArg().ofType(Model.class).required();
         this.accepts(KEY_NUMBEROFBIDS, "The number of atomic XOR bids per bidder to be written to the output file")
                 .withRequiredArg().ofType(Integer.class);
@@ -43,7 +43,7 @@ public abstract class ModelOptionParser extends OptionParser {
                 .withRequiredArg().ofType(BiddingLanguage.class);
         this.accepts(KEY_XORQ, "if flag is set, the returned bids are XOR-Q (And file format JSON)");
         this.accepts(CommandLineTool.KEY_HELP,
-                "Gives a list of all possible Options. " + "the options for this model are also printed.");
+                "Gives a list of all possible Options. " + "If used with the --model tag, the options for the specified model are also printed.");
         this.accepts(KEY_FILETYPE, "Decide for a File Type in which the bids are returned. Options are JSON and CATS")
                 .withRequiredArg().ofType(FileType.class);
         this.accepts(KEY_MUTE, "Disables Notification about successful creation of files");
@@ -62,7 +62,10 @@ public abstract class ModelOptionParser extends OptionParser {
 
     protected PathResult allModelsResultTreating(OptionSet options, ModelCreator.Builder builder)
             throws IllegalConfigException, UnsupportedBiddingLanguageException, IOException {
-        CommandLineTool.printHelpIfRequested(options, getModel(), this);
+        boolean helpWasPrinted = CommandLineTool.printHelpIfRequested(options, getModel(), this);
+        if(helpWasPrinted){
+            return null;
+        }
         if (options.has(KEY_NUMBEROFBIDS)) {
             builder.setBidsPerBidder((Integer) options.valueOf(KEY_NUMBEROFBIDS));
         }

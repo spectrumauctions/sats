@@ -59,7 +59,9 @@ public class CommandLineTool {
         ModelOptionParser modelParser = ModelOptionParser.createOptionParser(model);
         try {
             PathResult pathResult = modelParser.treatResult(args);
-            printSuccess(args, pathResult);
+            if(pathResult != null){
+                printSuccess(args, pathResult);
+            }
         } catch (IllegalConfigException e) {
             e.printStackTrace();
         } catch (UnsupportedBiddingLanguageException e) {
@@ -104,10 +106,19 @@ public class CommandLineTool {
 
     }
 
-    public static void printHelpIfRequested(OptionSet generalOptions, Model model, OptionParser toPrint) {
+    /**
+     * Prints help if requested. Returns if help was printed
+     * @param generalOptions all options
+     * @param model optional - model for which help has to be printed
+     * @param toPrint
+     * @return true iff help was printed
+     */
+    public static boolean printHelpIfRequested(OptionSet generalOptions, Model model, OptionParser toPrint) {
         if (generalOptions.has("help")) {
             printHelp(String.valueOf(model), toPrint);
+            return true;
         }
+        return false;
     }
 
     public static void printHelp(String modelName, OptionParser toPrint) {

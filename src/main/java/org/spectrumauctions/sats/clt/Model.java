@@ -11,5 +11,16 @@ package org.spectrumauctions.sats.clt;
  */
 public enum Model {
 
-    BVM, MBVM, SRVM, MRVM, LSVM, GSVM, CATS
+    BVM, MBVM, SRVM, MRVM, LSVM, GSVM, CATS;
+
+    public static String allModels(){
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < values().length; i++){
+            builder.append(values()[i]);
+            if(i != values().length-1){
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
 }

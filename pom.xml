@@ -25,6 +25,7 @@
                     <archive>
                         <manifest>
                             <mainClass>org.spectrumauctions.sats.clt.CommandLineTool</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                     <descriptorRefs>
