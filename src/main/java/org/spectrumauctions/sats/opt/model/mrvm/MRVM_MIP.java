@@ -41,8 +41,8 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
      * a non-zero scaling factor for the calculation is chosen.
      */
     public static BigDecimal highestValidVal = BigDecimal.valueOf(MIP.MAX_VALUE - 1000000);
-    private WorldPartialMip worldPartialMip;
-    private Map<MRVMBidder, BidderPartialMIP> bidderPartialMips;
+    private MRVMWorldPartialMip worldPartialMip;
+    private Map<MRVMBidder, MRVMBidderPartialMIP> bidderPartialMips;
     private MRVMWorld world;
     private MIP mip;
 
@@ -54,7 +54,7 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
         mip.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
         double scalingFactor = calculateScalingFactor(bidders);
         double biggestPossibleValue = biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        this.worldPartialMip = new WorldPartialMip(
+        this.worldPartialMip = new MRVMWorldPartialMip(
                 bidders,
                 biggestPossibleValue,
                 scalingFactor);
@@ -62,16 +62,16 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
         worldPartialMip.appendToMip(mip);
         bidderPartialMips = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
-            BidderPartialMIP bidderPartialMIP;
+            MRVMBidderPartialMIP bidderPartialMIP;
             if (bidder instanceof MRVMNationalBidder) {
                 MRVMNationalBidder globalBidder = (MRVMNationalBidder) bidder;
-                bidderPartialMIP = new NationalBidderPartialMip(globalBidder, svscalingFactor, worldPartialMip);
+                bidderPartialMIP = new MRVMNationalBidderPartialMip(globalBidder, svscalingFactor, worldPartialMip);
             } else if (bidder instanceof MRVMLocalBidder) {
                 MRVMLocalBidder globalBidder = (MRVMLocalBidder) bidder;
-                bidderPartialMIP = new org.spectrumauctions.sats.opt.model.mrvm.LocalBidderPartialMip(globalBidder, svscalingFactor, worldPartialMip);
+                bidderPartialMIP = new MRVMLocalBidderPartialMip(globalBidder, svscalingFactor, worldPartialMip);
             } else {
                 MRVMRegionalBidder globalBidder = (MRVMRegionalBidder) bidder;
-                bidderPartialMIP = new RegionalBidderPartialMip(globalBidder, svscalingFactor, worldPartialMip);
+                bidderPartialMIP = new MRVMRegionalBidderPartialMip(globalBidder, svscalingFactor, worldPartialMip);
             }
             bidderPartialMIP.appendToMip(mip);
             bidderPartialMips.put(bidder, bidderPartialMIP);
@@ -130,13 +130,13 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
      * @see EfficientAllocator#calculateEfficientAllocation()
      */
     @Override
-    public MipResult calculateAllocation() {
+    public MRVMMipResult calculateAllocation() {
         IMIPResult mipResult = SOLVER.solve(mip);
         if (PRINT_SOLVER_RESULT) {
             System.out.println(mipResult);
         }
-        MipResult.Builder resultBuilder = new MipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
-        for (Map.Entry<MRVMBidder, BidderPartialMIP> bidder : bidderPartialMips.entrySet()) {
+        MRVMMipResult.Builder resultBuilder = new MRVMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
+        for (Map.Entry<MRVMBidder, MRVMBidderPartialMIP> bidder : bidderPartialMips.entrySet()) {
             Variable bidderValueVar = worldPartialMip.getValueVariable(bidder.getKey());
             double mipUtilityResult = mipResult.getValue(bidderValueVar);
             double svScalingFactor = bidder.getValue().getSVScalingFactor();
@@ -164,11 +164,11 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
         return resultBuilder.build();
     }
 
-    public WorldPartialMip getWorldPartialMip() {
+    public MRVMWorldPartialMip getWorldPartialMip() {
         return worldPartialMip;
     }
 
-    public Map<MRVMBidder, BidderPartialMIP> getBidderPartialMips() {
+    public Map<MRVMBidder, MRVMBidderPartialMIP> getBidderPartialMips() {
         return bidderPartialMips;
     }
 

@@ -16,7 +16,6 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.opt.imip.PartialMIP;
 import org.spectrumauctions.sats.opt.imip.PiecewiseLinearPartialMIP;
-import org.spectrumauctions.sats.opt.model.mrvm.WorldPartialMip;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -25,7 +24,7 @@ import java.util.*;
  * @author Michael Weiss
  *
  */
-public abstract class BidderPartialMIP extends PartialMIP {
+public abstract class MRVMBidderPartialMIP extends PartialMIP {
 
 
     private static final String regionalOmegaPrefix = "aux_Omega";
@@ -39,12 +38,12 @@ public abstract class BidderPartialMIP extends PartialMIP {
     private Map<Region, Variable> cVariables;
     private Map<Region, Map<Band, Variable>> capVariables;
     private Map<Region, Variable> svVariables;
-    protected final WorldPartialMip worldPartialMip;
+    protected final MRVMWorldPartialMip worldPartialMip;
     private final MRVMBidder bidder;
 
     private final double svscaling;
 
-    public BidderPartialMIP(MRVMBidder bidder, double scalingFactor, WorldPartialMip worldMip) {
+    public MRVMBidderPartialMIP(MRVMBidder bidder, double scalingFactor, MRVMWorldPartialMip worldMip) {
         this.bidder = bidder;
         this.worldPartialMip = worldMip;
         this.svscaling = scalingFactor;
