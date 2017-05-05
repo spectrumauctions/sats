@@ -26,8 +26,15 @@ public final class CATSWorld extends World {
 
     public CATSWorld(CATSWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
-        int numberOfRows = worldSetup.drawNumberOfRows(rngSupplier);
-        int numberOfColumns = worldSetup.drawNumberOfColumns(rngSupplier);
+        int numberOfRows, numberOfColumns;
+        if (worldSetup.hasDefinedNumberOfGoodsInterval()) {
+            int numberOfGoods = worldSetup.drawNumberOfGoods(rngSupplier);
+            numberOfRows = (int) Math.floor(Math.sqrt(numberOfGoods));
+            numberOfColumns = (int) Math.floor(Math.sqrt(numberOfGoods));
+        } else {
+            numberOfRows = worldSetup.drawNumberOfRows(rngSupplier);
+            numberOfColumns = worldSetup.drawNumberOfColumns(rngSupplier);
+        }
         this.grid = worldSetup.buildProximityGraph(numberOfRows, numberOfColumns, rngSupplier);
         this.licenses = new HashSet<>();
         for (Vertex vertex : this.grid.getVertices()) {
