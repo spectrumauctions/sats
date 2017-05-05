@@ -21,8 +21,8 @@ import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.bm.BMBidder;
-import org.spectrumauctions.sats.core.model.bm.bvm.BaseValueModel;
+import org.spectrumauctions.sats.core.model.bvm.BMBidder;
+import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 
 /**
  * @author Michael Weiss

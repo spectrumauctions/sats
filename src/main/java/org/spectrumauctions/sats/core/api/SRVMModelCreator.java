@@ -9,8 +9,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.srm.SRMBidderSetup;
-import org.spectrumauctions.sats.core.model.srm.SingleRegionModel;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidderSetup;
+import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 
 /**
  * @author Michael Weiss
@@ -56,10 +56,10 @@ public class SRVMModelCreator extends ModelCreator {
 
         public Builder() {
             super();
-            numSmallBidders = new SRMBidderSetup.SmallBidderBuilder().getNumberOfBidders();
-            numPrimaryBidders  = new SRMBidderSetup.PrimaryBidderBuilder().getNumberOfBidders();
-            numSecondaryBidders = new SRMBidderSetup.SecondaryBidderBuilder().getNumberOfBidders();
-            numHighFrequencyBidders = new SRMBidderSetup.HighFrequenceBidderBuilder().getNumberOfBidders();
+            numSmallBidders = new SRVMBidderSetup.SmallBidderBuilder().getNumberOfBidders();
+            numPrimaryBidders  = new SRVMBidderSetup.PrimaryBidderBuilder().getNumberOfBidders();
+            numSecondaryBidders = new SRVMBidderSetup.SecondaryBidderBuilder().getNumberOfBidders();
+            numHighFrequencyBidders = new SRVMBidderSetup.HighFrequenceBidderBuilder().getNumberOfBidders();
         }
 
         /*

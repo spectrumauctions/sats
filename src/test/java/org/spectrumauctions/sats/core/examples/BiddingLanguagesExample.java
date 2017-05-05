@@ -5,8 +5,8 @@ import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.Generi
 import org.spectrumauctions.sats.core.bidlang.xor.*;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.srm.SRMBidder;
-import org.spectrumauctions.sats.core.model.srm.SingleRegionModel;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -21,7 +21,7 @@ public class BiddingLanguagesExample {
     /**
      * See {@link SimpleModelAccessorsExample} and {@link ParameterizingModelsExample} for examples how bidders can be generated
      */
-    private static SRMBidder createAnyBidder(){
+    private static SRVMBidder createAnyBidder(){
         return new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
     }
 
