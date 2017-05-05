@@ -69,7 +69,7 @@ public abstract class ModelOptionParser extends OptionParser {
             throws IllegalConfigException, UnsupportedBiddingLanguageException, IOException {
         CommandLineTool.printHelpIfRequested(options, getModel(), this);
         if (options.has(KEY_NUMBEROFBIDS)) {
-            builder.setBidsPerBidder((int) options.valueOf(KEY_NUMBEROFBIDS));
+            builder.setBidsPerBidder((Integer) options.valueOf(KEY_NUMBEROFBIDS));
         }
         if (options.has(KEY_MULTIPLEFILES)) {
             builder.setOneFile(false);
