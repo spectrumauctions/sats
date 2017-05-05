@@ -2,6 +2,7 @@ package org.spectrumauctions.sats.clt;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import org.spectrumauctions.sats.core.api.IllegalConfigException;
 import org.spectrumauctions.sats.core.api.PathResult;
@@ -76,7 +77,16 @@ public class CommandLineTool {
         checkMuted.accepts(ModelOptionParser.KEY_MUTE);
         checkMuted.allowsUnrecognizedOptions();
         if(!checkMuted.parse(args).has(ModelOptionParser.KEY_MUTE)){
-            System.out.println("Successfully created value files:");
+            String satsversion = null;
+            try {
+                satsversion = CommandLineTool.class.getPackage().getImplementationVersion();
+            }catch (Exception e){
+                //Do Nothing
+            }
+            if(satsversion == null){
+                satsversion = "(UNKNOWN VERSION)";
+            }
+            System.out.println("Successfully created value files with: " + satsversion);
             System.out.println("Bids can be found in the following files");
             for(File file : pathResult.getValueFiles()){
                 System.out.println("\t - " + file.getPath());
