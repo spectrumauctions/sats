@@ -239,7 +239,7 @@ public class SRVMBidderPartialMIPTest {
                     Assert.assertEquals("Expected " + vmVar.getName() + " to be " + expected + ", but it's " + vmResult, vmResult, expected, 0.000001);
                     Assert.assertEquals("Expected " + voVar.getName() + " to be 0.0, but it's " + voResult, voResult, 0.0, 0.0000001);
                     noAssertions = false;
-                } else if (result.getValue(wVar) == 0.0){
+                } else if (result.getValue(wVar) == 0.0) {
                     Assert.assertEquals("Expected " + voVar.getName() + " to be " + expected + ", but it's " + voResult, voResult, expected, 0.0000001);
                     Assert.assertEquals("Expected " + vmVar.getName() + " to be 0.0, but it's " + vmResult, vmResult, 0.0, 0.0000001);
                     noAssertions = false;

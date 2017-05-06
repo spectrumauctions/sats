@@ -41,12 +41,12 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
     protected final MRVMWorldPartialMip worldPartialMip;
     private final MRVMBidder bidder;
 
-    private final double svscaling;
+    private final double scaling;
 
     public MRVMBidderPartialMIP(MRVMBidder bidder, double scalingFactor, MRVMWorldPartialMip worldMip) {
         this.bidder = bidder;
         this.worldPartialMip = worldMip;
-        this.svscaling = scalingFactor;
+        this.scaling = scalingFactor;
         initVariables();
     }
 
@@ -199,7 +199,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
             double beta = bidder.getBeta(region).doubleValue();
             double population = region.getPopulation();
-            double scaledFactor = beta * population / svscaling;
+            double scaledFactor = beta * population / scaling;
             Constraint omega = new Constraint(CompareType.EQ, 0);
             omega.addTerm(-1, getOmegaVariable(region));
             omega.addTerm(scaledFactor, getSVVariable(region));
@@ -233,7 +233,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
     Set<PartialMIP> generateCapConstraints() {
         Set<PartialMIP> result = new HashSet<>();
         for (MRVMBand band : bidder.getWorld().getBands()) {
-            ContinuousPiecewiseLinearFunction func = capacity(band);
+            ContinuousPiecewiseLinearFunction func = capLinearFunction(band);
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 Variable input = worldPartialMip.getXVariable(bidder, region, band);
                 Variable output = getCapVariable(region, band);
@@ -257,37 +257,21 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
      * @param band
      * @return
      */
-    ContinuousPiecewiseLinearFunction capacity(MRVMBand band) {
+    ContinuousPiecewiseLinearFunction capLinearFunction(MRVMBand band) {
         //Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
-        final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
-        breakpoints.put(BigDecimal.ZERO, MRVMWorld.capOfBand(band, 0)); //
+        breakpoints.put(BigDecimal.ZERO, capAt(band, 0)); //
         BigDecimal lastSynergy = band.getSynergy(0);
-        for (int quantity = 1; quantity < band.getNumberOfLots(); quantity++) {
-            BigDecimal synergy = band.getSynergy(quantity);
-            if (synergy.compareTo(lastSynergy) != 0) {
-                // Synergy Breakpoint: Store both last quantity with previous
-                // synergy (to account for piecewise constant synergies)
-                // and new quantity in breakpoints
-                BigDecimal lowerQuantityCapacity = MRVMWorld.capOfBand(band, quantity - 1);
-                // Note, if there's only one capacity with the previous synergy,
-                // an equivalent entry already exists and is overwritten in map
-                BigDecimal key = new BigDecimal(quantity - 1).setScale(scale);
-                breakpoints.put(key, lowerQuantityCapacity);
-
-                // Do the same for the new quantity
-                key = new BigDecimal(quantity).setScale(scale);
-                BigDecimal thisQuantityCapacity = MRVMWorld.capOfBand(band, quantity);
-                breakpoints.put(key, thisQuantityCapacity);
-            }
+        for (int quantity = 1; quantity <= band.getNumberOfLots(); quantity++) {
+            //Quick and dirty approach - Adding all quantities
+            breakpoints.put(BigDecimal.valueOf(quantity), capAt(band,quantity));
         }
-        //Add a breakpoint at the end of the function
-        BigDecimal key = new BigDecimal(band.getNumberOfLots()).setScale(scale);
-        BigDecimal thisQuantityCapacity = MRVMWorld.capOfBand(band, band.getNumberOfLots());
-        breakpoints.put(key, thisQuantityCapacity);
-
         ContinuousPiecewiseLinearFunction result = new ContinuousPiecewiseLinearFunction(breakpoints);
         return result;
+    }
+
+    BigDecimal capAt(MRVMBand band, int quantitiy){
+        return MRVMWorld.capOfBand(band, quantitiy);
     }
 
 
@@ -332,7 +316,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
     }
 
 
-    public double getSVScalingFactor() {
-        return svscaling;
+    public double getScalingFactor() {
+        return scaling;
     }
 }

@@ -36,20 +36,17 @@ public class MRVMWorldPartialMip extends PartialMIP {
 
     private final Set<MRVMBidder> bidders;
     private final MRVMWorld world;
-    private final double scalingFactor;
 
     /**
      * @param bidders2
      * @param biggestPossibleValue The highest (already scaled) value any bidder could have
-     * @param scalingFactor
      */
-    MRVMWorldPartialMip(Collection<MRVMBidder> bidders2, double biggestPossibleValue, double scalingFactor) {
+    MRVMWorldPartialMip(Collection<MRVMBidder> bidders2, double biggestPossibleValue) {
         super();
         Preconditions.checkNotNull(bidders2);
         Preconditions.checkArgument(bidders2.size() > 0);
         Preconditions.checkArgument(biggestPossibleValue <= MIP.MAX_VALUE);
         this.biggestPossibleValue = biggestPossibleValue;
-        this.scalingFactor = scalingFactor;
         this.bidders = Collections.unmodifiableSet(new HashSet<>(bidders2));
         world = bidders2.iterator().next().getWorld();
         Preconditions.checkNotNull(world);
@@ -116,6 +113,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
         if ((mip.getLinearObjectiveTerms() != null && mip.getQuadraticObjectiveTerms() != null)
                 || mip.getObjectiveTerms().size() != 0) {
             //TODO Log Warning
+            System.out.println("WARNING: There are already existing objective values, when there's still supposed to be none");
         }
         for (Variable var : valueVariables.values()) {
             mip.addObjectiveTerm(1, var);
@@ -186,10 +184,4 @@ public class MRVMWorldPartialMip extends PartialMIP {
         return biggestPossibleValue;
     }
 
-    /**
-     * @return
-     */
-    public double getScalingFactor() {
-        return scalingFactor;
-    }
 }

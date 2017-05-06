@@ -32,7 +32,6 @@ import static org.junit.Assert.fail;
 
 /**
  * @author Michael Weiss
- *
  */
 public class MRVMBidderPartialMIPTest {
 
@@ -48,9 +47,9 @@ public class MRVMBidderPartialMIPTest {
         MRVMWorld world = new MRVMWorld(MRVMWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(153578351L));
         MRVMLocalBidderSetup setup = MRVMWorldGen.getSimpleLocalBidderSetup();
         bidders = world.createPopulation(setup, null, null, new JavaUtilRNGSupplier(15434684L));
-        double scalingFactor = MRVM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRVM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
 
         bidderPartialMips = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
@@ -106,7 +105,7 @@ public class MRVMBidderPartialMIPTest {
                 double alpha = bidder.getAlpha().doubleValue();
                 double beta = bidder.getBeta(region).doubleValue();
                 double population = region.getPopulation();
-                double expected = 1. / (1 + region.getId()) * beta * population * partialMip.getValue().getSVScalingFactor();
+                double expected = 1. / (1 + region.getId()) * beta * population * partialMip.getValue().getScalingFactor();
                 Assert.assertEquals(expected, omega, 0.0000001);
                 noAssertions = false;
             }
@@ -315,7 +314,7 @@ public class MRVMBidderPartialMIPTest {
         MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
 
         for (MRVMBand band : bidder.getWorld().getBands()) {
-            ContinuousPiecewiseLinearFunction fct = bidderPartialMIP.capacity(band);
+            ContinuousPiecewiseLinearFunction fct = bidderPartialMIP.capLinearFunction(band);
             Variable input = worldPartialMip.getXVariable(bidder, region, band);
             Variable output = bidderPartialMIP.getCapVariable(region, band);
             String auxiliaryVariableName = new StringBuilder("aux_cap_helper_")
@@ -349,7 +348,7 @@ public class MRVMBidderPartialMIPTest {
         MRVMBidderPartialMIP bidderPartialMIP = bidderPartialMips.get(bidder);
 
 
-        ContinuousPiecewiseLinearFunction fct = bidderPartialMIP.capacity(band);
+        ContinuousPiecewiseLinearFunction fct = bidderPartialMIP.capLinearFunction(band);
         Variable input = worldPartialMip.getXVariable(bidder, region, band);
         Variable output = bidderPartialMIP.getCapVariable(region, band);
         String auxiliaryVariableName = new StringBuilder("aux_cap_helper_")

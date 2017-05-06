@@ -14,16 +14,18 @@ import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.junit.Assert;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.mrvm.*;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMNationalBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.util.Collection;
 
-import static org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.*;
+import static org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 
 /**
  * @author Michael Weiss
- *
  */
 public class MRVMNationalBidderPartialMipTest {
 
@@ -33,13 +35,13 @@ public class MRVMNationalBidderPartialMipTest {
         MRVMWorld world = new MRVMWorld(MRVMWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
         Collection<MRVMBidder> bidders =
                 world.createPopulation(null, null, MRVMWorldGen.getSimpleNationalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRVM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRVM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
         worldPartialMip.appendToMip(mip);
         for (MRVMBidder bidder : bidders) {
             if (bidder instanceof MRVMNationalBidder) {
-                MRVMBidderPartialMIP bidderMip = new MRVMNationalBidderPartialMip((MRVMNationalBidder) bidder, 1, worldPartialMip);
+                MRVMBidderPartialMIP bidderMip = new MRVMNationalBidderPartialMip((MRVMNationalBidder) bidder, scalingFactor, worldPartialMip);
                 bidderMip.appendToMip(mip);
             }
         }
@@ -55,9 +57,9 @@ public class MRVMNationalBidderPartialMipTest {
         MRVMWorld world = new MRVMWorld(MRVMWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
         Collection<MRVMBidder> bidders =
                 world.createPopulation(null, null, MRVMWorldGen.getSimpleNationalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRVM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRVM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
         MRVMNationalBidder bidder = (MRVMNationalBidder) bidders.iterator().next();
         MRVMNationalBidderPartialMip bidderMip = new MRVMNationalBidderPartialMip(bidder, 1, worldPartialMip);
         int numberOfRegionsInBundle = 2;
@@ -108,7 +110,6 @@ public class MRVMNationalBidderPartialMipTest {
     }
 
     /**
-     *
      * @param wi number of regions covered
      */
     private void testWhat(int wi) {
@@ -117,9 +118,9 @@ public class MRVMNationalBidderPartialMipTest {
         MRVMWorld world = new MRVMWorld(MRVMWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
         Collection<MRVMBidder> bidders =
                 world.createPopulation(null, null, MRVMWorldGen.getSimpleNationalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRVM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRVM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
         MRVMNationalBidder bidder = (MRVMNationalBidder) bidders.iterator().next();
         MRVMNationalBidderPartialMip bidderMip = new MRVMNationalBidderPartialMip(bidder, 1, worldPartialMip);
         // Constrain Wi
@@ -174,11 +175,10 @@ public class MRVMNationalBidderPartialMipTest {
         MIP mip = new MIP();
         mip.setObjectiveMax(true);
         MRVMWorld world = new MRVMWorld(MRVMWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
-        Collection<MRVMBidder> bidders =
-                world.createPopulation(null, null, MRVMWorldGen.getSimpleNationalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRVM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRVM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        Collection<MRVMBidder> bidders = world.createPopulation(null, null, MRVMWorldGen.getSimpleNationalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
         MRVMNationalBidder bidder = (MRVMNationalBidder) bidders.iterator().next();
         MRVMNationalBidderPartialMip bidderMip = new MRVMNationalBidderPartialMip(bidder, 1, worldPartialMip);
 

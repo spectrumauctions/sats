@@ -25,9 +25,4 @@ public class FindJoptTest {
         }
     }
 
-    @Test
-    public void noAssertions() {
-
-    }
-
 }

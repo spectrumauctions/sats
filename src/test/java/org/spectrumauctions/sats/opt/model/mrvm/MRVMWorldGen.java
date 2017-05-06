@@ -5,8 +5,8 @@
  */
 package org.spectrumauctions.sats.opt.model.mrvm;
 
-import org.spectrumauctions.sats.core.model.mrvm.MRVMNationalBidderSetup;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMLocalBidderSetup;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMNationalBidderSetup;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionalBidderSetup;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMWorldSetup;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMWorldSetup.BandSetup;
@@ -21,7 +21,6 @@ import java.util.List;
 
 /**
  * @author Michael Weiss
- *
  */
 public abstract class MRVMWorldGen {
 

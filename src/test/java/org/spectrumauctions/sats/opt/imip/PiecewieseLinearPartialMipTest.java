@@ -20,7 +20,6 @@ import java.util.Map;
 
 /**
  * @author Michael Weiss
- *
  */
 public class PiecewieseLinearPartialMipTest {
 
