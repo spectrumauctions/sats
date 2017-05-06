@@ -3,7 +3,7 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.mrm;
+package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
@@ -14,34 +14,31 @@ import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.junit.Assert;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.mrm.MRMBand;
-import org.spectrumauctions.sats.core.model.mrm.MRMBidder;
-import org.spectrumauctions.sats.core.model.mrm.MRMGlobalBidder;
-import org.spectrumauctions.sats.core.model.mrm.MRMRegionsMap.Region;
-import org.spectrumauctions.sats.core.model.mrm.MRMWorld;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.model.mrvm.*;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 
 import java.util.Collection;
 
 /**
  * @author Michael Weiss
- *
  */
-public class GlobalBidderPartialMipTest {
+public class MRVMNationalBidderPartialMipBigScale {
 
     @Test
-    public void test() {
+    public void testNoExceptionInThisTypeOnlyMIP() {
         MIP mip = new MIP();
-        MRMWorld world = new MRMWorld(WorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
-        Collection<MRMBidder> bidders =
-                world.createPopulation(null, null, WorldGen.getSimpleGlobalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        WorldPartialMip worldPartialMip = new WorldPartialMip(bidders, biggestScaledValue, scalingFactor);
+        MultiRegionModel model = new MultiRegionModel();
+        model.setNumberOfNationalBidders(3);
+        model.setNumberOfLocalBidders(0);
+        model.setNumberOfRegionalBidders(0);
+        Collection<MRVMBidder> bidders = model.createNewPopulation(5413646L);
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
         worldPartialMip.appendToMip(mip);
-        for (MRMBidder bidder : bidders) {
-            if (bidder instanceof MRMGlobalBidder) {
-                BidderPartialMIP bidderMip = new GlobalBidderPartialMip((MRMGlobalBidder) bidder, 1, worldPartialMip);
+        for (MRVMBidder bidder : bidders) {
+            if (bidder instanceof MRVMNationalBidder) {
+                MRVMBidderPartialMIP bidderMip = new MRVMNationalBidderPartialMip((MRVMNationalBidder) bidder, 1, worldPartialMip);
                 bidderMip.appendToMip(mip);
             }
         }
@@ -54,26 +51,29 @@ public class GlobalBidderPartialMipTest {
     public void testWirAndWi() {
         MIP mip = new MIP();
         mip.setObjectiveMax(true);
-        MRMWorld world = new MRMWorld(WorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
-        Collection<MRMBidder> bidders =
-                world.createPopulation(null, null, WorldGen.getSimpleGlobalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        WorldPartialMip worldPartialMip = new WorldPartialMip(bidders, biggestScaledValue, scalingFactor);
-        MRMGlobalBidder bidder = (MRMGlobalBidder) bidders.iterator().next();
-        GlobalBidderPartialMip bidderMip = new GlobalBidderPartialMip(bidder, 1, worldPartialMip);
+        MultiRegionModel model = new MultiRegionModel();
+        model.setNumberOfNationalBidders(3);
+        model.setNumberOfLocalBidders(0);
+        model.setNumberOfRegionalBidders(0);
+        Collection<MRVMBidder> bidders = model.createNewPopulation(5413646L);
+        MRVMWorld world = bidders.iterator().next().getWorld();
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
+        MRVMNationalBidder bidder = (MRVMNationalBidder) bidders.iterator().next();
+        MRVMNationalBidderPartialMip bidderMip = new MRVMNationalBidderPartialMip(bidder, 1, worldPartialMip);
         int numberOfRegionsInBundle = 2;
         int regionCount = 0;
         // Constraint \hat{W}_{i,r}
         for (Region region : world.getRegionsMap().getRegions()) {
             if (regionCount++ < numberOfRegionsInBundle) {
-                for (MRMBand band : world.getBands()) {
+                for (MRVMBand band : world.getBands()) {
                     Constraint hasALicense = new Constraint(CompareType.EQ, 2);
                     hasALicense.addTerm(1, worldPartialMip.getXVariable(bidder, region, band));
                     mip.add(hasALicense);
                 }
             } else {
-                for (MRMBand band : world.getBands()) {
+                for (MRVMBand band : world.getBands()) {
                     Constraint hasNoLicense = new Constraint(CompareType.EQ, 0);
                     hasNoLicense.addTerm(1, worldPartialMip.getXVariable(bidder, region, band));
                     mip.add(hasNoLicense);
@@ -110,20 +110,22 @@ public class GlobalBidderPartialMipTest {
     }
 
     /**
-     *
      * @param wi number of regions covered
      */
     private void testWhat(int wi) {
         MIP mip = new MIP();
         mip.setObjectiveMax(true);
-        MRMWorld world = new MRMWorld(WorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
-        Collection<MRMBidder> bidders =
-                world.createPopulation(null, null, WorldGen.getSimpleGlobalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        WorldPartialMip worldPartialMip = new WorldPartialMip(bidders, biggestScaledValue, scalingFactor);
-        MRMGlobalBidder bidder = (MRMGlobalBidder) bidders.iterator().next();
-        GlobalBidderPartialMip bidderMip = new GlobalBidderPartialMip(bidder, 1, worldPartialMip);
+
+        MultiRegionModel model = new MultiRegionModel();
+        model.setNumberOfNationalBidders(3);
+        model.setNumberOfLocalBidders(0);
+        model.setNumberOfRegionalBidders(0);
+        Collection<MRVMBidder> bidders = model.createNewPopulation(5413646L);
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
+        MRVMNationalBidder bidder = (MRVMNationalBidder) bidders.iterator().next();
+        MRVMNationalBidderPartialMip bidderMip = new MRVMNationalBidderPartialMip(bidder, 1, worldPartialMip);
         // Constrain Wi
         Constraint wiConstraint = new Constraint(CompareType.EQ, wi);
         wiConstraint.addTerm(1, bidderMip.getWIVariable());
@@ -146,7 +148,7 @@ public class GlobalBidderPartialMipTest {
         int numberOfUncovered = bidder.getWorld().getRegionsMap().getNumberOfRegions() - wi;
         for (int k = 0; k <= bidder.getKMax(); k++) {
             double varValue = result.getValue(bidderMip.getWHatIKVariable(k));
-            if (k == numberOfUncovered) {
+            if (k == numberOfUncovered || k < numberOfUncovered && k == bidder.getKMax()) {
                 Assert.assertEquals(1, varValue, 0.000001);
             } else if (k == bidder.getKMax() && numberOfUncovered > bidder.getKMax()) {
                 Assert.assertEquals(1, varValue, 0.000001);
@@ -175,21 +177,23 @@ public class GlobalBidderPartialMipTest {
         Preconditions.checkArgument(numberOfRegionsUncovered >= 0);
         MIP mip = new MIP();
         mip.setObjectiveMax(true);
-        MRMWorld world = new MRMWorld(WorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(68543436434L));
-        Collection<MRMBidder> bidders =
-                world.createPopulation(null, null, WorldGen.getSimpleGlobalBidderSetup(), new JavaUtilRNGSupplier(57844354L));
-        double scalingFactor = MRM_MIP.calculateScalingFactor(bidders);
-        double biggestScaledValue = MRM_MIP.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
-        WorldPartialMip worldPartialMip = new WorldPartialMip(bidders, biggestScaledValue, scalingFactor);
-        MRMGlobalBidder bidder = (MRMGlobalBidder) bidders.iterator().next();
-        GlobalBidderPartialMip bidderMip = new GlobalBidderPartialMip(bidder, 1, worldPartialMip);
 
+        MultiRegionModel model = new MultiRegionModel();
+        model.setNumberOfNationalBidders(1);
+        model.setNumberOfLocalBidders(0);
+        model.setNumberOfRegionalBidders(0);
+        Collection<MRVMBidder> bidders = model.createNewPopulation(5413646L);
+        MRVMWorld world = bidders.iterator().next().getWorld();
+        double scalingFactor = Scalor.scalingFactor(bidders);
+        double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
+        MRVMNationalBidder bidder = (MRVMNationalBidder) bidders.iterator().next();
+        MRVMNationalBidderPartialMip bidderMip = new MRVMNationalBidderPartialMip(bidder, 1, worldPartialMip);
         Preconditions.checkArgument(numberOfRegionsUncovered <= bidder.getWorld().getRegionsMap().getNumberOfRegions());
 
-        // Constrain Omegas (let the omega for every region 1,2,3,...)
-        // Note: Values have to be chosen s.t. the sum of the omegas does not exceed the highest possible value
+        // Constrain Omegas (let the omega for every region 10,11,12,...)
         int totalValue = 0;
-        int currentValue = 1;
+        int currentValue = 10;
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
             totalValue += currentValue;
             Variable omegaVar = bidderMip.getOmegaVariable(region);

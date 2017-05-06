@@ -171,13 +171,18 @@ public final class PiecewiseLinearPartialMIP extends PartialMIP {
 
     @Override
     public void appendVariablesToMip(MIP mip) {
-        super.appendVariablesToMip(mip);
-        for (Variable var : linearPieceVariable) {
+        for (Variable var : getVariables()) {
             mip.add(var);
         }
-        for (Variable var : conditionalXVariable) {
-            mip.add(var);
-        }
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        Set<Variable> vars = new HashSet<>();
+        vars.addAll(super.getVariables());
+        vars.addAll(linearPieceVariable);
+        vars.addAll(conditionalXVariable);
+        return vars;
     }
 
     @Override

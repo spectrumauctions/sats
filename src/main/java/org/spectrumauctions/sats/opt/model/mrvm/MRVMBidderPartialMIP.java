@@ -3,16 +3,16 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.mrm;
+package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.mrm.MRMBand;
-import org.spectrumauctions.sats.core.model.mrm.MRMBidder;
-import org.spectrumauctions.sats.core.model.mrm.MRMRegionsMap.Region;
-import org.spectrumauctions.sats.core.model.mrm.MRMWorld;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.opt.imip.PartialMIP;
 import org.spectrumauctions.sats.opt.imip.PiecewiseLinearPartialMIP;
@@ -24,7 +24,7 @@ import java.util.*;
  * @author Michael Weiss
  *
  */
-public abstract class BidderPartialMIP extends PartialMIP {
+public abstract class MRVMBidderPartialMIP extends PartialMIP {
 
 
     private static final String regionalOmegaPrefix = "aux_Omega";
@@ -38,15 +38,15 @@ public abstract class BidderPartialMIP extends PartialMIP {
     private Map<Region, Variable> cVariables;
     private Map<Region, Map<Band, Variable>> capVariables;
     private Map<Region, Variable> svVariables;
-    protected final WorldPartialMip worldPartialMip;
-    private final MRMBidder bidder;
+    protected final MRVMWorldPartialMip worldPartialMip;
+    private final MRVMBidder bidder;
 
-    private final double svscaling;
+    private final double scaling;
 
-    public BidderPartialMIP(MRMBidder bidder, double scalingFactor, WorldPartialMip worldMip) {
+    public MRVMBidderPartialMIP(MRVMBidder bidder, double scalingFactor, MRVMWorldPartialMip worldMip) {
         this.bidder = bidder;
         this.worldPartialMip = worldMip;
-        this.svscaling = scalingFactor;
+        this.scaling = scalingFactor;
         initVariables();
     }
 
@@ -91,7 +91,7 @@ public abstract class BidderPartialMIP extends PartialMIP {
         Map<Region, Map<Band, Variable>> result = new HashMap<>();
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
             Map<Band, Variable> bandCapacityVariables = new HashMap<>();
-            for (MRMBand band : bidder.getWorld().getBands()) {
+            for (MRVMBand band : bidder.getWorld().getBands()) {
                 String varName = regionalCapacityPrefix.concat(createIndex(bidder, region, band));
                 Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
                 bandCapacityVariables.put(band, var);
@@ -199,7 +199,7 @@ public abstract class BidderPartialMIP extends PartialMIP {
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
             double beta = bidder.getBeta(region).doubleValue();
             double population = region.getPopulation();
-            double scaledFactor = beta * population / svscaling;
+            double scaledFactor = beta * population / scaling;
             Constraint omega = new Constraint(CompareType.EQ, 0);
             omega.addTerm(-1, getOmegaVariable(region));
             omega.addTerm(scaledFactor, getSVVariable(region));
@@ -232,8 +232,8 @@ public abstract class BidderPartialMIP extends PartialMIP {
 
     Set<PartialMIP> generateCapConstraints() {
         Set<PartialMIP> result = new HashSet<>();
-        for (MRMBand band : bidder.getWorld().getBands()) {
-            ContinuousPiecewiseLinearFunction func = capacity(band);
+        for (MRVMBand band : bidder.getWorld().getBands()) {
+            ContinuousPiecewiseLinearFunction func = capLinearFunction(band);
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 Variable input = worldPartialMip.getXVariable(bidder, region, band);
                 Variable output = getCapVariable(region, band);
@@ -257,37 +257,21 @@ public abstract class BidderPartialMIP extends PartialMIP {
      * @param band
      * @return
      */
-    ContinuousPiecewiseLinearFunction capacity(MRMBand band) {
+    ContinuousPiecewiseLinearFunction capLinearFunction(MRVMBand band) {
         //Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
-        final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
-        breakpoints.put(BigDecimal.ZERO, MRMWorld.capOfBand(band, 0)); //
+        breakpoints.put(BigDecimal.ZERO, capAt(band, 0)); //
         BigDecimal lastSynergy = band.getSynergy(0);
-        for (int quantity = 1; quantity < band.getNumberOfLots(); quantity++) {
-            BigDecimal synergy = band.getSynergy(quantity);
-            if (synergy.compareTo(lastSynergy) != 0) {
-                // Synergy Breakpoint: Store both last quantity with previous
-                // synergy (to account for piecewise constant synergies)
-                // and new quantity in breakpoints
-                BigDecimal lowerQuantityCapacity = MRMWorld.capOfBand(band, quantity - 1);
-                // Note, if there's only one capacity with the previous synergy,
-                // an equivalent entry already exists and is overwritten in map
-                BigDecimal key = new BigDecimal(quantity - 1).setScale(scale);
-                breakpoints.put(key, lowerQuantityCapacity);
-
-                // Do the same for the new quantity
-                key = new BigDecimal(quantity).setScale(scale);
-                BigDecimal thisQuantityCapacity = MRMWorld.capOfBand(band, quantity);
-                breakpoints.put(key, thisQuantityCapacity);
-            }
+        for (int quantity = 1; quantity <= band.getNumberOfLots(); quantity++) {
+            //Quick and dirty approach - Adding all quantities
+            breakpoints.put(BigDecimal.valueOf(quantity), capAt(band,quantity));
         }
-        //Add a breakpoint at the end of the function
-        BigDecimal key = new BigDecimal(band.getNumberOfLots()).setScale(scale);
-        BigDecimal thisQuantityCapacity = MRMWorld.capOfBand(band, band.getNumberOfLots());
-        breakpoints.put(key, thisQuantityCapacity);
-
         ContinuousPiecewiseLinearFunction result = new ContinuousPiecewiseLinearFunction(breakpoints);
         return result;
+    }
+
+    BigDecimal capAt(MRVMBand band, int quantitiy){
+        return MRVMWorld.capOfBand(band, quantitiy);
     }
 
 
@@ -332,7 +316,7 @@ public abstract class BidderPartialMIP extends PartialMIP {
     }
 
 
-    public double getSVScalingFactor() {
-        return svscaling;
+    public double getScalingFactor() {
+        return scaling;
     }
 }

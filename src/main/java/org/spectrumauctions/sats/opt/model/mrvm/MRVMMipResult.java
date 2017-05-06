@@ -3,14 +3,16 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.srm;
+package org.spectrumauctions.sats.opt.model.mrvm;
 
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.srm.SRMBand;
-import org.spectrumauctions.sats.core.model.srm.SRMBidder;
-import org.spectrumauctions.sats.core.model.srm.SRMWorld;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
 import org.spectrumauctions.sats.opt.model.GenericAllocation;
 
 import java.math.BigDecimal;
@@ -21,15 +23,16 @@ import java.util.Map.Entry;
 
 /**
  * @author Michael Weiss
+ *
  */
-public final class SRMMipResult extends GenericAllocation<SRMBand> {
+public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition> {
 
 
-    private final SRMWorld world;
+    private final MRVMWorld world;
     private final BigDecimal totalValue;
     private final IMIPResult joptResult;
 
-    private SRMMipResult(Builder builder) {
+    private MRVMMipResult(Builder builder) {
         super(builder);
         this.world = builder.world;
         this.totalValue = BigDecimal.valueOf(builder.objectiveValue);
@@ -47,7 +50,7 @@ public final class SRMMipResult extends GenericAllocation<SRMBand> {
     }
 
 
-    public SRMWorld getWorld() {
+    public MRVMWorld getWorld() {
         return world;
     }
 
@@ -55,13 +58,13 @@ public final class SRMMipResult extends GenericAllocation<SRMBand> {
         String tab = "\t";
         StringBuilder builder = new StringBuilder();
 
-        List<Entry<Bidder<?>, GenericValue<SRMBand>>> sortedEntries = new ArrayList<>(values.entrySet());
+        List<Entry<Bidder<?>, GenericValue<MRVMGenericDefinition>>> sortedEntries = new ArrayList<>(values.entrySet());
         Collections.sort(sortedEntries, (e1, e2) -> ((Long) e1.getKey().getId()).compareTo((Long) e2.getKey().getId()));
 
 
         builder.append("===== bidder listing =======").append(System.lineSeparator());
-        for (Entry<Bidder<?>, GenericValue<SRMBand>> entry : sortedEntries) {
-            SRMBidder bidder = (SRMBidder) entry.getKey();
+        for (Entry<Bidder<?>, GenericValue<MRVMGenericDefinition>> entry : sortedEntries) {
+            MRVMBidder bidder = (MRVMBidder) entry.getKey();
 
             builder.append(entry.getKey().getId())
                     .append(tab)
@@ -78,59 +81,75 @@ public final class SRMMipResult extends GenericAllocation<SRMBand> {
         builder.append("===== allocation table =======").append(System.lineSeparator());
 
         if (!values.isEmpty()) {
-            SRMWorld world = (SRMWorld) values.keySet().iterator().next().getWorld();
-            List<SRMBand> orderedBands = new ArrayList<>(world.getBands());
+            MRVMWorld world = (MRVMWorld) values.keySet().iterator().next().getWorld();
+            List<MRVMBand> orderedBands = new ArrayList<>(world.getBands());
             //Order bands by increasing name length
             Collections.sort(orderedBands, (b1, b2) -> ((Integer) b1.getName().length()).compareTo((Integer) b2.getName().length()));
-            for (SRMBand band : orderedBands) {
+            for (MRVMBand band : orderedBands) {
                 builder.append(tab).append(band.getName());
             }
             builder.append(System.lineSeparator());
-            //Print allocation in reguin
-            for (Entry<Bidder<?>, GenericValue<SRMBand>> entry : sortedEntries) {
-                builder.append(tab);
-                for (SRMBand band : orderedBands) {
-                    int quantity = entry.getValue().getQuantity(band);
+            for (Region region : world.getRegionsMap().getRegions()) {
+                //Print region information
+                builder.append("rid")
+                        .append(region.getId())
+                        .append(tab)
+                        .append("(")
+                        .append(region.getNote())
+                        .append(", population: ")
+                        .append(region.getPopulation())
+                        .append(")")
+                        .append(System.lineSeparator());
+                //Print allocation in reguin
+                for (Entry<Bidder<?>, GenericValue<MRVMGenericDefinition>> entry : sortedEntries) {
+                    builder.append(tab);
+                    for (MRVMBand band : orderedBands) {
+                        MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
+                        int quantity = entry.getValue().getQuantity(def);
 //                        builder.append(entry.getKey().getId())
 //                        .append(":")
-                    builder.append(quantity)
-                            .append(tab)
-                            .append(tab)
-                            .append(tab);
+                        builder.append(quantity)
+                                .append(tab)
+                                .append(tab)
+                                .append(tab);
+                    }
+                    MRVMBidder bidder = (MRVMBidder) entry.getKey();
+                    builder.append(entry.getKey().getClass().getSimpleName())
+                            .append(entry.getKey().getId())
+                            .append(" (")
+                            .append(bidder.getSetupType())
+                            .append(")");
+                    builder.append(System.lineSeparator());
                 }
-                SRMBidder bidder = (SRMBidder) entry.getKey();
-                builder.append(entry.getKey().getClass().getSimpleName())
-                        .append(entry.getKey().getId())
-                        .append(" (")
-                        .append(bidder.getSetupType())
-                        .append(")");
-                builder.append(System.lineSeparator());
+                builder.append("----------------newregion----------------")
+                        .append(System.lineSeparator());
             }
         }
         return builder.toString();
     }
 
 
-    public static final class Builder extends GenericAllocation.Builder<SRMBand> {
+    public static final class Builder extends GenericAllocation.Builder<MRVMGenericDefinition> {
 
-        private SRMWorld world;
+        private MRVMWorld world;
         private double objectiveValue;
         private final IMIPResult joptResult;
 
         /**
+         *
          * @param objectiveValue
          * @param world
-         * @param joptResult     The result object //TODO Use Result object here in construction to build MipResult
+         * @param joptResult The result object //TODO Use Result object here in construction to build MRVMMipResult
          */
-        public Builder(double objectiveValue, SRMWorld world, IMIPResult joptResult) {
+        public Builder(double objectiveValue, MRVMWorld world, IMIPResult joptResult) {
             super();
             this.objectiveValue = objectiveValue;
             this.world = world;
             this.joptResult = joptResult;
         }
 
-        public SRMMipResult build() {
-            return new SRMMipResult(this);
+        public MRVMMipResult build() {
+            return new MRVMMipResult(this);
         }
     }
 

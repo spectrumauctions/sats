@@ -3,14 +3,14 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.mrm;
+package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.mrm.MRMBand;
-import org.spectrumauctions.sats.core.model.mrm.MRMGlobalBidder;
-import org.spectrumauctions.sats.core.model.mrm.MRMRegionsMap.Region;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMNationalBidder;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import java.util.Map;
  * @author Michael Weiss
  *
  */
-public class GlobalBidderPartialMip extends BidderPartialMIP {
+public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
 
     public static final String W_ir_VARIABLE_PREFIX = "GlobalBidder_W_ir_";
 
@@ -32,7 +32,7 @@ public class GlobalBidderPartialMip extends BidderPartialMIP {
     private static final String PSI_VARIABLE_PREFIX = "GlobalBidder_PSI_";
 
 
-    private final MRMGlobalBidder bidder;
+    private final MRVMNationalBidder bidder;
     private Map<Integer, Variable> psiVariables;
     private Map<Integer, Variable> wHatIKVariables;
     private Variable wIVariable;
@@ -42,7 +42,7 @@ public class GlobalBidderPartialMip extends BidderPartialMIP {
      * @param bidder
      * @param worldMip
      */
-    public GlobalBidderPartialMip(MRMGlobalBidder bidder, double scalingFactor, WorldPartialMip worldMip) {
+    public MRVMNationalBidderPartialMip(MRVMNationalBidder bidder, double scalingFactor, MRVMWorldPartialMip worldMip) {
         super(bidder, scalingFactor, worldMip);
         this.bidder = bidder;
         psiVariables = createPsiVariables();
@@ -160,7 +160,7 @@ public class GlobalBidderPartialMip extends BidderPartialMIP {
     List<Constraint> constrainWIR() {
         List<Constraint> constraints = new ArrayList<>();
         int bigM = 0;
-        for (MRMBand band : bidder.getWorld().getBands()) {
+        for (MRVMBand band : bidder.getWorld().getBands()) {
             bigM += band.getNumberOfLicenses();
         }
         double smallM = 1d / bigM;
@@ -173,7 +173,7 @@ public class GlobalBidderPartialMip extends BidderPartialMIP {
             Constraint constraintTwo = new Constraint(CompareType.LEQ, 0);
             constraintTwo.addTerm(-1, getWIRVariable(region));
 
-            for (MRMBand band : bidder.getWorld().getBands()) {
+            for (MRVMBand band : bidder.getWorld().getBands()) {
                 Variable xVariable = worldPartialMip.getXVariable(bidder, region, band);
                 constraintOne.addTerm(1, xVariable);
                 constraintTwo.addTerm(smallM, xVariable);

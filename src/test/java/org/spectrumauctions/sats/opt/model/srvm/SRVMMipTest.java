@@ -3,11 +3,11 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.srm;
+package org.spectrumauctions.sats.opt.model.srvm;
 
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.srm.*;
+import org.spectrumauctions.sats.core.model.srvm.*;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.util.Collection;
@@ -17,16 +17,16 @@ import java.util.Set;
 /**
  * @author Fabio Isler
  */
-public class MipTest {
+public class SRVMMipTest {
 
     @Test
     public void testNoException() {
-        Collection<SRMBidder> bidders = (new SingleRegionModel()).createNewPopulation();
-        SRM_MIP mip = new SRM_MIP(bidders);
-        SRMMipResult result = mip.calculateAllocation();
-        for (SRMBidder bidder : bidders) {
-            GenericValue<SRMBand> genVal = result.getAllocation(bidder);
-            for (SRMBand band : bidder.getWorld().getBands()) {
+        Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewPopulation();
+        SRVM_MIP mip = new SRVM_MIP(bidders);
+        SRVMMipResult result = mip.calculateAllocation();
+        for (SRVMBidder bidder : bidders) {
+            GenericValue<SRVMBand> genVal = result.getAllocation(bidder);
+            for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
                 System.out.println(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }
@@ -46,16 +46,16 @@ public class MipTest {
     }
 
     public void test(int numberOfSmallBidders, int numberOfHighfrequencyBidders) {
-        SRMWorld world = new SRMWorld(SRMWorldGen.getSingleBandWorldSetup(), new JavaUtilRNGSupplier(147258369L));
-        Set<SRMBidderSetup> setups = new HashSet<>();
-        setups.addAll(SRMWorldGen.getSimpleSmallBidderSetup(numberOfSmallBidders));
-        setups.addAll(SRMWorldGen.getSimpleHighFrequencyBidderSetup(numberOfHighfrequencyBidders));
-        Collection<SRMBidder> bidders = world.createPopulation(setups, new JavaUtilRNGSupplier(963852741L));
-        SRM_MIP mip = new SRM_MIP(bidders);
-        SRMMipResult result = mip.calculateAllocation();
-        for (SRMBidder bidder : bidders) {
-            GenericValue<SRMBand> genVal = result.getAllocation(bidder);
-            for (SRMBand band : bidder.getWorld().getBands()) {
+        SRVMWorld world = new SRVMWorld(SRVMWorldGen.getSingleBandWorldSetup(), new JavaUtilRNGSupplier(147258369L));
+        Set<SRVMBidderSetup> setups = new HashSet<>();
+        setups.addAll(SRVMWorldGen.getSimpleSmallBidderSetup(numberOfSmallBidders));
+        setups.addAll(SRVMWorldGen.getSimpleHighFrequencyBidderSetup(numberOfHighfrequencyBidders));
+        Collection<SRVMBidder> bidders = world.createPopulation(setups, new JavaUtilRNGSupplier(963852741L));
+        SRVM_MIP mip = new SRVM_MIP(bidders);
+        SRVMMipResult result = mip.calculateAllocation();
+        for (SRVMBidder bidder : bidders) {
+            GenericValue<SRVMBand> genVal = result.getAllocation(bidder);
+            for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
                 System.out.println(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }

@@ -60,9 +60,15 @@ public class PartialMIP {
     }
 
     public void appendVariablesToMip(MIP mip) {
-        for (Variable var : manuallyAddedVariables) {
+        for (Variable var : getVariables()) {
             mip.add(var);
         }
+    }
+
+    public Set<Variable> getVariables() {
+        Set<Variable> vars = new HashSet<>();
+        vars.addAll(manuallyAddedVariables);
+        return vars;
     }
 
     public void appendConstraintsToMip(MIP mip) {

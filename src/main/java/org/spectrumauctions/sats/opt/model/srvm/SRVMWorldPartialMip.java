@@ -3,38 +3,38 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model.srm;
+package org.spectrumauctions.sats.opt.model.srvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.generic.Band;
-import org.spectrumauctions.sats.core.model.srm.SRMBand;
-import org.spectrumauctions.sats.core.model.srm.SRMBidder;
-import org.spectrumauctions.sats.core.model.srm.SRMWorld;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
 import org.spectrumauctions.sats.opt.imip.PartialMIP;
 
 import java.util.*;
 
 /**
  * The class generating the general allocation rules (variables and constraints)<br>
- * It also provides functions to get the allocation variables, used in {@link SRMBidderPartialMIP} instances.
+ * It also provides functions to get the allocation variables, used in {@link SRVMBidderPartialMIP} instances.
  *
  * @author Michael Weiss
  */
-public class SRMWorldPartialMip extends PartialMIP {
+public class SRVMWorldPartialMip extends PartialMIP {
 
     public final static String xVariablePrefix = "X";
     public final static String vmVariablePrefix = "VM";
     public final static String voVariablePrefix = "VO";
 
-    private final Map<SRMBidder, Map<Band, Variable>> xVariables;
-    private final Map<SRMBidder, Map<Band, Variable>> vmVariables;
-    private final Map<SRMBidder, Map<Band, Variable>> voVariables;
+    private final Map<SRVMBidder, Map<Band, Variable>> xVariables;
+    private final Map<SRVMBidder, Map<Band, Variable>> vmVariables;
+    private final Map<SRVMBidder, Map<Band, Variable>> voVariables;
 
     private final double biggestPossibleValue;
 
-    private final Set<SRMBidder> bidders;
-    private final SRMWorld world;
+    private final Set<SRVMBidder> bidders;
+    private final SRVMWorld world;
     private final double scalingFactor;
 
     /**
@@ -42,7 +42,7 @@ public class SRMWorldPartialMip extends PartialMIP {
      * @param biggestPossibleValue The highest (already scaled) value any bidder could have
      * @param scalingFactor
      */
-    SRMWorldPartialMip(Collection<SRMBidder> bidders2, double biggestPossibleValue, double scalingFactor) {
+    SRVMWorldPartialMip(Collection<SRVMBidder> bidders2, double biggestPossibleValue, double scalingFactor) {
         super();
         Preconditions.checkNotNull(bidders2);
         Preconditions.checkArgument(bidders2.size() > 0);
@@ -58,11 +58,11 @@ public class SRMWorldPartialMip extends PartialMIP {
         voVariables = initValueVariables(voVariablePrefix);
     }
 
-    private Set<Constraint> createNumberOfLicensesConstraints() {
+    private Set<Constraint> createNumberOfLotsConstraints() {
         Set<Constraint> result = new HashSet<>();
-        for (SRMBand band : world.getBands()) {
+        for (SRVMBand band : world.getBands()) {
             Constraint numberOfLotsConstraint = new Constraint(CompareType.LEQ, band.getNumberOfLicenses());
-            for (SRMBidder bidder : bidders) {
+            for (SRVMBidder bidder : bidders) {
                 Variable xVar = getXVariable(bidder, band);
                 numberOfLotsConstraint.addTerm(1, xVar);
             }
@@ -72,11 +72,11 @@ public class SRMWorldPartialMip extends PartialMIP {
 
     }
 
-    private Map<SRMBidder, Map<Band, Variable>> initValueVariables(String prefix) {
-        Map<SRMBidder, Map<Band, Variable>> result = new HashMap<>();
-        for (SRMBidder bidder : bidders) {
+    private Map<SRVMBidder, Map<Band, Variable>> initValueVariables(String prefix) {
+        Map<SRVMBidder, Map<Band, Variable>> result = new HashMap<>();
+        for (SRVMBidder bidder : bidders) {
             Map<Band, Variable> temp = new HashMap<>();
-            for (SRMBand band : world.getBands()) {
+            for (SRVMBand band : world.getBands()) {
                 String varName = prefix + "_" + bidder.getId() + "_" + band.getName();
                 Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
                 temp.put(band, var);
@@ -86,13 +86,13 @@ public class SRMWorldPartialMip extends PartialMIP {
         return Collections.unmodifiableMap(result);
     }
 
-    private Map<SRMBidder, Map<Band, Variable>> initXVariables() {
-        Map<SRMBidder, Map<Band, Variable>> result = new HashMap<>();
+    private Map<SRVMBidder, Map<Band, Variable>> initXVariables() {
+        Map<SRVMBidder, Map<Band, Variable>> result = new HashMap<>();
 
-        for (SRMBidder bidder : bidders) {
+        for (SRVMBidder bidder : bidders) {
             Map<Band, Variable> bandMap = new HashMap<>();
-            for (SRMBand band : world.getBands()) {
-                String varName = xVariablePrefix.concat(SRMBidderPartialMIP.createIndex(bidder, band));
+            for (SRVMBand band : world.getBands()) {
+                String varName = xVariablePrefix.concat(SRVMBidderPartialMIP.createIndex(bidder, band));
                 Variable var = new Variable(varName, VarType.INT, 0, band.getNumberOfLicenses());
                 bandMap.put(band, var);
             }
@@ -107,9 +107,9 @@ public class SRMWorldPartialMip extends PartialMIP {
                 || mip.getObjectiveTerms().size() != 0) {
             //TODO Log Warning
         }
-        for (SRMBidder bidder : bidders) {
+        for (SRVMBidder bidder : bidders) {
             double syni = bidder.getInterbandSynergyValue().floatValue();
-            for (SRMBand band : world.getBands()) {
+            for (SRVMBand band : world.getBands()) {
 
                 // Add VM variables
                 mip.addObjectiveTerm(syni, vmVariables.get(bidder).get(band));
@@ -138,7 +138,7 @@ public class SRMWorldPartialMip extends PartialMIP {
     @Override
     public void appendConstraintsToMip(MIP mip) {
         super.appendConstraintsToMip(mip);
-        for (Constraint c : createNumberOfLicensesConstraints()) {
+        for (Constraint c : createNumberOfLotsConstraints()) {
             mip.add(c);
         }
     }
@@ -146,12 +146,12 @@ public class SRMWorldPartialMip extends PartialMIP {
     @Override
     public void appendVariablesToMip(MIP mip) {
         super.appendVariablesToMip(mip);
-        for (Map.Entry<SRMBidder, Map<Band, Variable>> bidderMapEntry : vmVariables.entrySet()) {
+        for (Map.Entry<SRVMBidder, Map<Band, Variable>> bidderMapEntry : vmVariables.entrySet()) {
             for (Map.Entry<Band, Variable> bandVariableEntry : bidderMapEntry.getValue().entrySet()) {
                 mip.add(bandVariableEntry.getValue());
             }
         }
-        for (Map.Entry<SRMBidder, Map<Band, Variable>> bidderMapEntry : voVariables.entrySet()) {
+        for (Map.Entry<SRVMBidder, Map<Band, Variable>> bidderMapEntry : voVariables.entrySet()) {
             for (Map.Entry<Band, Variable> bandVariableEntry : bidderMapEntry.getValue().entrySet()) {
                 mip.add(bandVariableEntry.getValue());
             }
@@ -166,7 +166,7 @@ public class SRMWorldPartialMip extends PartialMIP {
     /**
      * @throws NullPointerException if the requested variable is not stored.
      */
-    public Variable getXVariable(SRMBidder bidder, Band band) {
+    public Variable getXVariable(SRVMBidder bidder, Band band) {
         Variable var = xVariables.get(bidder).get(band);
         if (var == null) {
             throw new NullPointerException();
@@ -175,7 +175,7 @@ public class SRMWorldPartialMip extends PartialMIP {
     }
 
 
-    public Variable getVmVariable(SRMBidder bidder, Band band) {
+    public Variable getVmVariable(SRVMBidder bidder, Band band) {
         Variable var = vmVariables.get(bidder).get(band);
         if (var == null) {
             throw new NullPointerException();
@@ -183,7 +183,7 @@ public class SRMWorldPartialMip extends PartialMIP {
         return var;
     }
 
-    public Variable getVoVariable(SRMBidder bidder, Band band) {
+    public Variable getVoVariable(SRVMBidder bidder, Band band) {
         Variable var = voVariables.get(bidder).get(band);
         if (var == null) {
             throw new NullPointerException();
