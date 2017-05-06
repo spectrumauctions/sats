@@ -1,7 +1,7 @@
 # Spectrum Auction Test Suite: Core API (sats-core)
 
 ### Getting Started
-This getting started guide helps you to set up sats-core to use it as a library in your own project afterwards. 
+This getting started guide helps you to set up sats-core to use it as a library in your own java project afterwards. 
 Should you not want to use it in your own code, you may want to use the command line tool (sats-clt) or the web application (sats-web) instead. See 
 http://spectrumauctions.org for more information.
 ##### Prerequisites
