@@ -101,7 +101,7 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
      */
     public BigDecimal omegaFactor(MRVMRegionsMap.Region r, BigDecimal sv) {
         BigDecimal population = new BigDecimal(String.valueOf(r.getPopulation()));
-        return sv.multiply(alpha).multiply(getBeta(r)).multiply(population);
+        return sv.multiply(getBeta(r)).multiply(population);
     }
 
 
@@ -168,8 +168,6 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
         //Calculate Regional Discounted Values and add them to total value
         for (Entry<MRVMRegionsMap.Region, Bundle<MRVMLicense>> regionalBundleEntry : regionalBundles.entrySet()) {
             BigDecimal c = MRVMWorld.c(regionalBundleEntry.getKey(), regionalBundleEntry.getValue());
-            BigDecimal regionalBeta = getBeta(regionalBundleEntry.getKey());
-            int population = regionalBundleEntry.getKey().getPopulation();
             BigDecimal sv = svFunction(regionalBundleEntry.getKey(), c);
             BigDecimal regionalValue = omegaFactor(regionalBundleEntry.getKey(), sv);
             //Gamma Factor requires complete bundle (for national bidder to calculate #uncovered regions)
