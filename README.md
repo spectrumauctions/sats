@@ -26,7 +26,7 @@ Should you require to use solve the winner determination problems, we recommend 
 Code examples can be found in the
 `org.spectrumauctions.sats.core.examples`
 package in the test folder of this repository.
-https://github.com/spectrumauctions/sats-core/tree/master/src/test/java/org/spectrumauctions/sats/core/examples
+https://github.com/spectrumauctions/sats-opt/tree/master/src/test/java/org/spectrumauctions/sats/opt/examples
 
 ### Bug Reports, Feature Requests and Contribution Guidelines
 We are grateful for bug reports and other feedback about SATS and are welcoming everyone to contribute to the project, too. 
