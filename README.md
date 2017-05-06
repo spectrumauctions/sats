@@ -25,7 +25,7 @@ Should you require to use solve the winner determination problems, we recommend 
 ### Code examples
 Code examples can be found in the
 `org.spectrumauctions.sats.core.examples`
-package. 
+package in the test folder of this repository.
 https://github.com/spectrumauctions/sats-core/tree/master/src/test/java/org/spectrumauctions/sats/core/examples
 
 ### Bug Reports, Feature Requests and Contribution Guidelines
