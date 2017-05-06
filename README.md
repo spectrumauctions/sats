@@ -1,8 +1,15 @@
-# sats-clt
+# Spectrum Auction Test Suite: Command Line Tool (sats-clt)
+
+### Download
+Find the latest version of the SATS command line tool at 
+https://github.com/spectrumauctions/sats-clt/blob/master/executable/sats.jar
+Older versions can be downloaded in the `executable` folder of the accordingly tagged commit in this repository.
 
 ### Usage example
 
 `java -jar sats.jar --model MRVM --nationalbidders 3 --iterator RANDOM --bidsPerBidder 10`
+
+SATS requires Java 8 (or later). 
 
 ### Options applicable for all models
 
@@ -21,12 +28,12 @@
 
 ### Model-specific options
 
-#### BVM and MBVM
+##### Base and Multi Band Value Model (BVM and MBVM) [Bichler et al, 2013]
 | Option              | Description |
 | ------------------- | ----------- |
 | `--bidders`    | The number of bidders |
 
-#### SRVM
+##### Single Region Value Model (SRVM) [Kroemer et al., 2016]
 | Option              | Description |
 | ------------------- | ----------- |
 | `--smallb`    | The number of Small Bidders |
@@ -34,21 +41,45 @@
 | `--primaryb` | The number of Primary Bidders |
 | `--secondaryb` | The number of Secondary Bidders |
 
-#### MRVM
+##### Multi Region Value Model (MRVM) [Weiss et al., 2017]
 | Option              | Description |
 | ------------------- | ----------- |
 | `--localbidders`    | The number of Local Bidders |
 | `--nationalbidders` | The number of National Bidders |
 | `--regionalbidders` | The number of Regional Bidders |
 
-#### LSVM and GSVM
+##### Local Synergy Value Model (LSVM)  [Scheffel et al., 2010] 
 | Option              | Description |
 | ------------------- | ----------- |
 | `--nationalb`    | The number of National Bidders |
 | `--regionalb` | The number of Regional Bidders |
 
-#### CATS
+##### Global Synergy Value Model (GSVM) [Goeree et al., 2008]
+| Option              | Description |
+| ------------------- | ----------- |
+| `--nationalb`    | The number of National Bidders |
+| `--regionalb` | The number of Regional Bidders |
+
+##### CATS-Regions (CATS) [Leyton-Brown et al., 2000]
 | Option              | Description |
 | ------------------- | ----------- |
 | `--bidders`    | The number of bidders |
 | `--goods` | The number of goods |
+
+### Bug Reports, Feature Requests and Contribution Guidelines
+We are grateful for bug reports and other feedback about SATS and are welcoming everyone to contribute to the project, too. 
+If you do have a bug report or have code you want to add to SATS, please follow the following guidelines.
+* To report bugs or to propose new features, please open a new issue in this repositories issue tracker. 
+* To contribute code, please open a pull request to merge into develop. Small bugfixes will be accepted and merged very quickly. 
+For larger contributions, we recommend to discuss and plan the contribution in the issue tracker beforehand.
+
+A list of contibutors can be found at 
+https://github.com/spectrumauctions/sats-core/blob/master/CONTRIBUTORS.md
+
+### Copyright
+Copyright by
+* Michael Weiss
+* Sven Seuken and the University of Zurich
+* Ben Lubin and the Boston University
+
+SATS is licenced under AGPL. You find the license in this repository. 
