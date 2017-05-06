@@ -37,16 +37,16 @@ public abstract class ModelOptionParser extends OptionParser {
                 .withRequiredArg().ofType(Model.class).required();
         this.accepts(KEY_NUMBEROFBIDS, "The number of atomic XOR bids per bidder to be written to the output file")
                 .withRequiredArg().ofType(Integer.class);
-        this.accepts(KEY_MULTIPLEFILES, "define if a separate file should be created for every bidder");
+        this.accepts(KEY_MULTIPLEFILES, "Define if a separate file should be created for every bidder");
         this.accepts(KEY_ITERATOR,
-                "define an order in which the atomic bids should be returned. Options are: SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC")
+                "Define an order in which the atomic bids should be returned. Options are: SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC")
                 .withRequiredArg().ofType(BiddingLanguage.class);
-        this.accepts(KEY_XORQ, "if flag is set, the returned bids are XOR-Q (And file format JSON)");
+        this.accepts(KEY_XORQ, "Ff flag is set, the returned bids are XOR-Q (And file format JSON)");
         this.accepts(CommandLineTool.KEY_HELP,
                 "Gives a list of all possible Options. " + "If used with the --model tag, the options for the specified model are also printed.");
         this.accepts(KEY_FILETYPE, "Decide for a File Type in which the bids are returned. Options are JSON and CATS")
                 .withRequiredArg().ofType(FileType.class);
-        this.accepts(KEY_MUTE, "Disables Notification about successful creation of files");
+        this.accepts(KEY_MUTE, "Disables notification about successful creation of files");
         this.accepts(KEY_SEED, "Specify the seeds used for the creation of the random instances. If two seeds (e.g. --seed 123 --seed 345) are passed, one is used for the creation of "
                 + "a non-bidder specific parameters (aka. world) and the second one for the bidders. If only one seed is "
                 + "defined, it is used to generate two seeds (for world and bidders)").withRequiredArg()

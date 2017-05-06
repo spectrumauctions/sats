@@ -54,7 +54,7 @@ public class MRVMModelOptionParser extends ModelOptionParser {
         if (options.has(KEY_REGIONALBIDDERS)) {
             builder.setNumberOfRegionalBidders((Integer) options.valueOf(KEY_REGIONALBIDDERS));
         }
-        if (options.has(KEY_NATIONALBIDDERS)) {
+        if (options.has(KEY_LOCALBIDDERS)) {
             builder.setNumberOfLocalBidders((Integer) options.valueOf(KEY_LOCALBIDDERS));
         }
         return allModelsResultTreating(options, builder);
