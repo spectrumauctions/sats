@@ -30,7 +30,7 @@ public class GSVMModelCreator extends ModelCreator {
         return appendTopLevelParamsAndSolve(model, outputFolder);
     }
 
-    public static class Builder extends ModelCreator.Builder{
+    public static class Builder extends ModelCreator.Builder {
 
         private int numberOfNationalBidders;
         private int numberOfRegionalBidders;

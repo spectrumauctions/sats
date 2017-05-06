@@ -1,27 +1,27 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import com.google.common.base.Preconditions;
-
-import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author Fabio Isler
  */
 public final class GSVMBidder extends Bidder<GSVMLicense> {
 
+    private static final long serialVersionUID = -7275733600491984673L;
     private final int bidderPosition;
     private final Map<Long, BigDecimal> values;
     private transient GSVMWorld world;
@@ -82,9 +82,9 @@ public final class GSVMBidder extends Bidder<GSVMLicense> {
             throw new IllegalArgumentException("World is not of correct type");
         }
     }
-    
-    public Map<Long, BigDecimal> getBaseValues(){
-    	return Collections.unmodifiableMap(values); 
+
+    public Map<Long, BigDecimal> getBaseValues() {
+        return Collections.unmodifiableMap(values);
     }
 
 }

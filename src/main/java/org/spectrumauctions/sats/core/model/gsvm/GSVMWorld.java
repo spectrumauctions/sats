@@ -1,11 +1,11 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.ArrayList;
 import java.util.Collection;

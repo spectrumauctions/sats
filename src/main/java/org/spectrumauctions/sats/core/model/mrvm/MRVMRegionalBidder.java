@@ -1,9 +1,17 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
+
+import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.model.World;
+import org.spectrumauctions.sats.core.util.BigDecimalUtils;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -11,26 +19,18 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.spectrumauctions.sats.core.model.World;
-import com.google.common.base.Preconditions;
-
-import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.util.BigDecimalUtils;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-
 /**
  * @author Michael Weiss
  *
  */
 public final class MRVMRegionalBidder extends MRVMBidder {
-    
+
+    private static final long serialVersionUID = -3643980691138504665L;
     private final int homeId;
     transient MRVMRegionsMap.Region home;
 
     private final SortedMap<Integer, BigDecimal> distanceDiscounts;
-    
+
     /**
      * @param id
      * @param populationId
@@ -47,7 +47,7 @@ public final class MRVMRegionalBidder extends MRVMBidder {
         validateDistanceDiscounts(getWorld(), distanceDiscounts);
         store();
     }
-    
+
     /**
      * Validates if a map with distanceDiscounts is valid for a given world, i.e., if it defines a valid discount for all possible distances
      * @param world
@@ -57,16 +57,16 @@ public final class MRVMRegionalBidder extends MRVMBidder {
      * - IllegalArgumentException if one of the defined discounts for a feasible distance is negative.
      * @return
      */
-    private void validateDistanceDiscounts(MRVMWorld world, SortedMap<Integer, BigDecimal> discounts){
+    private void validateDistanceDiscounts(MRVMWorld world, SortedMap<Integer, BigDecimal> discounts) {
         Preconditions.checkNotNull(world);
         Preconditions.checkNotNull(discounts);
-        for(int i = 1; i < world.getRegionsMap().getLongestShortestPath(home); i++){
+        for (int i = 1; i < world.getRegionsMap().getLongestShortestPath(home); i++) {
             Preconditions.checkNotNull(discounts.get(i));
             Preconditions.checkArgument(discounts.get(i).compareTo(BigDecimal.ZERO) >= 0, "Discount must not be negative");
         }
     }
 
-    
+
     public int getHomeId() {
         return homeId;
     }
@@ -79,7 +79,7 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     @Override
     public BigDecimal gammaFactor(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle) {
         int distance = getWorld().getRegionsMap().getDistance(home, r);
-        if(distance > distanceDiscounts.lastKey()){
+        if (distance > distanceDiscounts.lastKey()) {
             //Not connected regions
             return BigDecimal.ZERO;
         }
@@ -93,7 +93,7 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     @Override
     public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle) {
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();
-        for(MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()){
+        for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
             //Note repeately calculating distance is not expensive, as distance is cached in Map Instance
             int distance = getWorld().getRegionsMap().getDistance(home, region);
             BigDecimal discount = distanceDiscounts.get(distance);
@@ -108,24 +108,19 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     @Override
     public <T extends BiddingLanguage> T getValueFunction(Class<T> type, long seed)
             throws UnsupportedBiddingLanguageException {
-        try{
-            return super.getValueFunction(type,seed);
-        }catch(UnsupportedBiddingLanguageException e){
-            // This bidder cannot provide any other bidding languages other than the ones super-bidder can.
-            throw e;
-        }
+        return super.getValueFunction(type, seed);
     }
 
     /* (non-Javadoc)
      * @see Bidder#refreshReference(World)
      */
     @Override
-    public void refreshReference(World world){
+    public void refreshReference(World world) {
         super.refreshReference(world);
         MRVMRegionsMap.Region homeCandidate = getWorld().getRegionsMap().getRegion(homeId);
-        if(homeCandidate == null){
+        if (homeCandidate == null) {
             throw new IllegalArgumentException("The specified world does not have this bidders home region");
-        }else{
+        } else {
             this.home = homeCandidate;
         }
     }
@@ -157,7 +152,6 @@ public final class MRVMRegionalBidder extends MRVMBidder {
             return false;
         return true;
     }
-    
 
-    
+
 }

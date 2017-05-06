@@ -1,23 +1,23 @@
 package org.spectrumauctions.sats.core.model.srvm;
 
 
+import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
+import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
+import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
-import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
-import org.spectrumauctions.sats.core.model.Bundle;
-import com.google.common.base.Preconditions;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValueBidder<SRVMBand> {
 
     private static final int CALCSCALE = 5;
+    private static final long serialVersionUID = -4577743658098455267L;
 
     private transient SRVMWorld world;
     private final BigDecimal bidderStrength;
@@ -157,7 +158,7 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
         // The min{2,n} or min{4,n} part of the value function
         int firstSummand = quantity > synergyThreshold.get(band.getName()) ? synergyThreshold.get(band.getName()) : quantity;
         // The min{3/4, (n-1)/n} * syn_i(B)} or equivalent for other bands part
-        BigDecimal minFraction = new BigDecimal(firstSummand - 1).divide(new BigDecimal(firstSummand), RoundingMode.CEILING);
+        BigDecimal minFraction = new BigDecimal(firstSummand - 1).divide(new BigDecimal(firstSummand), CALCSCALE, RoundingMode.CEILING);
         BigDecimal synergyFactor = intrabandSynergyFactors.get(band.getName());
         BigDecimal secondSummand = minFraction.multiply(synergyFactor);
         // The marginal decreasing third summand (max{0, ln{n-1)})

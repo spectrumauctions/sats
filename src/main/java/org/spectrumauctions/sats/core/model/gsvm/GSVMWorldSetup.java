@@ -1,8 +1,8 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
+import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import com.google.common.base.Preconditions;
 
 /**
  * @author Fabio Isler

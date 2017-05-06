@@ -1,31 +1,31 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.util.instancehandling;
 
-import java.util.Collection;
-
-import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.World;
+
+import java.util.Collection;
 
 /**
  * @author Michael Weiss
  *
  */
 public abstract class InstanceHandler {
-    
+
     private static InstanceHandler defaultHandler;
-    
+
     /**
      * Get the default instance handler. <br>
      * The default instance handler is called on every {@link World}, <b>population</b> and {@link Bidder} creation
      * for id selection and default storing.
      * @return
      */
-    public static InstanceHandler getDefaultHandler(){
-        if(defaultHandler == null){
+    public static InstanceHandler getDefaultHandler() {
+        if (defaultHandler == null) {
             defaultHandler = JSONInstanceHandler.getInstance();
         }
         return defaultHandler;
@@ -37,24 +37,24 @@ public abstract class InstanceHandler {
      * for id selection and default storing.
      * @param defaultHandler
      */
-    public static void setDefaultHandler(InstanceHandler defaultHandler){
+    public static void setDefaultHandler(InstanceHandler defaultHandler) {
         InstanceHandler.defaultHandler = defaultHandler;
     }
-        
+
     /**
      * Writes a world instance.
      * If a world with the same id already is stored, it might be overwritten.
      * @param world
      */
     public abstract void writeWorld(World world);
-    
+
     /**
      * Writes a world instance.
      * If a world with the same id already is stored, it might be overwritten.
      * @param world
      */
     public abstract <T extends World> T readWorld(Class<T> type, long world);
-    
+
     /**
      * Writes a new bidder instance.
      * If a bidder with the same world and population id already is stored, it might be overwritten.
@@ -66,7 +66,7 @@ public abstract class InstanceHandler {
      * @return A collection containing all ids of the stored population for the requested world
      */
     public abstract Collection<Long> getPopulationIds(long worldId);
-    
+
     /**
      * Used to deserialize a bidder, if its implementing class is known 
      * @param type The class of which a new instance should be created
@@ -76,7 +76,7 @@ public abstract class InstanceHandler {
      * @return
      */
     public abstract <T extends Bidder<?>> T readBidder(Class<T> type, World world, long populationId, long bidderId);
-    
+
     /**
      * Used to deserialize a bidder, if its type is not exacly known, 
      * i.e., if there are different bidder implementations for this model.
@@ -87,7 +87,7 @@ public abstract class InstanceHandler {
      * @return
      */
     public abstract <T extends Bidder<?>> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId, long bidderId);
-    
+
     /**
      * Used to deserialize a set of bidders, if the implementing class of all bidders is known and the same 
      * @param type  The class of which the new bidder instances should be created
@@ -96,7 +96,7 @@ public abstract class InstanceHandler {
      * @return
      */
     public abstract <T extends Bidder<?>> Collection<T> readPopulation(Class<T> type, World world, long populationId);
-    
+
     /**
      * Used to deserialize a set of bidders, if their type is not exacly known, 
      * i.e., if there are different bidder implementations for this model.
@@ -106,7 +106,7 @@ public abstract class InstanceHandler {
      * @return
      */
     public abstract <T extends Bidder<?>> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world, long populationId);
-    
+
 
     /**
      * Returns an new unused world id.
@@ -114,7 +114,7 @@ public abstract class InstanceHandler {
      * @return
      */
     public abstract long getNextWorldId();
-    
+
     /**
      * Returns a new population id
      * The id is unique amongst all previously generated population ids with the same worldId.

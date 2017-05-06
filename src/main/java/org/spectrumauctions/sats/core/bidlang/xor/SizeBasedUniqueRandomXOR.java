@@ -1,33 +1,23 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.bidlang.xor;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import com.google.common.math.BigIntegerMath;
-
 import org.spectrumauctions.sats.core.bidlang.MissingInformationException;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.util.random.GaussianDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
 
 public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> {
     private int meanBundleSize = -1;
@@ -45,7 +35,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
         this.bidder = bidder;
     }
 
-    protected BigDecimal getValue(Bundle<T> goods){
+    protected BigDecimal getValue(Bundle<T> goods) {
         return bidder.calculateValue(goods);
     }
 
@@ -56,19 +46,19 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
     public Bidder<T> getBidder() {
         return bidder;
     }
-    
-    
-    public void setDefaultDistribution(){
-        this.meanBundleSize = goods.size()/2;
-        this.standardDeviation = meanBundleSize/2;
+
+
+    public void setDefaultDistribution() {
+        this.meanBundleSize = goods.size() / 2;
+        this.standardDeviation = meanBundleSize / 2.;
         int exponent = goods.size() < 13 ? goods.size() : 13;
-        this.iterations = (int)Math.pow(2, exponent)-1;
+        this.iterations = (int) Math.pow(2, exponent) - 1;
     }
-    
+
     /**
      * Set the basic properties of this iterator.
      * Note that the parameters are not checked for its validity and meaningfulness.
-     * 
+     *
      * @param meanBundleSize
      *            : The mean bundle size of the randomly generated packages. Should by >0 and <= the number of goods.
      * @param standardDeviation
@@ -96,7 +86,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
                 rngSupplier.getGaussianDistributionRNG(seed + 1), meanBundleSize, standardDeviation, iterations);
     }
 
-    private class BigIntegerComparator implements Comparator<BigInteger> {
+    private class BigIntegerComparator implements Comparator<BigInteger>, Serializable{
         @Override
         public int compare(BigInteger o1, BigInteger o2) {
             return o1.compareTo(o2);
@@ -105,7 +95,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
 
     /**
      * Rurns a bigInteger between 0 and maxValue (both inclusive)
-     * 
+     *
      * @param maxValue
      * @return
      */
@@ -130,7 +120,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
         private int remainingIterations;
 
         public ValueIterator(UniformDistributionRNG uniRng, GaussianDistributionRNG gaussRng, int meanBundleSize,
-                double stdDeviation, int iterations) {
+                             double stdDeviation, int iterations) {
             this.uniRng = uniRng;
             this.gaussRng = gaussRng;
 
@@ -139,14 +129,14 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             this.remainingIterations = iterations;
 
             numberOfGoods = SizeBasedUniqueRandomXOR.this.goods.size();
-            remainingBundles = new ArrayList<BigInteger>(numberOfGoods - 1);
+            remainingBundles = new ArrayList<>(numberOfGoods - 1);
             while (remainingBundles.size() < numberOfGoods - 1)
                 remainingBundles.add(BigInteger.ZERO);
 
             // TODO To fasten things up, use the symmetry properties of binomial coefficient (symmetric pyramid of
             // values), saving half of calculations.
             for (int bundleSize = 1; bundleSize <= numberOfGoods; bundleSize++) {
-                generatedBundleNumbers.put(bundleSize, new TreeSet<BigInteger>(new BigIntegerComparator()));
+                generatedBundleNumbers.put(bundleSize, new TreeSet<>(new BigIntegerComparator()));
                 BigInteger numberOfBundles = BigIntegerMath.binomial(numberOfGoods, bundleSize);
                 remainingBundles.add(bundleSize - 1, numberOfBundles);
             }
@@ -203,11 +193,11 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             remainingBundles.add(bundleSize - 1, newlyAvailable);
 
             // Return result
-            SizeOrderedXOR<T> sizeOrderedXOR = new IncreasingSizeOrderedXOR<>(new Bundle<T>(goods), getBidder());
+            SizeOrderedXOR<T> sizeOrderedXOR = new IncreasingSizeOrderedXOR<>(new Bundle<>(goods), getBidder());
             Bundle<T> bundle = sizeOrderedXOR.getBundle(bundleId, bundleSize);
-            return new XORValue<T>(bundle, getValue(bundle));
+            return new XORValue<>(bundle, getValue(bundle));
         }
-        
+
         /* (non-Javadoc)
          * @see java.util.Iterator#remove()
          */
@@ -216,9 +206,6 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             throw new UnsupportedOperationException();
         }
     }
-
-    
-    
 
 
 }

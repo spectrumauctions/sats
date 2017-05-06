@@ -1,16 +1,15 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.spectrumauctions.sats.core.model.Bidder;
+
+import java.util.List;
 
 /**
  * @author Michael Weiss
@@ -20,9 +19,9 @@ public class MRMRandomnessTest {
 
     long seed = 123234234;
     long seed2 = 32487235;
-    
+
     @Test
-    public void sameSeedSameOutcomeTestMBVM(){
+    public void sameSeedSameOutcomeTestMBVM() {
         MultiRegionModel model = new MultiRegionModel();
         MRVMWorld world1 = model.createWorld(seed);
         MRVMWorld world2 = model.createWorld(seed);

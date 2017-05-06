@@ -13,22 +13,26 @@ import java.io.IOException;
 public class CATSRegionsModelCreator extends ModelCreator {
 
     private final int numberOfBidders;
+    private final int numberOfGoods;
 
     protected CATSRegionsModelCreator(Builder builder) {
         super(builder);
         this.numberOfBidders = builder.getNumberOfBidders();
+        this.numberOfGoods = builder.getNumberOfGoods();
     }
 
     @Override
     public PathResult generateResult(File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException {
         CATSRegionModel model = new CATSRegionModel();
         model.setNumberOfBidders(numberOfBidders);
+        model.setNumberOfGoods(numberOfGoods);
         return appendTopLevelParamsAndSolve(model, outputFolder);
     }
 
-    public static class Builder extends ModelCreator.Builder{
+    public static class Builder extends ModelCreator.Builder {
 
         private int numberOfBidders;
+        private int numberOfGoods;
 
         public Builder() {
             super();
@@ -46,6 +50,14 @@ public class CATSRegionsModelCreator extends ModelCreator {
 
         public void setNumberOfBidders(int numberOfBidders) {
             this.numberOfBidders = numberOfBidders;
+        }
+
+        public int getNumberOfGoods() {
+            return numberOfGoods;
+        }
+
+        public void setNumberOfGoods(int numberOfGoods) {
+            this.numberOfGoods = numberOfGoods;
         }
     }
 }

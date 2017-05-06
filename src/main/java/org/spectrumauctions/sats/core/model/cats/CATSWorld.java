@@ -1,11 +1,11 @@
 package org.spectrumauctions.sats.core.model.cats;
 
+import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Graph;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.*;
 
@@ -26,8 +26,15 @@ public final class CATSWorld extends World {
 
     public CATSWorld(CATSWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
-        int numberOfRows = worldSetup.drawNumberOfRows(rngSupplier);
-        int numberOfColumns = worldSetup.drawNumberOfColumns(rngSupplier);
+        int numberOfRows, numberOfColumns;
+        if (worldSetup.hasDefinedNumberOfGoodsInterval()) {
+            int numberOfGoods = worldSetup.drawNumberOfGoods(rngSupplier);
+            numberOfRows = (int) Math.floor(Math.sqrt(numberOfGoods));
+            numberOfColumns = (int) Math.floor(Math.sqrt(numberOfGoods));
+        } else {
+            numberOfRows = worldSetup.drawNumberOfRows(rngSupplier);
+            numberOfColumns = worldSetup.drawNumberOfColumns(rngSupplier);
+        }
         this.grid = worldSetup.buildProximityGraph(numberOfRows, numberOfColumns, rngSupplier);
         this.licenses = new HashSet<>();
         for (Vertex vertex : this.grid.getVertices()) {

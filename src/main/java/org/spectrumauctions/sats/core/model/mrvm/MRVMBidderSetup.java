@@ -1,31 +1,31 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
+
+import org.spectrumauctions.sats.core.model.BidderSetup;
+import org.spectrumauctions.sats.core.util.random.DoubleInterval;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spectrumauctions.sats.core.util.random.DoubleInterval;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-import org.spectrumauctions.sats.core.model.BidderSetup;
-
 /**
  * @author Michael Weiss
  *
  */
-public abstract class MRVMBidderSetup extends BidderSetup{
-    
+public abstract class MRVMBidderSetup extends BidderSetup {
+
     private final DoubleInterval alphaInterval;
     private final DoubleInterval betaInterval;
     private final DoubleInterval zLowInterval;
-	private final DoubleInterval zHighInterval;
+    private final DoubleInterval zHighInterval;
 
-	private static final BigDecimal NONZERO_INCREMENT = BigDecimal.valueOf(0.01);
+    private static final BigDecimal NONZERO_INCREMENT = BigDecimal.valueOf(0.01);
 
 
     protected MRVMBidderSetup(Builder builder) {
@@ -61,7 +61,7 @@ public abstract class MRVMBidderSetup extends BidderSetup{
 
     public Map<Integer, BigDecimal> drawZLow(Map<Integer, BigDecimal> betas, MRVMWorld world, UniformDistributionRNG rng) {
         Map<Integer, BigDecimal> result = new HashMap<>();
-        for(Map.Entry<Integer, BigDecimal> beta : betas.entrySet()) {
+        for (Map.Entry<Integer, BigDecimal> beta : betas.entrySet()) {
             BigDecimal minTerm = beta.getValue().subtract(BigDecimal.valueOf(0.3));
             if (minTerm.compareTo(BigDecimal.ZERO) < 0) {
                 minTerm = NONZERO_INCREMENT;
@@ -70,15 +70,15 @@ public abstract class MRVMBidderSetup extends BidderSetup{
             MRVMRegionsMap.Region region = world.getRegionsMap().getRegion(beta.getKey());
             BigDecimal divisor = BigDecimal.valueOf(region.getPopulation()).multiply(beta.getValue());
             BigDecimal zvalue = dividend.divide(divisor, RoundingMode.HALF_UP);
-            result.put(beta.getKey(),zvalue);
+            result.put(beta.getKey(), zvalue);
         }
         return result;
     }
 
 
-	public Map<Integer, BigDecimal> drawZHigh(Map<Integer, BigDecimal> betas, MRVMWorld world, UniformDistributionRNG rng) {
+    public Map<Integer, BigDecimal> drawZHigh(Map<Integer, BigDecimal> betas, MRVMWorld world, UniformDistributionRNG rng) {
         Map<Integer, BigDecimal> result = new HashMap<>();
-        for(Map.Entry<Integer, BigDecimal> beta : betas.entrySet()) {
+        for (Map.Entry<Integer, BigDecimal> beta : betas.entrySet()) {
             BigDecimal maxTerm = beta.getValue().add(BigDecimal.valueOf(0.3));
             if (maxTerm.compareTo(BigDecimal.ONE) > 0) {
                 maxTerm = BigDecimal.ONE;
@@ -87,20 +87,20 @@ public abstract class MRVMBidderSetup extends BidderSetup{
             MRVMRegionsMap.Region region = world.getRegionsMap().getRegion(beta.getKey());
             BigDecimal divisor = BigDecimal.valueOf(region.getPopulation()).multiply(beta.getValue());
             BigDecimal zvalue = dividend.divide(divisor, BigDecimal.ROUND_HALF_UP);
-            result.put(beta.getKey(),zvalue);
+            result.put(beta.getKey(), zvalue);
         }
         return result;
-	}
+    }
 
-    
-    public static abstract class Builder extends BidderSetup.Builder{
-        
+
+    public static abstract class Builder extends BidderSetup.Builder {
+
         private DoubleInterval alphaInterval;
         private DoubleInterval betaInterval;
         private DoubleInterval zLowInterval;
-    	private DoubleInterval zHighInterval;
-        
-  
+        private DoubleInterval zHighInterval;
+
+
         /**
          * @param alphaInterval
          * @param betaInterval
@@ -111,8 +111,7 @@ public abstract class MRVMBidderSetup extends BidderSetup{
             this.betaInterval = betaInterval;
         }
 
-        
-        
+
         /**
          * The interval from which the alpha value will be drawn. <br>
          * See {@link MRVMBidderSetup#alphaInterval} for explanation of alpha-parameter
@@ -121,7 +120,6 @@ public abstract class MRVMBidderSetup extends BidderSetup{
         public DoubleInterval getAlphaInterval() {
             return alphaInterval;
         }
-
 
 
         /**
@@ -134,7 +132,6 @@ public abstract class MRVMBidderSetup extends BidderSetup{
         }
 
 
-
         /**
          * The interval from which the beta value will be drawn. <br>
          * See {@link MRVMBidderSetup#betaInterval} for explanation of beta-parameter
@@ -143,7 +140,6 @@ public abstract class MRVMBidderSetup extends BidderSetup{
         public DoubleInterval getBetaInterval() {
             return betaInterval;
         }
-
 
 
         /**
@@ -155,35 +151,30 @@ public abstract class MRVMBidderSetup extends BidderSetup{
             this.betaInterval = betaInterval;
         }
 
-        
-        
+
         public DoubleInterval getzLowInterval() {
-			return zLowInterval;
-		}
+            return zLowInterval;
+        }
 
 
-
-		public DoubleInterval getzHighInterval() {
-			return zHighInterval;
-		}
-
+        public DoubleInterval getzHighInterval() {
+            return zHighInterval;
+        }
 
 
-		public void setzLowInterval(DoubleInterval zLowInterval) {
-			this.zLowInterval = zLowInterval;
-		}
+        public void setzLowInterval(DoubleInterval zLowInterval) {
+            this.zLowInterval = zLowInterval;
+        }
 
 
-
-		public void setzHighInterval(DoubleInterval zHighInterval) {
-			this.zHighInterval = zHighInterval;
-		}
-
+        public void setzHighInterval(DoubleInterval zHighInterval) {
+            this.zHighInterval = zHighInterval;
+        }
 
 
-		@Override
+        @Override
         public abstract MRVMBidderSetup build();
     }
-	
+
 
 }

@@ -1,15 +1,9 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.util.instancehandling;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.World;
@@ -18,27 +12,34 @@ import org.spectrumauctions.sats.core.util.file.FileException;
 import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 import org.spectrumauctions.sats.core.util.file.gson.GsonWrapper;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author Michael Weiss
  *
  */
 public class JSONInstanceHandler extends InstanceHandler {
-    
+
     private FilePathUtils pathUtils = FilePathUtils.getInstance();
     private GsonWrapper gson = GsonWrapper.getInstance();
 
     private static JSONInstanceHandler instance;
-    
+
     // Caches 100 top population id's
-    private final Map<Long, Long> populationIdCache = new CacheMap<Long, Long>(100);
+    private final Map<Long, Long> populationIdCache = new CacheMap<>(100);
 
     private long worldIdCache = 0;
-    
-    
-    private JSONInstanceHandler() { }
-    
-    public static JSONInstanceHandler getInstance(){
-        if(instance == null){
+
+
+    private JSONInstanceHandler() {
+    }
+
+    public static JSONInstanceHandler getInstance() {
+        if (instance == null) {
             instance = new JSONInstanceHandler();
         }
         return instance;
@@ -60,11 +61,11 @@ public class JSONInstanceHandler extends InstanceHandler {
     @Override
     public void writeBidder(Bidder<?> bidder) {
         File file = pathUtils.bidderFilePath(
-                bidder.getWorld().getId(), 
-                bidder.getPopulation(), 
+                bidder.getWorld().getId(),
+                bidder.getPopulation(),
                 bidder.getId());
         String json = gson.toJson(bidder);
-        pathUtils.writeStringToFile(file, json);      
+        pathUtils.writeStringToFile(file, json);
     }
 
     /* (non-Javadoc)
@@ -81,19 +82,19 @@ public class JSONInstanceHandler extends InstanceHandler {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Bidder<?>> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId,
-            long bidderId) {
+                                                             long bidderId) {
         File file = pathUtils.bidderFilePath(world.getId(), populationId, bidderId);
         String json = pathUtils.readFileToString(file);
         Class<?> type = gson.readClass(json);
         Object obj = gson.fromJson(type, json);
-        
-        if(bidderSuperType.isAssignableFrom(obj.getClass())){
+
+        if (bidderSuperType.isAssignableFrom(obj.getClass())) {
             return (T) obj;
-        }else{
-            throw new FileException("generated object (" + type.getName() +") is not of specified bidder type (" + bidderSuperType.getName() +")");
+        } else {
+            throw new FileException("generated object (" + type.getName() + ") is not of specified bidder type (" + bidderSuperType.getName() + ")");
         }
-    }     
-    
+    }
+
     /* (non-Javadoc)
      * @see InstanceHandler#readBidder(java.lang.Class, int, int, int)
      */
@@ -103,7 +104,7 @@ public class JSONInstanceHandler extends InstanceHandler {
         String json = pathUtils.readFileToString(file);
         T bidder = gson.fromJson(type, json);
         bidder.refreshReference(world);
-        return bidder;        
+        return bidder;
     }
 
     /* (non-Javadoc)
@@ -111,15 +112,15 @@ public class JSONInstanceHandler extends InstanceHandler {
      */
     @Override
     public <T extends Bidder<?>> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
-            long populationId) {
+                                                                              long populationId) {
         Set<T> bidders = new HashSet<>();
         Collection<Long> bidderIds = pathUtils.getBidderIds(world.getId(), populationId);
-        for(long bidderId : bidderIds){
+        for (long bidderId : bidderIds) {
             bidders.add(readBidderWithUnknownType(bidderSuperType, world, populationId, bidderId));
         }
         return bidders;
     }
-    
+
     /* (non-Javadoc)
      * @see InstanceHandler#readPopulation(java.lang.Class, int, int)
      */
@@ -127,7 +128,7 @@ public class JSONInstanceHandler extends InstanceHandler {
     public <T extends Bidder<?>> Collection<T> readPopulation(Class<T> type, World world, long populationId) {
         Set<T> bidders = new HashSet<>();
         Collection<Long> bidderIds = pathUtils.getBidderIds(world.getId(), populationId);
-        for(long bidderId : bidderIds){
+        for (long bidderId : bidderIds) {
             bidders.add(readBidder(type, world, populationId, bidderId));
         }
         return bidders;
@@ -143,7 +144,7 @@ public class JSONInstanceHandler extends InstanceHandler {
         worldIdCache = idCandidate + 1;
         return idCandidate;
     }
-    
+
     /**
      * Attempts to create a new world folder with the id idCandidate. <br>
      * If the folder already exists, it tries again with a higher id
@@ -166,8 +167,8 @@ public class JSONInstanceHandler extends InstanceHandler {
     public long getNextPopulationId(long worldId) {
         //TODO check if world exists in file system
         Long idCandidate = populationIdCache.remove(worldId);
-        if (idCandidate == null){
-        	idCandidate = Long.valueOf("0");
+        if (idCandidate == null) {
+            idCandidate = Long.valueOf("0");
         }
 
         idCandidate = recOpenPopulation(worldId, 0);
@@ -178,7 +179,7 @@ public class JSONInstanceHandler extends InstanceHandler {
 
         return idCandidate;
     }
-    
+
     /**
      * Attempts to create a new population folder with the id idCandidate. <br>
      * If the folder already exists, it tries again with a higher id
@@ -189,7 +190,7 @@ public class JSONInstanceHandler extends InstanceHandler {
         java.io.File potentialPopulationFolder = pathUtils.populationFolderPath(worldId, idCandidate);
         if (potentialPopulationFolder.mkdir()) {
             return idCandidate;
-        }else{
+        } else {
             return recOpenPopulation(worldId, ++idCandidate);
         }
     }
@@ -204,7 +205,6 @@ public class JSONInstanceHandler extends InstanceHandler {
         world.refreshFieldBackReferences();
         return world;
     }
-    
-    
+
 
 }

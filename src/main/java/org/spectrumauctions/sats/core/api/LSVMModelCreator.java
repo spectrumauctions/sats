@@ -1,9 +1,6 @@
 package org.spectrumauctions.sats.core.api;
 
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMNationalBidderSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMRegionalBidderSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMBidderSetup;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 
@@ -32,7 +29,7 @@ public class LSVMModelCreator extends ModelCreator {
         return appendTopLevelParamsAndSolve(model, outputFolder);
     }
 
-    public static class Builder extends ModelCreator.Builder{
+    public static class Builder extends ModelCreator.Builder {
 
         private int numberOfNationalBidders;
         private int numberOfRegionalBidders;

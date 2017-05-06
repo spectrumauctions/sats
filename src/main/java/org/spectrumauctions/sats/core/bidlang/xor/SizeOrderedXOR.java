@@ -1,9 +1,14 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.bidlang.xor;
+
+import com.google.common.math.BigIntegerMath;
+import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.Good;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -11,15 +16,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
-import com.google.common.math.BigIntegerMath;
-
-import org.spectrumauctions.sats.core.model.Bundle;
-
 public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
 
-    final List<T> goods = new ArrayList<T>();
+    final List<T> goods = new ArrayList<>();
     private Bidder<T> bidder;
 
     protected SizeOrderedXOR(Collection<T> goods, Bidder<T> bidder) {
@@ -28,7 +27,7 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
         }
         this.bidder = bidder;
     }
-    
+
     /* (non-Javadoc)
      * @see BiddingLanguage#getBidder()
      */
@@ -60,10 +59,10 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
     protected BigDecimal getValue(Bundle bundle) {
         return getBidder().calculateValue(bundle);
     }
-    
+
     /**
      * Returns a specific bundle of given size
-     * 
+     *
      * @param subIndex
      *            : An index of this bundle in a list of all bundles with same size (hence NOT the index in the iterator).
      *            (starting a zero).
@@ -138,8 +137,5 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
         }
     }
 
-    
-
-  
 
 }

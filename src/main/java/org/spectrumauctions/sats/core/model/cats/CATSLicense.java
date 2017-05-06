@@ -1,9 +1,9 @@
 package org.spectrumauctions.sats.core.model.cats;
 
+import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
-import com.google.common.base.Preconditions;
 
 /**
  * @author Fabio Isler

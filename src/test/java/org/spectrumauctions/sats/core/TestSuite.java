@@ -5,11 +5,17 @@
  */
 package org.spectrumauctions.sats.core;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.spectrumauctions.sats.core.api.APITest;
 import org.spectrumauctions.sats.core.bidfile.CatsWriterTest;
 import org.spectrumauctions.sats.core.bidfile.JSONWriterTest;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.SimpleRandomOrderTest;
+import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetTest;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericSetsPickNTest;
+import org.spectrumauctions.sats.core.bidlang.generic.XORQtoXORTest;
 import org.spectrumauctions.sats.core.examples.BiddingLanguagesExample;
 import org.spectrumauctions.sats.core.examples.ParameterizingModelsExample;
 import org.spectrumauctions.sats.core.examples.SimpleModelAccessorsExample;
@@ -20,26 +26,22 @@ import org.spectrumauctions.sats.core.model.bvm.BMValueTest;
 import org.spectrumauctions.sats.core.model.bvm.SizeOrderedIteratorTest;
 import org.spectrumauctions.sats.core.model.bvm.SizeOrderedPowersetTest;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
+import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
+import org.spectrumauctions.sats.core.model.cats.CATSBidderTest;
 import org.spectrumauctions.sats.core.model.cats.CATSRegionModel;
+import org.spectrumauctions.sats.core.model.cats.CATSWorldTest;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidderTest;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMWorldTest;
+import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMBidderTest;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMWorldTest;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.*;
-import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
-import org.spectrumauctions.sats.core.model.srvm.SRMTest;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBidderTest;
+import org.spectrumauctions.sats.core.model.srvm.SRVMRandomnessTest;
+import org.spectrumauctions.sats.core.model.srvm.SRVMTest;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 import org.spectrumauctions.sats.core.util.file.FilePathUtils;
-import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetTest;
-import org.spectrumauctions.sats.core.bidlang.generic.XORQtoXORTest;
-import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
-import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
-import org.spectrumauctions.sats.core.model.srvm.SRVMRandomnessTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,8 +75,11 @@ import java.util.List;
         MRVMBidderTypeSpecificTest.class,
         MRMRandomnessTest.class,
         MRVMWorldTest.class,
-        SRMTest.class,
+        SRVMTest.class,
+        SRVMBidderTest.class,
         SRVMRandomnessTest.class,
+        CATSWorldTest.class,
+        CATSBidderTest.class,
         // Examples
         BiddingLanguagesExample.class,
         ParameterizingModelsExample.class,

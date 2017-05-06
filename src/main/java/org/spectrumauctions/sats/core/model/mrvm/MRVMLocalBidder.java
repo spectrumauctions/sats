@@ -1,21 +1,17 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @author Michael Weiss
@@ -23,17 +19,18 @@ import org.spectrumauctions.sats.core.model.Bundle;
  */
 public final class MRVMLocalBidder extends MRVMBidder {
 
+    private static final long serialVersionUID = -7654713373213024311L;
     /**
      * Caches the gamma factors.<br>
      * This is only instantiated at its first use.
      */
     private transient Map<MRVMRegionsMap.Region, BigDecimal> gammaFactorCache = null;
-    
+
     /**
      * Stores the id's of all regions for which this bidder is interested;
      */
     final Set<Integer> regionsOfInterest;
-    
+
     /**
      * @param id
      * @param populationId
@@ -45,14 +42,14 @@ public final class MRVMLocalBidder extends MRVMBidder {
                     UniformDistributionRNG rng) {
         super(id, populationId, world, setup, rng);
         Set<MRVMRegionsMap.Region> regionsOfInterest = setup.drawRegionsOfInterest(world, rng);
-          Set<Integer> regionsOfInterestIds = new HashSet<>();
-          for(MRVMRegionsMap.Region region : regionsOfInterest){
-              if(! getWorld().getRegionsMap().getRegions().contains(region)){
-                  throw new IllegalArgumentException("Region of Interest of this bidder is not part of the same world as this bidder");
-              }
-              regionsOfInterestIds.add(region.getId());
-          }
-          this.regionsOfInterest = Collections.unmodifiableSet(regionsOfInterestIds);
+        Set<Integer> regionsOfInterestIds = new HashSet<>();
+        for (MRVMRegionsMap.Region region : regionsOfInterest) {
+            if (!getWorld().getRegionsMap().getRegions().contains(region)) {
+                throw new IllegalArgumentException("Region of Interest of this bidder is not part of the same world as this bidder");
+            }
+            regionsOfInterestIds.add(region.getId());
+        }
+        this.regionsOfInterest = Collections.unmodifiableSet(regionsOfInterestIds);
         store();
     }
 
@@ -62,20 +59,20 @@ public final class MRVMLocalBidder extends MRVMBidder {
      * @param regionsOfInterest
      * @return
      */
-    private static Map<MRVMRegionsMap.Region, BigDecimal> mapGammaFactors(MRVMWorld world, Set<Integer> regionsOfInterest){
+    private static Map<MRVMRegionsMap.Region, BigDecimal> mapGammaFactors(MRVMWorld world, Set<Integer> regionsOfInterest) {
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();
-        for(MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()){
+        for (MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()) {
             BigDecimal gammaFactor;
-            if(regionsOfInterest.contains(region.getId())){
+            if (regionsOfInterest.contains(region.getId())) {
                 gammaFactor = BigDecimal.ONE;
-            }else{
+            } else {
                 gammaFactor = BigDecimal.ZERO;
             }
-            result.put(region,gammaFactor);
+            result.put(region, gammaFactor);
         }
         return result;
     }
-    
+
     /**
      * {@inheritDoc}
      * @param bundle Is not required for calculation of local bidders gamma factors and will be ignored.
@@ -91,7 +88,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
      */
     @Override
     public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle) {
-        if(gammaFactorCache == null){
+        if (gammaFactorCache == null) {
             gammaFactorCache = mapGammaFactors(getWorld(), regionsOfInterest);
         }
         return Collections.unmodifiableMap(gammaFactorCache);
@@ -103,12 +100,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
     @Override
     public <T extends BiddingLanguage> T getValueFunction(Class<T> type, long seed)
             throws UnsupportedBiddingLanguageException {
-        try{
-            return super.getValueFunction(type,seed);
-        }catch(UnsupportedBiddingLanguageException e){
-            // This bidder cannot provide any other bidding languages other than the ones super-bidder can.
-            throw e;
-        }
+        return super.getValueFunction(type, seed);
     }
 
     @Override
@@ -136,8 +128,5 @@ public final class MRVMLocalBidder extends MRVMBidder {
         return true;
     }
 
-    
-    
-    
 
 }

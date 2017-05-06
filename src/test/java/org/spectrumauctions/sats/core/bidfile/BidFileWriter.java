@@ -1,11 +1,20 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.bidfile;
 
-import static org.junit.Assert.fail;
+import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
+import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
+import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
+import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.model.bvm.BMBidder;
+import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,16 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
-import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
-import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.bvm.BMBidder;
-import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
+import static org.junit.Assert.fail;
 
 /**
  * @author Michael Weiss
@@ -44,7 +44,7 @@ public abstract class BidFileWriter {
                 languages.add(lang);
             } catch (UnsupportedBiddingLanguageException e) {
                 fail("Unsupported Bidding Iterator");
-            } 
+            }
         }
         try {
             exporter.writeMultiBidderXOR(languages, bidsPerBidder, "TestXOR_" + new Random().nextInt());
@@ -54,8 +54,8 @@ public abstract class BidFileWriter {
         }
     }
 
-    
-    protected void testSingleBidderXOR(FileWriter exporter){
+
+    protected void testSingleBidderXOR(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
         Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
         int bidsPerBidder = 150;
@@ -74,9 +74,9 @@ public abstract class BidFileWriter {
             }
         }
     }
-    
-     
-    protected void testMultiBidderXORQ(FileWriter exporter){
+
+
+    protected void testMultiBidderXORQ(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
         Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
         Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
@@ -89,7 +89,7 @@ public abstract class BidFileWriter {
                 languages.add(lang);
             } catch (UnsupportedBiddingLanguageException e) {
                 fail("Unsupported Bidding Iterator");
-            } 
+            }
         }
         try {
             exporter.writeMultiBidderXORQ(languages, bidsPerBidder, "TestXORQ_" + new Random().nextInt());
@@ -98,9 +98,9 @@ public abstract class BidFileWriter {
             fail("Error writing file");
         }
     }
-    
-    
-    protected void testSingleBidderXORQ(FileWriter exporter){
+
+
+    protected void testSingleBidderXORQ(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
         Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
         int bidsPerBidder = 150;

@@ -1,16 +1,16 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.api;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidderSetup;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Michael Weiss
@@ -57,7 +57,7 @@ public class SRVMModelCreator extends ModelCreator {
         public Builder() {
             super();
             numSmallBidders = new SRVMBidderSetup.SmallBidderBuilder().getNumberOfBidders();
-            numPrimaryBidders  = new SRVMBidderSetup.PrimaryBidderBuilder().getNumberOfBidders();
+            numPrimaryBidders = new SRVMBidderSetup.PrimaryBidderBuilder().getNumberOfBidders();
             numSecondaryBidders = new SRVMBidderSetup.SecondaryBidderBuilder().getNumberOfBidders();
             numHighFrequencyBidders = new SRVMBidderSetup.HighFrequenceBidderBuilder().getNumberOfBidders();
         }
@@ -103,8 +103,7 @@ public class SRVMModelCreator extends ModelCreator {
         public int getNumSmallBidders() {
             return numSmallBidders;
         }
-        
-        
+
 
     }
 

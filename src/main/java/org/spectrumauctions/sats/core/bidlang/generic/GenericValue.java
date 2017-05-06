@@ -5,11 +5,11 @@
  */
 package org.spectrumauctions.sats.core.bidlang.generic;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.Good;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -44,16 +44,16 @@ public final class GenericValue<T extends GenericDefinition> {
     public BigDecimal getValue() {
         return value;
     }
-    
-    public Bundle<?> anyConsistentBundle(){
+
+    public Bundle<?> anyConsistentBundle() {
         Bundle bundle = new Bundle<>();
-        for(Map.Entry<T, Integer> entry : quantities.entrySet()){
+        for (Map.Entry<T, Integer> entry : quantities.entrySet()) {
             List<? extends Good> objects = new ArrayList<>(entry.getKey().allLicenses());
             bundle.addAll(objects.subList(0, entry.getValue()));
         }
         return bundle;
     }
-    
+
 
     @Override
     public boolean equals(Object o) {
@@ -64,8 +64,7 @@ public final class GenericValue<T extends GenericDefinition> {
 
         if (totalQuantity != that.totalQuantity) return false;
         if (size != that.size) return false;
-        if (quantities != null ? !quantities.equals(that.quantities) : that.quantities != null) return false;
-        return value != null ? value.equals(that.value) : that.value == null;
+        return (quantities != null ? quantities.equals(that.quantities) : that.quantities == null) && (value != null ? value.equals(that.value) : that.value == null);
     }
 
     @Override

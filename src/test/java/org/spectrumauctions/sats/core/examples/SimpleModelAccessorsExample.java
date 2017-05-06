@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.core.examples;
 
+import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.DefaultModel;
@@ -12,10 +13,12 @@ import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 /**
  * <p>This shows how to use the simple accessors provided for the models. </p>
@@ -29,7 +32,7 @@ public class SimpleModelAccessorsExample {
      * In this example we create a new world for the <i>Single Region Value Model</i>, as well as a set of bidders for this world.
      */
     @Test
-    public void exampleOne(){
+    public void exampleOne() {
         SingleRegionModel singleRegionModel = new SingleRegionModel();
         SRVMWorld world = singleRegionModel.createWorld();
         List<SRVMBidder> bidders = singleRegionModel.createPopulation(world);
@@ -41,7 +44,7 @@ public class SimpleModelAccessorsExample {
      * Now we want to to the same as in {@link #exampleOne()}, but modify the number of bidders
      */
     @Test
-    public void exampleTwo(){
+    public void exampleTwo() {
         SingleRegionModel singleRegionModel = new SingleRegionModel();
         SRVMWorld world = singleRegionModel.createWorld();
         singleRegionModel.setNumberOfHighFrequencyBidders(1);
@@ -56,7 +59,7 @@ public class SimpleModelAccessorsExample {
      * In this example, we do again the same as in {@link #exampleOne()}, but we want to set a seed to allow reproduction
      */
     @Test
-    public void exampleThree(){
+    public void exampleThree() {
         SingleRegionModel singleRegionModel = new SingleRegionModel();
         RNGSupplier rngSupplier1 = new JavaUtilRNGSupplier("MY SEED".hashCode());
         SRVMWorld world = singleRegionModel.createWorld(rngSupplier1);
@@ -71,16 +74,25 @@ public class SimpleModelAccessorsExample {
      * <p>This example is a copy of {@link #exampleOne()}</p>, but adapted to be model independent
      */
     @Test
-    public void exampleGeneric(){
+    public void exampleGeneric() {
         DefaultModel anyModel;
         // In the following switch statement, we pick any model at random
         int randomNumber = new Random().nextInt(4);
-        switch (randomNumber){
-            case(0): anyModel = new MultiRegionModel(); break;
-            case(1): anyModel = new SingleRegionModel(); break;
-            case(2): anyModel = new BaseValueModel(); break;
-            case(3): anyModel = new MultiBandValueModel(); break;
-            default: anyModel = new SingleRegionModel();
+        switch (randomNumber) {
+            case (0):
+                anyModel = new MultiRegionModel();
+                break;
+            case (1):
+                anyModel = new SingleRegionModel();
+                break;
+            case (2):
+                anyModel = new BaseValueModel();
+                break;
+            case (3):
+                anyModel = new MultiBandValueModel();
+                break;
+            default:
+                anyModel = new SingleRegionModel();
         }
         World world = anyModel.createWorld();
         List<Bidder> bidders = anyModel.createPopulation(world);
@@ -90,16 +102,16 @@ public class SimpleModelAccessorsExample {
     /**
      * Writes, for every passed bidder, his value for getting all licenses to the console.
      */
-    public static void treatBidders(Collection<? extends Bidder> bidders){
+    public static void treatBidders(Collection<? extends Bidder> bidders) {
         Optional<? extends Bidder> anyBidder = bidders.stream().findAny();
-        if(anyBidder.isPresent()) {
+        if (anyBidder.isPresent()) {
             World world = anyBidder.get().getWorld();
             Bundle fullBundle = new Bundle<>(world.getLicenses());
             for (Bidder bidder : bidders) {
                 BigDecimal val = bidder.calculateValue(fullBundle);
                 System.out.println("bidder " + bidder.getId() + "has the following value for getting all licenses: " + val.toString());
             }
-        }else{
+        } else {
             System.out.println("No bidder created");
         }
     }

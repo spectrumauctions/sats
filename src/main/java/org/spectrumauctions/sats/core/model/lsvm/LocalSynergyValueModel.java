@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * @author Fabio Isler
- *
  */
 public class LocalSynergyValueModel extends DefaultModel<LSVMWorld, LSVMBidder> {
 

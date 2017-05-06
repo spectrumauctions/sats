@@ -1,46 +1,45 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Michael Weiss
  *
  */
 public class MRVMLicense extends Good {
-    
+
     private static final long serialVersionUID = 2814831255330638720L;
-    
+
     private final String bandName;
     private transient MRVMBand band;
-    
+
     private transient MRVMWorld world;
-    
+
     private final int regionId;
     private transient MRVMRegionsMap.Region region;
 
 
-
-    public static List<MRVMLicense> createLicenses(MRVMBand band, int startId, MRVMRegionsMap regionsMap){
+    public static List<MRVMLicense> createLicenses(MRVMBand band, int startId, MRVMRegionsMap regionsMap) {
         List<MRVMLicense> licenses = new ArrayList<>();
-        for(int i = 0; i < band.getNumberOfLots(); i++){
-            for (MRVMRegionsMap.Region region : regionsMap.getRegions()){
+        for (int i = 0; i < band.getNumberOfLots(); i++) {
+            for (MRVMRegionsMap.Region region : regionsMap.getRegions()) {
                 MRVMLicense license = new MRVMLicense(startId++, band, region);
                 licenses.add(license);
             }
         }
         return licenses;
     }
-    
+
     private MRVMLicense(long id, MRVMBand band, MRVMRegionsMap.Region region) {
         super(id, band.getWorldId());
         this.band = band;
@@ -50,7 +49,6 @@ public class MRVMLicense extends Good {
         this.region = region;
     }
 
-     
 
     @Override
     public int hashCode() {
@@ -88,7 +86,7 @@ public class MRVMLicense extends Good {
         return world;
     }
 
-    
+
     public static long getSerialversionuid() {
         return serialVersionUID;
     }
@@ -118,8 +116,8 @@ public class MRVMLicense extends Good {
      * Must only be called by {@link #refreshFieldBackReferences(World)}.
      * Explicit definition of private setter to prevent from generating setter by accident.
      */
-    private void setBand(MRVMBand band){
-        if(! getBandName().equals(band.getName())){
+    private void setBand(MRVMBand band) {
+        if (!getBandName().equals(band.getName())) {
             throw new IncompatibleWorldException("The stored worldId does not represent the passed world reference");
         }
         this.band = band;
@@ -133,9 +131,8 @@ public class MRVMLicense extends Good {
     public void refreshFieldBackReferences(MRVMBand band) {
         setBand(band);
         this.world = band.getWorld();
-        this.region = world.getRegionsMap().getRegion(regionId);        
+        this.region = world.getRegionsMap().getRegion(regionId);
     }
-    
-    
+
 
 }

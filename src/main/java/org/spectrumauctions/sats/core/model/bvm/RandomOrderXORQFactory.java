@@ -6,13 +6,14 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
+import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
-import org.spectrumauctions.sats.core.model.Good;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -20,8 +21,9 @@ import java.util.List;
 /**
  * @author Fabio Isler
  */
-public class RandomOrderXORQFactory {
+public class RandomOrderXORQFactory implements Serializable {
 
+    private static final long serialVersionUID = 3752749595977909372L;
     static BandComparator comparator = new BandComparator();
 
     public static XORQRandomOrderSimple<BMBand> getXORQRandomOrderSimpleLang(BMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
@@ -75,11 +77,13 @@ public class RandomOrderXORQFactory {
         }
     }
 
-    private static class BandComparator implements Comparator<BMBand> {
+    private static class BandComparator implements Comparator<BMBand>, Serializable {
+
+        private static final long serialVersionUID = -1063512022491891006L;
 
         /* (non-Javadoc)
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
+                 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+                 */
         @Override
         public int compare(BMBand o1, BMBand o2) {
             return o1.getName().compareTo(o2.getName());

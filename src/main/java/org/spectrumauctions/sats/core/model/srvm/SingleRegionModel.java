@@ -1,15 +1,15 @@
 /**
  * Copyright by Michael Weiss, weiss.michael@gmx.ch
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.spectrumauctions.sats.core.model.srvm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.spectrumauctions.sats.core.model.DefaultModel;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Michael Weiss
@@ -22,7 +22,7 @@ public class SingleRegionModel extends DefaultModel<SRVMWorld, SRVMBidder> {
     SRVMBidderSetup.HighFrequenceBidderBuilder highFrequencyBuilder = new SRVMBidderSetup.HighFrequenceBidderBuilder();
     SRVMBidderSetup.SecondaryBidderBuilder secondaryBidderBuilder = new SRVMBidderSetup.SecondaryBidderBuilder();
     SRVMBidderSetup.PrimaryBidderBuilder primaryBidderBuilder = new SRVMBidderSetup.PrimaryBidderBuilder();
-    
+
     /* (non-Javadoc)
      * @see org.spectrumauctions.sats.core.model.QuickDefaultAccess#createWorld(RNGSupplier)
      */
@@ -43,7 +43,7 @@ public class SingleRegionModel extends DefaultModel<SRVMWorld, SRVMBidder> {
         setups.add(primaryBidderBuilder.build());
         return world.createPopulation(setups, populationRNG);
     }
-    
+
     public void setNumberOfSmallBidders(int numberOfBidders) {
         smallBidderBuilder.setNumberOfBidders(numberOfBidders);
     }

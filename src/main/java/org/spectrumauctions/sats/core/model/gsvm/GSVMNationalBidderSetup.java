@@ -1,8 +1,8 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
-import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.HashMap;

@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
@@ -10,8 +12,6 @@ import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -22,6 +22,7 @@ import java.util.Set;
  */
 public final class LSVMBidder extends Bidder<LSVMLicense> {
 
+    private static final long serialVersionUID = -1774118565772856391L;
     private final int LSVM_A;
     private final int LSVM_B;
     private final Set<LSVMLicense> proximity;

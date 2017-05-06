@@ -1,5 +1,5 @@
 /**
- * 
+ * @author Michael Weiss
  */
 /**
  * @author Michael Weiss
