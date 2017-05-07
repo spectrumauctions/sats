@@ -8,6 +8,7 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bundle;
@@ -33,6 +34,7 @@ public class MRVMOverallValueTest {
     private static boolean LOG_ALL_STAGES = false;
 
     @Test
+    @Ignore //Ignored for performance reasons
     public void mipValuesEqualSATSValues() {
         List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation();
         //Sort by bidder type
