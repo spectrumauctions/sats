@@ -17,6 +17,12 @@
 			<artifactId>jopt</artifactId>
 			<version>1.2</version>
 		</dependency>
+		<dependency>
+			<groupId>cplex</groupId>
+			<artifactId>cplex</artifactId>
+			<version>12.6</version>
+			<optional>true</optional>
+		</dependency>
         <dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
