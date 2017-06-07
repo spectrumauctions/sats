@@ -16,7 +16,7 @@ and locally install it by running ``mvn clean install`` in the cloned repository
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-core</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.4.0</version>
 </dependency>
 ````
 You can now use sats-core, which allows you to access and modify all of sats value models to generate value function instances for your simulations.
