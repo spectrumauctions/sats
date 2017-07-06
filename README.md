@@ -9,6 +9,11 @@ Should you not want to use SATS it in your own java code, but want to create pro
 http://spectrumauctions.org for more information.
 ##### Prerequisites
 Make sure to have `git`, `maven`, `JDK 1.8 (or later)` and `cplex` installed. 
+* Include your local cplex JAR in your maven repository by the following command:
+```
+mvn install:install-file -Dfile=<path-to-cplex-jar> -DgroupId=cplex -DartifactId=cplex -Dversion=12.6 -Dpackaging=jar
+```
+* Note: If you have an early JDK 1.8 version and it doesn't compile, please update to a newer version. 1.8.0_91 is confirmed to be new enough.
 ##### Step 1: Install dependency
 Install `sats-core` (https://github.com/spectrumauctions/sats-core), following its getting-started guide.
 ##### Step 2: Install jOPT
