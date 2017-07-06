@@ -34,7 +34,7 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-slf4j-impl:2.3" level="project" />
     <orderEntry type="library" name="Maven: com.datumbox:lpsolve:5.5.2.0" level="project" />
-    <orderEntry type="library" name="Maven: cplex:cplex:12.6" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: cplex:cplex:12.6" level="project" />
     <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
   </component>
 </module>

@@ -21,6 +21,7 @@
 			<groupId>cplex</groupId>
 			<artifactId>cplex</artifactId>
 			<version>12.6</version>
+			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
         <dependency>
