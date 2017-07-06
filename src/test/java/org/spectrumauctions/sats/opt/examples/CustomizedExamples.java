@@ -1,6 +1,7 @@
 package org.spectrumauctions.sats.opt.examples;
 
 import com.google.common.collect.ImmutableMap;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
@@ -26,6 +27,7 @@ public class CustomizedExamples {
      * Setting the number of bidders is possible on {@link MultiRegionModel} level.
      */
     @Test
+    @Ignore
     public void differentNumberOfBiddersMRVMExample() {
         MultiRegionModel model = new MultiRegionModel();
         model.setNumberOfLocalBidders(3);
@@ -42,6 +44,7 @@ public class CustomizedExamples {
      * To customize the world, {@link MRVMWorldSetup} and the available builders can be used
      */
     @Test
+    @Ignore
     public void customizedWorldMRVMExample() {
         MRVMWorldSetup.MRVMWorldSetupBuilder worldSetupBuilder = new MRVMWorldSetup.MRVMWorldSetupBuilder();
 
@@ -86,6 +89,7 @@ public class CustomizedExamples {
      * To customize the bidders, the different {@link MRVMBidderSetup} and the available builders can be used
      */
     @Test
+    @Ignore
     public void customizedBiddersMRVMExample() {
         MRVMLocalBidderSetup.Builder localBuilder = new MRVMLocalBidderSetup.Builder();
         MRVMRegionalBidderSetup.Builder regionalBuilder = new MRVMRegionalBidderSetup.Builder();
