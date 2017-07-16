@@ -14,6 +14,7 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,7 +54,7 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
         double value = 0;
         Set<Set<LSVMLicense>> subpackages = world.getGrid().getMaximallyConnectedSubpackages(bundle);
         for (Set<LSVMLicense> subset : subpackages) {
-            double factor = 1 + (LSVM_A / (100 * (1 + Math.exp(LSVM_B - subset.size()))));
+            double factor = calculateFactor(subset.size());
             value += factor * sumOfItemValues(subset);
         }
         return new BigDecimal(value);
@@ -101,5 +102,13 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
         } else {
             throw new IllegalArgumentException("World is not of correct type");
         }
+    }
+    
+    public Map<Long, BigDecimal> getBaseValues() {
+        return Collections.unmodifiableMap(values);
+    }
+    
+    public double calculateFactor(int size){
+    	return 1 + (LSVM_A / (100 * (1 + Math.exp(LSVM_B - size))));
     }
 }

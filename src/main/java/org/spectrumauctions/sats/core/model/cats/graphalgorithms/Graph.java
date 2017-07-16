@@ -1,6 +1,7 @@
 package org.spectrumauctions.sats.core.model.cats.graphalgorithms;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 //import org.gnu.glpk.*;
 
@@ -759,6 +760,39 @@ public class Graph {
             }
         }
     }
+    
+    /**
+     * The method implements the dfs algorithm to find all paths between two vertices.
+     * Code adjusted from: http://introcs.cs.princeton.edu/java/45graph/AllPaths.java.html 
+     * by Robert Sedgewick and Kevin Wayne.
+     * @author Nicolas Küchler
+     */
+    public Set<Set<Vertex>> findAllPaths(Vertex source, Vertex destination){
+    	Set<Set<Vertex>> allPaths = new HashSet<>();
+    	Stack<Vertex> path = new Stack<Vertex>();
+    	Set<Vertex> currentPath = new HashSet<>();
+    	
+    	explore(source, destination, path, currentPath, allPaths);
+    	
+    	return allPaths;
+    }
+    
+    private void explore(Vertex current, Vertex destination, Stack<Vertex> path, Set<Vertex> currentPath, Set<Set<Vertex>> allPaths){
+    	path.push(current);
+    	currentPath.add(current);
+    	
+    	if (current.equals(destination)) {
+    		allPaths.add(path.stream().collect(Collectors.toSet())); // found one possible path
+    	}else{    		
+    		getVertices().stream()
+    			.filter(v -> isAdjacent(v, current) && !currentPath.contains(v)) //find all not visited adjacent vertices 
+    			.forEach(v ->  explore(v, destination, path, currentPath, allPaths)); // explore them
+    	}
+    	
+    	path.pop();
+    	currentPath.remove(current);
+    }
+    
 
     /*
      * Initialize the shortest paths estimations and predecessors given the source ID

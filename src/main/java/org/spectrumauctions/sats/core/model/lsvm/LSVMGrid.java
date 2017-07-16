@@ -142,7 +142,7 @@ public class LSVMGrid implements Serializable {
         return newLicenses;
     }
 
-    private boolean isNeighbor(LSVMLicense a, LSVMLicense b) {
+    public boolean isNeighbor(LSVMLicense a, LSVMLicense b) {
         return a.getRowPosition() == b.getRowPosition() + 1 && a.getColumnPosition() == b.getColumnPosition()
                 || a.getRowPosition() == b.getRowPosition() - 1 && a.getColumnPosition() == b.getColumnPosition()
                 || a.getRowPosition() == b.getRowPosition() && a.getColumnPosition() + 1 == b.getColumnPosition()
