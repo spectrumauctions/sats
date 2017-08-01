@@ -5,7 +5,10 @@ This getting started guide helps you to set up sats-core to use it as a library 
 Should you not want to use it in your own code, you may want to use the command line tool (sats-clt) or the web application (sats-web) instead. See 
 http://spectrumauctions.org for more information.
 ##### Prerequisites
-Make sure to have `git`, `maven` and `JDK 1.8 (or later)` installed. 
+Make sure to have `git`, `maven` and `JDK 1.8 (or later)` installed.
+
+* Note: If you have an early JDK 1.8 version and it doesn't compile, please update to a newer version. 1.8.0_91 is confirmed to be new enough.
+
 ##### Step 1: Install dependency
 ``git clone`` the gson-serializer repository (https://github.com/acebaggins/gson-serializers) 
 and locally install it by running ``mvn clean install`` in the cloned repository.
@@ -16,7 +19,7 @@ and locally install it by running ``mvn clean install`` in the cloned repository
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-core</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.4.0</version>
 </dependency>
 ````
 You can now use sats-core, which allows you to access and modify all of sats value models to generate value function instances for your simulations.
