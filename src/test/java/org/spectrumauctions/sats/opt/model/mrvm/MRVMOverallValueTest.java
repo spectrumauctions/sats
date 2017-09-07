@@ -34,7 +34,7 @@ public class MRVMOverallValueTest {
     private static boolean LOG_ALL_STAGES = false;
 
     @Test
-    @Ignore //Ignored for performance reasons
+    // @Ignore //Ignored for performance reasons
     public void mipValuesEqualSATSValues() {
         List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation();
         //Sort by bidder type
@@ -135,7 +135,7 @@ public class MRVMOverallValueTest {
                 double svScalingFactor = mrvm_mip.getBidderPartialMips().get(bidder).getScalingFactor();
                 double oWithSvUnscaled = svScalingFactor * omegaVal;
                 // Unscaling of OmegaScaling is only done in next step
-                assertionResults.add(assertEqualsAndGiveResult(expectedOmega.doubleValue(), oWithSvUnscaled, bidder, "omega"));
+                assertionResults.add(assertEqualsAndGiveResult(expectedOmega.doubleValue(), oWithSvUnscaled, bidder, "omega in region " + region.getId()));
             }
         }
         return assertionResults;
@@ -168,12 +168,12 @@ public class MRVMOverallValueTest {
             Variable omegaVariable = localBidderPartialMip.getOmegaVariable(region);
             double mipOmega = joptResult.getValue(omegaVariable);
             BigDecimal bdMipOmega = BigDecimal.valueOf(mipOmega);
-            cplexOmegaSum = cplexOmegaSum.add(cplexOmegaSum);
-            if (bidder.gammaFactor(region, (Bundle<MRVMLicense>) result.getAllocation(bidder).anyConsistentBundle()) == BigDecimal.ONE) {
+            cplexOmegaSum = cplexOmegaSum.add(bdMipOmega);
+            if (bidder.gammaFactor(region, (Bundle<MRVMLicense>) result.getAllocation(bidder).anyConsistentBundle()).equals(BigDecimal.ONE)) {
                 BigDecimal c = MRVMWorld.c(region, (Bundle<MRVMLicense>) result.getAllocation(bidder).anyConsistentBundle());
                 BigDecimal sv = bidder.svFunction(region, c);
                 BigDecimal omega = bidder.omegaFactor(region, sv);
-                manualOmegaSum.add(omega);
+                manualOmegaSum = manualOmegaSum.add(omega);
             }
         }
         double svScaling = localBidderPartialMip.getScalingFactor();
@@ -195,7 +195,6 @@ public class MRVMOverallValueTest {
      */
     private List<String> assertRegionalGammaFactorsValue(MRVMMipResult result, IMIPResult joptResult, MRVMBidder bidder, MRVM_MIP mip) {
         List<String> assertionResults = new ArrayList<>();
-        MRVMRegionalBidderPartialMip localBidderPartialMip = (MRVMRegionalBidderPartialMip) mip.getBidderPartialMips().get(bidder);
         //There is no gamma variable, thus we only check if sats-core impl is consistent with was mip is supposed to do
         BigDecimal manualOmegaSum = BigDecimal.ZERO;
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -206,7 +205,7 @@ public class MRVMOverallValueTest {
             BigDecimal discountedOmega = gammaFactor.multiply(omega);
             manualOmegaSum.add(discountedOmega);
         }
-        assertionResults.add(assertEqualsAndGiveResult(manualOmegaSum, manualOmegaSum, bidder, "local bidder sats-core gamma test (manual)"));
+        assertionResults.add(assertEqualsAndGiveResult(manualOmegaSum, manualOmegaSum, bidder, "regional bidder sats-core gamma test (manual)"));
         return assertionResults;
     }
 

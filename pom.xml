@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spectrumauctions</groupId>
 	<artifactId>sats-opt</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.5.0-SNAPSHOT</version>
 	<name>SATS Optimizer</name>
 	<dependencies>
 		
 		<dependency>
 			<groupId>org.spectrumauctions</groupId>
 			<artifactId>sats-core</artifactId>
-			<version>0.4.0</version>
+			<version>0.5.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.harvard.econcs</groupId>
@@ -48,6 +48,10 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.19.1</version>
 				<configuration>
+					<enableAssertions>false</enableAssertions>
+					<includes>
+						<include>*</include>
+					</includes>
 		        	<forkMode>once</forkMode>
 		     	</configuration>
 			</plugin>
