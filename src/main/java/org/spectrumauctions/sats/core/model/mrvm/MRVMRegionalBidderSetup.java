@@ -57,12 +57,9 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
         for (int i = 1; i <= maxDistance; i++) {
             double exponent = exponentFactor * i * (-1);
             double gamma = Math.pow(base, exponent);
-            try {
-                Preconditions.checkState(gamma >= 0 && gamma <= 1, "Invalid Gamma, some of the calculation parameters have unallowed values");
-            } catch (IllegalStateException e) {
-                //TODO Delete Try/Catch again
-                System.out.println("Invalid Gamma");
-            }
+
+            Preconditions.checkState(gamma >= 0 && gamma <= 1, "Invalid Gamma, some of the calculation parameters have unallowed values");
+
             BigDecimal roundedGamma = BigDecimal.valueOf(gamma).setScale(5, BigDecimal.ROUND_HALF_DOWN);
             distanceDiscount.put(i, roundedGamma);
         }
@@ -75,25 +72,22 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
         private double exponentFactor;
         private double base;
 
-        /**
-         * @param alphaInterval
-         * @param betaInterval
-         */
         public Builder() {
             super("Multi Region Model Regional Bidder",
                     4,
-                    new DoubleInterval(700, 950),
-                    new DoubleInterval(0.1, 0.2));
-            this.exponentFactor = 0.9;
+                    new DoubleInterval(500, 840),
+                    new DoubleInterval(0.04, 0.1));
+            this.exponentFactor = 1.25;
             this.base = 2;
         }
 
 
         /**
-         * Specify the Gamma Function, i.e., the discount the regional bidder has on values for regions with distance d from his home (i.e., {@link MRVMRegionsMap#getDistance(home, d)}<br><br>
+         * Specify the Gamma Function, i.e., the discount the regional bidder has on values for regions with distance d
+         * from his home (i.e., {@link MRVMRegionsMap#getDistance(MRVMRegionsMap.Region, MRVMRegionsMap.Region)}<br><br>
          * It has the shape <i><b>base</b>.pow(-x * <b>exponentFactor</b>)</i>.<br>
          * ExponentFactor and base can be specified with this function.
-         * @param  Has to be greater than 0
+         * @param base Has to be greater than 0
          * @param exponentFactor Has to be greater than 0
          */
         public void setGammaShape(double base, double exponentFactor) {

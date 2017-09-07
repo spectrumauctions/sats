@@ -73,7 +73,7 @@ public class CatsExporter extends FileWriter {
     public File writeMultiBidderXOR(Collection<XORLanguage<Good>> valueFunctions, int numberOfBids, String filePrefix) throws IOException {
         List<String> lines = fileInit(valueFunctions.iterator().next());
         lines.add("%% This file may contain bids from multiple bidders.");
-        lines.add("% Bids from different bidders are separated using dummy items with negative ids");
+        lines.add("% Bids from different bidders are separated using dummy items with negative IDs");
         lines.add("");
         lines.add("");
         List<String> bidLines = new ArrayList<>();

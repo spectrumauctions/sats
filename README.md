@@ -13,23 +13,22 @@ Make sure to have `git`, `maven` and `JDK 1.8 (or later)` installed.
 ``git clone`` the gson-serializer repository (https://github.com/acebaggins/gson-serializers) 
 and locally install it by running ``mvn clean install`` in the cloned repository.
 ##### Step 2: Install sats-core
-``git clone`` the this repository and locally install it by running ``mvn clean install`` in the cloned repository.
+``git clone`` this repository and locally install it by running ``mvn clean install`` in the cloned repository.
 ##### Step 3: Add the maven dependency to your simulation project
-````
+```
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-core</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
 </dependency>
-````
+```
 You can now use sats-core, which allows you to access and modify all of sats value models to generate value function instances for your simulations.
 Should you require to use solve the winner determination problems, we recommend you to give sats-opt (see https://github.com/spectrumauctions/sats-opt) a try.
 
 ### Code examples
 Code examples can be found in the
-`org.spectrumauctions.sats.core.examples`
+[`org.spectrumauctions.sats.core.examples`](https://github.com/spectrumauctions/sats-core/tree/master/src/test/java/org/spectrumauctions/sats/core/examples)
 package. 
-https://github.com/spectrumauctions/sats-core/tree/master/src/test/java/org/spectrumauctions/sats/core/examples
 
 ### Bug Reports, Feature Requests and Contribution Guidelines
 We are grateful for bug reports and other feedback about SATS and are welcoming everyone to contribute to the project, too. 
