@@ -29,7 +29,6 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
      * Parameter used for the calculation of gamma
      */
     private final DoubleInterval bInterval;
-    //private static final double b = 0.2;
 
     /**
      * The highest number of missing regions for which a specific gamma is defined<br>
@@ -49,7 +48,7 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
 
 
     /**
-     * Returns a map containig all gammas for a number of uncovered regions between 1 and kMax.
+     * Returns a map containing all gammas for a number of uncovered regions between 1 and kMax.
      * @return
      */
     public Map<Integer, BigDecimal> drawGamma(MRVMWorld world, UniformDistributionRNG rng) {
@@ -79,7 +78,10 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
             this.bInterval = new DoubleInterval(0.2);
         }
 
-        // TODO: Add doc
+        /**
+         * Sets the interval for the parameter b which is relevant for the draw of the Gamma.
+         * @param bInterval The interval, has to be within [0, 0.5]
+         */
         public void setbInterval(DoubleInterval bInterval) {
             Preconditions.checkArgument(bInterval.getMinValue() >= 0 && bInterval.getMaxValue() <= 0.5,
                     "bInterval has to be within [0, 0.5]!");
