@@ -71,6 +71,7 @@ public class MRMSimpleWorldGen {
         builder.setNumberOfBidders(1);
         builder.setAlphaInterval(new DoubleInterval(0.4));
         builder.setBetaInterval(new DoubleInterval(0.5));
+        builder.setbInterval(new DoubleInterval(0.3));
         return builder.build();
     }
 }

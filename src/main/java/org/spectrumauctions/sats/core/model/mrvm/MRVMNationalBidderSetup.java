@@ -28,7 +28,7 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
     /**
      * Parameter used for the calculation of gamma
      */
-    private static final double b = 0.2;
+    private final DoubleInterval bInterval;
 
     /**
      * The highest number of missing regions for which a specific gamma is defined<br>
@@ -38,22 +38,24 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
      * Variable is non-final as it might be set to the number of regions of a world,
      * if the world has less than kMax regions
      */
-    private double kMax = 4;
+    private double kMax = 2;
 
 
     protected MRVMNationalBidderSetup(Builder builder) {
         super(builder);
+        this.bInterval = builder.bInterval;
     }
 
 
     /**
-     * Returns a map containig all gammas for a number of uncovered regions between 1 and kMax.
+     * Returns a map containing all gammas for a number of uncovered regions between 1 and kMax.
      * @return
      */
     public Map<Integer, BigDecimal> drawGamma(MRVMWorld world, UniformDistributionRNG rng) {
         if (kMax > world.getRegionsMap().getNumberOfRegions()) {
             kMax = world.getRegionsMap().getNumberOfRegions();
         }
+        double b = rng.nextDouble(bInterval);
         Map<Integer, BigDecimal> gammas = new HashMap<>();
         for (int i = 1; i <= kMax; i++) {
             double gamma = 1 - Math.pow(i * b, f);
@@ -66,11 +68,24 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
 
     public static class Builder extends MRVMBidderSetup.Builder {
 
+        private DoubleInterval bInterval;
+
         public Builder() {
             super("Multi Region Model National Bidder",
                     3,
-                    new DoubleInterval(800, 1400),
-                    new DoubleInterval(0.1, 0.2));
+                    new DoubleInterval(700, 1200),
+                    new DoubleInterval(0.08, 0.22));
+            this.bInterval = new DoubleInterval(0.1, 0.3);
+        }
+
+        /**
+         * Sets the interval for the parameter b which is relevant for the draw of the Gamma.
+         * @param bInterval The interval, has to be within [0, 0.5]
+         */
+        public void setbInterval(DoubleInterval bInterval) {
+            Preconditions.checkArgument(bInterval.getMinValue() >= 0 && bInterval.getMaxValue() <= 0.5,
+                    "bInterval has to be within [0, 0.5]!");
+            this.bInterval = bInterval;
         }
 
         /* (non-Javadoc)

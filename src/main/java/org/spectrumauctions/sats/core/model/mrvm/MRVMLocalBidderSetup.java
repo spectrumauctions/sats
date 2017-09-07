@@ -78,25 +78,21 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
         private IntegerInterval numberOfRegionsInterval;
         private List<String> regionNotes;
 
-        /**
-         * @param alphaInterval
-         * @param betaInterval
-         */
         public Builder() {
             super("Multi Region Model Local Bidder",
                     3,
-                    new DoubleInterval(200, 400),
-                    new DoubleInterval(0.05, 0.15));
+                    new DoubleInterval(60, 100),
+                    new DoubleInterval(0.05, 0.12));
             this.numberOfRegionsInterval = new IntegerInterval(3, 7);
         }
 
         /**
          * Deterministically specify the regions in which the bidder is interested.<br>
          * If this value is null, the regions will be drawn uniformly at random, as specified in {@link #setNumberOfRegionsInterval(IntegerInterval)}
-         * @param regionNames
+         * @param regionNotes list of regions the bidder is interested in
          */
         public void setPredefinedRegionsOfInterest(List<String> regionNotes) {
-            Preconditions.checkArgument(regionNotes == null || !regionNotes.isEmpty(), "List of RegionNames must not be empty");
+            Preconditions.checkArgument(regionNotes == null || !regionNotes.isEmpty(), "List of RegionNotes must not be empty");
             this.regionNotes = regionNotes;
         }
 
