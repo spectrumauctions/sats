@@ -13,7 +13,7 @@ import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
 /**
  * This class represents the LSVMGrid as a Graph
  * 
- * @author Nicolas Küchler
+ * @author Nicolas KÃ¼chler
  */
 public class LSVMGridGraph extends Graph {
 

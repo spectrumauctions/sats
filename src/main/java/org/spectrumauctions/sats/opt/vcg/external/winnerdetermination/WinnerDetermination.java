@@ -61,7 +61,7 @@ public abstract class WinnerDetermination<T extends Good> implements EfficientAl
                 if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(bundleBid)), 1, 1e-3)) {
                     goodsBuilder.addAll(bundleBid.getLicenses());
                     bundleBids.add(bundleBid);
-                    totalValue += bundleBid.getValue();
+                    totalValue += bundleBid.value().doubleValue();
                 }
             }
             Set<Good> goods = goodsBuilder.build();

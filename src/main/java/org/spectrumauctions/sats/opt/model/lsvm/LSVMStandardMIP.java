@@ -36,7 +36,7 @@ import edu.harvard.econcs.jopt.solver.mip.Variable;
  * This class implements a mip finding the efficient allocation in an instance
  * of the Local-Synergy Value Model
  *
- * @author Nicolas Küchler
+ * @author Nicolas KÃ¼chler
  */
 public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLicense>> {
 

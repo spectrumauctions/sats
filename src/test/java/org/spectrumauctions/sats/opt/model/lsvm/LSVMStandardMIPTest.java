@@ -23,7 +23,7 @@ import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
 /**
  * This class provides some basic unit tests for the LSVMStandardMIP
  *
- * @author Nicolas Küchler
+ * @author Nicolas KÃ¼chler
  */
 public class LSVMStandardMIPTest {
 

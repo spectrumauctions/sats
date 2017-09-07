@@ -62,10 +62,10 @@ public class WinnerDeterminationTest {
         XORValue<MockWorld.MockGood> bid4 = new XORValue<MockWorld.MockGood>(new Bundle<>(C, D), 1);
 
         Bids<MockWorld.MockGood> bids = new Bids<>();
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(1), Sets.newHashSet(bid1)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(2), Sets.newHashSet(bid2)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(3), Sets.newHashSet(bid3)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(4), Sets.newHashSet(bid4)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(1), Sets.newHashSet(bid1)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(2), Sets.newHashSet(bid2)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(3), Sets.newHashSet(bid3)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(4), Sets.newHashSet(bid4)).build());
 
         Auction<MockGood> auction = new Auction<>(bids, Sets.newHashSet(A, B, C, D));
         EfficientAllocator<XORAllocation<MockWorld.MockGood>> wd = new XORWinnerDetermination<>(
@@ -82,27 +82,27 @@ public class WinnerDeterminationTest {
 
     @Test
     public void testMediumWinnerDetermination() {
-        XORValue<MockWorld.MockGood> bid0 = new XORValue<MockWorld.MockGood>(new Bundle<>(C, D), 1795.51);
-        XORValue<MockWorld.MockGood> bid1 = new XORValue<MockWorld.MockGood>(new Bundle<>(D), 894.644);
-        XORValue<MockWorld.MockGood> bid2 = new XORValue<MockWorld.MockGood>(new Bundle<>(A, B), 1633.62);
-        XORValue<MockWorld.MockGood> bid3 = new XORValue<MockWorld.MockGood>(new Bundle<>(C), 997.064);
-        XORValue<MockWorld.MockGood> bid4 = new XORValue<MockWorld.MockGood>(new Bundle<>(B, C), 1751.26);
-        XORValue<MockWorld.MockGood> bid5 = new XORValue<MockWorld.MockGood>(new Bundle<>(A, E), 1779.42);
-        XORValue<MockWorld.MockGood> bid6 = new XORValue<MockWorld.MockGood>(new Bundle<>(B), 843.716);
-        XORValue<MockWorld.MockGood> bid7 = new XORValue<MockWorld.MockGood>(new Bundle<>(E), 762.093);
-        XORValue<MockWorld.MockGood> bid8 = new XORValue<MockWorld.MockGood>(new Bundle<>(A), 893.983);
-        XORValue<MockWorld.MockGood> bid9 = new XORValue<MockWorld.MockGood>(new Bundle<>(A, C), 1816.69);
+        XORValue<MockWorld.MockGood> bid0 = new XORValue<>(new Bundle<>(C, D), new BigDecimal(1795.51));
+        XORValue<MockWorld.MockGood> bid1 = new XORValue<>(new Bundle<>(D), new BigDecimal(894.644));
+        XORValue<MockWorld.MockGood> bid2 = new XORValue<>(new Bundle<>(A, B), new BigDecimal(1633.62));
+        XORValue<MockWorld.MockGood> bid3 = new XORValue<>(new Bundle<>(C), new BigDecimal(997.064));
+        XORValue<MockWorld.MockGood> bid4 = new XORValue<>(new Bundle<>(B, C), new BigDecimal(1751.26));
+        XORValue<MockWorld.MockGood> bid5 = new XORValue<>(new Bundle<>(A, E), new BigDecimal(1779.42));
+        XORValue<MockWorld.MockGood> bid6 = new XORValue<>(new Bundle<>(B), new BigDecimal(843.716));
+        XORValue<MockWorld.MockGood> bid7 = new XORValue<>(new Bundle<>(E), new BigDecimal(762.093));
+        XORValue<MockWorld.MockGood> bid8 = new XORValue<>(new Bundle<>(A), new BigDecimal(893.983));
+        XORValue<MockWorld.MockGood> bid9 = new XORValue<>(new Bundle<>(A, C), new BigDecimal(1816.69));
         Bids<MockWorld.MockGood> bids = new Bids<>();
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(0), Sets.newHashSet(bid0)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(1), Sets.newHashSet(bid1)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(2), Sets.newHashSet(bid2)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(3), Sets.newHashSet(bid3)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(4), Sets.newHashSet(bid4)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(5), Sets.newHashSet(bid5)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(6), Sets.newHashSet(bid6)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(7), Sets.newHashSet(bid7)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(8), Sets.newHashSet(bid8)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(9), Sets.newHashSet(bid9)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(0), Sets.newHashSet(bid0)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(1), Sets.newHashSet(bid1)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(2), Sets.newHashSet(bid2)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(3), Sets.newHashSet(bid3)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(4), Sets.newHashSet(bid4)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(5), Sets.newHashSet(bid5)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(6), Sets.newHashSet(bid6)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(7), Sets.newHashSet(bid7)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(8), Sets.newHashSet(bid8)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(9), Sets.newHashSet(bid9)).build());
 
         Auction<MockWorld.MockGood> auction = new Auction<>(bids, Sets.newHashSet(A, B, C, D, E));
         EfficientAllocator<XORAllocation<MockWorld.MockGood>> wd = new XORWinnerDetermination<>(

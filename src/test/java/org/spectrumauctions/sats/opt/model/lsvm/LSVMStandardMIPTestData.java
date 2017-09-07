@@ -8,7 +8,7 @@ import java.util.Map;
  * able to find the efficient allocation in the LSVM default setup. The results
  * were obtained solving the complete XOR-WDP
  *
- * @author Nicolas Küchler
+ * @author Nicolas KÃ¼chler
  */
 public class LSVMStandardMIPTestData {
 

@@ -34,7 +34,7 @@ public class MRVMOverallValueTest {
     private static boolean LOG_ALL_STAGES = false;
 
     @Test
-    // @Ignore //Ignored for performance reasons
+    @Ignore // Ignored for performance reasons
     public void mipValuesEqualSATSValues() {
         List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation();
         //Sort by bidder type
