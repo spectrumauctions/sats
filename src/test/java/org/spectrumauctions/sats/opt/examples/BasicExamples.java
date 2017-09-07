@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.opt.examples;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
@@ -30,6 +31,7 @@ import java.util.List;
 public class BasicExamples {
 
     @Test
+    @Ignore
     public void basicMRVMExample() {
         Collection<MRVMBidder> bidders = (new MultiRegionModel()).createNewPopulation();    // Create bidders
         MRVM_MIP mip = new MRVM_MIP(bidders);                                               // Create the MIP
@@ -38,6 +40,7 @@ public class BasicExamples {
     }
 
     @Test
+    @Ignore
     public void basicSRVMExample() {
         Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewPopulation();   // Create bidders
         SRVM_MIP mip = new SRVM_MIP(bidders);                                               // Create the MIP
@@ -46,6 +49,7 @@ public class BasicExamples {
     }
 
     @Test
+    @Ignore
     public void basicGSVMExample() {
         List<GSVMBidder> bidders = (new GlobalSynergyValueModel()).createNewPopulation();   // Create bidders
         // TODO: align this with other models:

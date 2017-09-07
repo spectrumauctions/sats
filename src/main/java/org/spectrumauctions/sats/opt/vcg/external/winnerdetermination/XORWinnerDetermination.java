@@ -32,7 +32,7 @@ public class XORWinnerDetermination<T extends Good> extends WinnerDetermination<
             for (XORValue<T> bundleBid : auction.getBid(bidder).getValues()) {
                 Variable bidI = new Variable("Bid " + bundleBid.getId(), VarType.BOOLEAN, 0, 1);
                 winnerDeterminationProgram.add(bidI);
-                winnerDeterminationProgram.addObjectiveTerm(bundleBid.getValue(), bidI);
+                winnerDeterminationProgram.addObjectiveTerm(bundleBid.value().doubleValue(), bidI);
                 bidVariables.put(bundleBid, bidI);
             }
         }

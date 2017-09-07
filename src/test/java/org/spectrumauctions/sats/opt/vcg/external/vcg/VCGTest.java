@@ -14,6 +14,7 @@ import org.spectrumauctions.sats.opt.vcg.external.domain.Bids;
 import org.spectrumauctions.sats.opt.vcg.external.domain.Payment;
 import org.spectrumauctions.sats.opt.vcg.external.domain.mechanisms.AuctionMechanism;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,16 +52,16 @@ public class VCGTest {
 
     @Test
     public void testSimpleWinnerDetermination() {
-        XORValue<MockWorld.MockGood> bid1 = new XORValue<MockWorld.MockGood>(new Bundle<>(A), 2);
-        XORValue<MockWorld.MockGood> bid2 = new XORValue<MockWorld.MockGood>(new Bundle<>(A, B, D), 3);
-        XORValue<MockWorld.MockGood> bid3 = new XORValue<MockWorld.MockGood>(new Bundle<>(B, C), 2);
-        XORValue<MockWorld.MockGood> bid4 = new XORValue<MockWorld.MockGood>(new Bundle<>(C, D), 1);
+        XORValue<MockWorld.MockGood> bid1 = new XORValue<>(new Bundle<>(A), new BigDecimal(2));
+        XORValue<MockWorld.MockGood> bid2 = new XORValue<>(new Bundle<>(A, B, D), new BigDecimal(3));
+        XORValue<MockWorld.MockGood> bid3 = new XORValue<>(new Bundle<>(B, C), new BigDecimal(2));
+        XORValue<MockWorld.MockGood> bid4 = new XORValue<>(new Bundle<>(C, D), new BigDecimal(1));
 
         Bids<MockWorld.MockGood> bids = new Bids<>();
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(1), Sets.newHashSet(bid1)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(2), Sets.newHashSet(bid2)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(3), Sets.newHashSet(bid3)).build());
-        bids.addBid(new XORBid.Builder<MockWorld.MockGood>(bidder(4), Sets.newHashSet(bid4)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(1), Sets.newHashSet(bid1)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(2), Sets.newHashSet(bid2)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(3), Sets.newHashSet(bid3)).build());
+        bids.addBid(new XORBid.Builder<>(bidder(4), Sets.newHashSet(bid4)).build());
 
         Auction auction = new Auction(bids, Sets.newHashSet(A, B, C, D));
         AuctionMechanism am = new XORVCGAuction<>(auction);

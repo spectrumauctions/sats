@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spectrumauctions</groupId>
 	<artifactId>sats-opt</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.5.0</version>
 	<name>SATS Optimizer</name>
 	<dependencies>
 		
 		<dependency>
 			<groupId>org.spectrumauctions</groupId>
 			<artifactId>sats-core</artifactId>
-			<version>0.4.0</version>
+			<version>0.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.harvard.econcs</groupId>
@@ -18,10 +18,12 @@
 			<version>1.2</version>
 		</dependency>
 		<dependency>
-            <groupId>cplex</groupId>
-            <artifactId>cplex</artifactId>
-            <version>12.6</version>
-        </dependency>
+			<groupId>cplex</groupId>
+			<artifactId>cplex</artifactId>
+			<version>12.6</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
         <dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
@@ -46,6 +48,10 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.19.1</version>
 				<configuration>
+					<enableAssertions>false</enableAssertions>
+					<includes>
+						<include>*</include>
+					</includes>
 		        	<forkMode>once</forkMode>
 		     	</configuration>
 			</plugin>
@@ -75,5 +81,16 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<sonar.language>java</sonar.language>
+		<sonar.jdbc.url>
+			jdbc:h2:tcp://localhost:9092/sonar
+		</sonar.jdbc.url>
+		<sonar.host.url>
+			http://localhost:9000
+		</sonar.host.url>
+	</properties>
 
 </project>
