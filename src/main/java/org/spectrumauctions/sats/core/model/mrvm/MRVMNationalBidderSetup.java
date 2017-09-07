@@ -73,9 +73,9 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
         public Builder() {
             super("Multi Region Model National Bidder",
                     3,
-                    new DoubleInterval(800, 1400),
-                    new DoubleInterval(0.1, 0.2));
-            this.bInterval = new DoubleInterval(0.2);
+                    new DoubleInterval(700, 1200),
+                    new DoubleInterval(0.08, 0.22));
+            this.bInterval = new DoubleInterval(0.1, 0.3);
         }
 
         /**
