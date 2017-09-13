@@ -31,13 +31,6 @@ public final class MRVMRegionalBidder extends MRVMBidder {
 
     private final SortedMap<Integer, BigDecimal> distanceDiscounts;
 
-    /**
-     * @param id
-     * @param populationId
-     * @param world
-     * @param setup
-     * @param rng
-     */
     MRVMRegionalBidder(long id, long populationId, MRVMWorld world, MRVMRegionalBidderSetup setup,
                        UniformDistributionRNG rng) {
         super(id, populationId, world, setup, rng);
@@ -50,12 +43,10 @@ public final class MRVMRegionalBidder extends MRVMBidder {
 
     /**
      * Validates if a map with distanceDiscounts is valid for a given world, i.e., if it defines a valid discount for all possible distances
-     * @param world
-     * @param discounts
-     * @throws - NullPointerException if one of this methods argument is null 
-     * or if a discount for a distance which is possible in the given is not defined<br>
-     * - IllegalArgumentException if one of the defined discounts for a feasible distance is negative.
-     * @return
+     * @param world the world
+     * @param discounts a map of discounts
+     * @throws NullPointerException if one of this methods argument is null or if a discount for a distance which is possible in the given is not defined
+     * @throws IllegalArgumentException if one of the defined discounts for a feasible distance is negative.
      */
     private void validateDistanceDiscounts(MRVMWorld world, SortedMap<Integer, BigDecimal> discounts) {
         Preconditions.checkNotNull(world);

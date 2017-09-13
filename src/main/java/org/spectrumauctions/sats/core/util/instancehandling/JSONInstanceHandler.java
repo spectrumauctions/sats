@@ -148,8 +148,6 @@ public class JSONInstanceHandler extends InstanceHandler {
     /**
      * Attempts to create a new world folder with the id idCandidate. <br>
      * If the folder already exists, it tries again with a higher id
-     * @param idCandidate
-     * @return
      */
     private long recGetAndReserveNewWorldId(long idCandidate) {
         java.io.File potentialFolder = pathUtils.worldFolderPath(idCandidate);
@@ -183,8 +181,6 @@ public class JSONInstanceHandler extends InstanceHandler {
     /**
      * Attempts to create a new population folder with the id idCandidate. <br>
      * If the folder already exists, it tries again with a higher id
-     * @param idCandidate
-     * @return
      */
     private long recOpenPopulation(long worldId, long idCandidate) {
         java.io.File potentialPopulationFolder = pathUtils.populationFolderPath(worldId, idCandidate);

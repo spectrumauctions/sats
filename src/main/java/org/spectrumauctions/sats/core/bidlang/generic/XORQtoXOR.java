@@ -37,7 +37,7 @@ public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
         ImmutableMap.Builder<GenericDefinition, Integer> nonZeroQuantitiesBuilder = new ImmutableMap.Builder<>();
         ImmutableList.Builder<GenericDefinition> orderBuilder = new ImmutableList.Builder<>();
         for (Entry<? extends GenericDefinition, Integer> quantity : quantitites.entrySet()) {
-            Preconditions.checkArgument(quantity.getValue() >= 0, "Quantity %s of generic definition %s is invalid", new Object[]{quantity.getValue(), quantity.getKey()});
+            Preconditions.checkArgument(quantity.getValue() >= 0, "Quantity %s of generic definition %s is invalid", quantity.getValue(), quantity.getKey());
             if (quantity.getValue() > 0) {
                 nonZeroQuantitiesBuilder.put(quantity);
                 orderBuilder.add(quantity.getKey());

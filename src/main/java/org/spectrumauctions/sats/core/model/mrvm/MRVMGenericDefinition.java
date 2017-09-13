@@ -52,12 +52,11 @@ public final class MRVMGenericDefinition implements GenericDefinition {
 
     @Override
     public String toString() {
-        return new StringBuilder("[r=")
-                .append(region.toString())
-                .append(",b=")
-                .append(band.toString())
-                .append("]")
-                .toString();
+        return "[r=" +
+                region.toString() +
+                ",b=" +
+                band.toString() +
+                "]";
     }
 
     /* (non-Javadoc)

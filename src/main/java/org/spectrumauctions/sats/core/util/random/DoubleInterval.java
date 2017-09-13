@@ -37,7 +37,7 @@ public final class DoubleInterval implements Serializable {
 
     @Override
     public String toString() {
-        return new StringBuilder("[").append(minValue).append(",").append(maxValue).append("]").toString();
+        return "[" + minValue + "," + maxValue + "]";
     }
 
     public boolean isStrictlyPositive() {

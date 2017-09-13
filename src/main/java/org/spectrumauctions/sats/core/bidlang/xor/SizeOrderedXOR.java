@@ -22,9 +22,7 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
     private Bidder<T> bidder;
 
     protected SizeOrderedXOR(Collection<T> goods, Bidder<T> bidder) {
-        for (T good : goods) {
-            this.goods.add(good);
-        }
+        this.goods.addAll(goods);
         this.bidder = bidder;
     }
 

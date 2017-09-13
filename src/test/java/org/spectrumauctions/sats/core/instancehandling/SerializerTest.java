@@ -78,7 +78,7 @@ public class SerializerTest {
 
     public <W extends World, B extends Bidder<?>> void testBidderSerializability(DefaultModel<W, B> model) {
         W world = model.createWorld(rng.nextLong());
-        Set<Bidder<?>> originalPopulation = new HashSet<Bidder<?>>(model.createPopulation(world, rng.nextLong()));
+        Set<Bidder<?>> originalPopulation = new HashSet<>(model.createPopulation(world, rng.nextLong()));
         long populationId = originalPopulation.iterator().next().getPopulation();
         Set<? extends Bidder<?>> deserializedPopultion = new HashSet<>(world.restorePopulation(populationId));
         Assert.assertEquals(originalPopulation, deserializedPopultion);

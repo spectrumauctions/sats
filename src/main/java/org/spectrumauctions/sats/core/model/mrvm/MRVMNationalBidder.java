@@ -28,8 +28,7 @@ public final class MRVMNationalBidder extends MRVMBidder {
 
     private static final long serialVersionUID = 6947670485542817609L;
     /**
-     * Stores the gamma value if the bidder for a given number of uncovered regions
-     * @param key
+     * Stores the gamma value of the bidder for a given number of uncovered regions
      */
     private final SortedMap<Integer, BigDecimal> gammaValues;
 
@@ -105,8 +104,8 @@ public final class MRVMNationalBidder extends MRVMBidder {
     /**
      * Reads the gammavalue form the stored map.
      * If uncoveredRegions > {@link #getKMax()}, then the value for kMax is returned (see model writeup for explanation).
-     * @param uncoveredRegions
-     * @return
+     * @param uncoveredRegions the number of regions that are uncovered
+     * @return the gamma value for the number of uncovered regions
      */
     public BigDecimal getGamma(int uncoveredRegions) {
         if (uncoveredRegions > getKMax()) {

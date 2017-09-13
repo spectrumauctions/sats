@@ -34,8 +34,7 @@ public class Graph {
         _vertices = vertices;
         _radius = 0;
 
-        for (int i = 0; i < adjLst.length; ++i)                //Init adjacency lists
-            _adjacencyLists.add(adjLst[i]);
+        Collections.addAll(_adjacencyLists, adjLst);
     }
 
     /**
@@ -48,10 +47,9 @@ public class Graph {
         _vertices = new LinkedList<>();
         _radius = 0;
 
-        for (Vertex v : vertices)
-            _vertices.add(v);
-        for (int i = 0; i < adjLsts.size(); ++i)                //Init adjacency lists
-            _adjacencyLists.add(adjLsts.get(i));
+        _vertices.addAll(vertices);
+        //Init adjacency lists
+        _adjacencyLists.addAll(adjLsts);
     }
 
     /**
@@ -81,7 +79,7 @@ public class Graph {
      * @return the number of edges of the graph
      */
     public int getNumberOfEdges() {
-        return _adjacencyLists.stream().map(lst -> lst.size()).reduce((x1, x2) -> x1 + x2).get();
+        return _adjacencyLists.stream().map(List::size).reduce((x1, x2) -> x1 + x2).get();
     }
 
     /**
@@ -211,7 +209,7 @@ public class Graph {
      * @return the input degree of the given vertex
      */
     public long getInputDegree(int vertexId) {
-        return _adjacencyLists.stream().flatMap(adjList -> adjList.stream()).filter(vc -> vc._v.getID() == vertexId).count();
+        return _adjacencyLists.stream().flatMap(Collection::stream).filter(vc -> vc._v.getID() == vertexId).count();
     }
 
     /**
@@ -769,7 +767,7 @@ public class Graph {
      */
     public Set<Set<Vertex>> findAllPaths(Vertex source, Vertex destination){
     	Set<Set<Vertex>> allPaths = new HashSet<>();
-    	Stack<Vertex> path = new Stack<Vertex>();
+    	Stack<Vertex> path = new Stack<>();
     	Set<Vertex> currentPath = new HashSet<>();
     	
     	explore(source, destination, path, currentPath, allPaths);

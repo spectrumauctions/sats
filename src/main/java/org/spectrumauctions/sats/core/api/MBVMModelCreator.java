@@ -20,9 +20,6 @@ public class MBVMModelCreator extends ModelCreator {
 
     private final int numberOfBidders;
 
-    /**
-     * @param builder
-     */
     protected MBVMModelCreator(Builder builder) {
         super(builder);
         this.numberOfBidders = builder.numberOfBidders;

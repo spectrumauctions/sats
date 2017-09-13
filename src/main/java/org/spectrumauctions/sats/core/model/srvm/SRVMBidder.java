@@ -65,8 +65,8 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
     /**
      * Checks if the map contains all bands of this bidders world as key and, if so, returns an equivalent map where the bandNames are keys.
      *
-     * @param inputMap
-     * @return
+     * @param inputMap the input map of the bands
+     * @return the names of the bands as strings
      */
     private <T> Map<String, T> bandNameMap(Map<SRVMBand, T> inputMap) {
         Preconditions.checkArgument(world.getBands().containsAll(inputMap.keySet()) && world.getBands().size() == inputMap.size(), "Map is not complete for this world");
@@ -87,12 +87,12 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
 
 
     /**
-     * This random value is used exclusively in {{@link #drawBaseValues(SRVMWorld, BigDecimal, RNGSupplier)}, but stored in the bidder for easier analysis.<br>
+     * This random value is used exclusively in {{@link SRVMBidderSetup#drawBaseValues(SRVMWorld, BigDecimal, RNGSupplier)}, but stored in the bidder for easier analysis.<br>
      * Its mean is typically 1.<br><br>
      * Note that the bidder strength is not the only random influence on the base values,
      * hence a high bidder strength does not imply that a bidder is stronger than others, it simply makes it more likely.
      *
-     * @return
+     * @return the bidder strength
      */
     public BigDecimal getBidderStrength() {
         return bidderStrength;

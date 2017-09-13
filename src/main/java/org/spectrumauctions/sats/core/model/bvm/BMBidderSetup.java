@@ -38,7 +38,7 @@ public abstract class BMBidderSetup extends BidderSetup {
         super(builder);
         this.positiveValueThresholdIntervals = ImmutableMap.copyOf(builder.positiveValueThresholdIntervals);
         this.baseValueIntervals = ImmutableMap.copyOf(builder.baseValueIntervals);
-        ImmutableMap.Builder<String, ImmutableMap<Integer, BigDecimal>> mapBuilder = ImmutableMap.<String, ImmutableMap<Integer, BigDecimal>>builder();
+        ImmutableMap.Builder<String, ImmutableMap<Integer, BigDecimal>> mapBuilder = ImmutableMap.builder();
         for (Entry<String, Map<Integer, BigDecimal>> entry : builder.synFactors.entrySet()) {
             mapBuilder.put(entry.getKey(), ImmutableMap.copyOf(entry.getValue()));
         }
