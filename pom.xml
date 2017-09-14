@@ -139,11 +139,12 @@
             <version>4.12</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.tyler.gson</groupId>
-            <artifactId>serializers</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+        <!-- Not on maven central yet, will be included once it's available -->
+        <!--<dependency>-->
+            <!--<groupId>com.tyler.gson</groupId>-->
+            <!--<artifactId>serializers</artifactId>-->
+            <!--<version>1.0.0</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>

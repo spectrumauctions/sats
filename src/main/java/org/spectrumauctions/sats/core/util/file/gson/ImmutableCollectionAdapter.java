@@ -7,7 +7,9 @@ package org.spectrumauctions.sats.core.util.file.gson;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
-import com.tyler.gson.immutable.TypeAdapters;
+// The original dependency is not on maven central yet, it will be included again once it's available.
+// import com.tyler.gson.immutable.TypeAdapters;
+import org.spectrumauctions.sats.core.util.file.gson.immutablegson.TypeAdapters;
 
 import java.lang.reflect.Type;
 import java.util.Map;
