@@ -39,7 +39,7 @@ public abstract class BMWorldSetup {
     /**
      * The setupName is used to identify the worldSetup once the world is created.
      * For different setups, different setupNames should be used.
-     * @return
+     * @return the setup name
      */
     public String getSetupName() {
         return setupName;
@@ -55,8 +55,6 @@ public abstract class BMWorldSetup {
 
         /**
          * Define new Band which should be generated in the model
-         * @param nameOfBand
-         * @param numberOfLicenses
          */
         public void addBand(String nameOfBand, int numberOfLicenses) {
             Preconditions.checkArgument(numberOfLicenses > 0);
@@ -64,9 +62,7 @@ public abstract class BMWorldSetup {
         }
 
         /**
-         * Remove a band, such that it will not be created. 
-         *
-         * @param nameOfBand
+         * Remove a band, such that it will not be created.
          * @return true, if band was removed. false otherwise
          */
         public boolean removeBand(String nameOfBand) {
@@ -78,21 +74,21 @@ public abstract class BMWorldSetup {
         }
 
         /**
-         * See {@link BMWorldSetup#bands()} for the purpose of this parameter
+         * @see BMWorldSetup#bands() for the purpose of this parameter
          */
         public Map<String, Integer> getBands() {
             return Collections.unmodifiableMap(bands);
         }
 
         /**
-         * See {@link BMWorldSetup#getSetupName()} for the purpose of this parameter
+         * @see BMWorldSetup#getSetupName() for the purpose of this parameter
          */
         public String getSetupName() {
             return setupName;
         }
 
         /**
-         * See {@link BMWorldSetup#getSetupName()} for the purpose of this parameter
+         * @see BMWorldSetup#getSetupName() for the purpose of this parameter
          */
         public void setSetupName(String setupName) {
             this.setupName = setupName;
@@ -100,7 +96,7 @@ public abstract class BMWorldSetup {
 
 
         /**
-         * @return An immutable BMWorldSetup Instance with the in this builder instance defined parameters. 
+         * @return An immutable BMWorldSetup instance with the in this builder instance defined parameters.
          */
         public abstract BMWorldSetup build();
 

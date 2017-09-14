@@ -34,10 +34,6 @@ public class SizeOrderedGenericPowersetFactory {
 
         private BMBidder bidder;
 
-        /**
-         * @param genericDefinitions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Increasing(List<BMBand> genericDefinitions, BMBidder bidder) throws UnsupportedBiddingLanguageException {
             super(genericDefinitions);
             this.bidder = bidder;
@@ -65,10 +61,6 @@ public class SizeOrderedGenericPowersetFactory {
 
         private BMBidder bidder;
 
-        /**
-         * @param genericDefinitions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Decreasing(List<BMBand> genericDefinitions, BMBidder bidder) throws UnsupportedBiddingLanguageException {
             super(genericDefinitions);
             this.bidder = bidder;

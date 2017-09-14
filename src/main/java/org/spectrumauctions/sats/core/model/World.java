@@ -47,8 +47,9 @@ public abstract class World implements Serializable {
     }
 
     /**
-     * @param populationId
-     * @return
+     * Restore serialized {@link Bidder} instances via population id
+     * @param populationId the population id
+     * @return the deserialized bidders
      */
     public abstract Collection<? extends Bidder<?>> restorePopulation(long populationId);
 
@@ -59,10 +60,10 @@ public abstract class World implements Serializable {
      * Note: Bidders and World must have been serialized before, either during construction (by having set {@link InstanceHandler#setDefaultHandler(InstanceHandler)}
      * to an appropriate handler or by manually storing them with an {@link InstanceHandler} afterwards. Restoring (deserialization) has to be done
      * with the same type of {@link InstanceHandler} as the serialization.
-     * @param type
-     * @param populationId
-     * @param storageHandler
-     * @return
+     * @param type the bidder type
+     * @param populationId the population id
+     * @param storageHandler the instance handler
+     * @return the deserialized bidders
      */
     public <T extends Bidder<?>> Collection<T> restorePopulation(Class<T> type, long populationId, InstanceHandler storageHandler) {
         return storageHandler.readPopulationWithUnknownTypes(type, this, populationId);

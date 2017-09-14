@@ -33,9 +33,6 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
     /**
      * Selects one of the regions at random
-     * @param world
-     * @param rng
-     * @return
      */
     public MRVMRegionsMap.Region drawHome(MRVMWorld world, UniformDistributionRNG rng) {
         List<MRVMRegionsMap.Region> regions = new ArrayList<>(world.getRegionsMap().getRegions());
@@ -45,10 +42,6 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
     /**
      * Determines the discount in value for distant regions
-     * @param world
-     * @param home
-     * @param rng
-     * @return
      */
     public ImmutableSortedMap<Integer, BigDecimal> drawDistanceDiscounts(MRVMWorld world, MRVMRegionsMap.Region home, UniformDistributionRNG rng) {
         ImmutableSortedMap.Builder<Integer, BigDecimal> distanceDiscount = ImmutableSortedMap.naturalOrder();
@@ -99,7 +92,6 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
         /**
          * See {@link #setGammaShape(double, double) for meaning of this parameter
-         * @return
          */
         public double getExponentFactor() {
             return exponentFactor;
@@ -108,14 +100,13 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
         /**
          * See {@link #setGammaShape(double, double) for meaning of this parameter
-         * @return
          */
         public double getBase() {
             return base;
         }
 
 
-        /* (non-Javadoc)
+        /**
          * @see MRVMBidderSetup.Builder#build()
          */
         @Override

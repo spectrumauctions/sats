@@ -46,12 +46,9 @@ public abstract class BMBidderSetup extends BidderSetup {
     }
 
     /**
-     * A parameter defining the quantity of licences per band, for which this bidder
+     * @return the threshold defining the quantity of licences per band, for which this bidder
      * has a strictly positive value. For quantities exceeding this threshold, a bidder does
      * not have additional value (free disposal).
-     * @param band
-     * @param rng
-     * @return
      */
     public Integer drawPositiveValueThreshold(BMBand band, UniformDistributionRNG rng) {
         IntegerInterval interval = positiveValueThresholdIntervals.get(band.getName());
@@ -63,11 +60,9 @@ public abstract class BMBidderSetup extends BidderSetup {
     }
 
     /**
-     * The base value of a band is a bidder specific valuation a bidder has 
+     * @return the base value of a band is a bidder specific valuation a bidder has
      * per license of the specified band, ignoring synergies and value thresholds
-     * @param band
-     * @param rng
-     * @return
+     *
      */
     public BigDecimal drawBaseValue(BMBand band, UniformDistributionRNG rng) {
         DoubleInterval interval = baseValueIntervals.get(band.getName());
@@ -79,11 +74,8 @@ public abstract class BMBidderSetup extends BidderSetup {
     }
 
     /**
-     * The parameter defining the intra-band synergies the bidder has from having
-     * multiple licenses in the same band. 
-     * @param band
-     * @param rng
-     * @return
+     * @return the parameter defining the intra-band synergies the bidder has from having
+     * multiple licenses in the same band.
      */
     public Map<Integer, BigDecimal> drawSynergyFactors(BMBand band, UniformDistributionRNG rng) {
         Map<Integer, BigDecimal> bandSynergies = synFactors.get(band.getName());

@@ -159,8 +159,6 @@ public class Vertex {
 
     /**
      * The method set up the predecessor of the current vertex in the shortest path tree from some source
-     *
-     * @return the predecessor
      */
     public void setPredecessor(int p, int i) {
         if (i > _predecessor.size()) throw new RuntimeException("Wrong index");

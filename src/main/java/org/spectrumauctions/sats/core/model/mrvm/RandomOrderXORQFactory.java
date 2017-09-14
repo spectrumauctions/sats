@@ -51,7 +51,6 @@ public class RandomOrderXORQFactory implements Serializable {
         /**
          * @param allPossibleGenericDefinitions Collection of generic definitions
          * @param rngSupplier                   Random number generator supplier
-         * @throws UnsupportedBiddingLanguageException
          */
         SimpleRandomOrder(Collection<MRVMGenericDefinition> allPossibleGenericDefinitions, MRVMBidder bidder, RNGSupplier rngSupplier)
                 throws UnsupportedBiddingLanguageException {

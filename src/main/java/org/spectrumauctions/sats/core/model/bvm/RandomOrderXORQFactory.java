@@ -42,10 +42,6 @@ public class RandomOrderXORQFactory implements Serializable {
 
         private final BMBidder bidder;
 
-        /**
-         * @param allPossibleGenericDefintions
-         * @throws UnsupportedBiddingLanguageException
-         */
         SimpleRandomOrder(Collection<BMBand> allPossibleGenericDefintions, BMBidder bidder, RNGSupplier rngSupplier)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions, rngSupplier);

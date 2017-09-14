@@ -42,10 +42,6 @@ public class SizeOrderedGenericFactory implements Serializable {
 
         private final BMBidder bidder;
 
-        /**
-         * @param allPossibleGenericDefintions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Increasing(Collection<BMBand> allPossibleGenericDefintions, BMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);
@@ -82,10 +78,6 @@ public class SizeOrderedGenericFactory implements Serializable {
 
         private final BMBidder bidder;
 
-        /**
-         * @param allPossibleGenericDefintions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Decreasing(Collection<BMBand> allPossibleGenericDefintions, BMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);

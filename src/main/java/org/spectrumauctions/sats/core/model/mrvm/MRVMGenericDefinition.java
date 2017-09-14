@@ -25,12 +25,6 @@ public final class MRVMGenericDefinition implements GenericDefinition {
 
     private transient ImmutableSet<Good> licenses;
 
-
-    /**
-     * @param band
-     * @param region
-     * @param quantity
-     */
     public MRVMGenericDefinition(MRVMBand band, MRVMRegionsMap.Region region) {
         super();
         Preconditions.checkNotNull(band);
@@ -59,7 +53,7 @@ public final class MRVMGenericDefinition implements GenericDefinition {
                 "]";
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#isPartOf(Good)
      */
     @Override
@@ -76,7 +70,6 @@ public final class MRVMGenericDefinition implements GenericDefinition {
 
 
     /**
-     *
      * @throws IllegalArgumentException if the quantity is negative or exceeds the number of lots in this band.
      */
     public void checkQuantityIsValid(int quantity) {
@@ -118,7 +111,7 @@ public final class MRVMGenericDefinition implements GenericDefinition {
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#numberOfLicenses()
      */
     @Override
@@ -126,7 +119,7 @@ public final class MRVMGenericDefinition implements GenericDefinition {
         return band.getNumberOfLots();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#allLicenses()
      */
     @Override
@@ -143,7 +136,7 @@ public final class MRVMGenericDefinition implements GenericDefinition {
         return licenses;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#shortJson()
      */
     @Override

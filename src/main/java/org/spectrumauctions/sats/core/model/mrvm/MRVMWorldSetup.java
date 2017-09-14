@@ -78,11 +78,6 @@ public final class MRVMWorldSetup {
         private final double populationStandardDeviation;
         private final String notice;
 
-        /**
-         * @param populationMean
-         * @param populationStandardDeviation
-         * @param name
-         */
         public RegionSetup(double populationMean, double populationStandardDeviation, String notice) {
             super();
             this.populationMean = populationMean;
@@ -113,11 +108,6 @@ public final class MRVMWorldSetup {
         private final DoubleInterval baseCapacity;
         private final ImmutableMap<Integer, BigDecimal> synergies;
 
-        /**
-         * @param name
-         * @param numberOfLots
-         * @param baseCapacity
-         */
         public BandSetup(String name, IntegerInterval numberOfLotsInterval, DoubleInterval baseCapacity, Function synergyfunction) {
             super();
             this.name = name;
@@ -126,12 +116,6 @@ public final class MRVMWorldSetup {
             this.synergies = calculateSynergies(numberOfLotsInterval.getMaxValue(), synergyfunction);
         }
 
-        /**
-         * @param name2
-         * @param numberOfLotsInterval2
-         * @param baseCapacity2
-         * @param synergies2
-         */
         public BandSetup(String name, IntegerInterval numberOfLotsInterval, DoubleInterval baseCapacity,
                          ImmutableMap<Integer, BigDecimal> synergies) {
             this.name = name;
@@ -148,9 +132,6 @@ public final class MRVMWorldSetup {
             return builder.build();
         }
 
-        /**
-         * @return
-         */
         public String getName() {
             return name;
         }
@@ -225,9 +206,6 @@ public final class MRVMWorldSetup {
             setPopulationStandardDeviation(populationStandardDeviation);
         }
 
-        /**
-         * @param numberOfRegions
-         */
         private void setNumberOfRegionsInterval(IntegerInterval numberOfRegions) {
             this.numberOfRegionsInterval = numberOfRegions;
         }
@@ -263,7 +241,7 @@ public final class MRVMWorldSetup {
         /**
          * Adds an additional bandStructure.<br>
          * If a bandStructure with this name already exists, it is replaced.
-         * @param bandStructure
+         * @param bandStructure a band setup
          */
         public void putBandSetup(BandSetup bandStructure) {
             bandSetups.put(bandStructure.getName(), bandStructure);
@@ -271,7 +249,7 @@ public final class MRVMWorldSetup {
 
         /**
          * Remove a BandSetup
-         * @param name
+         * @param name the name of the band setup to be removed
          */
         public BandSetup removeBandSetup(String name) {
             return bandSetups.remove(name);
@@ -279,8 +257,7 @@ public final class MRVMWorldSetup {
 
 
         /**
-         * Gives an unmodifiable view over all currently stored BandSetups
-         * @return
+         * @return an unmodifiable map over all currently stored BandSetups
          */
         public Map<String, BandSetup> bandSetups() {
             return Collections.unmodifiableMap(bandSetups);
@@ -297,10 +274,6 @@ public final class MRVMWorldSetup {
 
     /**
      * Creates a naive, random, not necessarily planar graph
-     * @param rng
-     * @param populationPerRegionMean
-     * @param populationStandardDeviation
-     * @return
      */
     @Deprecated
     public static UndirectedGraph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(

@@ -27,17 +27,10 @@ public final class MRVMLocalBidder extends MRVMBidder {
     private transient Map<MRVMRegionsMap.Region, BigDecimal> gammaFactorCache = null;
 
     /**
-     * Stores the id's of all regions for which this bidder is interested;
+     * Stores the ids of all regions for which this bidder is interested
      */
     final Set<Integer> regionsOfInterest;
 
-    /**
-     * @param id
-     * @param populationId
-     * @param world
-     * @param setup
-     * @param rng
-     */
     MRVMLocalBidder(long id, long populationId, MRVMWorld world, MRVMLocalBidderSetup setup,
                     UniformDistributionRNG rng) {
         super(id, populationId, world, setup, rng);
@@ -55,9 +48,6 @@ public final class MRVMLocalBidder extends MRVMBidder {
 
     /**
      * Transforms a bidders {@link MRVMLocalBidder#regionsOfInterest} into a format suitable for {@link #gammaFactor(MRVMRegionsMap.Region, Bundle)}
-     * @param world
-     * @param regionsOfInterest
-     * @return
      */
     private static Map<MRVMRegionsMap.Region, BigDecimal> mapGammaFactors(MRVMWorld world, Set<Integer> regionsOfInterest) {
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();

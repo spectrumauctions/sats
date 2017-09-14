@@ -20,35 +20,19 @@ public class IncompatibleWorldException extends RuntimeException {
         super();
     }
 
-    /**
-     * @param message
-     * @param cause
-     * @param enableSuppression
-     * @param writableStackTrace
-     */
     public IncompatibleWorldException(String message, Throwable cause, boolean enableSuppression,
                                       boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    /**
-     * @param message
-     * @param cause
-     */
     public IncompatibleWorldException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /**
-     * @param message
-     */
     public IncompatibleWorldException(String message) {
         super(message);
     }
 
-    /**
-     * @param cause
-     */
     public IncompatibleWorldException(Throwable cause) {
         super(cause);
     }

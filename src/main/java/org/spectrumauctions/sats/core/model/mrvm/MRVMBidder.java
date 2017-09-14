@@ -96,8 +96,6 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
 
     /**
      * Calculates the omega factor (i.e., the regional value)
-     *
-     * @return
      */
     public BigDecimal omegaFactor(MRVMRegionsMap.Region r, BigDecimal sv) {
         BigDecimal population = new BigDecimal(String.valueOf(r.getPopulation()));
@@ -142,7 +140,6 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
      *
      * @param r      The region for which the discount is requested
      * @param bundle The complete bundle (not only containing the licenses of r).
-     * @return
      */
     public abstract BigDecimal gammaFactor(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle);
 
@@ -150,7 +147,6 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
      * Calculates the gamma factors for all regions. For explanations of the gamma factors, see {@link #gammaFactor(MRVMRegionsMap.Region, Bundle)}
      *
      * @param bundle The bundle for which the discounts will be calculated.
-     * @return
      */
     public abstract Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle);
 

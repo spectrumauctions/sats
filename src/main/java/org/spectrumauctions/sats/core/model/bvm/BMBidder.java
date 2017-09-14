@@ -53,11 +53,6 @@ public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BM
     /**
      * Create a new bidder. The use of this constructor is not recommended.
      * Use {@link BMWorld#createPopulation(java.util.Collection)} instead, to create new bidder sets.
-     *
-     * @param population
-     * @param world
-     * @param setup
-     * @param rng
      */
     public BMBidder(long population, int bidderId, BMWorld world, BMBidderSetup setup, UniformDistributionRNG rng) {
         super(setup, population, bidderId, world.getId());
@@ -132,12 +127,9 @@ public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BM
     }
 
     /**
-     * Returns the maximal number of items within a band, for which synergies
+     * @return the maximal number of items within a band, for which synergies
      * apply. For additional items in the same band, only their base value
      * (without synergies) is added to the total value, if they are not excluded by the {@link #positiveValueThreshold}.
-     *
-     * @param band
-     * @return
      */
     public int highestSynergyQuantity(BMBand band) {
         if (synergyFactors.get(band.getName()) == null)
@@ -153,7 +145,7 @@ public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BM
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see Bidder#getWorld()
      */
     @Override

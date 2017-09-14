@@ -89,9 +89,6 @@ public class MRVMWorld extends World {
     }
 
 
-    /**
-     * @return
-     */
     public MRVMRegionsMap getRegionsMap() {
         return regionsMap;
     }
@@ -101,7 +98,6 @@ public class MRVMWorld extends World {
      * Sorts the licenses of a bundle into subbundles by their band.
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      * @param bundle Must be nonempty
-     * @return
      */
     public static Map<MRVMBand, Bundle<MRVMLicense>> getLicensesPerBand(Bundle<MRVMLicense> bundle) {
         Preconditions.checkArgument(!bundle.isEmpty());
@@ -113,7 +109,6 @@ public class MRVMWorld extends World {
     /**
      * Sorts the licenses of a bundle into subbundles by their band.
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
-     * @return
      */
     public static Map<MRVMBand, Bundle<MRVMLicense>> getLicensesPerBand(Bundle<MRVMLicense> bundle, MRVMWorld world) {
         Map<MRVMBand, Bundle<MRVMLicense>> licensesPerBand = new HashMap<>();
@@ -130,7 +125,6 @@ public class MRVMWorld extends World {
      * Counts the number of licenses for each band.
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      * @param bundle Must be nonempty
-     * @return
      */
     public static Map<MRVMBand, Integer> quantitiesPerBand(Bundle<MRVMLicense> bundle) {
         Preconditions.checkArgument(bundle.isEmpty()); // Ensure world to be defined
@@ -141,7 +135,6 @@ public class MRVMWorld extends World {
      * Counts the number of licenses for each band.
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      * @param bundle Must be nonempty
-     * @return
      */
     public static Map<MRVMBand, Integer> quantitiesPerBand(Bundle<MRVMLicense> bundle, MRVMWorld MRVMWorld) {
         Map<MRVMBand, Bundle<MRVMLicense>> licensesPerBand = getLicensesPerBand(bundle, MRVMWorld);
@@ -158,9 +151,6 @@ public class MRVMWorld extends World {
 
     /**
      * Defines the c-function, i.e., c(r,x) = sum_{b\in B} cap(b,r,x) [as explained in the paper]
-     * @param r
-     * @param bundle
-     * @return
      */
     public static BigDecimal c(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle) {
         if (bundle.isEmpty()) {
@@ -181,7 +171,6 @@ public class MRVMWorld extends World {
     /**
      * Calculates the maximum capacity any region can have.
      * The result is cached, hence, calling the method multiple time is not costly.
-     * @return
      */
     public BigDecimal getMaximumRegionalCapacity() {
         if (maximalRegionalCapacity == null) {
@@ -194,9 +183,6 @@ public class MRVMWorld extends World {
 
     /**
      * Returns the capacity for having <i>numberOfLicenses</i> many {@link MRVMLicense} in {@link MRVMBand} <i>band</i>
-     * @param band
-     * @param numberOfLicenses
-     * @return
      */
     public static BigDecimal capOfBand(MRVMBand band, int numberOfLicenses) {
         if (numberOfLicenses == 0) {
@@ -214,9 +200,7 @@ public class MRVMWorld extends World {
 
     /**
      * Sorts the licenses of a bundle into subbundles by their region.<br>
-     * The returned map contains all regions of the world as keys, even such which are not present with any licenses in the bundle.<br>
-     * @param bundle
-     * @return
+     * @return map that contains all regions of the world as keys, even such which are not present with any licenses in the bundle.<br>
      */
     public static Map<MRVMRegionsMap.Region, Bundle<MRVMLicense>> getLicensesPerRegion(Bundle<MRVMLicense> bundle) {
         Preconditions.checkArgument(!bundle.isEmpty());

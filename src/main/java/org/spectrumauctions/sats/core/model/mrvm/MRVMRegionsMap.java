@@ -94,14 +94,10 @@ public class MRVMRegionsMap implements Serializable {
 
     /**
      * Creates a new, unmodifiable regions-graph, consistent with the adjacency graph of this map,
-     * but only containing the specified set of regions as verteces.
-     * Note: The Region Instances are not copied, hence, calling {@link Region#getDistance(Region)},
-     * {@link Region#isAdjacent(Region)} and similar methods on the regions in the returned graph will return the values
-     * w.r.t. the
-     * original graph in the map.
-     *
-     * @param regions
-     * @return
+     * but only containing the specified set of regions as vertices.
+     * Note: The Region Instances are not copied, hence, calling {@link #getDistance(Region, Region)},
+     * {@link #adjacentRegions(Region)} and similar methods on the regions in the returned graph will return the values
+     * w.r.t. the original graph in the map.
      */
     protected UnmodifiableGraph<Region, DefaultEdge> getSubgraph(Set<Region> regions) {
         Subgraph<Region, DefaultEdge, UndirectedGraph<Region, DefaultEdge>> subgraph = new Subgraph<>(
@@ -111,11 +107,7 @@ public class MRVMRegionsMap implements Serializable {
 
 
     /**
-     * Returns if two regions is adjacent, i.e., if they share a border.
-     *
-     * @param region
-     * @param otherRegion
-     * @return
+     * @return true if two regions is adjacent, i.e., if they share a border.
      */
     public boolean areAdjacent(Region region, Region otherRegion) {
         if (this.adjacencyGraph.containsEdge(otherRegion, region)
@@ -133,9 +125,6 @@ public class MRVMRegionsMap implements Serializable {
      * where two regions share an edge if and only if they are adjacent. All edges have weight / lenght 1.
      * <br>
      * If no path was found, {@link #getNumberOfRegions()}-1 is returned.
-     * @param regionOne
-     * @param regionTwo
-     * @return
      */
     public int getDistance(Region regionOne, Region regionTwo) {
         if (regionOne.equals(regionTwo)) {

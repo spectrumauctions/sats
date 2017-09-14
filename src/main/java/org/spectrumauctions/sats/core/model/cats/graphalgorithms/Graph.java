@@ -25,7 +25,7 @@ public class Graph {
      * Constructor
      *
      * @param vertices - a list of vertices of the graph
-     * @param vrts     - a set of adjacency lists. The 1st list should correspond to the vertex with id=1,
+     * @param adjLst - a set of adjacency lists. The 1st list should correspond to the vertex with id=1,
      *                 the 2nd list - to the vertex with id=2, etc...
      */
     public Graph(final List<Vertex> vertices, final List<VertexCell>... adjLst) {
@@ -38,8 +38,9 @@ public class Graph {
     }
 
     /**
-     * @param vertices
-     * @param adjLsts
+     * @param vertices - a list of vertices
+     * @param adjLsts - a set of adjacency lists. The 1st list should correspond to the vertex with id=1,
+     *                 the 2nd list - to the vertex with id=2, etc...
      */
     public Graph(final List<Vertex> vertices, final List<List<VertexCell>> adjLsts) {
         _adjacencyLists = new LinkedList<>();
@@ -55,7 +56,7 @@ public class Graph {
     /**
      * The method constructs
      *
-     * @param vertices -  a list of vertices
+     * @param vertices - a list of vertices
      */
     public Graph(final List<Vertex> vertices) {
         _adjacencyLists = new LinkedList<>();
@@ -213,10 +214,8 @@ public class Graph {
     }
 
     /**
-     * The method returns the predesessor of the vertex (obtained e.g. by Dijkstra or BFS)
-     *
-     * @param vertexId an id of the vertex
-     * @return
+     * @param vertexID the id of a vertex
+     * @return the predecessor of the vertex (obtained e.g. by Dijkstra or BFS)
      */
     public int getVertexPredecessor(int vertexID) {
         for (Vertex v : _vertices)
@@ -225,7 +224,7 @@ public class Graph {
         return 0;
     }
 
-    /*
+    /**
      * The method returns a path between two vertices i.e. a list of vertices obtained by
      * analyzing predecessors for each vertex (based for example on prior Dijkstra or BFS method calls)
      * @param v - the first vertex in the path
@@ -254,7 +253,7 @@ public class Graph {
         return path;
     }
 
-    /*
+    /**
      * The method returns flow tables obtained after MCF
      * @return flow tables
      */
@@ -263,7 +262,7 @@ public class Graph {
     }
 
 
-    /*
+    /**
      * The method returns the radius of the graph i.e. the smallest r s.t. every vertex in the graph
      * is within distance at most r from the specified vertex
      */
@@ -279,7 +278,7 @@ public class Graph {
         return _radius;
     }
 
-    /*
+    /**
      * The method returns a subgraph induced by a subset of vertices that are at most
      * at distance=radius from the center vertex
      * @param center - the center vertex of the ball
@@ -318,7 +317,7 @@ public class Graph {
         return ball;
     }
 
-    /*
+    /**
      * The method returns a ball shell of a graph with a center in 'center' and with the given radius
      * @param center - the center of the corresponding ball
      * @param radius - radius of the ball
@@ -364,7 +363,7 @@ public class Graph {
         return boundary;
     }
 
-    /*
+    /**
      * The method returns the cone with a vertex in 'center' and a given radius in respect to the set
      * of vertices S
      * @param center - the vertex of the cone
@@ -398,10 +397,10 @@ public class Graph {
         return cone;
     }
 
-    /*
+    /**
      * The method computes the cost of a set of edges i.e. the sum of 1/w_i for i=1...numberOfEdges
      * (w_i) is weights of edges
-     * @param a list of edges for which the cost should be computed
+     * @param edges - a list of edges for which the cost should be computed
      * @return the cost of the given set of edges
      */
     public double computeCost(List<Edge> edges) {
@@ -452,7 +451,7 @@ public class Graph {
         return r;
     }
 
-    /*
+    /**
      * The method implements the cone decomposition of the graph.
      * @param S - the list of cone vertices
      * @param delta - delta parameter of the algorithm
@@ -484,7 +483,7 @@ public class Graph {
         return res;
     }
 
-    /*
+    /**
      * The method returns the Star-decomposition of the graph
      * @param x0 - the center of the star
      * @param delta - delta parameter of the algorithm ( =0.333)
@@ -536,7 +535,7 @@ public class Graph {
         return star;
     }
 
-    /*
+    /**
      * The method returns the graph induced from the current one by a set of vertices
      * Complexity O(n*m)  because of adjacency lists. If to use matrix => O( n ) - just remove the missing rows and columns  TODO
      * WARNING: the indexes of vertices in _vertices are not continuous anymore!!!
@@ -574,7 +573,7 @@ public class Graph {
         return g;
     }
 
-    /*
+    /**
      * The method generate a Low Stretch Spanning Tree for the graph
      * @param center - the center (the root) of the tree
      * @param betta - betta parameter for the algorithm
@@ -635,7 +634,7 @@ public class Graph {
         return T;
     }
 
-    /*
+    /**
      * The method returns true if there is an edge from the vertex U to the vertex V and false otherwise
      * @param vertexU - id of the 1st vertex
      * @param vertexV - id of the 2nd vertex
@@ -649,7 +648,7 @@ public class Graph {
         return false;
     }
 
-    /*
+    /**
      * The method implements the Breadth-First-Search in the graph given the source vertex
      * @param s - the source vertex in the graph
      */
@@ -679,7 +678,7 @@ public class Graph {
         }
     }
 
-    /*
+    /**
      * The method implements Ford-Fulkerson maximum flow search method given the source vertex and the sink vertex
      * @param s - the source vertex
      * @param t - the sink vertex
@@ -715,7 +714,7 @@ public class Graph {
         }
     }
 
-    /*
+    /**
      * The method implements the Bellman-Ford graph search algorithm (the complexity is O(V*E) )
      * @param sourceID - the id of the source vertex
      * @return true if there exist shortest paths and false otherwise. The shortest path itself i.e. predecessors
@@ -792,7 +791,7 @@ public class Graph {
     }
     
 
-    /*
+    /**
      * Initialize the shortest paths estimations and predecessors given the source ID
      * @param sourceID - the id of the source for the shortest paths
      * @param idx - the index of shortest path estimations / predecessors (there might be several Dijkstra invokations from different vertices)
@@ -809,7 +808,7 @@ public class Graph {
             }
     }
 
-    /*
+    /**
      * The method performs the relaxation of the edge u-->v as one of the steps of the Bellman-Ford algorithm
      * @param u - the 1st vertex of the edge
      * @param v - the 2nd vertex of the edge
@@ -826,7 +825,7 @@ public class Graph {
         return 0;
     }
 
-    /*
+    /**
      * The method builds the residual network for this graph
      */
     public Graph buildResidualNetwork() {
@@ -853,7 +852,7 @@ public class Graph {
         return g;
     }
 
-    /*
+    /**
      * The method removes one edge from the graph
      * @param vertexId - an ide of a source vertex of the edge
      * @param edgeIdx - an index of the edge to be removed
@@ -872,8 +871,8 @@ public class Graph {
     /**
      * The method adds one edge to the graph
      *
-     * @param vertexId - an id of a source vertex of the edge
-     * @param edgeIdx  - an index of the edge to be removed
+     * @param sourceId - an id of a source vertex of the edge
+     * @param sinkId  - an index of the edge to be removed
      */
     public void addEdge(int sourceId, int sinkId) {
         _adjacencyLists.get(sourceId - 1).add(new VertexCell(_vertices.get(sinkId - 1), 1.));
@@ -1588,7 +1587,7 @@ public class Graph {
 		normalizeFlows();
 	}*/
 
-    /*
+    /**
      * The method constructs flow tables from a solution of MCF problem.
      * @param numberOfFlows - the number of flows in the graph
      */
@@ -1605,9 +1604,9 @@ public class Graph {
                 _flowTables[i][e.getSource().getID() - 1][e.getSink().getID() - 1] = e.getFlow(i);
     }
 
-    /*
+    /**
      * The method constructs and returns the list of edges of the graph
-     * @param numberOfFlows - the maximum possible number of flows along the edge
+     * @param numFlowsPerEdge - the maximum possible number of flows along the edge
      */
     private void constructListOfEdges(int numFlowsPerEdge) {
         for (Vertex v : _vertices)
@@ -1615,7 +1614,7 @@ public class Graph {
                 _edges.add(new Edge(v, vc._v, vc._w, numFlowsPerEdge));
     }
 
-    /*
+    /**
      * The method is used as a post-process step of MCF solver. This method removes flow loops from the graph.
      */
     private void normalizeFlows() {
