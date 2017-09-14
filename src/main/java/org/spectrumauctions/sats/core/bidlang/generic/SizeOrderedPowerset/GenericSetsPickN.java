@@ -101,8 +101,6 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
 
     /**
      * Appends 0 to a list until it has a certain size
-     * @param size
-     * @param list
      */
     private static void appendZeros(int size, List<Integer> list) {
         while (list.size() < size) {
@@ -127,9 +125,7 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
         }
 
         /**
-         * Finds the next combination of values that sum up to the targetValue.
-         * @param previousSteps
-         * @return
+         * @return the next combination of values that sum up to the targetValue.
          */
         private List<Integer> walkToNextResult(List<Integer> previousSteps) {
             // Check if this is the last walker without any leftover options

@@ -103,7 +103,7 @@ public final class MRVMNationalBidder extends MRVMBidder {
 
     /**
      * Reads the gammavalue form the stored map.
-     * If uncoveredRegions > {@link #getKMax()}, then the value for kMax is returned (see model writeup for explanation).
+     * If uncoveredRegions greater than {@link #getKMax()}, then the value for kMax is returned (see model writeup for explanation).
      * @param uncoveredRegions the number of regions that are uncovered
      * @return the gamma value for the number of uncovered regions
      */

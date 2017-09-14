@@ -14,11 +14,6 @@ public abstract class GenericPowerset<T extends GenericDefinition> implements Ge
     final Map<T, Integer> maxQuantities;
     final int maxBundleSize;
 
-
-    /**
-     * @param maxQuantities, in increasing order of priority
-     * @throws UnsupportedBiddingLanguageException
-     */
     protected GenericPowerset(List<T> genericDefinitions) throws UnsupportedBiddingLanguageException {
         super();
         Map<T, Integer> orderedMap = new LinkedHashMap<>();
@@ -32,12 +27,6 @@ public abstract class GenericPowerset<T extends GenericDefinition> implements Ge
         isFeasibleSize(maxQuantities, maxBundleSize);
     }
 
-
-    /**
-     * @param maxQuantities
-     * @param maxBundleSize
-     * @throws UnsupportedBiddingLanguageException
-     */
     GenericPowerset(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
         super();
         isFeasibleSize(maxQuantities, maxBundleSize);
@@ -55,7 +44,7 @@ public abstract class GenericPowerset<T extends GenericDefinition> implements Ge
         int bundleSize;
         GenericSetsPickN<T> pickN;
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#next()
          */
         @Override

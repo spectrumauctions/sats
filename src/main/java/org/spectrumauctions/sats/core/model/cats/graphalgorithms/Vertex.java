@@ -92,7 +92,6 @@ public class Vertex {
     /**
      * The method returns the estimation for the shortest path from some source to this vertex
      *
-     * @param i - the index of shortest path estimation (there may be several estimations)
      * @return the estimation
      */
     public double getShortestPathEst() {
@@ -137,7 +136,7 @@ public class Vertex {
     /**
      * The method setup the index of the adjacency list associated with this vertex
      *
-     * @param the index of the adjacency list of interest
+     * @param idx - the index of the adjacency list of interest
      */
     public void setAdjacencyListIndex(int idx) {
         _adjListIdx = idx;

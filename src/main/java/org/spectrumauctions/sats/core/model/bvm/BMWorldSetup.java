@@ -29,7 +29,7 @@ public abstract class BMWorldSetup {
     /**
      * Defines which bands should be created in the world
      *
-     * @return Map with - <b>Key:</> The name of the band - <b>Value:</b> The
+     * @return Map with - <b>Key:</b> The name of the band - <b>Value:</b> The
      *         quantity of licenses of this band
      */
     public Map<String, Integer> bands() {

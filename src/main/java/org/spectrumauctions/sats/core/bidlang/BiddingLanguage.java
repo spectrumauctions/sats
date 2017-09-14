@@ -13,8 +13,6 @@ public interface BiddingLanguage {
     /**
      * References back to the Bidder instance from whom this
      * Bidding language instance was created.
-     *
-     * @return
      */
     Bidder<? extends Good> getBidder();
 }

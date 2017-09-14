@@ -16,9 +16,6 @@ public abstract class Band implements Serializable {
     private static final long serialVersionUID = 6087467900270631177L;
     protected final String name;
 
-    /**
-     * @param name
-     */
     protected Band(String name) {
         super();
         this.name = name;

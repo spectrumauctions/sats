@@ -91,7 +91,7 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
         }
 
         /**
-         * See {@link #setGammaShape(double, double) for meaning of this parameter
+         * @see #setGammaShape(double, double) for meaning of this parameter
          */
         public double getExponentFactor() {
             return exponentFactor;
@@ -99,7 +99,7 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
 
         /**
-         * See {@link #setGammaShape(double, double) for meaning of this parameter
+         * @see #setGammaShape(double, double) for meaning of this parameter
          */
         public double getBase() {
             return base;

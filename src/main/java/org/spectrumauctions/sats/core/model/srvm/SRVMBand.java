@@ -51,9 +51,6 @@ public final class SRVMBand extends Band implements GenericDefinition {
         this.licenses = Collections.unmodifiableList(builder);
     }
 
-    /**
-     * @return
-     */
     public SRVMWorld getWorld() {
         return world;
     }

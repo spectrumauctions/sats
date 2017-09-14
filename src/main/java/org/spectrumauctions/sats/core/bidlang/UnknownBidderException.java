@@ -9,41 +9,22 @@ public class UnknownBidderException extends Exception {
 
     private static final long serialVersionUID = 8408470036037099565L;
 
-    /**
-     *
-     */
     public UnknownBidderException() {
         super();
     }
 
-    /**
-     * @param message
-     * @param cause
-     * @param enableSuppression
-     * @param writableStackTrace
-     */
     public UnknownBidderException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    /**
-     * @param message
-     * @param cause
-     */
     public UnknownBidderException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /**
-     * @param message
-     */
     public UnknownBidderException(String message) {
         super(message);
     }
 
-    /**
-     * @param cause
-     */
     public UnknownBidderException(Throwable cause) {
         super(cause);
     }

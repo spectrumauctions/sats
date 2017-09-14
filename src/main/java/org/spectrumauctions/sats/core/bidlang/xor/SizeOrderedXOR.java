@@ -35,9 +35,7 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
     }
 
     /**
-     * Get the bundle with index index
-     * @param index
-     * @return
+     * @param index of the queried bundle
      */
     public Bundle<T> getBundle(BigInteger index) {
         String bundleRepresentation = packageRepresentation(index, goods.size()).toString();
@@ -59,13 +57,10 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
     }
 
     /**
-     * Returns a specific bundle of given size
-     *
-     * @param subIndex
-     *            : An index of this bundle in a list of all bundles with same size (hence NOT the index in the iterator).
-     *            (starting a zero).
+     * @param subIndex an index of this bundle in a list of all bundles with same size (hence NOT the index
+     *                 in the iterator), starting at zero.
      * @param size the size of the bundle
-     * @return
+     * @return a specific bundle of given size
      */
     public Bundle<T> getBundle(BigInteger subIndex, int size) {
         // TODO check if subIndex is valid;
@@ -74,10 +69,7 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
     }
 
     /**
-     * The String representation of the bundle, i.e., 1/0 for all licenses
-     * @param index
-     * @param n
-     * @return
+     * @return the StringBuilder representation of the bundle, i.e., 1/0 for all licenses
      */
     public static StringBuilder packageRepresentation(BigInteger index, int n) {
         SizeStarter foundSize = bundleSize(index, n);

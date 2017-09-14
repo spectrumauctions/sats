@@ -13,23 +13,17 @@ public interface GenericDefinition {
     boolean isPartOf(Good license);
 
     /**
-     * The number of licenses of this generic type
-     *
-     * @return
+     * @return the number of licenses of this generic type
      */
     int numberOfLicenses();
 
     /**
-     * Returns all licenses which are part of this GenericDefinition
-     *
-     * @return
+     * @return all licenses which are part of this GenericDefinition
      */
     Set<? extends Good> allLicenses();
 
     /**
-     * Creates a json representation of self, uniquely defining the definition, without expanding it's members
-     *
-     * @return
+     * @return a json representation of self, uniquely defining the definition, without expanding its members
      */
     JsonElement shortJson();
 }

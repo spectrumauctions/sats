@@ -32,9 +32,6 @@ public class JsonExporter extends FileWriter {
     public static final boolean ONLY_NONZERO_QUANTITIES = true;
     Gson gson;
 
-    /**
-     * @param path
-     */
     public JsonExporter(File path) {
         super(path);
         GsonBuilder builder = new GsonBuilder();

@@ -40,7 +40,6 @@ public abstract class MRVMBidderSetup extends BidderSetup {
      * Draws the Alpha-Parameter uniformly at random.<br>
      * Alpha is a parameter defining an expected profit per served customer, if quality of service and regional discount are ignored.<br>
      * It can be understood as a relative bidder strength parameter.
-     * @param rng
      * @return a BigDecimal in [0,1]
      */
     public BigDecimal drawAlpha(UniformDistributionRNG rng) {
@@ -51,7 +50,6 @@ public abstract class MRVMBidderSetup extends BidderSetup {
      * Draws the Beta-Parameter uniformly at random.<br> 
      * Beta is a parameter defining the target market share this bidder intends to cover. <br>
      * The bidders value for a bundle increases heavily as soon as the capacity share he has in a region gets close to beta.
-     * @param rng
      * @return a BigDecimal in [0,1]
      */
     public BigDecimal drawBeta(MRVMRegionsMap.Region r, UniformDistributionRNG rng) {
@@ -100,11 +98,6 @@ public abstract class MRVMBidderSetup extends BidderSetup {
         private DoubleInterval zLowInterval;
         private DoubleInterval zHighInterval;
 
-
-        /**
-         * @param alphaInterval
-         * @param betaInterval
-         */
         protected Builder(String setupName, int numberOfBidders, DoubleInterval alphaInterval, DoubleInterval betaInterval) {
             super(setupName, numberOfBidders);
             this.alphaInterval = alphaInterval;
@@ -113,9 +106,8 @@ public abstract class MRVMBidderSetup extends BidderSetup {
 
 
         /**
-         * The interval from which the alpha value will be drawn. <br>
+         * @return the interval from which the alpha value will be drawn. <br>
          * See {@link MRVMBidderSetup#alphaInterval} for explanation of alpha-parameter
-         * @return
          */
         public DoubleInterval getAlphaInterval() {
             return alphaInterval;
@@ -123,9 +115,8 @@ public abstract class MRVMBidderSetup extends BidderSetup {
 
 
         /**
-         * The interval from which the alpha value will be drawn. <br>
+         * Sets the interval from which the alpha value will be drawn. <br>
          * See {@link MRVMBidderSetup#alphaInterval} for explanation of alpha-parameter
-         * @return
          */
         public void setAlphaInterval(DoubleInterval alphaInterval) {
             this.alphaInterval = alphaInterval;
@@ -133,9 +124,8 @@ public abstract class MRVMBidderSetup extends BidderSetup {
 
 
         /**
-         * The interval from which the beta value will be drawn. <br>
+         * @return the interval from which the beta value will be drawn. <br>
          * See {@link MRVMBidderSetup#betaInterval} for explanation of beta-parameter
-         * @return
          */
         public DoubleInterval getBetaInterval() {
             return betaInterval;
@@ -143,9 +133,8 @@ public abstract class MRVMBidderSetup extends BidderSetup {
 
 
         /**
-         * The interval from which the beta value will be drawn. <br>
+         * Sets the interval from which the beta value will be drawn. <br>
          * See {@link MRVMBidderSetup#betaInterval} for explanation of beta-parameter
-         * @return
          */
         public void setBetaInterval(DoubleInterval betaInterval) {
             this.betaInterval = betaInterval;

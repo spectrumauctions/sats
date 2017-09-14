@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * The list of implemented algorithms:
  * - Breadth-First Search
  * - Bellman-Ford single source graph search algorithm ( complexity O(V*E) )
- * - Dijkstra single source graph search algorithm (complexity O(V*V); priority queue is used => for large graphs it is lower )
+ * - Dijkstra single source graph search algorithm (complexity O(V*V); priority queue is used, for large graphs it is lower )
  * - Ford-Fulkerson maximum flow search
  * - Multicommodity Flow search with fractional flows (search for the feasible solution)
  * - Multicommodity FLow search with fractional flows (with minimization of the maximum d_i / f_i  - e.g. time needed to transfer d_i Bytes with f_i bandwidth)
@@ -114,7 +114,7 @@ public class Graph {
     /**
      * The method updates the list of vertices of the graph
      *
-     * @param a new list of vertices of the graph
+     * @param vrts new list of vertices of the graph
      */
     public void addListOfVertices(List<Vertex> vrts) {
         _vertices = vrts;
@@ -123,7 +123,7 @@ public class Graph {
     /**
      * The method adds an adjacency list
      *
-     * @param adjList - a new adjacency list
+     * @param adjLst - a new adjacency list
      */
     public void addAdjacencyList(List<VertexCell> adjLst) {
         _adjacencyLists.add(adjLst);
@@ -537,7 +537,7 @@ public class Graph {
 
     /**
      * The method returns the graph induced from the current one by a set of vertices
-     * Complexity O(n*m)  because of adjacency lists. If to use matrix => O( n ) - just remove the missing rows and columns  TODO
+     * Complexity O(n*m)  because of adjacency lists. If to use matrix O( n ) - just remove the missing rows and columns  TODO
      * WARNING: the indexes of vertices in _vertices are not continuous anymore!!!
      * WARNING: the graph contains copies of the vertices and adjacency lists of the original graph, but not the originals!!!
      * @param vertices - the list of vertices that should be present in the induced graph (NOTE: the vertices objects should belong to THIS object
@@ -636,8 +636,8 @@ public class Graph {
 
     /**
      * The method returns true if there is an edge from the vertex U to the vertex V and false otherwise
-     * @param vertexU - id of the 1st vertex
-     * @param vertexV - id of the 2nd vertex
+     * @param u - id of the 1st vertex
+     * @param v - id of the 2nd vertex
      * @return true if these vertices are adjacent and false otherwise
      */
     public boolean isAdjacent(Vertex u, Vertex v) {

@@ -85,9 +85,7 @@ public final class GenericValue<T extends GenericDefinition> {
     }
 
     /**
-     * The number of licenses in this bundle
-     *
-     * @return
+     * @return the number of licenses in this bundle
      */
     private int calcSize() {
         int size = 0;
@@ -116,7 +114,7 @@ public final class GenericValue<T extends GenericDefinition> {
                 return new XORValue<>(bundle, GenericValue.this.value);
             }
 
-            /* (non-Javadoc)
+            /**
              * @see java.util.Iterator#remove()
              */
             @Override
