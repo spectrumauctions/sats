@@ -19,14 +19,15 @@ import java.util.*;
 public final class SRVMWorld extends World {
 
     private static final long serialVersionUID = 1766287015715986936L;
-    private final Set<SRVMBand> bands;
+    private final HashSet<SRVMBand> bands;
 
     private transient Integer numberOfGoods = null;
     private transient ImmutableSet<SRVMLicense> licenses = null;
+    private transient ImmutableSet<SRVMBand> immutableSetOfBands = null;
 
     public SRVMWorld(SRVMWorldSetup setup, RNGSupplier rngSupplier) {
         super("Single-Region Value Model");
-        this.bands = Collections.unmodifiableSet(new HashSet<>(SRVMBand.createBands(this, setup, rngSupplier)));
+        this.bands = new HashSet<>(SRVMBand.createBands(this, setup, rngSupplier));
         store();
     }
 
@@ -62,9 +63,12 @@ public final class SRVMWorld extends World {
         return licenses;
     }
 
+    public ImmutableSet<SRVMBand> getBands() {
+        if (immutableSetOfBands == null) {
+            immutableSetOfBands = ImmutableSet.copyOf(bands);
+        }
+        return immutableSetOfBands;
 
-    public Set<SRVMBand> getBands() {
-        return Collections.unmodifiableSet(bands);
     }
 
     public List<SRVMBidder> createPopulation(Collection<SRVMBidderSetup> bidderSetups, RNGSupplier rngSupplier) {

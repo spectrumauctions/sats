@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.World;
@@ -19,7 +21,7 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public class MRVMWorld extends World {
+public final class MRVMWorld extends World {
 
     private static final int BIGDECIMAL_PRECISON = 10;
 
@@ -27,18 +29,16 @@ public class MRVMWorld extends World {
 
     public static final String MODEL_NAME = "Multi-Region Value Model";
     private final MRVMRegionsMap regionsMap;
-    private final Set<MRVMBand> bands;
+    private final HashSet<MRVMBand> bands;
 
     private transient BigDecimal maximalRegionalCapacity = null;
-
 
     public MRVMWorld(MRVMWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
         regionsMap = new MRVMRegionsMap(worldSetup, rngSupplier);
-        bands = Collections.unmodifiableSet(MRVMBand.createBands(this, worldSetup, regionsMap, rngSupplier.getUniformDistributionRNG()));
+        bands = MRVMBand.createBands(this, worldSetup, regionsMap, rngSupplier.getUniformDistributionRNG());
         store();
     }
-
 
     /* (non-Javadoc)
      * @see World#getNumberOfGoods()
@@ -55,7 +55,7 @@ public class MRVMWorld extends World {
     }
 
     public Set<MRVMBand> getBands() {
-        return Collections.unmodifiableSet(bands);
+        return ImmutableSet.copyOf(bands);
     }
 
     /* (non-Javadoc)
@@ -67,7 +67,7 @@ public class MRVMWorld extends World {
         for (MRVMBand band : bands) {
             licenses.addAll(band.getLicenses());
         }
-        return licenses;
+        return ImmutableSet.copyOf(licenses);
     }
 
     /* (non-Javadoc)
@@ -102,7 +102,7 @@ public class MRVMWorld extends World {
     public static Map<MRVMBand, Bundle<MRVMLicense>> getLicensesPerBand(Bundle<MRVMLicense> bundle) {
         Preconditions.checkArgument(!bundle.isEmpty());
         MRVMWorld world = bundle.iterator().next().getWorld();
-        return getLicensesPerBand(bundle, world);
+        return ImmutableMap.copyOf(getLicensesPerBand(bundle, world));
     }
 
 
@@ -118,7 +118,7 @@ public class MRVMWorld extends World {
         for (MRVMLicense license : bundle) {
             licensesPerBand.get(license.getBand()).add(license);
         }
-        return licensesPerBand;
+        return ImmutableMap.copyOf(licensesPerBand);
     }
 
     /**
@@ -128,7 +128,7 @@ public class MRVMWorld extends World {
      */
     public static Map<MRVMBand, Integer> quantitiesPerBand(Bundle<MRVMLicense> bundle) {
         Preconditions.checkArgument(bundle.isEmpty()); // Ensure world to be defined
-        return quantitiesPerBand(bundle, (MRVMWorld) bundle.getWorld());
+        return ImmutableMap.copyOf(quantitiesPerBand(bundle, (MRVMWorld) bundle.getWorld()));
     }
 
     /**
@@ -146,7 +146,7 @@ public class MRVMWorld extends World {
                 quantities.put(band, 0);
             }
         }
-        return quantities;
+        return ImmutableMap.copyOf(quantities);
     }
 
     /**
@@ -212,7 +212,7 @@ public class MRVMWorld extends World {
         for (MRVMLicense license : bundle) {
             licensesPerRegion.get(license.getRegion()).add(license);
         }
-        return licensesPerRegion;
+        return ImmutableMap.copyOf(licensesPerRegion);
     }
 
 

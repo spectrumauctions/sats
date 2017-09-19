@@ -89,7 +89,10 @@ public class JSONInstanceHandler extends InstanceHandler {
         Object obj = gson.fromJson(type, json);
 
         if (bidderSuperType.isAssignableFrom(obj.getClass())) {
-            return (T) obj;
+            Bidder bidder = (T) obj;
+            bidder.refreshReference(world);
+            return (T) bidder;
+
         } else {
             throw new FileException("generated object (" + type.getName() + ") is not of specified bidder type (" + bidderSuperType.getName() + ")");
         }

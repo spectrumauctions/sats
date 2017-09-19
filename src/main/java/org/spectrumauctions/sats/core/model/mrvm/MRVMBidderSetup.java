@@ -57,8 +57,8 @@ public abstract class MRVMBidderSetup extends BidderSetup {
     }
 
 
-    public Map<Integer, BigDecimal> drawZLow(Map<Integer, BigDecimal> betas, MRVMWorld world, UniformDistributionRNG rng) {
-        Map<Integer, BigDecimal> result = new HashMap<>();
+    public HashMap<Integer, BigDecimal> drawZLow(Map<Integer, BigDecimal> betas, MRVMWorld world, UniformDistributionRNG rng) {
+        HashMap<Integer, BigDecimal> result = new HashMap<>();
         for (Map.Entry<Integer, BigDecimal> beta : betas.entrySet()) {
             BigDecimal minTerm = beta.getValue().subtract(BigDecimal.valueOf(0.3));
             if (minTerm.compareTo(BigDecimal.ZERO) < 0) {
@@ -74,8 +74,8 @@ public abstract class MRVMBidderSetup extends BidderSetup {
     }
 
 
-    public Map<Integer, BigDecimal> drawZHigh(Map<Integer, BigDecimal> betas, MRVMWorld world, UniformDistributionRNG rng) {
-        Map<Integer, BigDecimal> result = new HashMap<>();
+    public HashMap<Integer, BigDecimal> drawZHigh(Map<Integer, BigDecimal> betas, MRVMWorld world, UniformDistributionRNG rng) {
+        HashMap<Integer, BigDecimal> result = new HashMap<>();
         for (Map.Entry<Integer, BigDecimal> beta : betas.entrySet()) {
             BigDecimal maxTerm = beta.getValue().add(BigDecimal.valueOf(0.3));
             if (maxTerm.compareTo(BigDecimal.ONE) > 0) {

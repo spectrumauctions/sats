@@ -7,11 +7,13 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -26,26 +28,26 @@ import static org.mockito.Mockito.when;
  */
 public class MRVMBidderTest {
 
-    private MRVMWorld world = mock(MRVMWorld.class);
     private MRVMLocalBidderSetup setup = mock(MRVMLocalBidderSetup.class);
     private MRVMRegionsMap map = mock(MRVMRegionsMap.class);
     private MRVMRegionsMap.Region region1 = mock(MRVMRegionsMap.Region.class);
     private MRVMRegionsMap.Region region2 = mock(MRVMRegionsMap.Region.class);
+    private MRVMWorld world;
     private MRVMBidder bidder;
 
     @Before
     public void setup() {
+        world = new MRVMWorld(new MRVMWorldSetup.MRVMWorldSetupBuilder().build(), new JavaUtilRNGSupplier());
         when(map.getRegions()).thenReturn(new HashSet<>(Arrays.asList(region1, region2)));
         when(map.getNumberOfRegions()).thenReturn(2);
         when(region1.getId()).thenReturn(0);
         when(region2.getId()).thenReturn(1);
-        when(world.getRegionsMap()).thenReturn(map);
         when(setup.drawAlpha(any(UniformDistributionRNG.class))).thenReturn(BigDecimal.valueOf(0.1));
         when(setup.drawBeta(any(MRVMRegionsMap.Region.class), any(UniformDistributionRNG.class))).thenReturn(BigDecimal.valueOf(0.2)); // Same Beta for all Regions
-        Map<Integer, BigDecimal> zlowMock = mock(Map.class);
+        HashMap<Integer, BigDecimal> zlowMock = mock(HashMap.class);
         when(zlowMock.get(any())).thenReturn(BigDecimal.valueOf(0.3));
         when(setup.drawZLow(any(Map.class), any(MRVMWorld.class), any(UniformDistributionRNG.class))).thenReturn(zlowMock);
-        Map<Integer, BigDecimal> zhighMock = mock(Map.class);
+        HashMap<Integer, BigDecimal> zhighMock = mock(HashMap.class);
         when(zhighMock.get(any())).thenReturn(BigDecimal.valueOf(0.4));
         when(setup.drawZHigh(any(Map.class), any(MRVMWorld.class), any(UniformDistributionRNG.class))).thenReturn(zhighMock);
     }
@@ -65,7 +67,6 @@ public class MRVMBidderTest {
     public void testSvFunction() {
         bidder = new MRVMLocalBidder(0, 0, world, setup, null);
         when(region1.getPopulation()).thenReturn(50);
-        when(world.getMaximumRegionalCapacity()).thenReturn(BigDecimal.valueOf(10));
         //Check corner points
         //		Corner point 1
         BigDecimal expected1 = BigDecimal.ZERO;
@@ -81,7 +82,7 @@ public class MRVMBidderTest {
         assertEqualsWithDelta(actual3, expected3);
         //		Corner point 4
         BigDecimal expected4 = bidder.getAlpha();
-        BigDecimal actual4 = bidder.svFunction(region1, BigDecimal.valueOf(10));
+        BigDecimal actual4 = bidder.svFunction(region1, world.getMaximumRegionalCapacity());
         assertEqualsWithDelta(actual4, expected4);
 
         //In between corner points

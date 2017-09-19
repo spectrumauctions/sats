@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Graph;
+import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Mesh2D;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
@@ -17,9 +18,9 @@ public final class CATSWorld extends World {
     private static final String MODEL_NAME = "CATS Region Value Model";
     private final double additivity;
     private final boolean useQuadraticPricingOption;
-    private final Graph grid;
+    private final Mesh2D grid;
     private final int size;
-    private final Set<CATSLicense> licenses;
+    private final HashSet<CATSLicense> licenses;
 
     private transient ImmutableSet<CATSLicense> licenseSet;
 

@@ -15,7 +15,7 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public class MRMRandomnessTest {
+public class MRVMRandomnessTest {
 
     long seed = 123234234;
     long seed2 = 32487235;

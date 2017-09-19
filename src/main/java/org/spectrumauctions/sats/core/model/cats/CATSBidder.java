@@ -12,7 +12,7 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author Fabio Isler
@@ -20,7 +20,7 @@ import java.util.Map;
 public final class CATSBidder extends Bidder<CATSLicense> {
 
     private static final long serialVersionUID = -6762037404466323951L;
-    private final Map<Long, BigDecimal> privateValues;
+    private final HashMap<Long, BigDecimal> privateValues;
     private transient CATSWorld world;
     private transient ImmutableMap<Long, BigDecimal> privateValueMap;
 

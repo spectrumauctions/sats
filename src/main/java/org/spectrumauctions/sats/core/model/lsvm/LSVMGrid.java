@@ -19,8 +19,8 @@ public class LSVMGrid implements Serializable {
     private static final long serialVersionUID = -3752536748200949347L;
     private final LSVMLicense[][] licenses;
     private final long worldId;
-    private final Integer numberOfRows;
-    private final Integer numberOfColumns;
+    private final int numberOfRows;
+    private final int numberOfColumns;
     private transient LSVMWorld world;
     private transient ImmutableSet<LSVMLicense> licenseSet = null;
 
@@ -88,8 +88,8 @@ public class LSVMGrid implements Serializable {
         return licenses[row][column];
     }
 
-    Set<LSVMLicense> getProximity(LSVMLicense center, int proximitySize) {
-        Set<LSVMLicense> proximity = new HashSet<>();
+    HashSet<LSVMLicense> getProximity(LSVMLicense center, int proximitySize) {
+        HashSet<LSVMLicense> proximity = new HashSet<>();
         proximity.add(center);
         Set<LSVMLicense> tmp = expand(proximity, center);
         // Expand step by step

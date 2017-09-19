@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 /**
  * @author Michael Weiss
  */
-public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BMBand> {
+public final class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BMBand> {
 
     private static final long serialVersionUID = 3132260871321701148L;
     private transient BMWorld world;
@@ -38,17 +38,17 @@ public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BM
      * Key: BandName<br>
      * Value: {Key: Quantity of the band,  Value: Synergy Factor}
      */
-    private final Map<String, Map<Integer, BigDecimal>> synergyFactors;
+    private final HashMap<String, Map<Integer, BigDecimal>> synergyFactors;
     /**
      * Key: BandName<br>
      * Value: Base value of the band
      */
-    private final Map<String, BigDecimal> baseValues;
+    private final HashMap<String, BigDecimal> baseValues;
     /**
      * Key: BandName<br>
      * Value: Positive Value threshold of the band, i.e., until which quantity have the licenses positive marginal utility
      */
-    private final Map<String, Integer> positiveValueThreshold;
+    private final HashMap<String, Integer> positiveValueThreshold;
 
     /**
      * Create a new bidder. The use of this constructor is not recommended.
@@ -57,17 +57,17 @@ public class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BM
     public BMBidder(long population, int bidderId, BMWorld world, BMBidderSetup setup, UniformDistributionRNG rng) {
         super(setup, population, bidderId, world.getId());
         this.world = world;
-        Map<String, Map<Integer, BigDecimal>> synergyFactors = new HashMap<>();
-        Map<String, BigDecimal> baseValues = new HashMap<>();
-        Map<String, Integer> positiveValueThreshold = new HashMap<>();
+        HashMap<String, Map<Integer, BigDecimal>> synergyFactors = new HashMap<>();
+        HashMap<String, BigDecimal> baseValues = new HashMap<>();
+        HashMap<String, Integer> positiveValueThreshold = new HashMap<>();
         for (BMBand band : world.getBands()) {
             synergyFactors.put(band.getName(), setup.drawSynergyFactors(band, rng));
             baseValues.put(band.getName(), setup.drawBaseValue(band, rng));
             positiveValueThreshold.put(band.getName(), setup.drawPositiveValueThreshold(band, rng));
         }
-        this.synergyFactors = Collections.unmodifiableMap(synergyFactors);
-        this.baseValues = Collections.unmodifiableMap(baseValues);
-        this.positiveValueThreshold = Collections.unmodifiableMap(positiveValueThreshold);
+        this.synergyFactors = synergyFactors;
+        this.baseValues = baseValues;
+        this.positiveValueThreshold = positiveValueThreshold;
         store();
     }
 

@@ -2,6 +2,7 @@ package org.spectrumauctions.sats.core.model.srvm;
 
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
@@ -22,7 +23,6 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,13 +37,13 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
 
     private transient SRVMWorld world;
     private final BigDecimal bidderStrength;
-    private final Map<String, Integer> synergyThreshold;
-    private final Map<String, BigDecimal> baseValues;
-    private final Map<String, BigDecimal> intrabandSynergyFactors;
+    private final HashMap<String, Integer> synergyThreshold;
+    private final HashMap<String, BigDecimal> baseValues;
+    private final HashMap<String, BigDecimal> intrabandSynergyFactors;
 
 
     /**
-     * Synergie which apply to the complete bundle as soon as more than one band is represented by the bundle.
+     * Synergy which apply to the complete bundle as soon as more than one band is represented by the bundle.
      * Attention: The value should be greater or equal to 1 (or in terms of the Kroemer et al model description: 1 + interbandsynergy).
      */
     private final BigDecimal interbandSynergyValue;
@@ -51,12 +51,12 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
     SRVMBidder(SRVMBidderSetup setup, SRVMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
         this.world = world;
-        Map<SRVMBand, Integer> synergyThreshold = setup.drawSynergyThresholds(world, rngSupplier);
+        HashMap<SRVMBand, Integer> synergyThreshold = setup.drawSynergyThresholds(world, rngSupplier);
         this.synergyThreshold = bandNameMap(synergyThreshold);
         this.bidderStrength = setup.drawBidderStrength(world, rngSupplier);
-        Map<SRVMBand, BigDecimal> baseValues = setup.drawBaseValues(world, bidderStrength, rngSupplier);
+        HashMap<SRVMBand, BigDecimal> baseValues = setup.drawBaseValues(world, bidderStrength, rngSupplier);
         this.baseValues = bandNameMap(baseValues);
-        Map<SRVMBand, BigDecimal> intrabandSynergyFactors = setup.drawIntraBandSynergyFactors(world, rngSupplier);
+        HashMap<SRVMBand, BigDecimal> intrabandSynergyFactors = setup.drawIntraBandSynergyFactors(world, rngSupplier);
         this.intrabandSynergyFactors = bandNameMap(intrabandSynergyFactors);
         this.interbandSynergyValue = setup.drawInterBandSynergyFactor(world, rngSupplier);
         store();
@@ -68,9 +68,9 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
      * @param inputMap the input map of the bands
      * @return the names of the bands as strings
      */
-    private <T> Map<String, T> bandNameMap(Map<SRVMBand, T> inputMap) {
+    private <T> HashMap<String, T> bandNameMap(Map<SRVMBand, T> inputMap) {
         Preconditions.checkArgument(world.getBands().containsAll(inputMap.keySet()) && world.getBands().size() == inputMap.size(), "Map is not complete for this world");
-        Map<String, T> result = new HashMap<>();
+        HashMap<String, T> result = new HashMap<>();
         for (Entry<SRVMBand, T> inputEntry : inputMap.entrySet()) {
             result.put(inputEntry.getKey().getName(), inputEntry.getValue());
         }
@@ -100,17 +100,17 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
 
 
     public Map<String, Integer> getSynergyThreshold() {
-        return Collections.unmodifiableMap(synergyThreshold);
+        return ImmutableMap.copyOf(synergyThreshold);
     }
 
 
     public Map<String, BigDecimal> getBaseValues() {
-        return Collections.unmodifiableMap(baseValues);
+        return ImmutableMap.copyOf(baseValues);
     }
 
 
     public Map<String, BigDecimal> getIntrabandSynergyFactors() {
-        return Collections.unmodifiableMap(intrabandSynergyFactors);
+        return ImmutableMap.copyOf(intrabandSynergyFactors);
     }
 
 

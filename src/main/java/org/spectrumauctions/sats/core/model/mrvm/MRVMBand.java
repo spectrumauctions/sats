@@ -31,9 +31,9 @@ public final class MRVMBand extends Band implements Serializable {
 
     private transient MRVMWorld world;
 
-    public static Set<MRVMBand> createBands(MRVMWorld world, MRVMWorldSetup worldSetup, MRVMRegionsMap regionsMap, UniformDistributionRNG rng) {
+    public static HashSet<MRVMBand> createBands(MRVMWorld world, MRVMWorldSetup worldSetup, MRVMRegionsMap regionsMap, UniformDistributionRNG rng) {
         Set<MRVMWorldSetup.BandSetup> bandSetups = worldSetup.getBandSetups();
-        Set<MRVMBand> bands = new HashSet<>();
+        HashSet<MRVMBand> bands = new HashSet<>();
         int currentLicenseId = 0;
         for (MRVMWorldSetup.BandSetup bandSetup : bandSetups) {
             MRVMBand band = new MRVMBand(bandSetup, world, currentLicenseId, rng);

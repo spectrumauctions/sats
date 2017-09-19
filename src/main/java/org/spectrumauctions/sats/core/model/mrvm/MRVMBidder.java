@@ -22,7 +22,6 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,7 +31,6 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  */
 public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericValueBidder<MRVMGenericDefinition> {
-
 
     private static final long serialVersionUID = 8394009700504454313L;
     private transient MRVMWorld world;
@@ -49,19 +47,19 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
      * <p>
      * key: regionId, value: beta
      */
-    private final Map<Integer, BigDecimal> beta;
+    private final HashMap<Integer, BigDecimal> beta;
 
     /**
      * <p>
      * key: regionId, value: beta
      */
-    private final Map<Integer, BigDecimal> zLow;
+    private final HashMap<Integer, BigDecimal> zLow;
 
     /**
      * <p>
      * key: regionId, value: beta
      */
-    private final Map<Integer, BigDecimal> zHigh;
+    private final HashMap<Integer, BigDecimal> zHigh;
 
 
     MRVMBidder(long id, long populationId, MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
@@ -70,17 +68,17 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
         this.alpha = setup.drawAlpha(rng);
         this.beta = drawBeta(world, setup, rng);
         this.zLow = setup.drawZLow(beta, world, rng);
-        zLow.entrySet().stream().forEach(z -> Preconditions.checkArgument(z.getValue().compareTo(BigDecimal.ZERO) > 0));
+        zLow.forEach((key, value) -> Preconditions.checkArgument(value.compareTo(BigDecimal.ZERO) > 0));
         this.zHigh = setup.drawZHigh(beta, world, rng);
         assertRegionalValuesAssigned();
     }
 
-    private Map<Integer, BigDecimal> drawBeta(MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
-        Map<Integer, BigDecimal> tempBeta = new HashMap<>();
+    private HashMap<Integer, BigDecimal> drawBeta(MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
+        HashMap<Integer, BigDecimal> tempBeta = new HashMap<>();
         for (MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()) {
             tempBeta.put(region.getId(), setup.drawBeta(region, rng));
         }
-        return Collections.unmodifiableMap(tempBeta);
+        return tempBeta;
     }
 
     private void assertRegionalValuesAssigned() {

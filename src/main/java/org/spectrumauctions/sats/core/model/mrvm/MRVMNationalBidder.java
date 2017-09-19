@@ -6,6 +6,7 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.Bundle;
@@ -54,7 +55,6 @@ public final class MRVMNationalBidder extends MRVMBidder {
 
         for (Entry<Integer, BigDecimal> inputGammaEntry : sortedInput.entrySet()) {
             Preconditions.checkArgument(inputGammaEntry.getValue().compareTo(BigDecimal.ZERO) >= 0, "Gamma must not be negative", inputGammaEntry);
-            ;
             mapBuilder.put(inputGammaEntry);
         }
         return mapBuilder.build();
@@ -83,7 +83,7 @@ public final class MRVMNationalBidder extends MRVMBidder {
         for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
             result.put(region, gamma);
         }
-        return result;
+        return ImmutableMap.copyOf(result);
     }
 
     public int getKMax() {

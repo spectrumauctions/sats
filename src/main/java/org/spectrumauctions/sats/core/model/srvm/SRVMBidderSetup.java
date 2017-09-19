@@ -38,9 +38,9 @@ public class SRVMBidderSetup extends BidderSetup {
     /**
      * Determines the synergy thresholds for a band. The synergy threshold is a quantity which has a big influence on the decreasing synergies for higher quantities. <br>
      */
-    public Map<SRVMBand, Integer> drawSynergyThresholds(SRVMWorld world, RNGSupplier rngSupplier) {
+    public HashMap<SRVMBand, Integer> drawSynergyThresholds(SRVMWorld world, RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
-        Map<SRVMBand, Integer> result = new HashMap<>();
+        HashMap<SRVMBand, Integer> result = new HashMap<>();
         for (SRVMBand band : world.getBands()) {
             IntegerInterval interval = synergyThresholds.get(band.getName());
             if (interval == null) {
@@ -58,9 +58,9 @@ public class SRVMBidderSetup extends BidderSetup {
      * Determines the Base Values for the band.<br>
      * The base values are computed by multiplying the meanBaseValue the bidderStrenght and a random influence parameter.
      */
-    public Map<SRVMBand, BigDecimal> drawBaseValues(SRVMWorld world, BigDecimal bidderStrength, RNGSupplier rngSupplier) {
+    public HashMap<SRVMBand, BigDecimal> drawBaseValues(SRVMWorld world, BigDecimal bidderStrength, RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
-        Map<SRVMBand, BigDecimal> result = new HashMap<>();
+        HashMap<SRVMBand, BigDecimal> result = new HashMap<>();
         for (SRVMBand band : world.getBands()) {
             BigDecimal meanBaseValue = meanBaseValues.get(band.getName());
             DoubleInterval randomInfluenceInterval = this.randomInfluence.get(band.getName());
@@ -81,9 +81,9 @@ public class SRVMBidderSetup extends BidderSetup {
     /**
      * @return Determine the synergies within a band
      */
-    public Map<SRVMBand, BigDecimal> drawIntraBandSynergyFactors(SRVMWorld world, RNGSupplier rngSupplier) {
+    public HashMap<SRVMBand, BigDecimal> drawIntraBandSynergyFactors(SRVMWorld world, RNGSupplier rngSupplier) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
-        Map<SRVMBand, BigDecimal> result = new HashMap<>();
+        HashMap<SRVMBand, BigDecimal> result = new HashMap<>();
         for (SRVMBand band : world.getBands()) {
             DoubleInterval interval = intraBandSynergyFactors.get(band.getName());
             if (interval == null) {

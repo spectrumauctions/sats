@@ -68,7 +68,7 @@ public class SerializerTest {
 
 
     @Test
-    public void derializedBiddersShouldBeEqual() {
+    public void deserializedBiddersShouldBeEqual() {
         try {
             testBidderSerializability(model);
         } catch (RuntimeException e) {
