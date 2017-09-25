@@ -6,8 +6,6 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.World;
@@ -40,7 +38,7 @@ public final class MRVMWorld extends World {
         store();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see World#getNumberOfGoods()
      */
     @Override
@@ -55,10 +53,10 @@ public final class MRVMWorld extends World {
     }
 
     public Set<MRVMBand> getBands() {
-        return ImmutableSet.copyOf(bands);
+        return Collections.unmodifiableSet(bands);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see World#getLicenses()
      */
     @Override
@@ -67,10 +65,10 @@ public final class MRVMWorld extends World {
         for (MRVMBand band : bands) {
             licenses.addAll(band.getLicenses());
         }
-        return ImmutableSet.copyOf(licenses);
+        return licenses;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see World#restorePopulation(long)
      */
     @Override
@@ -78,7 +76,7 @@ public final class MRVMWorld extends World {
         return super.restorePopulation(MRVMBidder.class, populationId);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see World#refreshFieldBackReferences()
      */
     @Override
@@ -102,7 +100,7 @@ public final class MRVMWorld extends World {
     public static Map<MRVMBand, Bundle<MRVMLicense>> getLicensesPerBand(Bundle<MRVMLicense> bundle) {
         Preconditions.checkArgument(!bundle.isEmpty());
         MRVMWorld world = bundle.iterator().next().getWorld();
-        return ImmutableMap.copyOf(getLicensesPerBand(bundle, world));
+        return getLicensesPerBand(bundle, world);
     }
 
 
@@ -118,7 +116,7 @@ public final class MRVMWorld extends World {
         for (MRVMLicense license : bundle) {
             licensesPerBand.get(license.getBand()).add(license);
         }
-        return ImmutableMap.copyOf(licensesPerBand);
+        return licensesPerBand;
     }
 
     /**
@@ -128,7 +126,7 @@ public final class MRVMWorld extends World {
      */
     public static Map<MRVMBand, Integer> quantitiesPerBand(Bundle<MRVMLicense> bundle) {
         Preconditions.checkArgument(bundle.isEmpty()); // Ensure world to be defined
-        return ImmutableMap.copyOf(quantitiesPerBand(bundle, (MRVMWorld) bundle.getWorld()));
+        return quantitiesPerBand(bundle, (MRVMWorld) bundle.getWorld());
     }
 
     /**
@@ -146,7 +144,7 @@ public final class MRVMWorld extends World {
                 quantities.put(band, 0);
             }
         }
-        return ImmutableMap.copyOf(quantities);
+        return quantities;
     }
 
     /**
@@ -212,7 +210,7 @@ public final class MRVMWorld extends World {
         for (MRVMLicense license : bundle) {
             licensesPerRegion.get(license.getRegion()).add(license);
         }
-        return ImmutableMap.copyOf(licensesPerRegion);
+        return licensesPerRegion;
     }
 
 

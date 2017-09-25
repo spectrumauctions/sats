@@ -5,6 +5,7 @@
  */
 package org.spectrumauctions.sats.core.model.bvm;
 
+import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeOrdered;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.model.Bidder;
@@ -48,24 +49,21 @@ public class RandomOrderXORQFactory implements Serializable {
             this.bidder = bidder;
         }
 
-        /* (non-Javadoc)
-         * @see BiddingLanguage#getBidder()
-         */
         @Override
         public Bidder<? extends Good> getBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getGenericBidder()
+        /**
+         * @see GenericSizeOrdered#getGenericBidder()
          */
         @Override
         protected GenericValueBidder<BMBand> getGenericBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getDefComparator()
+        /**
+         * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
         protected Comparator<BMBand> getDefComparator() {
@@ -77,9 +75,9 @@ public class RandomOrderXORQFactory implements Serializable {
 
         private static final long serialVersionUID = -1063512022491891006L;
 
-        /* (non-Javadoc)
-                 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-                 */
+        /**
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         */
         @Override
         public int compare(BMBand o1, BMBand o2) {
             return o1.getName().compareTo(o2.getName());

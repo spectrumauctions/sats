@@ -23,7 +23,6 @@ public final class SRVMWorld extends World {
 
     private transient Integer numberOfGoods = null;
     private transient ImmutableSet<SRVMLicense> licenses = null;
-    private transient ImmutableSet<SRVMBand> immutableSetOfBands = null;
 
     public SRVMWorld(SRVMWorldSetup setup, RNGSupplier rngSupplier) {
         super("Single-Region Value Model");
@@ -32,7 +31,7 @@ public final class SRVMWorld extends World {
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see World#getNumberOfGoods()
      */
     @Override
@@ -63,12 +62,8 @@ public final class SRVMWorld extends World {
         return licenses;
     }
 
-    public ImmutableSet<SRVMBand> getBands() {
-        if (immutableSetOfBands == null) {
-            immutableSetOfBands = ImmutableSet.copyOf(bands);
-        }
-        return immutableSetOfBands;
-
+    public Set<SRVMBand> getBands() {
+        return Collections.unmodifiableSet(bands);
     }
 
     public List<SRVMBidder> createPopulation(Collection<SRVMBidderSetup> bidderSetups, RNGSupplier rngSupplier) {
@@ -84,7 +79,7 @@ public final class SRVMWorld extends World {
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see World#restorePopulation(long)
      */
     @Override
@@ -92,7 +87,7 @@ public final class SRVMWorld extends World {
         return super.restorePopulation(SRVMBidder.class, populationId);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see World#refreshFieldBackReferences()
      */
     @Override

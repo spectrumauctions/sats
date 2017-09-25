@@ -2,7 +2,6 @@ package org.spectrumauctions.sats.core.model.srvm;
 
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
@@ -23,6 +22,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -100,17 +100,17 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
 
 
     public Map<String, Integer> getSynergyThreshold() {
-        return ImmutableMap.copyOf(synergyThreshold);
+        return Collections.unmodifiableMap(synergyThreshold);
     }
 
 
     public Map<String, BigDecimal> getBaseValues() {
-        return ImmutableMap.copyOf(baseValues);
+        return Collections.unmodifiableMap(baseValues);
     }
 
 
     public Map<String, BigDecimal> getIntrabandSynergyFactors() {
-        return ImmutableMap.copyOf(intrabandSynergyFactors);
+        return Collections.unmodifiableMap(intrabandSynergyFactors);
     }
 
 
@@ -132,7 +132,7 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see GenericValueBidder#calculateValue(java.util.Map)
      */
     @Override
@@ -184,9 +184,6 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
     }
 
 
-    /* (non-Javadoc)
-     * @see Bidder#getValueFunctionRepresentation(java.lang.Class, long)
-     */
     @Override
     public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, long seed)
             throws UnsupportedBiddingLanguageException {
@@ -219,7 +216,7 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see Bidder#refreshReference(World)
      */
     @Override

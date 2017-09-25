@@ -83,7 +83,7 @@ public final class MRVMNationalBidder extends MRVMBidder {
         for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
             result.put(region, gamma);
         }
-        return ImmutableMap.copyOf(result);
+        return result;
     }
 
     public int getKMax() {

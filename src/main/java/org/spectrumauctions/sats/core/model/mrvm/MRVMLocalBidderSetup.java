@@ -102,7 +102,7 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
         }
 
 
-        /* (non-Javadoc)
+        /**
          * @see MRVMBidderSetup.Builder#build()
          */
         @Override

@@ -39,15 +39,12 @@ public class SizeOrderedGenericPowersetFactory {
             this.bidder = bidder;
         }
 
-        /* (non-Javadoc)
-         * @see BiddingLanguage#getBidder()
-         */
         @Override
         public BMBidder getBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see GenericPowerset#getGenericBidder()
          */
         @Override
@@ -66,15 +63,12 @@ public class SizeOrderedGenericPowersetFactory {
             this.bidder = bidder;
         }
 
-        /* (non-Javadoc)
-         * @see BiddingLanguage#getBidder()
-         */
         @Override
         public Bidder<? extends Good> getBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see GenericPowerset#getGenericBidder()
          */
         @Override

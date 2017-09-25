@@ -63,6 +63,7 @@ public abstract class BMWorldSetup {
 
         /**
          * Remove a band, such that it will not be created.
+         * @param nameOfBand the name of the band
          * @return true, if band was removed. false otherwise
          */
         public boolean removeBand(String nameOfBand) {
@@ -74,21 +75,21 @@ public abstract class BMWorldSetup {
         }
 
         /**
-         * @see BMWorldSetup#bands() for the purpose of this parameter
+         * See {@link BMWorldSetup#bands()} for the purpose of this parameter
          */
         public Map<String, Integer> getBands() {
             return Collections.unmodifiableMap(bands);
         }
 
         /**
-         * @see BMWorldSetup#getSetupName() for the purpose of this parameter
+         * See {@link BMWorldSetup#getSetupName()} for the purpose of this parameter
          */
         public String getSetupName() {
             return setupName;
         }
 
         /**
-         * @see BMWorldSetup#getSetupName() for the purpose of this parameter
+         * See {@link BMWorldSetup#getSetupName()} for the purpose of this parameter
          */
         public void setSetupName(String setupName) {
             this.setupName = setupName;
@@ -96,7 +97,7 @@ public abstract class BMWorldSetup {
 
 
         /**
-         * @return An immutable BMWorldSetup instance with the in this builder instance defined parameters.
+         * @return An immutable BMWorldSetup Instance with the in this builder instance defined parameters.
          */
         public abstract BMWorldSetup build();
 

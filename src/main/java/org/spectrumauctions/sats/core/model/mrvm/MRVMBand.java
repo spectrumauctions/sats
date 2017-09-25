@@ -59,7 +59,7 @@ public final class MRVMBand extends Band implements Serializable {
     /**
      * @param quantity number of licenses in this band in the same region
      * @return the synergy factor for having a specific number of licenses of this band in the same region.<br>
-     * If no synergy factor is explicity stored for a specific quantity, for the next lower quantity with known synergy is returned.<br>
+     * If no synergy factor is explicitly stored for a specific quantity, for the next lower quantity with known synergy is returned.<br>
      * The synergy for quantity 1 is always 1;
      */
     public BigDecimal getSynergy(int quantity) {

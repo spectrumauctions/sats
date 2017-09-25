@@ -110,7 +110,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return true;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#isPartOf(Good)
      */
     @Override
@@ -124,7 +124,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return bmLicense.getBand().equals(this);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#numberOfLicenses()
      */
     @Override
@@ -132,7 +132,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return getNumberOfLicenses();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#allLicenses()
      */
     @Override
@@ -140,7 +140,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return new HashSet<>(getLicenses());
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#shortJson()
      */
     @Override

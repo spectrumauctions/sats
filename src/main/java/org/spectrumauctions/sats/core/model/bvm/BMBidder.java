@@ -72,7 +72,7 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see Bidder#getValue(Bundle)
      */
     @Override
@@ -198,7 +198,7 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see Bidder#refreshReference(World)
      */
     @Override

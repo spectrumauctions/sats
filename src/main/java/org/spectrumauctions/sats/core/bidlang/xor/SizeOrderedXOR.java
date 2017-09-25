@@ -26,9 +26,6 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
         this.bidder = bidder;
     }
 
-    /* (non-Javadoc)
-     * @see BiddingLanguage#getBidder()
-     */
     @Override
     public Bidder<T> getBidder() {
         return bidder;

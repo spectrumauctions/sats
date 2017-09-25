@@ -172,7 +172,7 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
         return totalValue;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericValueBidder#calculateValue(java.util.Map)
      */
     @Override
@@ -223,7 +223,7 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
         return beta.get(region.getId());
     }
 
-    /* (non-Javadoc)
+    /**
      * @see Bidder#refreshReference(World)
      */
     @Override

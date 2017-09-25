@@ -39,9 +39,6 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
         return bidder.calculateValue(goods);
     }
 
-    /* (non-Javadoc)
-     * @see BiddingLanguage#getBidder()
-     */
     @Override
     public Bidder<T> getBidder() {
         return bidder;
@@ -195,7 +192,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             return new XORValue<>(bundle, getValue(bundle));
         }
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#remove()
          */
         @Override

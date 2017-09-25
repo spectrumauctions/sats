@@ -84,7 +84,7 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see Bidder#getWorld()
      */
     @Override

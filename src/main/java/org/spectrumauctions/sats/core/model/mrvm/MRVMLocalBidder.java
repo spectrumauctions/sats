@@ -84,9 +84,6 @@ public final class MRVMLocalBidder extends MRVMBidder {
         return Collections.unmodifiableMap(gammaFactorCache);
     }
 
-    /* (non-Javadoc)
-     * @see Bidder#getValueFunctionRepresentation(java.lang.Class, long)
-     */
     @Override
     public <T extends BiddingLanguage> T getValueFunction(Class<T> type, long seed)
             throws UnsupportedBiddingLanguageException {

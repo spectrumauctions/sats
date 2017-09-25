@@ -87,7 +87,7 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
             this.bInterval = bInterval;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see MRVMBidderSetup.Builder#build()
          */
         @Override

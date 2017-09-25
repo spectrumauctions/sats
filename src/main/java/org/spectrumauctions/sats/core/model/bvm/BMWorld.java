@@ -6,8 +6,6 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
@@ -52,8 +50,7 @@ public final class BMWorld extends World {
      * @return band with this name, null if no such band in this world
      */
     public BMBand getBand(String bandName) {
-        ImmutableList<BMBand> immutableBandList = ImmutableList.copyOf(bands);
-        for (BMBand band : immutableBandList) {
+        for (BMBand band : bands) {
             if (band.getName().equals(bandName))
                 return band;
         }
@@ -73,7 +70,7 @@ public final class BMWorld extends World {
         for (BMBand band : bands) {
             licenses.addAll(band.getLicenses());
         }
-        return ImmutableSet.copyOf(licenses);
+        return licenses;
     }
 
     @Override

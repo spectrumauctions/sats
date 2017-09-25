@@ -50,7 +50,7 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
         next();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see java.util.Iterator#hasNext()
      */
     @Override
@@ -59,7 +59,7 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see java.util.Iterator#next()
      */
     @Override
@@ -90,7 +90,7 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see java.util.Iterator#remove()
      */
     @Override

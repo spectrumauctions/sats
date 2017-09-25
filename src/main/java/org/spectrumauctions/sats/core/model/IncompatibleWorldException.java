@@ -13,9 +13,6 @@ public class IncompatibleWorldException extends RuntimeException {
 
     private static final long serialVersionUID = -9002567935911730530L;
 
-    /**
-     *
-     */
     public IncompatibleWorldException() {
         super();
     }

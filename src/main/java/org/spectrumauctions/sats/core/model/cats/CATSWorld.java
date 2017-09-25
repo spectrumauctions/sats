@@ -65,7 +65,7 @@ public final class CATSWorld extends World {
         return licenseSet;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see World#getNumberOfGoods()
      */
     @Override
@@ -73,7 +73,7 @@ public final class CATSWorld extends World {
         return getLicenses().size();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see World#refreshFieldBackReferences()
      */
     @Override
