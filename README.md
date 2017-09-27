@@ -5,6 +5,9 @@ This getting started guide helps you to set up sats-core to use it as a library 
 Should you not want to use it in your own code, you may want to use the command line tool (sats-clt) or the web application (sats-web) instead. See 
 http://spectrumauctions.org for more information.
 
+#### Prerequisites
+* JDK 1.8 or higher
+
 #### Add the dependency to your simulation project
 sats-core is deployed to Maven Central, so including it in your maven project (or analogously with a gradle project following the gradle syntax) is as easy as 
 ```
@@ -16,6 +19,8 @@ sats-core is deployed to Maven Central, so including it in your maven project (o
 ```
 You can now use sats-core, which allows you to access and modify all of sats value models to generate value function instances for your simulations.
 Should you require to use solve the winner determination problems, we recommend you to give sats-opt (see https://github.com/spectrumauctions/sats-opt) a try.
+
+Note: sats-core is based on JDK
 
 #### Alternative without Maven/Gradle
 If you don't base your project on maven nor gradle, you can also simply download the newest version's JAR and include it in your project. The JAR is published along with the [release](https://github.com/spectrumauctions/sats-core/releases/).
