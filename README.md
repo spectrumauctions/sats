@@ -3,7 +3,7 @@
 ### Getting Started
 This getting started guide helps you to set up `sats-opt` to use it as a library in your own java project afterwards. 
 As opposed to `sats-opt` extends ``sats-core`` and adds winner determination problem (WDP) solvers to the list of provided features.
-As the WDP solvers require more external libraries, we recommend to install ``sats-core``, should you not (yet) want to use the WDP solvers. An upgrade is easily possible any time.
+As the WDP solvers require more external libraries, we recommend to just use ``sats-core``, should you not (yet) want to use the WDP solvers. An upgrade is easily possible any time.
 
 Should you not want to use SATS it in your own java code, but want to create problem instances in a simpler way, you may want to use the command line tool (`sats-clt`) or the web application (`sats-web`) instead. See 
 http://spectrumauctions.org for more information.
@@ -14,8 +14,7 @@ Make sure to have `git`, `maven`, `JDK 1.8 (or later)` and `cplex` installed.
 mvn install:install-file -Dfile=<path-to-cplex-jar> -DgroupId=cplex -DartifactId=cplex -Dversion=12.6 -Dpackaging=jar
 ```
 * Note: If you have an early JDK 1.8 version and it doesn't compile, please update to a newer version. 1.8.0_91 is confirmed to be new enough.
-##### Step 1: Install dependencies
-* Install `sats-core` (https://github.com/spectrumauctions/sats-core), following its getting-started guide.
+##### Step 1: Install jOpt dependency
 * ``git clone`` the jOPT repository (https://github.com/blubin/JOpt) and locally install it as explained in the jOPT getting-started guide.
 ##### Step 2: Install sats-opt
 * ``git clone`` this repository and locally install it by running ``mvn clean install`` in the cloned repository.
@@ -28,12 +27,10 @@ mvn install:install-file -Dfile=<path-to-cplex-jar> -DgroupId=cplex -DartifactId
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-opt</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1</version>
 </dependency>
 ```
 You can now use sats-opt, which allows you to use all the features of ``sats-core`` and solve the winner determination problems using `cplex`.
-
-Note: We are currently planning to deploy ``sats-core`` to maven central, which will make step 1 of this getting-started guide obsolete and installing `sats-opt` even simpler.
 
 ### Code examples
 Code examples can be found in the
