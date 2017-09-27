@@ -30,9 +30,7 @@ public class APITest {
         BVMModelCreator creator = builder.build();
         try {
             creator.generateResult(new File(CatsWriterTest.EXPORT_TEST_FOLDER_NAME));
-        } catch (UnsupportedBiddingLanguageException e) {
-            Assert.fail(e.getLocalizedMessage());
-        } catch (IOException e) {
+        } catch (UnsupportedBiddingLanguageException | IOException e) {
             Assert.fail(e.getLocalizedMessage());
         } catch (IllegalConfigException e) {
             Assert.fail("Illegal Config: " + e.getLocalizedMessage());
@@ -47,9 +45,7 @@ public class APITest {
         ModelCreator creator = builder.build();
         try {
             creator.generateResult(new File(CatsWriterTest.EXPORT_TEST_FOLDER_NAME));
-        } catch (UnsupportedBiddingLanguageException e) {
-            Assert.fail(e.getLocalizedMessage());
-        } catch (IOException e) {
+        } catch (UnsupportedBiddingLanguageException | IOException e) {
             Assert.fail(e.getLocalizedMessage());
         } catch (IllegalConfigException e) {
             Assert.fail("Illegal Config: " + e.getLocalizedMessage());

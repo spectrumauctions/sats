@@ -6,7 +6,6 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Fabio Isler
@@ -18,10 +17,10 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
     }
 
     @Override
-    Map<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, GSVMBidder bidder) {
+    HashMap<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, GSVMBidder bidder) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
         GSVMWorld world = bidder.getWorld();
-        Map<Long, BigDecimal> values = new HashMap<>();
+        HashMap<Long, BigDecimal> values = new HashMap<>();
         // Add all national licenses
         for (GSVMLicense license : world.getNationalCircle().getLicenses()) {
             values.put(license.getId(), getValueDependingOnRegion(rng, license.getPosition(), world.getSize()));

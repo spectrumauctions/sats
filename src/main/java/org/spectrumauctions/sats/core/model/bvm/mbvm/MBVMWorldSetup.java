@@ -21,10 +21,7 @@ public final class MBVMWorldSetup extends BMWorldSetup {
     }
 
     /**
-     * Returns an unmodified default setup of the BVM world 
-     * without the possibility to further change it.
-     * @param numberOfBidders
-     * @return
+     * @return an unmodified default setup of the BVM world without the possibility to further change it.
      */
     public static MBVMWorldSetup buildDefaultSetup() {
         return new MBVMWorldSetup(new MBVMWorldSetupBuilder(DEFAULT_SETUP_NAME));
@@ -48,8 +45,8 @@ public final class MBVMWorldSetup extends BMWorldSetup {
         }
 
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.model.bvm.BMWorldSetupBuilder#build()
+        /**
+         * @see BMWorldSetupBuilder#build()
          */
         @Override
         public MBVMWorldSetup build() {

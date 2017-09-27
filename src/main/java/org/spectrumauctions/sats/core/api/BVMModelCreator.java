@@ -19,9 +19,6 @@ public final class BVMModelCreator extends ModelCreator {
 
     private final int numberOfBidders;
 
-    /**
-     * @param builder
-     */
     public BVMModelCreator(Builder builder) {
         super(builder);
         numberOfBidders = builder.numberOfBidders;

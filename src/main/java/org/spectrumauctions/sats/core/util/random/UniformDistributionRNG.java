@@ -14,9 +14,6 @@ public interface UniformDistributionRNG extends Serializable {
 
     /**
      * Returns a random integer between 0 and upperLimit (exclusive)
-     *
-     * @param upperLimit
-     * @return
      */
     int nextInt(int upperLimit);
 

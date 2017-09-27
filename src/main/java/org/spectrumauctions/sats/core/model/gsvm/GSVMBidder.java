@@ -14,6 +14,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,7 +24,7 @@ public final class GSVMBidder extends Bidder<GSVMLicense> {
 
     private static final long serialVersionUID = -7275733600491984673L;
     private final int bidderPosition;
-    private final Map<Long, BigDecimal> values;
+    private final HashMap<Long, BigDecimal> values;
     private transient GSVMWorld world;
 
     GSVMBidder(GSVMBidderSetup setup, GSVMWorld world, int bidderPosition, long currentId, long population, RNGSupplier rngSupplier) {

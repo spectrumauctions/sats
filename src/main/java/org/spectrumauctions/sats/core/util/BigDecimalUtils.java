@@ -40,9 +40,9 @@ public class BigDecimalUtils {
 
     /**
      * Compares if two maps with BigDecimal values are numerically equivalent, i.e, if the keys are {@link Object#equals(Object)} and the values numerically equivalent.
-     * @param map1
-     * @param map2
-     * @return
+     * @param map1 the first map
+     * @param map2 the second map
+     * @return true if the values are numerically equivalent
      */
     public static <T> boolean equalIgnoreScaleOnValues(Map<T, BigDecimal> map1, Map<T, BigDecimal> map2) {
         if (map1 == null || map2 == null) {

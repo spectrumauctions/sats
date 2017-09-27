@@ -18,10 +18,6 @@ import java.util.*;
  */
 public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends GenericSizeOrdered<T> {
 
-    /**
-     * @param allPossibleGenericDefintions
-     * @throws UnsupportedBiddingLanguageException
-     */
     protected GenericSizeDecreasing(Collection<T> allPossibleGenericDefintions) throws UnsupportedBiddingLanguageException {
         super(allPossibleGenericDefintions);
     }
@@ -78,7 +74,7 @@ public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends
         }
 
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#hasNext()
          */
         @Override
@@ -86,7 +82,7 @@ public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends
             return hasNext;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#next()
          */
         @Override
@@ -109,7 +105,7 @@ public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends
             return val.build();
         }
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#remove()
          */
         @Override

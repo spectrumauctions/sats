@@ -39,9 +39,6 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
         return bidder.calculateValue(goods);
     }
 
-    /* (non-Javadoc)
-     * @see BiddingLanguage#getBidder()
-     */
     @Override
     public Bidder<T> getBidder() {
         return bidder;
@@ -60,7 +57,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
      * Note that the parameters are not checked for its validity and meaningfulness.
      *
      * @param meanBundleSize
-     *            : The mean bundle size of the randomly generated packages. Should by >0 and <= the number of goods.
+     *            : The mean bundle size of the randomly generated packages. Should by greater than 0 and less than or equal to the number of goods.
      * @param standardDeviation
      *            : The bundle size standard deviation
      * @param iterations
@@ -94,10 +91,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
     }
 
     /**
-     * Rurns a bigInteger between 0 and maxValue (both inclusive)
-     *
-     * @param maxValue
-     * @return
+     * @return a bigInteger between 0 and maxValue (both inclusive)
      */
     private BigInteger randomBigInteger(BigInteger maxValue, long seed) {
         Random rnd = new Random(seed);
@@ -198,7 +192,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             return new XORValue<>(bundle, getValue(bundle));
         }
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#remove()
          */
         @Override

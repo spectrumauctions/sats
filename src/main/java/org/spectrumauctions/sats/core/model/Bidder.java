@@ -34,8 +34,7 @@ public abstract class Bidder<G extends Good> implements Serializable {
 
 
     /**
-     * The name of the configuration ({@link BidderSetup}) with which the bidder was created.
-     * @return
+     * @return the name of the configuration ({@link BidderSetup}) with which the bidder was created.
      */
     public String getSetupType() {
         return setupType;
@@ -46,8 +45,7 @@ public abstract class Bidder<G extends Good> implements Serializable {
      * Returns the value this bidder has for a specific bundle.
      * Attention: May throw RuntimeExceptions if the items in the bundle are not of the correct world.
      *
-     * @param bundle
-     *            The bundle for which the value is asked
+     * @param bundle the bundle for which the value is asked
      * @return bidder specific value for this bundle
      */
     @Deprecated
@@ -61,8 +59,7 @@ public abstract class Bidder<G extends Good> implements Serializable {
     /**
      * Returns the value this bidder has for a specific bundle.
      *
-     * @param bundle
-     *            The bundle for which the value is asked
+     * @param bundle the bundle for which the value is asked
      * @return bidder specific value for this bundle
      */
     public abstract BigDecimal calculateValue(Bundle<G> bundle);
@@ -72,10 +69,9 @@ public abstract class Bidder<G extends Good> implements Serializable {
      * for this bidder.
      * Note that this method may cause your compiler to throw a warning, as the generics of generic
      * Bidding Languages (such as XOR) is not specified in .class.
-     * generic
      *
-     * @param type
-     * @return
+     * @param type the type of the value function
+     * @return the value function of this bidder
      * @throws UnsupportedBiddingLanguageException
      *             Throws this exception for all bidding languages
      *             which are not supported by the implementing bidder class. This javadoc should be extended by
@@ -94,8 +90,8 @@ public abstract class Bidder<G extends Good> implements Serializable {
      * Bidding Languages (such as XOR) is not specified in .class.
      * generic
      *
-     * @param type
-     * @return
+     * @param type the type of the value function
+     * @return the value function of this bidder
      * @throws UnsupportedBiddingLanguageException
      *             Throws this exception for all bidding languages
      *             which are not supported by the implementing bidder class. This javadoc should be extended by
@@ -105,23 +101,19 @@ public abstract class Bidder<G extends Good> implements Serializable {
             throws UnsupportedBiddingLanguageException;
 
     /**
-     * Returns the population to which this bidder belongs.
+     * @return the population to which this bidder belongs.
      * The population is not meaningful, if for a specific world instance, only one set of Bidders
      * is created. However, if there are multiple sets of bidders (which should not be part of the same simulation)
      * created, they have different population ids.
-     *
-     * @return
      */
     public long getPopulation() {
         return population;
     }
 
     /**
-     * Returns the world to which this bidder belongs.
+     * @return World to which this bidder belongs.
      * The implementing Bidder class, overriding this method,
      * should return a world type corresponding to the specific model.
-     *
-     * @return World to which this bidder belongs.
      */
     public abstract World getWorld();
 

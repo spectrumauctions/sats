@@ -40,34 +40,27 @@ public class SizeOrderedGenericFactory {
 
         private final SRVMBidder bidder;
 
-        /**
-         * @param allPossibleGenericDefintions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Increasing(Collection<SRVMBand> allPossibleGenericDefintions, SRVMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);
             this.bidder = bidder;
         }
 
-        /* (non-Javadoc)
-         * @see BiddingLanguage#getBidder()
-         */
         @Override
         public Bidder<SRVMLicense> getBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getGenericBidder()
+        /**
+         * @see GenericSizeOrdered#getGenericBidder()
          */
         @Override
         protected GenericValueBidder<SRVMBand> getGenericBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getDefComparator()
+        /**
+         * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
         protected Comparator<SRVMBand> getDefComparator() {
@@ -80,34 +73,27 @@ public class SizeOrderedGenericFactory {
 
         private final SRVMBidder bidder;
 
-        /**
-         * @param allPossibleGenericDefintions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Decreasing(Collection<SRVMBand> allPossibleGenericDefintions, SRVMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);
             this.bidder = bidder;
         }
 
-        /* (non-Javadoc)
-         * @see BiddingLanguage#getBidder()
-         */
         @Override
         public SRVMBidder getBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getGenericBidder()
+        /**
+         * @see GenericSizeOrdered#getGenericBidder()
          */
         @Override
         protected GenericValueBidder<SRVMBand> getGenericBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.bidlang.generic.SizeOrdered.GenericSizeOrdered#getDefComparator()
+        /**
+         * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
         protected Comparator<SRVMBand> getDefComparator() {
@@ -120,9 +106,9 @@ public class SizeOrderedGenericFactory {
 
         private static final long serialVersionUID = -7929466674087601381L;
 
-        /* (non-Javadoc)
-                 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-                 */
+        /**
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         */
         @Override
         public int compare(SRVMBand o1, SRVMBand o2) {
             return o1.toString().compareTo(o2.toString());

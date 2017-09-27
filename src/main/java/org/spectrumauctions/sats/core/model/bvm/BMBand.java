@@ -33,11 +33,6 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
      * Creates a new Band
      * Bands are automatically created when a new {@link BMWorld} instance is created,
      * hence, the use of this constructor is not recommended.
-     * @param world
-     * @param name
-     * @param numberOfLicenses
-     * @param licenseCounter
-     * @param rngSupplier
      */
     public BMBand(BMWorld world, String name, int numberOfLicenses, int licenseCounter, RNGSupplier rngSupplier) {
         super(name);
@@ -81,7 +76,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
     /**
      * Method is called after deserialization, there is not need to call it on any other occasion.<br>
      * See {@link World#refreshFieldBackReferences()} for explanations.
-     * @param bmBand
+     * @param world the world this band belongs to
      */
     public void refreshFieldBackReferences(BMWorld world) {
         setWorld(world);
@@ -115,7 +110,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return true;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#isPartOf(Good)
      */
     @Override
@@ -129,7 +124,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return bmLicense.getBand().equals(this);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#numberOfLicenses()
      */
     @Override
@@ -137,7 +132,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return getNumberOfLicenses();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#allLicenses()
      */
     @Override
@@ -145,7 +140,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
         return new HashSet<>(getLicenses());
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#shortJson()
      */
     @Override

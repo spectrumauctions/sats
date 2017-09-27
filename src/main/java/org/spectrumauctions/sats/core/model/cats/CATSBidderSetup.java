@@ -7,7 +7,6 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Fabio Isler
@@ -23,10 +22,10 @@ public class CATSBidderSetup extends BidderSetup {
         this.privateValueStDev = builder.privateValueStDev;
     }
 
-    Map<Long, BigDecimal> drawPrivateValues(RNGSupplier rngSupplier, CATSBidder bidder) {
+    HashMap<Long, BigDecimal> drawPrivateValues(RNGSupplier rngSupplier, CATSBidder bidder) {
         GaussianDistributionRNG rng = rngSupplier.getGaussianDistributionRNG();
         CATSWorld world = bidder.getWorld();
-        Map<Long, BigDecimal> values = new HashMap<>();
+        HashMap<Long, BigDecimal> values = new HashMap<>();
         for (CATSLicense license : world.getLicenses()) {
             values.put(license.getId(), new BigDecimal(rng.nextGaussian(privateValueMean, privateValueStDev)));
         }

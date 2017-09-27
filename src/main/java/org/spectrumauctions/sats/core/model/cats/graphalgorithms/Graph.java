@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * The list of implemented algorithms:
  * - Breadth-First Search
  * - Bellman-Ford single source graph search algorithm ( complexity O(V*E) )
- * - Dijkstra single source graph search algorithm (complexity O(V*V); priority queue is used => for large graphs it is lower )
+ * - Dijkstra single source graph search algorithm (complexity O(V*V); priority queue is used, for large graphs it is lower )
  * - Ford-Fulkerson maximum flow search
  * - Multicommodity Flow search with fractional flows (search for the feasible solution)
  * - Multicommodity FLow search with fractional flows (with minimization of the maximum d_i / f_i  - e.g. time needed to transfer d_i Bytes with f_i bandwidth)
@@ -25,7 +25,7 @@ public class Graph {
      * Constructor
      *
      * @param vertices - a list of vertices of the graph
-     * @param vrts     - a set of adjacency lists. The 1st list should correspond to the vertex with id=1,
+     * @param adjLst - a set of adjacency lists. The 1st list should correspond to the vertex with id=1,
      *                 the 2nd list - to the vertex with id=2, etc...
      */
     public Graph(final List<Vertex> vertices, final List<VertexCell>... adjLst) {
@@ -34,13 +34,13 @@ public class Graph {
         _vertices = vertices;
         _radius = 0;
 
-        for (int i = 0; i < adjLst.length; ++i)                //Init adjacency lists
-            _adjacencyLists.add(adjLst[i]);
+        Collections.addAll(_adjacencyLists, adjLst);
     }
 
     /**
-     * @param vertices
-     * @param adjLsts
+     * @param vertices - a list of vertices
+     * @param adjLsts - a set of adjacency lists. The 1st list should correspond to the vertex with id=1,
+     *                 the 2nd list - to the vertex with id=2, etc...
      */
     public Graph(final List<Vertex> vertices, final List<List<VertexCell>> adjLsts) {
         _adjacencyLists = new LinkedList<>();
@@ -48,16 +48,15 @@ public class Graph {
         _vertices = new LinkedList<>();
         _radius = 0;
 
-        for (Vertex v : vertices)
-            _vertices.add(v);
-        for (int i = 0; i < adjLsts.size(); ++i)                //Init adjacency lists
-            _adjacencyLists.add(adjLsts.get(i));
+        _vertices.addAll(vertices);
+        //Init adjacency lists
+        _adjacencyLists.addAll(adjLsts);
     }
 
     /**
      * The method constructs
      *
-     * @param vertices -  a list of vertices
+     * @param vertices - a list of vertices
      */
     public Graph(final List<Vertex> vertices) {
         _adjacencyLists = new LinkedList<>();
@@ -81,7 +80,7 @@ public class Graph {
      * @return the number of edges of the graph
      */
     public int getNumberOfEdges() {
-        return _adjacencyLists.stream().map(lst -> lst.size()).reduce((x1, x2) -> x1 + x2).get();
+        return _adjacencyLists.stream().map(List::size).reduce((x1, x2) -> x1 + x2).get();
     }
 
     /**
@@ -115,7 +114,7 @@ public class Graph {
     /**
      * The method updates the list of vertices of the graph
      *
-     * @param a new list of vertices of the graph
+     * @param vrts new list of vertices of the graph
      */
     public void addListOfVertices(List<Vertex> vrts) {
         _vertices = vrts;
@@ -124,7 +123,7 @@ public class Graph {
     /**
      * The method adds an adjacency list
      *
-     * @param adjList - a new adjacency list
+     * @param adjLst - a new adjacency list
      */
     public void addAdjacencyList(List<VertexCell> adjLst) {
         _adjacencyLists.add(adjLst);
@@ -211,14 +210,12 @@ public class Graph {
      * @return the input degree of the given vertex
      */
     public long getInputDegree(int vertexId) {
-        return _adjacencyLists.stream().flatMap(adjList -> adjList.stream()).filter(vc -> vc._v.getID() == vertexId).count();
+        return _adjacencyLists.stream().flatMap(Collection::stream).filter(vc -> vc._v.getID() == vertexId).count();
     }
 
     /**
-     * The method returns the predesessor of the vertex (obtained e.g. by Dijkstra or BFS)
-     *
-     * @param vertexId an id of the vertex
-     * @return
+     * @param vertexID the id of a vertex
+     * @return the predecessor of the vertex (obtained e.g. by Dijkstra or BFS)
      */
     public int getVertexPredecessor(int vertexID) {
         for (Vertex v : _vertices)
@@ -227,7 +224,7 @@ public class Graph {
         return 0;
     }
 
-    /*
+    /**
      * The method returns a path between two vertices i.e. a list of vertices obtained by
      * analyzing predecessors for each vertex (based for example on prior Dijkstra or BFS method calls)
      * @param v - the first vertex in the path
@@ -256,7 +253,7 @@ public class Graph {
         return path;
     }
 
-    /*
+    /**
      * The method returns flow tables obtained after MCF
      * @return flow tables
      */
@@ -265,7 +262,7 @@ public class Graph {
     }
 
 
-    /*
+    /**
      * The method returns the radius of the graph i.e. the smallest r s.t. every vertex in the graph
      * is within distance at most r from the specified vertex
      */
@@ -281,7 +278,7 @@ public class Graph {
         return _radius;
     }
 
-    /*
+    /**
      * The method returns a subgraph induced by a subset of vertices that are at most
      * at distance=radius from the center vertex
      * @param center - the center vertex of the ball
@@ -320,7 +317,7 @@ public class Graph {
         return ball;
     }
 
-    /*
+    /**
      * The method returns a ball shell of a graph with a center in 'center' and with the given radius
      * @param center - the center of the corresponding ball
      * @param radius - radius of the ball
@@ -366,7 +363,7 @@ public class Graph {
         return boundary;
     }
 
-    /*
+    /**
      * The method returns the cone with a vertex in 'center' and a given radius in respect to the set
      * of vertices S
      * @param center - the vertex of the cone
@@ -400,10 +397,10 @@ public class Graph {
         return cone;
     }
 
-    /*
+    /**
      * The method computes the cost of a set of edges i.e. the sum of 1/w_i for i=1...numberOfEdges
      * (w_i) is weights of edges
-     * @param a list of edges for which the cost should be computed
+     * @param edges - a list of edges for which the cost should be computed
      * @return the cost of the given set of edges
      */
     public double computeCost(List<Edge> edges) {
@@ -454,7 +451,7 @@ public class Graph {
         return r;
     }
 
-    /*
+    /**
      * The method implements the cone decomposition of the graph.
      * @param S - the list of cone vertices
      * @param delta - delta parameter of the algorithm
@@ -486,7 +483,7 @@ public class Graph {
         return res;
     }
 
-    /*
+    /**
      * The method returns the Star-decomposition of the graph
      * @param x0 - the center of the star
      * @param delta - delta parameter of the algorithm ( =0.333)
@@ -538,9 +535,9 @@ public class Graph {
         return star;
     }
 
-    /*
+    /**
      * The method returns the graph induced from the current one by a set of vertices
-     * Complexity O(n*m)  because of adjacency lists. If to use matrix => O( n ) - just remove the missing rows and columns  TODO
+     * Complexity O(n*m)  because of adjacency lists. If to use matrix O( n ) - just remove the missing rows and columns  TODO
      * WARNING: the indexes of vertices in _vertices are not continuous anymore!!!
      * WARNING: the graph contains copies of the vertices and adjacency lists of the original graph, but not the originals!!!
      * @param vertices - the list of vertices that should be present in the induced graph (NOTE: the vertices objects should belong to THIS object
@@ -576,7 +573,7 @@ public class Graph {
         return g;
     }
 
-    /*
+    /**
      * The method generate a Low Stretch Spanning Tree for the graph
      * @param center - the center (the root) of the tree
      * @param betta - betta parameter for the algorithm
@@ -637,10 +634,10 @@ public class Graph {
         return T;
     }
 
-    /*
+    /**
      * The method returns true if there is an edge from the vertex U to the vertex V and false otherwise
-     * @param vertexU - id of the 1st vertex
-     * @param vertexV - id of the 2nd vertex
+     * @param u - id of the 1st vertex
+     * @param v - id of the 2nd vertex
      * @return true if these vertices are adjacent and false otherwise
      */
     public boolean isAdjacent(Vertex u, Vertex v) {
@@ -651,7 +648,7 @@ public class Graph {
         return false;
     }
 
-    /*
+    /**
      * The method implements the Breadth-First-Search in the graph given the source vertex
      * @param s - the source vertex in the graph
      */
@@ -681,7 +678,7 @@ public class Graph {
         }
     }
 
-    /*
+    /**
      * The method implements Ford-Fulkerson maximum flow search method given the source vertex and the sink vertex
      * @param s - the source vertex
      * @param t - the sink vertex
@@ -717,7 +714,7 @@ public class Graph {
         }
     }
 
-    /*
+    /**
      * The method implements the Bellman-Ford graph search algorithm (the complexity is O(V*E) )
      * @param sourceID - the id of the source vertex
      * @return true if there exist shortest paths and false otherwise. The shortest path itself i.e. predecessors
@@ -769,7 +766,7 @@ public class Graph {
      */
     public Set<Set<Vertex>> findAllPaths(Vertex source, Vertex destination){
     	Set<Set<Vertex>> allPaths = new HashSet<>();
-    	Stack<Vertex> path = new Stack<Vertex>();
+    	Stack<Vertex> path = new Stack<>();
     	Set<Vertex> currentPath = new HashSet<>();
     	
     	explore(source, destination, path, currentPath, allPaths);
@@ -794,7 +791,7 @@ public class Graph {
     }
     
 
-    /*
+    /**
      * Initialize the shortest paths estimations and predecessors given the source ID
      * @param sourceID - the id of the source for the shortest paths
      * @param idx - the index of shortest path estimations / predecessors (there might be several Dijkstra invokations from different vertices)
@@ -811,7 +808,7 @@ public class Graph {
             }
     }
 
-    /*
+    /**
      * The method performs the relaxation of the edge u-->v as one of the steps of the Bellman-Ford algorithm
      * @param u - the 1st vertex of the edge
      * @param v - the 2nd vertex of the edge
@@ -828,7 +825,7 @@ public class Graph {
         return 0;
     }
 
-    /*
+    /**
      * The method builds the residual network for this graph
      */
     public Graph buildResidualNetwork() {
@@ -855,7 +852,7 @@ public class Graph {
         return g;
     }
 
-    /*
+    /**
      * The method removes one edge from the graph
      * @param vertexId - an ide of a source vertex of the edge
      * @param edgeIdx - an index of the edge to be removed
@@ -874,8 +871,8 @@ public class Graph {
     /**
      * The method adds one edge to the graph
      *
-     * @param vertexId - an id of a source vertex of the edge
-     * @param edgeIdx  - an index of the edge to be removed
+     * @param sourceId - an id of a source vertex of the edge
+     * @param sinkId  - an index of the edge to be removed
      */
     public void addEdge(int sourceId, int sinkId) {
         _adjacencyLists.get(sourceId - 1).add(new VertexCell(_vertices.get(sinkId - 1), 1.));
@@ -1590,7 +1587,7 @@ public class Graph {
 		normalizeFlows();
 	}*/
 
-    /*
+    /**
      * The method constructs flow tables from a solution of MCF problem.
      * @param numberOfFlows - the number of flows in the graph
      */
@@ -1607,9 +1604,9 @@ public class Graph {
                 _flowTables[i][e.getSource().getID() - 1][e.getSink().getID() - 1] = e.getFlow(i);
     }
 
-    /*
+    /**
      * The method constructs and returns the list of edges of the graph
-     * @param numberOfFlows - the maximum possible number of flows along the edge
+     * @param numFlowsPerEdge - the maximum possible number of flows along the edge
      */
     private void constructListOfEdges(int numFlowsPerEdge) {
         for (Vertex v : _vertices)
@@ -1617,7 +1614,7 @@ public class Graph {
                 _edges.add(new Edge(v, vc._v, vc._w, numFlowsPerEdge));
     }
 
-    /*
+    /**
      * The method is used as a post-process step of MCF solver. This method removes flow loops from the graph.
      */
     private void normalizeFlows() {

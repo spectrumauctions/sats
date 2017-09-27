@@ -20,7 +20,6 @@ import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 public class GenericPowersetTest {
 
     @Test
-    @Ignore //TODO Re-Accept Once MRVM Model is Full Size Again
     public void testLargeAuctionMustNotStart() throws UnsupportedBiddingLanguageException {
         MultiRegionModel model = new MultiRegionModel();
         MRVMBidder bidder = model.createNewPopulation(89127349).iterator().next();
@@ -30,7 +29,5 @@ public class GenericPowersetTest {
         } catch (UnsupportedBiddingLanguageException e) {
             //Passed
         }
-
-
     }
 }

@@ -86,8 +86,7 @@ public class BMValueTest {
     }
 
     /**
-     * Create a deterministic (i.e., non random) bvm bidder builder consistent with the {@link BVMWorldSetup}
-     * @return
+     * @return a deterministic (i.e., non random) bvm bidder builder consistent with the {@link BVMWorldSetup}
      */
     private static BMBidderSetup deterministicBVMBidderSetup() {
         BMBidderSetup.BMBidderSetupBuilder builder = new BVMBidderSetup.BVMBidderSetupBuilder(SETUP_BVM, 1);
@@ -97,8 +96,7 @@ public class BMValueTest {
     }
 
     /**
-     * Create a deterministic (i.e., non random) bvm bidder builder consistent with the {@link MBVMWorldSetup}
-     * @return
+     * @return a deterministic (i.e., non random) bvm bidder builder consistent with the {@link MBVMWorldSetup}
      */
     private static BMBidderSetup deterministicMBVMBidderSetup() {
         BMBidderSetup.BMBidderSetupBuilder builder = new MBVMBidderSetup.MBVMBidderSetupBuilder(SETUP_MBVM, 1);

@@ -92,7 +92,6 @@ public class Vertex {
     /**
      * The method returns the estimation for the shortest path from some source to this vertex
      *
-     * @param i - the index of shortest path estimation (there may be several estimations)
      * @return the estimation
      */
     public double getShortestPathEst() {
@@ -137,7 +136,7 @@ public class Vertex {
     /**
      * The method setup the index of the adjacency list associated with this vertex
      *
-     * @param the index of the adjacency list of interest
+     * @param idx - the index of the adjacency list of interest
      */
     public void setAdjacencyListIndex(int idx) {
         _adjListIdx = idx;
@@ -159,8 +158,6 @@ public class Vertex {
 
     /**
      * The method set up the predecessor of the current vertex in the shortest path tree from some source
-     *
-     * @return the predecessor
      */
     public void setPredecessor(int p, int i) {
         if (i > _predecessor.size()) throw new RuntimeException("Wrong index");

@@ -22,17 +22,15 @@ public abstract class BidderSetup {
     }
 
     /**
-     * The setupName is used to identify the bidderSetup once the bidder is created.
+     * @return the setupName that's used to identify the bidderSetup once the bidder is created.
      * For different setups, different setupNames should be used.
-     * @return
      */
     public String getSetupName() {
         return setupName;
     }
 
     /**
-     * The number bidders to be created with this bidderSetup
-     * @return
+     * @return the number bidders to be created with this bidderSetup
      */
     public int getNumberOfBidders() {
         return numberOfBidders;
@@ -82,7 +80,7 @@ public abstract class BidderSetup {
 
         /**
          * Creates a new BidderSetup instance which can then be used to create a new population
-         * @return
+         * @return the new BidderSetup instance
          */
         public abstract BidderSetup build();
     }

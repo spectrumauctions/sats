@@ -35,24 +35,17 @@ public class SizeOrderedGenericPowersetFactory {
 
         private SRVMBidder bidder;
 
-        /**
-         * @param genericDefinitions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Increasing(List<SRVMBand> genericDefinitions, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
             super(genericDefinitions);
             this.bidder = bidder;
         }
 
-        /* (non-Javadoc)
-         * @see BiddingLanguage#getBidder()
-         */
         @Override
         public SRVMBidder getBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see GenericPowerset#getGenericBidder()
          */
         @Override
@@ -66,24 +59,17 @@ public class SizeOrderedGenericPowersetFactory {
 
         private SRVMBidder bidder;
 
-        /**
-         * @param genericDefinitions
-         * @throws UnsupportedBiddingLanguageException
-         */
         protected Decreasing(List<SRVMBand> genericDefinitions, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
             super(genericDefinitions);
             this.bidder = bidder;
         }
 
-        /* (non-Javadoc)
-         * @see BiddingLanguage#getBidder()
-         */
         @Override
         public Bidder<? extends Good> getBidder() {
             return bidder;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see GenericPowerset#getGenericBidder()
          */
         @Override

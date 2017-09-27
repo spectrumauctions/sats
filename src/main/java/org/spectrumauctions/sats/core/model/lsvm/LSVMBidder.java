@@ -14,9 +14,7 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Fabio Isler
@@ -27,7 +25,7 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
     private final int LSVM_A;
     private final int LSVM_B;
     private final Set<LSVMLicense> proximity;
-    private final Map<Long, BigDecimal> values;
+    private final HashMap<Long, BigDecimal> values;
     private transient LSVMWorld world;
 
     LSVMBidder(LSVMBidderSetup setup, LSVMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
@@ -86,7 +84,7 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see Bidder#getWorld()
      */
     @Override

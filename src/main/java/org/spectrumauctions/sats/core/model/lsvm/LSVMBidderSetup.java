@@ -9,7 +9,6 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Fabio Isler
@@ -36,9 +35,9 @@ public class LSVMBidderSetup extends BidderSetup {
         return world.getGrid().getLicense(row, column);
     }
 
-    Map<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, LSVMBidder lsvmBidder) {
+    HashMap<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, LSVMBidder lsvmBidder) {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
-        Map<Long, BigDecimal> values = new HashMap<>();
+        HashMap<Long, BigDecimal> values = new HashMap<>();
         for (LSVMLicense license : lsvmBidder.getProximity()) {
             values.put(license.getId(), rng.nextBigDecimal(this.valueInterval));
         }
