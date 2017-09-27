@@ -13,42 +13,23 @@ public class OutOfDomainException extends RuntimeException {
 
     private static final long serialVersionUID = -5832570462968229717L;
 
-    /**
-     *
-     */
     public OutOfDomainException() {
         super();
     }
 
-    /**
-     * @param message
-     * @param cause
-     * @param enableSuppression
-     * @param writableStackTrace
-     */
     public OutOfDomainException(String message, Throwable cause, boolean enableSuppression,
                                 boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    /**
-     * @param message
-     * @param cause
-     */
     public OutOfDomainException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /**
-     * @param message
-     */
     public OutOfDomainException(String message) {
         super(message);
     }
 
-    /**
-     * @param cause
-     */
     public OutOfDomainException(Throwable cause) {
         super(cause);
     }

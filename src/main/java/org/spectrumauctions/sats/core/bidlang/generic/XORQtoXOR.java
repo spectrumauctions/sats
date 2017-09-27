@@ -21,23 +21,17 @@ import java.util.Map.Entry;
  */
 public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
 
-
     private final ImmutableMap<GenericDefinition, Integer> quantitites;
     private final ImmutableList<GenericDefinition> orderOfDefs;
     List<GenericSetsPickN<T>> pickNiterators;
     List<List<T>> currentSets;
 
-
-    /**
-     * @param quantitites
-     * @param orderOfDefs
-     */
     XORQtoXOR(Map<? extends GenericDefinition, Integer> quantitites) {
         super();
         ImmutableMap.Builder<GenericDefinition, Integer> nonZeroQuantitiesBuilder = new ImmutableMap.Builder<>();
         ImmutableList.Builder<GenericDefinition> orderBuilder = new ImmutableList.Builder<>();
         for (Entry<? extends GenericDefinition, Integer> quantity : quantitites.entrySet()) {
-            Preconditions.checkArgument(quantity.getValue() >= 0, "Quantity %s of generic definition %s is invalid", new Object[]{quantity.getValue(), quantity.getKey()});
+            Preconditions.checkArgument(quantity.getValue() >= 0, "Quantity %s of generic definition %s is invalid", quantity.getValue(), quantity.getKey());
             if (quantity.getValue() > 0) {
                 nonZeroQuantitiesBuilder.put(quantity);
                 orderBuilder.add(quantity.getKey());
@@ -59,7 +53,7 @@ public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see java.util.Iterator#hasNext()
      */
     @Override
@@ -72,7 +66,7 @@ public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
         return false;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see java.util.Iterator#next()
      */
     @Override
@@ -101,10 +95,6 @@ public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
         return bundle;
     }
 
-    /**
-     * @param next
-     * @return
-     */
     private List<T> quantityOneLicenses(Map<T, Integer> quantities) {
         List<T> result = new ArrayList<>();
         for (Entry<? extends T, Integer> entry : quantities.entrySet()) {
@@ -136,7 +126,7 @@ public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
         pickNiterators.set(iteratorNumber, pickNIter);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see java.util.Iterator#remove()
      */
     @Override

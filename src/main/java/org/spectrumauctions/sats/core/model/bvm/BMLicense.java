@@ -59,7 +59,7 @@ public class BMLicense extends Good {
     /**
      * Method is called after deserialization, there is not need to call it on any other occasion.<br>
      * See {@link World#refreshFieldBackReferences()} for explanations.
-     * @param bmBand
+     * @param bmBand the band this license belongs to
      */
     public void refreshFieldBackReferences(BMBand bmBand) {
         setWorld(bmBand.getWorld());

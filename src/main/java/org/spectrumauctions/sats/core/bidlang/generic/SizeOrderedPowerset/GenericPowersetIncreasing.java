@@ -22,19 +22,10 @@ import java.util.Map;
  */
 public abstract class GenericPowersetIncreasing<T extends GenericDefinition> extends GenericPowerset<T> {
 
-    /**
-     * @param genericDefinitions
-     * @throws UnsupportedBiddingLanguageException
-     */
     protected GenericPowersetIncreasing(List<T> genericDefinitions) throws UnsupportedBiddingLanguageException {
         super(genericDefinitions);
     }
 
-    /**
-     * @param maxQuantities
-     * @param maxBundleSize
-     * @throws UnsupportedBiddingLanguageException
-     */
     GenericPowersetIncreasing(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
         super(maxQuantities, maxBundleSize);
     }
@@ -43,9 +34,6 @@ public abstract class GenericPowersetIncreasing<T extends GenericDefinition> ext
         //Increasing iterator will eventually get very slow, but only after a huge amount of bids were returned
     }
 
-    /* (non-Javadoc)
-     * @see GenericLang#iterator()
-     */
     @Override
     public Iterator<GenericValue<T>> iterator() {
         return new IncreasingIterator();
@@ -58,7 +46,7 @@ public abstract class GenericPowersetIncreasing<T extends GenericDefinition> ext
             intiPickN();
         }
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#hasNext()
          */
         @Override
@@ -73,7 +61,7 @@ public abstract class GenericPowersetIncreasing<T extends GenericDefinition> ext
         }
 
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#remove()
          */
         @Override

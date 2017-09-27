@@ -35,8 +35,7 @@ public abstract class FileWriter {
     public abstract File writeSingleBidderXORQ(GenericLang<GenericDefinition> lang, int numberOfBids, String filePrefix) throws IOException;
 
     /**
-     * The file ending of the generated bid files
-     * @return
+     * @return the file ending of the generated bid files
      */
     protected abstract String filetype();
 
@@ -44,9 +43,6 @@ public abstract class FileWriter {
     private String defaultFilePrefix = "";
     private CacheMap<String, Integer> fileNameCount = new CacheMap<>(30);
 
-    /**
-     *
-     */
     public FileWriter(File path) {
         super();
         if (!path.isDirectory()) {

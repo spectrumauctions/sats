@@ -1,7 +1,6 @@
 package org.spectrumauctions.sats.core.model.cats;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Graph;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Mesh2D;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
@@ -70,8 +69,8 @@ public class CATSWorldSetup {
         return rng.nextDouble(commonValueInterval);
     }
 
-    Graph buildProximityGraph(int _numberOfRows, int _numberOfColumns, RNGSupplier rngSupplier) {
-        Graph _graph = new Mesh2D(_numberOfRows, _numberOfColumns);
+    Mesh2D buildProximityGraph(int _numberOfRows, int _numberOfColumns, RNGSupplier rngSupplier) {
+        Mesh2D _graph = new Mesh2D(_numberOfRows, _numberOfColumns);
 
         UniformDistributionRNG generator = rngSupplier.getUniformDistributionRNG();
 

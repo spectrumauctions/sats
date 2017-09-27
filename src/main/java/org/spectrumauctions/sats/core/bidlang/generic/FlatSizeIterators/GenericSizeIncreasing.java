@@ -18,19 +18,11 @@ import java.util.*;
  */
 public abstract class GenericSizeIncreasing<T extends GenericDefinition> extends GenericSizeOrdered<T> {
 
-    /**
-     * @param allPossibleGenericDefintions
-     * @throws UnsupportedBiddingLanguageException
-     */
     protected GenericSizeIncreasing(Collection<T> allPossibleGenericDefintions)
             throws UnsupportedBiddingLanguageException {
         super(allPossibleGenericDefintions);
     }
 
-
-    /* (non-Javadoc)
-     * @see GenericLang#iterator()
-     */
     @Override
     public Iterator<GenericValue<T>> iterator() {
         return new IncreasingIterator();
@@ -83,7 +75,7 @@ public abstract class GenericSizeIncreasing<T extends GenericDefinition> extends
         }
 
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#hasNext()
          */
         @Override
@@ -91,7 +83,7 @@ public abstract class GenericSizeIncreasing<T extends GenericDefinition> extends
             return hasNext;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#next()
          */
         @Override
@@ -115,7 +107,7 @@ public abstract class GenericSizeIncreasing<T extends GenericDefinition> extends
         }
 
 
-        /* (non-Javadoc)
+        /**
          * @see java.util.Iterator#remove()
          */
         @Override

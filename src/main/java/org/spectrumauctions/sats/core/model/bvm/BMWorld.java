@@ -19,7 +19,7 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public class BMWorld extends World {
+public final class BMWorld extends World {
 
     public static final String MODEL_NAME = "Base and MultiBand Value Model";
     private static final long serialVersionUID = 8418773596929829197L;
@@ -46,7 +46,7 @@ public class BMWorld extends World {
     /**
      * Gets a band with a specific name
      *
-     * @param bandName
+     * @param bandName the band name to be queried
      * @return band with this name, null if no such band in this world
      */
     public BMBand getBand(String bandName) {
@@ -58,9 +58,7 @@ public class BMWorld extends World {
     }
 
     /**
-     * Returns all bands
-     *
-     * @return
+     * @return a list of all bands
      */
     public List<BMBand> getBands() {
         return Collections.unmodifiableList(bands);
@@ -81,29 +79,21 @@ public class BMWorld extends World {
     }
 
     /**
-     *
-     * Creates a new population, i.e., a set of bidders, according to the specified bidderSetup
-     * @return
+     * @return a new population, i.e., a set of bidders, according to the specified bidderSetup
      */
     public List<BMBidder> createPopulation(BMBidderSetup bidderSetup) {
         return createPopulation(bidderSetup, new JavaUtilRNGSupplier());
     }
 
     /**
-     * See {@link #createPopulation(BMBidderSetup)} for JavaDoc.
-     * @param bidderSetup
-     * @param seed A seed used to generate random numbers for the bidders random parameters
-     * @return
+     * @see #createPopulation(BMBidderSetup)
      */
     public List<BMBidder> createPopulation(BMBidderSetup bidderSetup, long seed) {
         return createPopulation(bidderSetup, new JavaUtilRNGSupplier(seed));
     }
 
     /**
-     * See {@link #createPopulation(BMBidderSetup)} for JavaDoc.
-     * @param bidderSetup
-     * @param rngSupplier A rng supplier used to generate random numbers for the bidders random parameters
-     * @return
+     * @see #createPopulation(BMBidderSetup)
      */
     public List<BMBidder> createPopulation(BMBidderSetup bidderSetup, RNGSupplier rngSupplier) {
         Preconditions.checkNotNull(bidderSetup);
@@ -113,10 +103,8 @@ public class BMWorld extends World {
     }
 
     /**
-     *
-     * Creates a new population, i.e., a set of bidders, according to the specified bidderSetups
-     * @param bidderSetups
-     * @return
+     * @return a new population, i.e., a set of bidders, according to the specified bidderSetups
+     * @param bidderSetups the collection of setups that are the basis for the new population
      */
     public List<BMBidder> createPopulation(Collection<BMBidderSetup> bidderSetups) {
         Preconditions.checkNotNull(bidderSetups);
@@ -124,20 +112,14 @@ public class BMWorld extends World {
     }
 
     /**
-     * See {@link #createPopulation(Collection)} for JavaDoc.
-     * @param bidderSetups
-     * @param seed A seed used to generate random numbers for the bidders random parameters
-     * @return
+     * @see #createPopulation(Collection)
      */
     public List<BMBidder> createPopulation(Collection<BMBidderSetup> bidderSetups, long seed) {
         return createPopulation(bidderSetups, new JavaUtilRNGSupplier(seed));
     }
 
     /**
-     * See {@link #createPopulation(Collection)} for JavaDoc.
-     * @param bidderSetups
-     * @param rngSupplier A rng supplier used to generate the bidders random parameters
-     * @return
+     * @see #createPopulation(Collection)
      */
     public List<BMBidder> createPopulation(Collection<BMBidderSetup> bidderSetups, RNGSupplier rngSupplier) {
         long population = openNewPopulation();

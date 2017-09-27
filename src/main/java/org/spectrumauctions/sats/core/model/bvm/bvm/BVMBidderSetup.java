@@ -28,10 +28,8 @@ public final class BVMBidderSetup extends BMBidderSetup {
     }
 
     /**
-     * Returns an unmodified default setup of the BVM bidder 
-     * without the possibility to further change it.
-     * @param numberOfBidders
-     * @return
+     * @param numberOfBidders the number of bidders to be created
+     * @return an unmodified default setup of the BVM bidder without the possibility to further change it.
      */
     public static BVMBidderSetup getDefaultSetup(int numberOfBidders) {
         return new BVMBidderSetupBuilder(DEFAULT_SETUP_NAME, numberOfBidders).build();
@@ -63,8 +61,8 @@ public final class BVMBidderSetup extends BMBidderSetup {
             return super.removeValueThresholdInterval(bandName);
         }
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.model.bvm.BMBidderSetupBuilder#build()
+        /**
+         * @see BMBidderSetupBuilder#build()
          */
         @Override
         public BVMBidderSetup build() {

@@ -10,23 +10,17 @@ import java.io.Serializable;
 public interface RNGSupplier extends Serializable {
 
     /**
-     * Returnes a Random Number Generator with Uniform Distribution and a given seed.
-     *
-     * @return
+     * @return a Random Number Generator with Uniform Distribution and a given seed.
      */
     UniformDistributionRNG getUniformDistributionRNG(long seed);
 
     /**
-     * Returnes a Random Number Generator with Uniform Distribution.
-     *
-     * @return
+     * @return a Random Number Generator with Uniform Distribution.
      */
     UniformDistributionRNG getUniformDistributionRNG();
 
     /**
-     * Returnes a Random Number Generator with Uniform Distribution and a given seed.
-     *
-     * @return
+     * @return a Random Number Generator with Uniform Distribution and a given seed.
      */
     GaussianDistributionRNG getGaussianDistributionRNG(long seed);
 

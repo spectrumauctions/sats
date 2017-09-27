@@ -65,9 +65,9 @@ public class SRVMWorldSetup {
         }
 
         /**
-         * Define a new band to be generated as well as the number of licenses (drawn from interval, see {@link SRVMWorldSetup#defineBands(UniformDistributionRNG)})
-         * @param bandName
-         * @param numberOfLicenses
+         * Define a new band to be generated as well as the number of licenses (drawn from interval, see {@link #defineBands(RNGSupplier)})
+         * @param bandName the name of the band
+         * @param numberOfLicenses the integer interval for the number of licenses in the band
          */
         public void putBand(String bandName, IntegerInterval numberOfLicenses) {
             Preconditions.checkArgument(numberOfLicenses.isStrictlyPositive());

@@ -24,7 +24,6 @@ public class GsonWrapper {
     private GsonWrapper() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(UnmodifiableUndirectedGraph.class, new UndirectedGraphAdapter());
-        ImmutableCollectionAdapter.registerAllCollectionTypes(builder);
         builder.disableHtmlEscaping();
         if (PRETTY_JSON) {
             builder.setPrettyPrinting();

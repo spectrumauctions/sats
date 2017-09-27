@@ -45,17 +45,11 @@ public class MultiBandValueModel extends DefaultModel<BMWorld, BMBidder> {
         bidderSetupBuilder = new MBVMBidderSetup.MBVMBidderSetupBuilder(MBVMBidderSetup.DEFAULT_SETUP_NAME, numberOfBidders);
     }
 
-    /* (non-Javadoc)
-     * @see org.spectrumauctions.sats.core.model.QuickDefaultAccess#createWorld(RNGSupplier)
-     */
     @Override
     public BMWorld createWorld(RNGSupplier rngSupplier) {
         return new BMWorld(worldSetupBuilder.build(), rngSupplier);
     }
 
-    /* (non-Javadoc)
-     * @see org.spectrumauctions.sats.core.model.QuickDefaultAccess#createPopulation(World, RNGSupplier)
-     */
     @Override
     public List<BMBidder> createPopulation(BMWorld world, RNGSupplier populationRNG) {
         List<BMBidderSetup> setupset = new ArrayList<>();
@@ -72,8 +66,7 @@ public class MultiBandValueModel extends DefaultModel<BMWorld, BMBidder> {
     }
 
     /**
-     * Set the number of bidders to be created
-     * @param numberOfBidders
+     * @param numberOfBidders sets the number of bidders to be created
      */
     public void setNumberOfBidders(int numberOfBidders) {
         Preconditions.checkArgument(numberOfBidders > 0);

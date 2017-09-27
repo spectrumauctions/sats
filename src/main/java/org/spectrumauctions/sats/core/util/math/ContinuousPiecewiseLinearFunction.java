@@ -57,7 +57,7 @@ public final class ContinuousPiecewiseLinearFunction implements Function {
     /**
      * Provides a list with all corner point (X, Y) pairs, sorted with increasing X.
      * The return type is a list (instead of a sorted map) to allow easy indexing.
-     * @return
+     * @return a list of the corner points
      */
     public List<SimpleImmutableEntry<BigDecimal, BigDecimal>> getCornerPoints() {
         List<SimpleImmutableEntry<BigDecimal, BigDecimal>> result = new ArrayList<>();

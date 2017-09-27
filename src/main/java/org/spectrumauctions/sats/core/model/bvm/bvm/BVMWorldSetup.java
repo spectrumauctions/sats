@@ -17,18 +17,12 @@ public final class BVMWorldSetup extends BMWorldSetup {
 
     public static final String DEFAULT_SETUP_NAME = "DEFAULT_BASE_VALUE_MODEL_WORLD_SETUP";
 
-
-    /**
-     * @param builder
-     */
     private BVMWorldSetup(BMWorldSetupBuilder builder) {
         super(builder);
     }
 
     /**
-     * Returns an unmodified default setup of the BVM world 
-     * without the possibility to further change it.
-     * @return
+     * @return an unmodified default setup of the BVM world without the possibility to further change it.
      */
     public static BVMWorldSetup getDefaultSetup() {
         return new BVMWorldSetup(new BVMWorldSetupBuilder(DEFAULT_SETUP_NAME));
@@ -48,8 +42,8 @@ public final class BVMWorldSetup extends BMWorldSetup {
         }
 
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.model.bvm.BMWorldSetupBuilder#build()
+        /**
+         * @see BMWorldSetupBuilder#build()
          */
         @Override
         public BVMWorldSetup build() {

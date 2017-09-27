@@ -113,7 +113,7 @@ public class MRVMLicense extends Good {
     }
 
     /**
-     * Must only be called by {@link #refreshFieldBackReferences(World)}.
+     * Must only be called by {@link #refreshFieldBackReferences(MRVMBand)}.
      * Explicit definition of private setter to prevent from generating setter by accident.
      */
     private void setBand(MRVMBand band) {
@@ -126,7 +126,6 @@ public class MRVMLicense extends Good {
     /**
      * Method is called after deserialization, there is not need to call it on any other occasion.<br>
      * See {@link World#refreshFieldBackReferences()} for explanations.
-     * @param bmBand
      */
     public void refreshFieldBackReferences(MRVMBand band) {
         setBand(band);

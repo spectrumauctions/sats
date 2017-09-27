@@ -25,7 +25,7 @@ public class GenericSetsPickNTest {
         maxQuantities.put("B", 2);
         maxQuantities.put("A", 2);
 
-        GenericSetsPickN<String> pickN = new GenericSetsPickN<String>(maxQuantities, 2);
+        GenericSetsPickN<String> pickN = new GenericSetsPickN<>(maxQuantities, 2);
         int iterCount = 0;
         while (pickN.hasNext()) {
             iterCount++;

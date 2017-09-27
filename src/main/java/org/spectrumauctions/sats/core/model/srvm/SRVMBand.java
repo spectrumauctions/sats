@@ -51,9 +51,6 @@ public final class SRVMBand extends Band implements GenericDefinition {
         this.licenses = Collections.unmodifiableList(builder);
     }
 
-    /**
-     * @return
-     */
     public SRVMWorld getWorld() {
         return world;
     }
@@ -112,7 +109,7 @@ public final class SRVMBand extends Band implements GenericDefinition {
         return true;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see Band#getNumberOfLicenses()
      */
     @Override
@@ -120,7 +117,7 @@ public final class SRVMBand extends Band implements GenericDefinition {
         return licenses.size();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#isPartOf(Good)
      */
     @Override
@@ -134,7 +131,7 @@ public final class SRVMBand extends Band implements GenericDefinition {
         return SRVMLicense.getBand().equals(this);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#numberOfLicenses()
      */
     @Override
@@ -142,7 +139,7 @@ public final class SRVMBand extends Band implements GenericDefinition {
         return licenses.size();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#allLicenses()
      */
     @Override
@@ -151,7 +148,7 @@ public final class SRVMBand extends Band implements GenericDefinition {
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see GenericDefinition#shortJson()
      */
     @Override

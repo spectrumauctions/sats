@@ -21,9 +21,6 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
     private final IntegerInterval numberOfRegionsInterval;
     private final List<String> regionNotes;
 
-    /**
-     * @param builder
-     */
     protected MRVMLocalBidderSetup(Builder builder) {
         super(builder);
         this.numberOfRegionsInterval = builder.numberOfRegionsInterval;
@@ -34,9 +31,6 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
     /**
      * Randomly selects regions of interest.
      * The quantity of selected regions is also chosen randomly from a specifiable interval.
-     * @param world
-     * @param rng
-     * @return
      */
     public Set<MRVMRegionsMap.Region> drawRegionsOfInterest(MRVMWorld world, UniformDistributionRNG rng) {
         if (regionNotes == null) {
@@ -108,7 +102,7 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
         }
 
 
-        /* (non-Javadoc)
+        /**
          * @see MRVMBidderSetup.Builder#build()
          */
         @Override

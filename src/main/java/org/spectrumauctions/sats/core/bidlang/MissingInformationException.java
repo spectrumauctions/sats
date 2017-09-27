@@ -10,46 +10,27 @@ public class MissingInformationException extends RuntimeException {
 
     private static final long serialVersionUID = -2939840619353463124L;
 
-    /**
-     *
-     */
     public MissingInformationException() {
         super();
 
     }
 
-    /**
-     * @param message
-     * @param cause
-     * @param enableSuppression
-     * @param writableStackTrace
-     */
     public MissingInformationException(String message, Throwable cause, boolean enableSuppression,
                                        boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
 
     }
 
-    /**
-     * @param message
-     * @param cause
-     */
     public MissingInformationException(String message, Throwable cause) {
         super(message, cause);
 
     }
 
-    /**
-     * @param message
-     */
     public MissingInformationException(String message) {
         super(message);
 
     }
 
-    /**
-     * @param cause
-     */
     public MissingInformationException(Throwable cause) {
         super(cause);
 

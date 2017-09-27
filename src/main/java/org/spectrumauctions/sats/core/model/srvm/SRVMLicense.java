@@ -15,10 +15,6 @@ public final class SRVMLicense extends Good {
     private final String bandName;
     private transient SRVMBand band;
 
-    /**
-     * @param id
-     * @param worldId
-     */
     SRVMLicense(long id, SRVMBand band) {
         super(id, band.getWorld().getId());
         this.band = band;
@@ -30,7 +26,7 @@ public final class SRVMLicense extends Good {
     }
 
 
-    /* (non-Javadoc)
+    /**
      * @see Good#getWorld()
      */
     @Override
@@ -64,7 +60,7 @@ public final class SRVMLicense extends Good {
     }
 
     /**
-     * See {@link SRVMWorld#refreshFieldBackReferences()} for purpose of this method
+     * @see SRVMWorld#refreshFieldBackReferences() for purpose of this method
      */
     void refreshFieldBackReferences(SRVMBand band) {
         Preconditions.checkArgument(band.getName().equals(this.bandName));

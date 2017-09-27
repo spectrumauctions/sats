@@ -7,7 +7,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author Fabio Isler
@@ -37,7 +37,7 @@ public abstract class GSVMBidderSetup extends BidderSetup {
         return regionalValueInterval;
     }
 
-    abstract Map<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, GSVMBidder bidder);
+    abstract HashMap<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, GSVMBidder bidder);
 
     /**
      * Represents the value distribution inside a circle, given by the Global Synergy Value Model.

@@ -4,26 +4,26 @@
 This getting started guide helps you to set up sats-core to use it as a library in your own java project afterwards. 
 Should you not want to use it in your own code, you may want to use the command line tool (sats-clt) or the web application (sats-web) instead. See 
 http://spectrumauctions.org for more information.
-##### Prerequisites
-Make sure to have `git`, `maven` and `JDK 1.8 (or later)` installed.
 
-* Note: If you have an early JDK 1.8 version and it doesn't compile, please update to a newer version. 1.8.0_91 is confirmed to be new enough.
+#### Prerequisites
+* JDK 1.8 or higher
 
-##### Step 1: Install dependency
-``git clone`` the gson-serializer repository (https://github.com/acebaggins/gson-serializers) 
-and locally install it by running ``mvn clean install`` in the cloned repository.
-##### Step 2: Install sats-core
-``git clone`` this repository and locally install it by running ``mvn clean install`` in the cloned repository.
-##### Step 3: Add the maven dependency to your simulation project
+#### Add the dependency to your simulation project
+sats-core is deployed to Maven Central, so including it in your maven project (or analogously with a gradle project following the gradle syntax) is as easy as 
 ```
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-core</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1</version>
 </dependency>
 ```
 You can now use sats-core, which allows you to access and modify all of sats value models to generate value function instances for your simulations.
 Should you require to use solve the winner determination problems, we recommend you to give sats-opt (see https://github.com/spectrumauctions/sats-opt) a try.
+
+Note: sats-core is based on JDK
+
+#### Alternative without Maven/Gradle
+If you don't base your project on maven nor gradle, you can also simply download the newest version's JAR and include it in your project. The JAR is published along with the [release](https://github.com/spectrumauctions/sats-core/releases/).
 
 ### Code examples
 Code examples can be found in the

@@ -73,8 +73,7 @@ public class BaseValueModel extends DefaultModel<BMWorld, BMBidder> {
     }
 
     /**
-     * Set the number of bidders to be created
-     * @param numberOfBidders
+     * @param numberOfBidders the number of bidders to be created
      */
     public void setNumberOfBidders(int numberOfBidders) {
         Preconditions.checkArgument(numberOfBidders > 0);

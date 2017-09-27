@@ -34,10 +34,7 @@ public final class MBVMBidderSetup extends BMBidderSetup {
 
 
     /**
-     * Returns an unmodified default setup of the MBVM bidder 
-     * without the possibility to further change it.
-     * @param numberOfBidders
-     * @return
+     * @return an unmodified default setup of the MBVM bidder without the possibility to further change it.
      */
     public static MBVMBidderSetup getDefaultSetup(int numberOfBidders) {
         return new MBVMBidderSetupBuilder(DEFAULT_SETUP_NAME, numberOfBidders).build();
@@ -47,7 +44,6 @@ public final class MBVMBidderSetup extends BMBidderSetup {
     /**
      * A builder with default values of the Multi-Band Value Model
      * @author Michael Weiss
-     *
      */
     public static final class MBVMBidderSetupBuilder extends BMBidderSetupBuilder {
         public MBVMBidderSetupBuilder(String setupName, int numberOfBidders) {
@@ -69,8 +65,8 @@ public final class MBVMBidderSetup extends BMBidderSetup {
         }
 
 
-        /* (non-Javadoc)
-         * @see org.spectrumauctions.sats.core.model.bvm.BMBidderSetupBuilder#build()
+        /**
+         * @see BMBidderSetupBuilder#build()
          */
         @Override
         public MBVMBidderSetup build() {

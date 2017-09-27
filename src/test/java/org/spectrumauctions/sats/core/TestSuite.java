@@ -73,7 +73,7 @@ import java.util.List;
         GSVMBidderTest.class,
         MRVMBidderTest.class,
         MRVMBidderTypeSpecificTest.class,
-        MRMRandomnessTest.class,
+        MRVMRandomnessTest.class,
         MRVMWorldTest.class,
         SRVMTest.class,
         SRVMBidderTest.class,

@@ -29,7 +29,7 @@ public abstract class BMWorldSetup {
     /**
      * Defines which bands should be created in the world
      *
-     * @return Map with - <b>Key:</> The name of the band - <b>Value:</b> The
+     * @return Map with - <b>Key:</b> The name of the band - <b>Value:</b> The
      *         quantity of licenses of this band
      */
     public Map<String, Integer> bands() {
@@ -39,7 +39,7 @@ public abstract class BMWorldSetup {
     /**
      * The setupName is used to identify the worldSetup once the world is created.
      * For different setups, different setupNames should be used.
-     * @return
+     * @return the setup name
      */
     public String getSetupName() {
         return setupName;
@@ -55,8 +55,6 @@ public abstract class BMWorldSetup {
 
         /**
          * Define new Band which should be generated in the model
-         * @param nameOfBand
-         * @param numberOfLicenses
          */
         public void addBand(String nameOfBand, int numberOfLicenses) {
             Preconditions.checkArgument(numberOfLicenses > 0);
@@ -64,9 +62,8 @@ public abstract class BMWorldSetup {
         }
 
         /**
-         * Remove a band, such that it will not be created. 
-         *
-         * @param nameOfBand
+         * Remove a band, such that it will not be created.
+         * @param nameOfBand the name of the band
          * @return true, if band was removed. false otherwise
          */
         public boolean removeBand(String nameOfBand) {
@@ -100,7 +97,7 @@ public abstract class BMWorldSetup {
 
 
         /**
-         * @return An immutable BMWorldSetup Instance with the in this builder instance defined parameters. 
+         * @return An immutable BMWorldSetup Instance with the in this builder instance defined parameters.
          */
         public abstract BMWorldSetup build();
 

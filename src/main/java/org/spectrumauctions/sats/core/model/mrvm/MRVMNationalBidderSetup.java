@@ -48,8 +48,7 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
 
 
     /**
-     * Returns a map containing all gammas for a number of uncovered regions between 1 and kMax.
-     * @return
+     * @return a map containing all gammas for a number of uncovered regions between 1 and kMax.
      */
     public Map<Integer, BigDecimal> drawGamma(MRVMWorld world, UniformDistributionRNG rng) {
         if (kMax > world.getRegionsMap().getNumberOfRegions()) {
@@ -88,7 +87,7 @@ public class MRVMNationalBidderSetup extends MRVMBidderSetup {
             this.bInterval = bInterval;
         }
 
-        /* (non-Javadoc)
+        /**
          * @see MRVMBidderSetup.Builder#build()
          */
         @Override

@@ -31,9 +31,9 @@ public final class MRVMBand extends Band implements Serializable {
 
     private transient MRVMWorld world;
 
-    public static Set<MRVMBand> createBands(MRVMWorld world, MRVMWorldSetup worldSetup, MRVMRegionsMap regionsMap, UniformDistributionRNG rng) {
+    public static HashSet<MRVMBand> createBands(MRVMWorld world, MRVMWorldSetup worldSetup, MRVMRegionsMap regionsMap, UniformDistributionRNG rng) {
         Set<MRVMWorldSetup.BandSetup> bandSetups = worldSetup.getBandSetups();
-        Set<MRVMBand> bands = new HashSet<>();
+        HashSet<MRVMBand> bands = new HashSet<>();
         int currentLicenseId = 0;
         for (MRVMWorldSetup.BandSetup bandSetup : bandSetups) {
             MRVMBand band = new MRVMBand(bandSetup, world, currentLicenseId, rng);
@@ -57,11 +57,10 @@ public final class MRVMBand extends Band implements Serializable {
     }
 
     /**
-     * Gives the synergy factor for having a specific number of licenses of this band in the same region.<br>
-     * If no synergy factor is explicity stored for a specific quantity, for the next lower quantity with known synergy is returned.<br>
+     * @param quantity number of licenses in this band in the same region
+     * @return the synergy factor for having a specific number of licenses of this band in the same region.<br>
+     * If no synergy factor is explicitly stored for a specific quantity, for the next lower quantity with known synergy is returned.<br>
      * The synergy for quantity 1 is always 1;
-     * @param quantity
-     * @return
      */
     public BigDecimal getSynergy(int quantity) {
         if (quantity < 0 || quantity > numberOfLots) {
@@ -125,8 +124,7 @@ public final class MRVMBand extends Band implements Serializable {
 
     /**
      * Method is called after deserialization, there is not need to call it on any other occasion.<br>
-     * See {@link World#refreshFieldBackReferences()} for explanations.
-     * @param bmBand
+     * @see World#refreshFieldBackReferences() for explanations.
      */
     public void refreshFieldBackReferences(MRVMWorld world) {
         setWorld(world);
