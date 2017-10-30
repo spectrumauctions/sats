@@ -12,22 +12,18 @@ import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
 import org.spectrumauctions.sats.opt.model.EfficientAllocator;
+import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
 import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation.ItemAllocationBuilder;
 
-import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
-import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
-import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 
-public class GSVMStandardMIP implements EfficientAllocator<ItemAllocation<GSVMLicense>> {
-
-	private IMIP mip;
+public class GSVMStandardMIP extends ModelMIP implements EfficientAllocator<ItemAllocation<GSVMLicense>> {
 
 	private int n; // number of agents
 	private int m; // number of items
@@ -59,9 +55,7 @@ public class GSVMStandardMIP implements EfficientAllocator<ItemAllocation<GSVMLi
 		this.world = world;
 		tauHat = new int[n];
 		value = new double[n][m];
-		mip = new MIP();
-		mip.setObjectiveMax(true);
-		mip.setSolveParam(SolveParam.DISPLAY_OUTPUT, false);
+		getMip().setObjectiveMax(true);
 		initValues();
 		initVariables();
 	}
@@ -69,7 +63,7 @@ public class GSVMStandardMIP implements EfficientAllocator<ItemAllocation<GSVMLi
 	@Override
 	public ItemAllocation<GSVMLicense> calculateAllocation() {
 		SolverClient solver = new SolverClient();
-		IMIPResult result = solver.solve(mip);
+		IMIPResult result = solver.solve(getMip());
 
 		Map<Bidder<GSVMLicense>, Bundle<GSVMLicense>> allocation = new HashMap<>();
 
@@ -100,7 +94,7 @@ public class GSVMStandardMIP implements EfficientAllocator<ItemAllocation<GSVMLi
 			for (int j = 0; j < m; j++) {
 				if (allowAssigningLicensesWithZeroBasevalue || value[i][j] > 0) {
 					for (int tau = 0; tau < tauHat[i]; tau++) {
-						mip.addObjectiveTerm(calculateComplementarityMarkup(tau + 1) * value[i][j], G[i][j][tau]);
+						getMip().addObjectiveTerm(calculateComplementarityMarkup(tau + 1) * value[i][j], G[i][j][tau]);
 					}
 				}
 			}
@@ -116,7 +110,7 @@ public class GSVMStandardMIP implements EfficientAllocator<ItemAllocation<GSVMLi
 					}
 				}
 			}
-			mip.add(constraint);
+			getMip().add(constraint);
 		}
 
 		// build Tau Constraint (2)
@@ -138,7 +132,7 @@ public class GSVMStandardMIP implements EfficientAllocator<ItemAllocation<GSVMLi
 						constraint.addTerm(-(tau + 1), G[i][j][tau]);
 					}
 				}
-				mip.add(constraint);
+				getMip().add(constraint);
 			}
 		}
 	}
@@ -177,7 +171,7 @@ public class GSVMStandardMIP implements EfficientAllocator<ItemAllocation<GSVMLi
 					G[i][j] = new Variable[tauHat[i]];
 					for (int tau = 0; tau < tauHat[i]; tau++) {
 						G[i][j][tau] = new Variable("g_i[" + i + "]j[" + j + "]t[" + tau + "]", VarType.BOOLEAN, 0, 1);
-						mip.add(G[i][j][tau]);
+						getMip().add(G[i][j][tau]);
 					}
 				}
 			}

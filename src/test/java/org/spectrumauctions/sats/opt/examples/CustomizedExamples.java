@@ -1,6 +1,8 @@
 package org.spectrumauctions.sats.opt.examples;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.mrvm.*;
@@ -23,6 +25,8 @@ import java.util.Collection;
  */
 public class CustomizedExamples {
 
+    private static final Logger logger = LogManager.getLogger(CustomizedExamples.class);
+
     /**
      * Setting the number of bidders is possible on {@link MultiRegionModel} level.
      */
@@ -37,7 +41,7 @@ public class CustomizedExamples {
         Collection<MRVMBidder> bidders = model.createNewPopulation();   // Create bidders
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
         MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
-        System.out.println(result);                                     // Show the allocation
+        logger.info("Result:\n" + result);                           // Show the allocation
     }
 
     /**
@@ -82,7 +86,7 @@ public class CustomizedExamples {
         );
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
         MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
-        System.out.println(result);                                     // Show the allocation
+        logger.info("Result:\n" + result);                                            // Show the allocation
     }
 
     /**
@@ -114,7 +118,7 @@ public class CustomizedExamples {
 
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
         MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
-        System.out.println(result);                                     // Show the allocation
+        logger.info("Result:\n" + result);                                            // Show the allocation
     }
 
 }

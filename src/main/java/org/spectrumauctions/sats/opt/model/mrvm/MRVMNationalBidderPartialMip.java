@@ -116,7 +116,6 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
 
     /**
      * A integer Variable, stating the number regions this bidder covers
-     * @param region
      */
     public Variable getWIVariable() {
         return wIVariable;
@@ -132,7 +131,7 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
     }
 
     /**
-     * A variable static total non-discounted value when missing exactly k regions for k < k_{max} or k or more 
+     * A variable static total non-discounted value when missing exactly k regions for k less than k_{max} or k or more
      * regions for k = k_{max} and zero otherwise.
      * @param k
      * @return

@@ -12,11 +12,14 @@ import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.opt.model.EfficientAllocator;
 import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -27,7 +30,9 @@ import java.util.Map;
  * @author Michael Weiss
  *
  */
-public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGenericDefinition>> {
+public class MRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllocation<MRVMGenericDefinition>> {
+
+    private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
 
     public static boolean PRINT_SOLVER_RESULT = false;
 
@@ -40,20 +45,18 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
     private MRVMWorldPartialMip worldPartialMip;
     private Map<MRVMBidder, MRVMBidderPartialMIP> bidderPartialMips;
     private MRVMWorld world;
-    private MIP mip;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
-        mip = new MIP();
-        mip.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
+        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestPossibleValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         this.worldPartialMip = new MRVMWorldPartialMip(
                 bidders,
                 biggestPossibleValue);
-        worldPartialMip.appendToMip(mip);
+        worldPartialMip.appendToMip(getMip());
         bidderPartialMips = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVMBidderPartialMIP bidderPartialMIP;
@@ -67,7 +70,7 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
                 MRVMRegionalBidder globalBidder = (MRVMRegionalBidder) bidder;
                 bidderPartialMIP = new MRVMRegionalBidderPartialMip(globalBidder, scalingFactor, worldPartialMip);
             }
-            bidderPartialMIP.appendToMip(mip);
+            bidderPartialMIP.appendToMip(getMip());
             bidderPartialMips.put(bidder, bidderPartialMIP);
         }
     }
@@ -75,11 +78,11 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
 
 
     public void addConstraint(Constraint constraint) {
-        mip.add(constraint);
+        getMip().add(constraint);
     }
 
     public void addVariable(Variable variable) {
-        mip.add(variable);
+        getMip().add(variable);
     }
 
 
@@ -88,9 +91,9 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
      */
     @Override
     public MRVMMipResult calculateAllocation() {
-        IMIPResult mipResult = SOLVER.solve(mip);
+        IMIPResult mipResult = SOLVER.solve(getMip());
         if (PRINT_SOLVER_RESULT) {
-            System.out.println(mipResult);
+            logger.info("Result:\n" + mipResult);
         }
         MRVMMipResult.Builder resultBuilder = new MRVMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
         for (Map.Entry<MRVMBidder, MRVMBidderPartialMIP> bidder : bidderPartialMips.entrySet()) {
@@ -98,7 +101,7 @@ public class MRVM_MIP implements EfficientAllocator<GenericAllocation<MRVMGeneri
             double mipUtilityResult = mipResult.getValue(bidderValueVar);
             double svScalingFactor = bidder.getValue().getScalingFactor();
 //            if (svScalingFactor != 1) {
-//                System.out.println("Scaling SV Value with factor " + svScalingFactor);
+//                logger.info("Scaling SV Value with factor " + svScalingFactor);
 //            }
             double unscaledValue = mipUtilityResult * svScalingFactor;
             GenericValue.Builder<MRVMGenericDefinition> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));

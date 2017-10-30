@@ -5,6 +5,8 @@
  */
 package org.spectrumauctions.sats.opt.model.srvm;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.srvm.*;
@@ -19,6 +21,8 @@ import java.util.Set;
  */
 public class SRVMMipTest {
 
+    private static final Logger logger = LogManager.getLogger(SRVMMipTest.class);
+
     @Test
     public void testNoException() {
         Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewPopulation();
@@ -28,11 +32,10 @@ public class SRVMMipTest {
             GenericValue<SRVMBand> genVal = result.getAllocation(bidder);
             for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
-                System.out.println(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
+                logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }
         }
-        System.out.println(result.getTotalValue());
-        System.out.println();
+        logger.info("Total value:" + result.getTotalValue());
     }
 
     @Test
@@ -57,11 +60,10 @@ public class SRVMMipTest {
             GenericValue<SRVMBand> genVal = result.getAllocation(bidder);
             for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
-                System.out.println(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
+                logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }
         }
-        System.out.println(result.getTotalValue());
-        System.out.println();
+        logger.info("Total value:" + result.getTotalValue());
     }
 
 }

@@ -15,8 +15,9 @@ import java.util.Set;
 /**
  * This class represents the Allocation after a WinnerDetermination. It contains
  * the total welfare of the Allocation as well as a Map of Bidders to their
- * trades.</p> Each winning bidder has exactly one associated trade. Non winning
- * bidders are not included
+ * trades.
+ * Each winning bidder has exactly one associated trade. Non winning
+ * bidders are not included.
  *
  * @author Benedikt Buenz
  * @author Michael Weiss
@@ -27,9 +28,7 @@ public class XORAllocation<T extends Good> implements Allocation<BidderAllocatio
     private final Map<Bidder<T>, BidderAllocation<T>> trades;
 
     /**
-     * @param totalValue
      * @param trades     map of winning bidders to allocations
-     * @param solveTime
      */
 
     public XORAllocation(Map<Bidder<T>, BidderAllocation<T>> trades) {

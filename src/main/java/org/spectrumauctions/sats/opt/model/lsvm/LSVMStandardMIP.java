@@ -17,18 +17,17 @@ import org.spectrumauctions.sats.core.model.lsvm.LSVMGrid;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMWorld;
 import org.spectrumauctions.sats.opt.model.EfficientAllocator;
+import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
 import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation.ItemAllocationBuilder;
 
 import com.google.common.collect.ImmutableSet;
 
-import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
-import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 
@@ -38,9 +37,7 @@ import edu.harvard.econcs.jopt.solver.mip.Variable;
  *
  * @author Nicolas Küchler
  */
-public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLicense>> {
-
-	private IMIP mip;
+public class LSVMStandardMIP extends ModelMIP implements EfficientAllocator<ItemAllocation<LSVMLicense>> {
 
 	private int n; // number of agents
 	private int m; // number of items
@@ -79,10 +76,8 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 		edges = new Edge[numberOfEdges];
 
 		// init MIP
-		mip = new MIP();
-		mip.setObjectiveMax(true);
-		mip.setSolveParam(SolveParam.DISPLAY_OUTPUT, false);
-		mip.setSolveParam(SolveParam.TIME_LIMIT, 3600.0);
+		getMip().setObjectiveMax(true);
+		getMip().setSolveParam(SolveParam.TIME_LIMIT, 3600.0);
 
 		initBaseValues();
 		initA();
@@ -100,7 +95,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 	@Override
 	public ItemAllocation<LSVMLicense> calculateAllocation() {
 		SolverClient solver = new SolverClient();
-		IMIPResult result = solver.solve(mip);
+		IMIPResult result = solver.solve(getMip());
 
 		Map<Bidder<LSVMLicense>, Bundle<LSVMLicense>> allocation = new HashMap<>();
 		for (int i = 0; i < n; i++) {
@@ -126,7 +121,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 			for (int j = 0; j < m; j++) {
 				for (int t = 0; t < m; t++) {
 					double value = calculateComplementarityMarkup(t + 1, bidderMap.get((long) i)) * v[i][j];
-					mip.addObjectiveTerm(value, A[i][j][t]);
+					getMip().addObjectiveTerm(value, A[i][j][t]);
 				}
 			}
 		}
@@ -140,7 +135,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 					constraint.addTerm(1, A[i][j][t]);
 				}
 			}
-			mip.add(constraint);
+			getMip().add(constraint);
 		}
 	}
 
@@ -154,7 +149,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 					}
 				}
 			}
-			mip.add(constraint);
+			getMip().add(constraint);
 		}
 	}
 
@@ -174,7 +169,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 								}
 							}
 						}
-						mip.add(constraint);
+						getMip().add(constraint);
 					}
 				}
 			}
@@ -195,7 +190,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 						constraint.addTerm(1, A[i][j][t]);
 					}
 				}
-				mip.add(constraint);
+				getMip().add(constraint);
 			}
 		}
 	}
@@ -218,7 +213,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 						}
 					}
 				}
-				mip.add(constraint);
+				getMip().add(constraint);
 			}
 		}
 	}
@@ -237,7 +232,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 			for (int j = 0; j < m; j++) {
 				for (int t = 0; t < m; t++) {
 					A[i][j][t] = new Variable(String.format("A_i[%d]j[%d]t[%d]", i, j, t), VarType.BOOLEAN, 0, 1);
-					mip.add(A[i][j][t]);
+					getMip().add(A[i][j][t]);
 				}
 			}
 		}
@@ -278,7 +273,7 @@ public class LSVMStandardMIP implements EfficientAllocator<ItemAllocation<LSVMLi
 				for (int c = 0; c < m; c++) {
 					if (isValidPathLength(edges[e], c + 1)) {
 						E[i][e][c] = new Variable(String.format("E_i[%d]e[%d]c[%d]", i, e, c), VarType.BOOLEAN, 0, 1);
-						mip.add(E[i][e][c]);
+						getMip().add(E[i][e][c]);
 					}
 				}
 			}
