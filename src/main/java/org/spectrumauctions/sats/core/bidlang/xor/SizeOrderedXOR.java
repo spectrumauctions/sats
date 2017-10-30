@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.bidlang.xor;
 
 import com.google.common.math.BigIntegerMath;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.Good;
@@ -17,6 +19,9 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
+
+    private static final Logger logger = LogManager.getLogger(SizeOrderedXOR.class);
+
 
     final List<T> goods = new ArrayList<>();
     private Bidder<T> bidder;
@@ -118,7 +123,7 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
         } else {
             BigInteger newIndex = sizeBasedIndex.subtract(biggestOneStarterIndex);
             if (n == k) {
-                System.out.println("Problem!!!" + newIndex.toString() + " " + n + " " + k);
+                logger.warn("Problem!!!" + newIndex.toString() + " " + n + " " + k);
             }
             return new StringBuilder("0").append(recBinaryString(newIndex, n - 1, k));
         }

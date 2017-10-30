@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.util.math;
 
 import com.google.common.collect.ImmutableSortedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.util.AbstractMap.SimpleImmutableEntry;
@@ -17,6 +19,8 @@ import java.util.Map.Entry;
  *
  */
 public final class ContinuousPiecewiseLinearFunction implements Function {
+
+    private static final Logger logger = LogManager.getLogger(ContinuousPiecewiseLinearFunction.class);
 
     /**
      * A map containing all linear function pieces of this piecewise linear function.
@@ -91,9 +95,8 @@ public final class ContinuousPiecewiseLinearFunction implements Function {
                 BigDecimal firstKey = linearFunctions.firstKey();
                 throw new NotDifferentiableException(null, linearFunctions.get(firstKey), x);
             } catch (NoSuchElementException e) {
-                System.out.println("break");
+                logger.warn("break");
             }
-
         }
         Iterator<Entry<BigDecimal, LinearFunction>> functionEntries = linearFunctions.entrySet().iterator();
         while (functionEntries.hasNext()) {
