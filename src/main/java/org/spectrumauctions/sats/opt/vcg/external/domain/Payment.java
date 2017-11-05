@@ -21,9 +21,6 @@ public final class Payment<T extends Good> {
     /**
      * @param payments     Map of bidder to payments. One payment per bidder. Payment may
      *                     be 0 and allocation may of payment may be empty
-     * @param mipSolveTime
-     * @param numberOfMIPs
-     * @param numberOfLPs
      */
     public Payment(Map<Bidder<T>, BidderPayment> payments) {
         this.payments = Collections.unmodifiableMap(payments);

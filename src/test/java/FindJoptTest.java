@@ -1,4 +1,8 @@
 import edu.harvard.econcs.jopt.example.SimpleLPExample;
+import edu.harvard.econcs.jopt.solver.client.SolverClient;
+import edu.harvard.econcs.jopt.solver.server.cplex.CPlexMIPSolver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
@@ -15,12 +19,14 @@ import static org.junit.Assert.fail;
  */
 public class FindJoptTest {
 
+    private static final Logger logger = LogManager.getLogger(FindJoptTest.class);
+
     @Test
     public void joptLibrarySimpleExample() {
         try {
             SimpleLPExample.main(new String[0]);
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+            logger.error(e.getStackTrace());
             fail();
         }
     }

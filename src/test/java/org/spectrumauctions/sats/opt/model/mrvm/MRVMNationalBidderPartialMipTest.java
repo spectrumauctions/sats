@@ -12,6 +12,8 @@ import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
@@ -28,6 +30,8 @@ import static org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
  * @author Michael Weiss
  */
 public class MRVMNationalBidderPartialMipTest {
+
+    private static final Logger logger = LogManager.getLogger(MRVMNationalBidderPartialMipTest.class);
 
     @Test
     public void test() {
@@ -47,7 +51,7 @@ public class MRVMNationalBidderPartialMipTest {
         }
         SolverClient solver = new SolverClient();
         IMIPResult result = solver.solve(mip);
-        System.out.println(result);
+        logger.info("Result:\n" + result);
     }
 
     @Test
@@ -224,7 +228,7 @@ public class MRVMNationalBidderPartialMipTest {
         // Solve MIP
         SolverClient solver = new SolverClient();
         IMIPResult result = solver.solve(mip);
-        System.out.println(result);
+        logger.info("Result:\n" + result);
 
         // Check correctness
         for (int k = 0; k <= bidder.getKMax(); k++) {
