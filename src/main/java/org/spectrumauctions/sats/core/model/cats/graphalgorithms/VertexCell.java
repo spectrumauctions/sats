@@ -29,7 +29,6 @@ public class VertexCell implements KeyInterface {
     }
 
     public VertexCell cloneIt() {
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         VertexCell vc = new VertexCell(_v.cloneIt(), _w, _f);
         return vc;
     }

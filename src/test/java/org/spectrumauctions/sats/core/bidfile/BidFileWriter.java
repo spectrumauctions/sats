@@ -5,6 +5,8 @@
  */
 package org.spectrumauctions.sats.core.bidfile;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
@@ -29,6 +31,8 @@ import static org.junit.Assert.fail;
  *
  */
 public abstract class BidFileWriter {
+
+    private static final Logger logger = LogManager.getLogger(BidFileWriter.class);
 
     protected void testMultiBidderXOR(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
@@ -65,7 +69,7 @@ public abstract class BidFileWriter {
                         .getValueFunction(SizeBasedUniqueRandomXOR.class);
                 lang.setDistribution(3, 2, bidsPerBidder);
                 File file = exporter.writeSingleBidderXOR(lang, bidsPerBidder, "TestSingleXOR_" + new Random().nextInt());
-                System.out.println(file.toPath().toString());
+                logger.info(file.toPath().toString());
             } catch (UnsupportedBiddingLanguageException e) {
                 fail("Unsupported Bidding Iterator");
             } catch (IOException e) {
@@ -109,7 +113,7 @@ public abstract class BidFileWriter {
                 GenericSizeIncreasing<GenericDefinition> lang = bidder
                         .getValueFunction(GenericSizeIncreasing.class);
                 File file = exporter.writeSingleBidderXORQ(lang, bidsPerBidder, "TestSingleXORQ_" + new Random().nextInt());
-                System.out.println(file.toPath().toString());
+                logger.info(file.toPath().toString());
             } catch (UnsupportedBiddingLanguageException e) {
                 fail("Unsupported Bidding Iterator");
             } catch (IOException e) {

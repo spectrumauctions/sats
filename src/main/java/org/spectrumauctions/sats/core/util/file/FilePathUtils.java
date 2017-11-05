@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.util.file;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,8 @@ import java.util.List;
  *
  */
 public class FilePathUtils {
+
+    private static final Logger logger = LogManager.getLogger(FilePathUtils.class);
 
     /**
      * Determines where the files will be stored. <br>
@@ -119,7 +123,7 @@ public class FilePathUtils {
                 try {
                     ids.add(Long.valueOf(subFile.getName()));
                 } catch (NumberFormatException e) {
-                    System.out.println("Folder which doesn't belong here was found and ignored");
+                    logger.warn("Folder which doesn't belong here was found and ignored");
                 }
             }
         }
@@ -145,7 +149,7 @@ public class FilePathUtils {
                         throw new RuntimeException("Invalid Bidder File", e);
                     }
                 } else {
-                    System.out.println("File which is not a bidder file here was found and ignored " + subFile.getName());
+                    logger.warn("File which is not a bidder file here was found and ignored " + subFile.getName());
                 }
             }
         }
