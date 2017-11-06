@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,6 +19,8 @@ import java.util.*;
  * @author Fabio Isler
  */
 public class SimpleRandomOrderTest {
+
+    private static final Logger logger = LogManager.getLogger(SimpleRandomOrderTest.class);
 
     private static Map<Bidder, Integer> bidders;
 
@@ -48,7 +52,7 @@ public class SimpleRandomOrderTest {
             int assumedSize = (int) (0.8 * (6 * 9 * 14 + 1));
             Assert.assertTrue(bids.size() == assumedSize);
         } catch (UnsupportedBiddingLanguageException e) {
-            System.out.println("Unsupported bidding language!");
+            logger.error("Unsupported bidding language!");
             Assert.fail();
         }
     }
@@ -64,7 +68,7 @@ public class SimpleRandomOrderTest {
             Set<GenericValue> bids = createBids(xorqBidIterator);
             Assert.assertTrue(bids.size() == 5000);
         } catch (UnsupportedBiddingLanguageException e) {
-            System.out.println("Unsupported bidding language!");
+            logger.error("Unsupported bidding language!");
             Assert.fail();
         }
     }
@@ -80,7 +84,7 @@ public class SimpleRandomOrderTest {
 
             Assert.assertTrue(bids.size() == assumedBidSize);
         } catch (UnsupportedBiddingLanguageException e) {
-            System.out.println("Unsupported bidding language!");
+            logger.error("Unsupported bidding language!");
             Assert.fail();
         }
     }
@@ -90,7 +94,6 @@ public class SimpleRandomOrderTest {
         while (xorqBidIterator.hasNext()) {
             GenericValue bid = xorqBidIterator.next();
             Assert.assertTrue("Should be a new bid", !exists(bid, cache));
-//            System.out.println(bid.getQuantities() + "    " + bid.getValue());
             cache.add(bid);
         }
         return cache;

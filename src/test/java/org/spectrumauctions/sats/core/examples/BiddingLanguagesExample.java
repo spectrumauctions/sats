@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.core.examples;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
@@ -17,6 +19,8 @@ import java.util.Iterator;
  * and {@link ParameterizingModelsExample}
  */
 public class BiddingLanguagesExample {
+
+    private static final Logger logger = LogManager.getLogger(BiddingLanguagesExample.class);
 
     /**
      * See {@link SimpleModelAccessorsExample} and {@link ParameterizingModelsExample} for examples how bidders can be generated
@@ -56,7 +60,7 @@ public class BiddingLanguagesExample {
             Iterator<? extends XORValue<?>> xorBidIterator = valueFunction.iterator();
             while (xorBidIterator.hasNext()) {
                 XORValue bid = xorBidIterator.next();
-                System.out.println(bid.getLicenses().toString() + "   " + bid.value().toString());
+                logger.info(bid.getLicenses().toString() + "   " + bid.value().toString());
             }
         } catch (UnsupportedBiddingLanguageException e) {
             // If the model does not support the specified value function, this exception is thrown.

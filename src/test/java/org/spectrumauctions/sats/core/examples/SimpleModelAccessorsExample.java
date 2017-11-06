@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.core.examples;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
@@ -27,6 +29,9 @@ import java.util.Random;
  * <p> Using these accessors allow the most simple and straight forward use of sats, however, more complex parameters can not be done using the {@link DefaultModel}
  */
 public class SimpleModelAccessorsExample {
+
+    private static final Logger logger = LogManager.getLogger(SimpleModelAccessorsExample.class);
+
 
     /**
      * In this example we create a new world for the <i>Single Region Value Model</i>, as well as a set of bidders for this world.
@@ -109,10 +114,10 @@ public class SimpleModelAccessorsExample {
             Bundle fullBundle = new Bundle<>(world.getLicenses());
             for (Bidder bidder : bidders) {
                 BigDecimal val = bidder.calculateValue(fullBundle);
-                System.out.println("bidder " + bidder.getId() + "has the following value for getting all licenses: " + val.toString());
+                logger.info("bidder " + bidder.getId() + "has the following value for getting all licenses: " + val.toString());
             }
         } else {
-            System.out.println("No bidder created");
+            logger.info("No bidder created");
         }
     }
 

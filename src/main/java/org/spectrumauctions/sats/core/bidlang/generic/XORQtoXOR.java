@@ -8,6 +8,8 @@ package org.spectrumauctions.sats.core.bidlang.generic;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericSetsPickN;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.Good;
@@ -20,6 +22,8 @@ import java.util.Map.Entry;
  *
  */
 public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
+
+    private static final Logger logger = LogManager.getLogger(XORQtoXOR.class);
 
     private final ImmutableMap<GenericDefinition, Integer> quantitites;
     private final ImmutableList<GenericDefinition> orderOfDefs;
@@ -112,7 +116,7 @@ public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
     private void resetIterator(int iteratorNumber) {
         Map<T, Integer> maxQuantities = new LinkedHashMap<>();
         if (iteratorNumber >= orderOfDefs.size()) {
-            System.out.println("abort");
+            logger.info("abort");
         }
         for (Good good : orderOfDefs.get(iteratorNumber).allLicenses()) {
             try {

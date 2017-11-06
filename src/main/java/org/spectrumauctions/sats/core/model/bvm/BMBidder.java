@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import com.google.common.base.Preconditions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
@@ -30,6 +32,8 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  */
 public final class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BMBand> {
+
+    private static final Logger logger = LogManager.getLogger(BMBidder.class);
 
     private static final long serialVersionUID = 3132260871321701148L;
     private transient BMWorld world;
@@ -89,7 +93,7 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
         for (BMLicense license : bundle) {
             Integer currentValue = quantities.get(license.getBand());
             if (currentValue == null) {
-                System.out.println("ERROR: ITEM WITH OUTSIDE-WORLD BAND!!!");
+                logger.error("ITEM WITH OUTSIDE-WORLD BAND!");
             } else if (currentValue < positiveValueThreshold.get(license.getBand().getName())) { // Free disposal otherwise
                 quantities.put(license.getBand(), currentValue + 1);
             }
