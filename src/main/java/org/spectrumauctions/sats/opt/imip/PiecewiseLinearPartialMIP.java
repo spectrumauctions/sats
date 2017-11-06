@@ -5,7 +5,11 @@
  */
 package org.spectrumauctions.sats.opt.imip;
 
-import edu.harvard.econcs.jopt.solver.mip.*;
+import edu.harvard.econcs.jopt.solver.mip.MIP;
+import edu.harvard.econcs.jopt.solver.mip.CompareType;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.VarType;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.core.util.math.LinearFunction;
 import org.spectrumauctions.sats.core.util.math.NotDifferentiableException;

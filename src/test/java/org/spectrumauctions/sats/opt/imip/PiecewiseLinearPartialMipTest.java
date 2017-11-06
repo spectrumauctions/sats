@@ -10,6 +10,8 @@ import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
@@ -21,7 +23,9 @@ import java.util.Map;
 /**
  * @author Michael Weiss
  */
-public class PiecewieseLinearPartialMipTest {
+public class PiecewiseLinearPartialMipTest {
+
+    private static final Logger logger = LogManager.getLogger(PiecewiseLinearPartialMipTest.class);
 
     @Test
     public void pieceWiseLinear() {
@@ -40,10 +44,10 @@ public class PiecewieseLinearPartialMipTest {
         mip.add(x);
         mip.add(y);
         mipArtifacts.appendToMip(mip);
-        System.out.println(mip.toString());
+        logger.info("MIP:\n" + mip.toString());
         SolverClient solver = new SolverClient();
         IMIPResult result = solver.solve(mip);
-        System.out.println(result.toString());
+        logger.info("Result:\n" + result.toString());
         Assert.assertEquals(4, result.getObjectiveValue(), 0.00001);
     }
 
@@ -62,10 +66,10 @@ public class PiecewieseLinearPartialMipTest {
         mip.add(x);
         mip.add(y);
         mipArtifacts.appendToMip(mip);
-        System.out.println(mip.toString());
+        logger.info("MIP:\n" + mip.toString());
         SolverClient solver = new SolverClient();
         IMIPResult result = solver.solve(mip);
-        System.out.println(result.toString());
+        logger.info("Result:\n" + result.toString());
         Assert.assertEquals(3, result.getObjectiveValue(), 0.00001);
     }
 }

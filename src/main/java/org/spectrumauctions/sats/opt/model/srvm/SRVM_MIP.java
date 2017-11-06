@@ -12,6 +12,8 @@ import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
@@ -19,6 +21,7 @@ import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
 import org.spectrumauctions.sats.opt.model.EfficientAllocator;
 import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,7 +32,9 @@ import java.util.Map;
 /**
  * @author Fabio Isler
  */
-public class SRVM_MIP implements EfficientAllocator<GenericAllocation<SRVMBand>> {
+public class SRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllocation<SRVMBand>> {
+
+    private static final Logger logger = LogManager.getLogger(SRVM_MIP.class);
 
     public static boolean PRINT_SOLVER_RESULT = false;
 
@@ -43,26 +48,24 @@ public class SRVM_MIP implements EfficientAllocator<GenericAllocation<SRVMBand>>
     private SRVMWorldPartialMip worldPartialMip;
     private Map<SRVMBidder, SRVMBidderPartialMIP> bidderPartialMips;
     private SRVMWorld world;
-    private MIP mip;
 
     public SRVM_MIP(Collection<SRVMBidder> bidders) {
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
-        mip = new MIP();
-        mip.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
+        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
         double scalingFactor = calculateScalingFactor(bidders);
         double biggestPossibleValue = biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         this.worldPartialMip = new SRVMWorldPartialMip(
                 bidders,
                 biggestPossibleValue,
                 scalingFactor);
-        worldPartialMip.appendToMip(mip);
+        worldPartialMip.appendToMip(getMip());
         bidderPartialMips = new HashMap<>();
         for (SRVMBidder bidder : bidders) {
             SRVMBidderPartialMIP bidderPartialMIP;
             bidderPartialMIP = new SRVMBidderPartialMIP(bidder, worldPartialMip);
-            bidderPartialMIP.appendToMip(mip);
+            bidderPartialMIP.appendToMip(getMip());
             bidderPartialMips.put(bidder, bidderPartialMIP);
         }
     }
@@ -72,7 +75,7 @@ public class SRVM_MIP implements EfficientAllocator<GenericAllocation<SRVMBand>>
         if (maxVal.compareTo(highestValidVal) < 0) {
             return 1;
         } else {
-            System.out.println("Scaling MIP-CALC");
+            logger.info("Scaling MIP-CALC");
             return maxVal.divide(highestValidVal, RoundingMode.HALF_DOWN).doubleValue();
         }
     }
@@ -94,11 +97,11 @@ public class SRVM_MIP implements EfficientAllocator<GenericAllocation<SRVMBand>>
     }
 
     public void addConstraint(Constraint constraint) {
-        mip.add(constraint);
+        getMip().add(constraint);
     }
 
     public void addVariable(Variable variable) {
-        mip.add(variable);
+        getMip().add(variable);
     }
 
 
@@ -107,9 +110,9 @@ public class SRVM_MIP implements EfficientAllocator<GenericAllocation<SRVMBand>>
      */
     @Override
     public SRVMMipResult calculateAllocation() {
-        IMIPResult mipResult = SOLVER.solve(mip);
+        IMIPResult mipResult = SOLVER.solve(getMip());
         if (PRINT_SOLVER_RESULT) {
-            System.out.println(mipResult);
+            logger.info("Result:\n" + mipResult);
         }
         SRVMMipResult.Builder resultBuilder = new SRVMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
         for (SRVMBidder bidder : bidderPartialMips.keySet()) {

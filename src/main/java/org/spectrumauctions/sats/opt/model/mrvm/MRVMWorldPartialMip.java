@@ -7,6 +7,8 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
@@ -25,6 +27,8 @@ import java.util.*;
  *
  */
 public class MRVMWorldPartialMip extends PartialMIP {
+
+    private static final Logger logger = LogManager.getLogger(MRVMWorldPartialMip.class);
 
     public final static String xVariablePrefix = "X_";
     public final static String valueVariablePrefix = "v_";
@@ -112,8 +116,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
         mip.setObjectiveMax(true);
         if ((mip.getLinearObjectiveTerms() != null && mip.getQuadraticObjectiveTerms() != null)
                 || mip.getObjectiveTerms().size() != 0) {
-            //TODO Log Warning
-            System.out.println("WARNING: There are already existing objective values, when there's still supposed to be none");
+            logger.warn("There are already existing objective values, when there's still supposed to be none");
         }
         for (Variable var : valueVariables.values()) {
             mip.addObjectiveTerm(1, var);

@@ -1,36 +1,36 @@
 # Spectrum Auction Test Suite: Optimization API (sats-opt)
 
 ### Getting Started
-This getting started guide helps you to set up `sats-opt` to use it as a library in your own java project afterwards. 
-As opposed to `sats-opt` extends ``sats-core`` and adds winner determination problem (WDP) solvers to the list of provided features.
-As the WDP solvers require more external libraries, we recommend to just use ``sats-core``, should you not (yet) want to use the WDP solvers. An upgrade is easily possible any time.
+This getting started guide helps you to set up `sats-opt` to use it as a library in your own java project. 
+`sats-opt` extends [`sats-core`](https://github.com/spectrumauctions/sats-core) and adds winner determination problem (WDP) solvers to the list of provided features.
+As the WDP solvers require external libraries, we recommend to just use `sats-core`, should you not (yet) want to use the WDP solvers. An upgrade is easily possible any time.
 
 Should you not want to use SATS it in your own java code, but want to create problem instances in a simpler way, you may want to use the command line tool (`sats-clt`) or the web application (`sats-web`) instead. See 
 http://spectrumauctions.org for more information.
-##### Prerequisites
-Make sure to have `git`, `maven`, `JDK 1.8 (or later)` and `cplex` installed. 
-* Include your local cplex JAR in your maven repository by the following command:
-```
-mvn install:install-file -Dfile=<path-to-cplex-jar> -DgroupId=cplex -DartifactId=cplex -Dversion=12.6 -Dpackaging=jar
-```
-* Note: If you have an early JDK 1.8 version and it doesn't compile, please update to a newer version. 1.8.0_91 is confirmed to be new enough.
-##### Step 1: Install jOpt dependency
-* ``git clone`` the jOPT repository (https://github.com/blubin/JOpt) and locally install it as explained in the jOPT getting-started guide.
-##### Step 2: Install sats-opt
-* ``git clone`` this repository and locally install it by running ``mvn clean install`` in the cloned repository.
-  * Note: If your cplex installation didn't add the necessary bindings to the native libraries (e.g. by setting the
-  CPLEX environment variables), the tests of sats-opt and therefore the installation will fail with an
-  ``UnsatisfiedLinkError``. In this case, add the flag ``-DskipTests`` to the install command:
-  ``mvn clean install -DskipTests`` and fix the bindings later by setting the java library path correctly.
-##### Step 3: Add the maven dependency to your simulation project
+
+##### How to use sats-opt:
+Since sats-opt is available on Maven Central, it can be directly included as a dependency:
+
 ```
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-opt</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
 </dependency>
 ```
-You can now use sats-opt, which allows you to use all the features of ``sats-core`` and solve the winner determination problems using `cplex`.
+
+If you prefer to include sats-opt without maven, we provide a prepared jar coupled to the [release](https://github.com/spectrumauctions/sats-opt/releases).
+
+##### Prerequisites
+
+* `Java 1.8` (or later)
+* Highly recommended: `CPLEX` 
+  * When using `maven`, include your local `cplex.jar` in your maven repository by the following command:
+    ```
+    mvn install:install-file -Dfile=<path-to-cplex-jar> -DgroupId=cplex -DartifactId=cplex -Dversion=12.6 -Dpackaging=jar
+    ```
+  * Make sure to add your native CPLEX binaries to your `PATH` (Windows) / `LD_LIBRARY_PATH` (Unix) environment variable so sats-opt can find it! This may be done automatically when installing CPLEX. 
+  * If you don't provide a CPLEX JAR, sats-opt will use LPSolve as a solver, which is considerably less performant.
 
 ### Code examples
 Code examples can be found in the

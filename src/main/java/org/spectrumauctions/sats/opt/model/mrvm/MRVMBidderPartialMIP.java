@@ -270,8 +270,8 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         return result;
     }
 
-    BigDecimal capAt(MRVMBand band, int quantitiy){
-        return MRVMWorld.capOfBand(band, quantitiy);
+    BigDecimal capAt(MRVMBand band, int quantity){
+        return MRVMWorld.capOfBand(band, quantity);
     }
 
 

@@ -1,6 +1,8 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
 import edu.harvard.econcs.jopt.solver.mip.MIP;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMLicense;
@@ -15,6 +17,8 @@ import java.util.Comparator;
  * Created by Michael Weiss on 06.05.2017.
  */
 public class Scalor {
+
+    private static final Logger logger = LogManager.getLogger(Scalor.class);
 
     public static BigDecimal highestValidVal = BigDecimal.valueOf(MIP.MAX_VALUE - 1000000);
 
@@ -52,7 +56,7 @@ public class Scalor {
         if (maxVal.compareTo(highestValidVal) < 0) {
             return 1;
         } else {
-            System.out.println("Scaling MIP-CALC");
+            logger.info("Scaling MIP-CALC");
             BigDecimal proposedScalingFactor = maxVal.divide(highestValidVal, RoundingMode.HALF_DOWN);
             return Math.round(proposedScalingFactor.doubleValue())+1;
         }

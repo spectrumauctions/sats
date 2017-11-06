@@ -7,6 +7,8 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,6 +28,8 @@ import static org.junit.Assert.fail;
  * @author Michael Weiss
  */
 public class MRVMOverallValueTest {
+
+    private static final Logger logger = LogManager.getLogger(MRVMOverallValueTest.class);
 
     private static final double RELATIVE_ALLOWED_ASSERTION_DELTA = 0.001;
 
@@ -241,14 +245,14 @@ public class MRVMOverallValueTest {
         if (hasFailed) {
             if (LOG_ASSERTS_OF_FAILED_STEP) {
                 for (String error : errors) {
-                    System.out.println(error);
+                    logger.error(error);
                 }
             }
             fail();
         } else {
             if (LOG_ALL_STAGES) {
                 for (String noerror : errors) {
-                    System.out.println(noerror);
+                    logger.info(noerror);
                 }
             }
         }
