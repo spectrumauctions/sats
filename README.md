@@ -14,13 +14,11 @@ sats-core is deployed to Maven Central, so including it in your maven project (o
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-core</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
 </dependency>
 ```
 You can now use sats-core, which allows you to access and modify all of sats value models to generate value function instances for your simulations.
 Should you require to use solve the winner determination problems, we recommend you to give sats-opt (see https://github.com/spectrumauctions/sats-opt) a try.
-
-Note: sats-core is based on JDK
 
 #### Alternative without Maven/Gradle
 If you don't base your project on maven nor gradle, you can also simply download the newest version's JAR and include it in your project. The JAR is published along with the [release](https://github.com/spectrumauctions/sats-core/releases/).
