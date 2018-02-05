@@ -22,6 +22,11 @@ public class CATSWorldSetup {
     private final double additionalNeigh;   //Probability of adding an additional neighbor
     private final double additivity;
     private final boolean useQuadraticPricingOption;
+    private final double deviation;
+    private final double additionalLocation;
+    private double budgetFactor;
+    private double resaleFactor;
+    private double jumpProbability;
 
     private CATSWorldSetup(Builder builder) {
         super();
@@ -33,10 +38,35 @@ public class CATSWorldSetup {
         this.commonValueInterval = builder.commonValueInterval;
         this.additivity = builder.additivity;
         this.useQuadraticPricingOption = builder.useQuadraticPricingOption;
+        this.deviation = builder.deviation;
+        this.additionalLocation = builder.additionalLocation;
+        this.budgetFactor = builder.budgetFactor;
+        this.resaleFactor = builder.resaleFactor;
+        this.jumpProbability = builder.jumpProbability;
     }
 
     public double getAdditivity() {
         return additivity;
+    }
+
+    public double getDeviation() {
+        return deviation;
+    }
+
+    public double getAdditionalLocation() {
+        return additionalLocation;
+    }
+
+    public double getBudgetFactor() {
+        return budgetFactor;
+    }
+
+    public double getResaleFactor() {
+        return resaleFactor;
+    }
+
+    public double getJumpProbability() {
+        return jumpProbability;
     }
 
     /**
@@ -117,7 +147,7 @@ public class CATSWorldSetup {
         private static final double DEFAULT_ADDITIVITY = 0.2;
         private static final boolean DEFAULT_QUADRATIC_PRICING_FLAG = false;
         private static final double DEFAULT_MAX_GOOD_VALUE = 100;
-        private static final double DEFAULT_COMMON_VALUE_MIN = 1;   // Specified as rand*(max-1)-1
+        private static final double DEFAULT_COMMON_VALUE_MIN = 1;   // Specified as rand*(max-1)+1
         private static final double DEFAULT_COMMON_VALUE_MAX = DEFAULT_MAX_GOOD_VALUE;
         private static final double DEFAULT_MAX_SUBSTITUTABLE_BIDS = 5;
         private static final double DEFAULT_ADDITIONAL_LOCATION = 0.9;
@@ -134,6 +164,11 @@ public class CATSWorldSetup {
         private double additionalNeigh;
         private double additivity;
         private boolean useQuadraticPricingOption;
+        private double deviation;
+        private double additionalLocation;
+        private double budgetFactor;
+        private double resaleFactor;
+        private double jumpProbability;
 
         public Builder() {
             super();
@@ -144,6 +179,11 @@ public class CATSWorldSetup {
             this.additionalNeigh = DEFAULT_ADDITIONAL_NEIGHBOR;
             this.additivity = DEFAULT_ADDITIVITY;
             this.useQuadraticPricingOption = DEFAULT_QUADRATIC_PRICING_FLAG;
+            this.deviation = DEFAULT_DEVIATION;
+            this.additionalLocation = DEFAULT_ADDITIONAL_LOCATION;
+            this.budgetFactor = DEFAULT_BUDGET_FACTOR;
+            this.resaleFactor = DEFAULT_RESALE_FACTOR;
+            this.jumpProbability = DEFAULT_JUMP_PROB;
         }
 
         public void setNumberOfRowsInterval(IntegerInterval numberOfRowsInterval) {
@@ -182,9 +222,25 @@ public class CATSWorldSetup {
             this.useQuadraticPricingOption = bool;
         }
 
+        public void setDeviation(double deviation) {
+            this.deviation = deviation;
+        }
+
+        public void setAdditionalLocation(double additionalLocation) {
+            this.additionalLocation = additionalLocation;
+        }
+
+        public void setBudgetFactor(double budgetFactor) {
+            this.budgetFactor = budgetFactor;
+        }
+
+        public void setJumpProbability(double jumpProbability) {
+            this.jumpProbability = jumpProbability;
+        }
+
+
         public CATSWorldSetup build() {
             return new CATSWorldSetup(this);
         }
-
     }
 }

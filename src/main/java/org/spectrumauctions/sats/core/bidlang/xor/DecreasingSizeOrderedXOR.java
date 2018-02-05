@@ -19,7 +19,6 @@ import java.util.Iterator;
  */
 public class DecreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> {
 
-
     public DecreasingSizeOrderedXOR(Collection<T> goods, Bidder<T> bidder) {
         super(goods, bidder);
     }
