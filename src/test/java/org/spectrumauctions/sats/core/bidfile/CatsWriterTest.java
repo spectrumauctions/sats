@@ -6,8 +6,20 @@
 package org.spectrumauctions.sats.core.bidfile;
 
 import org.junit.Test;
+import org.spectrumauctions.sats.core.bidlang.xor.CatsXOR;
+import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
+import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.model.cats.CATSBidder;
+import org.spectrumauctions.sats.core.model.cats.CATSLicense;
+import org.spectrumauctions.sats.core.model.cats.CATSRegionModel;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Random;
+
+import static org.junit.Assert.fail;
 
 public class CatsWriterTest extends BidFileWriter {
 
@@ -23,6 +35,25 @@ public class CatsWriterTest extends BidFileWriter {
     public void writeMultiBidderCatsFile() {
         CatsExporter exporter = new CatsExporter(new File(EXPORT_TEST_FOLDER_NAME));
         testMultiBidderXOR(exporter);
+    }
+
+    @Test
+    public void writeSingleBidderCatsModelCatsFile() {
+        CatsExporter exporter = new CatsExporter(new File(EXPORT_TEST_FOLDER_NAME));
+        CATSRegionModel model = new CATSRegionModel();
+        Collection<CATSBidder> bidders = model.createNewPopulation(0L);
+        for (CATSBidder bidder : bidders) {
+            try {
+                XORLanguage<CATSLicense> lang = bidder.getValueFunction(CatsXOR.class);
+                File file = exporter.writeSingleBidderXOR(lang, 1, "TestSingleXOR_" + new Random().nextInt());
+                System.out.println(file.toPath().toString());
+            } catch (UnsupportedBiddingLanguageException e) {
+                fail("Unsupported Bidding Iterator");
+            } catch (IOException e) {
+                e.printStackTrace();
+                fail("Error writing file");
+            }
+        }
     }
 
 }

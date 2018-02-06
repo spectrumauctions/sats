@@ -27,7 +27,7 @@ public abstract class FileWriter {
     public abstract File writeMultiBidderXOR(Collection<XORLanguage<Good>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException;
 
-    public abstract File writeSingleBidderXOR(XORLanguage<Good> valueFunction, int numberOfBids, String filePrefix) throws IOException;
+    public abstract File writeSingleBidderXOR(XORLanguage<? extends Good> valueFunction, int numberOfBids, String filePrefix) throws IOException;
 
     public abstract File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException;

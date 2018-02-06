@@ -27,6 +27,7 @@ public class CATSWorldSetup {
     private double budgetFactor;
     private double resaleFactor;
     private double jumpProbability;
+    private int maxSubstitutableBids;
 
     private CATSWorldSetup(Builder builder) {
         super();
@@ -43,6 +44,7 @@ public class CATSWorldSetup {
         this.budgetFactor = builder.budgetFactor;
         this.resaleFactor = builder.resaleFactor;
         this.jumpProbability = builder.jumpProbability;
+        this.maxSubstitutableBids = builder.maxSubstitutableBids;
     }
 
     public double getAdditivity() {
@@ -137,6 +139,10 @@ public class CATSWorldSetup {
         return useQuadraticPricingOption;
     }
 
+    public int getMaxSubstitutableBids() {
+        return maxSubstitutableBids;
+    }
+
     public static class Builder {
 
         // CATS default parameters
@@ -149,7 +155,7 @@ public class CATSWorldSetup {
         private static final double DEFAULT_MAX_GOOD_VALUE = 100;
         private static final double DEFAULT_COMMON_VALUE_MIN = 1;   // Specified as rand*(max-1)+1
         private static final double DEFAULT_COMMON_VALUE_MAX = DEFAULT_MAX_GOOD_VALUE;
-        private static final double DEFAULT_MAX_SUBSTITUTABLE_BIDS = 5;
+        private static final int DEFAULT_MAX_SUBSTITUTABLE_BIDS = 5;
         private static final double DEFAULT_ADDITIONAL_LOCATION = 0.9;
         private static final double DEFAULT_JUMP_PROB = 0.05;
         private static final double DEFAULT_DEVIATION = 0.5;
@@ -169,6 +175,7 @@ public class CATSWorldSetup {
         private double budgetFactor;
         private double resaleFactor;
         private double jumpProbability;
+        private int maxSubstitutableBids;
 
         public Builder() {
             super();
@@ -184,21 +191,28 @@ public class CATSWorldSetup {
             this.budgetFactor = DEFAULT_BUDGET_FACTOR;
             this.resaleFactor = DEFAULT_RESALE_FACTOR;
             this.jumpProbability = DEFAULT_JUMP_PROB;
+            this.maxSubstitutableBids = DEFAULT_MAX_SUBSTITUTABLE_BIDS;
         }
 
         public void setNumberOfRowsInterval(IntegerInterval numberOfRowsInterval) {
-            Preconditions.checkArgument(numberOfRowsInterval.getMinValue() > 0);
+            Preconditions.checkArgument(numberOfRowsInterval.getMinValue() >= 2,
+                    "Please choose a number of columns interval that starts at least at 2," +
+                            "so that a 2x2 grid can be created");
             this.numberOfRowsInterval = numberOfRowsInterval;
         }
 
         public void setNumberOfColumnsInterval(IntegerInterval numberOfColumnsInterval) {
-            Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() > 0);
+            Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() >= 2,
+                    "Please choose a number of columns interval that starts at least at 2," +
+                            "so that a 2x2 grid can be created");
             this.numberOfColumnsInterval = numberOfColumnsInterval;
         }
 
-        public void setNumberOfGoodsInterval(IntegerInterval NumberOfGoodsInterval) {
-            Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() > 0);
-            this.numberOfGoodsInterval = NumberOfGoodsInterval;
+        public void setNumberOfGoodsInterval(IntegerInterval numberOfGoodsInterval) {
+            Preconditions.checkArgument(numberOfGoodsInterval.getMinValue() >= 4,
+                    "Please choose a number of goods interval that starts at least at 4, so that " +
+                            "a 2x2 grid can be created.");
+            this.numberOfGoodsInterval = numberOfGoodsInterval;
         }
 
         public void setCommonValueInterval(DoubleInterval commonValueInterval) {
@@ -238,6 +252,9 @@ public class CATSWorldSetup {
             this.jumpProbability = jumpProbability;
         }
 
+        public void setMaxSubstitutableBids(int maxSubstitutableBids) {
+            this.maxSubstitutableBids = maxSubstitutableBids;
+        }
 
         public CATSWorldSetup build() {
             return new CATSWorldSetup(this);

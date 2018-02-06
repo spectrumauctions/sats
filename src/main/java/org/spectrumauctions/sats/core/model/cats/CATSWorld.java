@@ -28,6 +28,7 @@ public final class CATSWorld extends World {
     private final HashSet<CATSLicense> licenses;
 
     private transient ImmutableSet<CATSLicense> licenseSet;
+    private int maxSubstitutableBids;
 
 
     public CATSWorld(CATSWorldSetup worldSetup, RNGSupplier rngSupplier) {
@@ -53,6 +54,7 @@ public final class CATSWorld extends World {
         this.resaleFactor = worldSetup.getResaleFactor();
         this.jumpProbability = worldSetup.getJumpProbability();
         this.deviation = worldSetup.getDeviation();
+        this.maxSubstitutableBids = worldSetup.getMaxSubstitutableBids();
         this.useQuadraticPricingOption = worldSetup.useQuadraticPricingOption();
         store();
     }
@@ -139,5 +141,9 @@ public final class CATSWorld extends World {
 
     public double getDeviation() {
         return deviation;
+    }
+
+    public int getMaxSubstitutableBids() {
+        return maxSubstitutableBids;
     }
 }
