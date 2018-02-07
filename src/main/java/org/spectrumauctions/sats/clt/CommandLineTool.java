@@ -123,7 +123,7 @@ public class CommandLineTool {
 
     public static void printHelp(String modelName, OptionParser toPrint) {
         System.out.println();
-        System.out.println("====Options applicable for " + modelName + "====");
+        System.out.println("==== Options applicable for " + modelName + "====");
         try {
             toPrint.printHelpOn(System.out);
         } catch (IOException e) {
