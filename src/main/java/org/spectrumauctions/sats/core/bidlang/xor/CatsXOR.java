@@ -16,20 +16,27 @@ import java.util.stream.Collectors;
 /**
  * <p>The original CATS Regions model has a specific way to generate bids, which does not directly translate into our
  * iterator-based way of generating bids. This class provides an iterator that imitates the original bid-generation
- * technique. The first bundle of the provided iterator is the initial bundle which the following elements are based
+ * technique. To do this, it first collects and filters all possible bids and then provides the iterator on that
+ * collection.</p>
+ *
+ * <p>If you prefer to have an iterator that works more like the other iterators in SATS, you can change the behavior of
+ * this class via {@link #noCapForSubstitutableGoods()}.
+ *
+ * In that case, the first bundle of the provided iterator is the initial bundle which the following elements are based
  * on. The next bundles each have one license of the original bundle as a starting point and are extended so that they
  * have the same amount of licenses as the original bundle. In the CATS Regions model, they are called substitutable
- * bids/bundles.</p>
- * <p>In the original CATS Regions model, the number of substitutable bundles are capped at a certain number (see {@link
- * CATSWorld}), only considering the original bundle plus the up to X substitutable bundles with the highest value.
- * This can be imitated manually with the iterator, but the for convenience, this functionality is provided via the
- * method {@link #getCATSXORBids()}.</p>
- * <p>Per default, bundles that are created during the process which are not valid due to the original CATS Regions
- * constraints (not identical to any included license, within budget and minimal resale value) are not included in
- * {@link #getCATSXORBids()} and return null if generated via the iterator - so be sure to check for null values!
- * If you want to let the iterator find another bundle in case the current one is not valid (and abort after
- * #CATSIterator.MAX_RETRIES retries, because then there is most probably no other valid bundle), use the
- * {@link #iteratorWithoutNulls()}.</p>
+ * bids/bundles.
+ *
+ * Two things to consider when using the option {@link #noCapForSubstitutableGoods()}:
+ *  <ul>
+ *      <li>If this iterator finds an invalid bundle (identical to the original bundle or not satisfying the budget/
+ *          reselling value constraints), it will try to find another one until #MAX_RETRIES is reached. This is rare,
+ *          but still make sure to handle this #NoSuchElementException.</li>
+ *      <li>The elements which #next() returns are checked to be not identical to the original bundle, but it's
+ *          impossible to detect if it's similar to another substitutable bundle. If duplicate substitutable bundles are
+ *          an issue, make sure to handle after you iterated through all the elements.</li>
+ *  </ul>
+ * </p>
  *
  * @author Fabio Isler
  */
@@ -38,12 +45,19 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
     private CATSBidder bidder;
     private RNGSupplier rngSupplier;
     private CATSWorld world;
+    private boolean noCapForSubstitutableGoods;
 
     public CatsXOR(Collection<CATSLicense> goods, RNGSupplier rngSupplier, CATSBidder bidder) {
         this.goods = goods;
         this.bidder = bidder;
         this.rngSupplier = rngSupplier;
         this.world = goods.stream().findAny().orElseThrow(IllegalArgumentException::new).getWorld();
+        this.noCapForSubstitutableGoods = false;
+    }
+
+    public CatsXOR noCapForSubstitutableGoods() {
+        this.noCapForSubstitutableGoods = true;
+        return this;
     }
 
     @Override
@@ -53,18 +67,18 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
 
     @Override
     public Iterator<XORValue<CATSLicense>> iterator() {
-        return new CATSIterator(rngSupplier.getUniformDistributionRNG());
-    }
-
-    public Iterator<XORValue<CATSLicense>> iteratorWithoutNulls() {
-        return new CATSIterator(rngSupplier.getUniformDistributionRNG(), false);
+        if (noCapForSubstitutableGoods) {
+            return new CATSIterator(rngSupplier.getUniformDistributionRNG(), false);
+        } else {
+            return getCATSXORBids().iterator();
+        }
     }
 
     public Set<XORValue<CATSLicense>> getCATSXORBids() {
         TreeSet<XORValue<CATSLicense>> sortedSet = new TreeSet<>();
         Set<XORValue<CATSLicense>> result = new HashSet<>();
 
-        Iterator<XORValue<CATSLicense>> iterator = new CATSIterator(rngSupplier.getUniformDistributionRNG());
+        Iterator<XORValue<CATSLicense>> iterator = new CATSIterator(rngSupplier.getUniformDistributionRNG(), true);
 
         result.add(iterator.next()); // CATS always includes the original bundle
 
@@ -105,10 +119,6 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
             this.minValue = 1e10;
             this.retries = 0;
             this.acceptNulls = acceptNulls;
-        }
-
-        CATSIterator(UniformDistributionRNG uniRng) {
-            this(uniRng, true);
         }
 
         @Override

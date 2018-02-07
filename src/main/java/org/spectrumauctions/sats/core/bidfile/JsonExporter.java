@@ -43,10 +43,10 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeMultiBidderXOR(java.util.Collection, int, java.lang.String)
      */
     @Override
-    public File writeMultiBidderXOR(Collection<XORLanguage<Good>> valueFunctions, int numberOfBids, String filePrefix)
+    public File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException {
         JsonArray json = new JsonArray();
-        for (XORLanguage<Good> lang : valueFunctions) {
+        for (XORLanguage<? extends Good> lang : valueFunctions) {
             JsonObject thisBidder = new JsonObject();
             thisBidder.addProperty("bidder", lang.getBidder().getId());
             thisBidder.add("bids", singleBidderXOR(lang, numberOfBids, filePrefix));

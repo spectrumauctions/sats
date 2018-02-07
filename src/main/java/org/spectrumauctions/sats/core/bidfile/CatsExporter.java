@@ -7,6 +7,7 @@ package org.spectrumauctions.sats.core.bidfile;
 
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
+import org.spectrumauctions.sats.core.bidlang.xor.CatsXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Good;
@@ -70,7 +71,7 @@ public class CatsExporter extends FileWriter {
     }
 
     @Override
-    public File writeMultiBidderXOR(Collection<XORLanguage<Good>> valueFunctions, int numberOfBids, String filePrefix) throws IOException {
+    public File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix) throws IOException {
         List<String> lines = fileInit(valueFunctions.iterator().next());
         lines.add("%% This file may contain bids from multiple bidders.");
         lines.add("% Bids from different bidders are separated using dummy items with negative IDs");
@@ -80,10 +81,10 @@ public class CatsExporter extends FileWriter {
         //Dummy items are negative integers, for easier distinction
         int dummyItem = -1;
         int countBids = 0;
-        for (XORLanguage<Good> valueFunction : valueFunctions) {
-            Iterator<XORValue<Good>> iter = valueFunction.iterator();
+        for (XORLanguage<? extends Good> valueFunction : valueFunctions) {
+            Iterator iter = valueFunction.iterator();
             for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
-                XORValue<Good> value = iter.next();
+                XORValue<?> value = (XORValue) iter.next();
                 StringBuilder line = new StringBuilder(String.valueOf(countBids++)).append("\t");
                 line.append(roundedValue(value.value().doubleValue()));
                 line.append("\t");

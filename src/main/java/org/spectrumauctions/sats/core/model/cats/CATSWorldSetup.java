@@ -259,5 +259,9 @@ public class CATSWorldSetup {
         public CATSWorldSetup build() {
             return new CATSWorldSetup(this);
         }
+
+        public int getDefaultNumberOfGoods() {
+            return DEFAULT_NUMBER_OF_COLUMNS * DEFAULT_NUMBER_OF_ROWS;
+        }
     }
 }

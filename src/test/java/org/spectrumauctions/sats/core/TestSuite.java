@@ -18,6 +18,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.SimpleRa
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetTest;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericSetsPickNTest;
 import org.spectrumauctions.sats.core.bidlang.generic.XORQtoXORTest;
+import org.spectrumauctions.sats.core.bidlang.xor.CatsXORTest;
 import org.spectrumauctions.sats.core.examples.BiddingLanguagesExample;
 import org.spectrumauctions.sats.core.examples.ParameterizingModelsExample;
 import org.spectrumauctions.sats.core.examples.SimpleModelAccessorsExample;
@@ -64,6 +65,7 @@ import java.util.List;
         GenericPowersetTest.class,
         GenericSetsPickNTest.class,
         XORQtoXORTest.class,
+        CatsXORTest.class,
         // Models
         BMRandomnessTest.class,
         BMValueTest.class,

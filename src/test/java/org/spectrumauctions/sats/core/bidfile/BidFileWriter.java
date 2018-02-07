@@ -37,7 +37,7 @@ public abstract class BidFileWriter {
     protected void testMultiBidderXOR(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
         Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
-        Collection<XORLanguage<Good>> languages = new ArrayList<>();
+        Collection<XORLanguage<? extends Good>> languages = new ArrayList<>();
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {

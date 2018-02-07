@@ -1,11 +1,14 @@
 package org.spectrumauctions.sats.core.bidlang.xor;
 
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
+import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.cats.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CatsXORTest {
 
@@ -14,63 +17,54 @@ public class CatsXORTest {
         long seed = 156567345634L;
 
         CATSRegionModel model = new CATSRegionModel();
-        model.setNumberOfBidders(25);
         List<CATSBidder> bidders = model.createNewPopulation(seed - 1);
 
-        int count = 0;
+        List<XORValue<CATSLicense>> directBids = Lists.newArrayList();
+        List<XORValue<CATSLicense>> iteratorBids = Lists.newArrayList();
+
         for (int i = 0; i < bidders.size(); i++) {
             CatsXOR valueFunction = bidders.get(i).getValueFunction(CatsXOR.class, seed + i);
-            Set<XORValue<CATSLicense>> catsBids = valueFunction.getCATSXORBids();
 
-            if (catsBids.size() != 6) count++;
-            if (catsBids.size() > 6) Assert.fail("No bid should have more than 6 bundles!");
+            List<XORValue<CATSLicense>> bid = Lists.newArrayList(valueFunction.getCATSXORBids());
+
+            if (bid.size() > 6) Assert.fail("No bid should have more than 6 bundles!");
+
+            directBids.addAll(bid);
         }
 
-        Assert.assertEquals("Expected 10 bids to include less than 6 bundles with this seed. Actual: "
-                + count, 10, count);
-    }
-
-    @Test
-    public void testWithNulls() throws UnsupportedBiddingLanguageException {
-        long seed = 156567345634L;
-
-        CATSRegionModel model = new CATSRegionModel();
-        model.setNumberOfBidders(25);
-        model.setNumberOfGoods(4);
-        List<CATSBidder> bidders = model.createNewPopulation(seed - 1);
-
-        int count = 0;
-        int nullCount = 0;
         for (int i = 0; i < bidders.size(); i++) {
             CatsXOR valueFunction = bidders.get(i).getValueFunction(CatsXOR.class, seed + i);
             Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
-            Set<XORValue<CATSLicense>> bids = new HashSet<>();
+
+            List<XORValue<CATSLicense>> bid = Lists.newArrayList();
 
             while (catsIterator.hasNext()) {
-                XORValue<CATSLicense> xor = catsIterator.next();
-                if (xor != null) bids.add(xor);
-                else nullCount ++;
+                bid.add(catsIterator.next());
             }
 
-            if (bids.size() == 1) count++;
+            if (bid.size() > 6) Assert.fail("No bid should have more than 6 bundles!");
+
+            iteratorBids.addAll(bid);
         }
 
-        Assert.assertEquals("Expected 21 bids to include only one bundle with this seed. Actual: " + count,
-                21, count);
-        Assert.assertEquals("Expected 12 'Null' bundles in all the bids. Actual: "
-                + nullCount, 12, nullCount);
+        Assert.assertTrue(directBids.size() > 0);
+        Assert.assertTrue(iteratorBids.size() > 0);
+        Collection<Bundle<CATSLicense>> iteratorBundles = iteratorBids.stream().map(XORValue::getLicenses).collect(Collectors.toList());
+        for (int i = 0; i < directBids.size(); i++) {
+            Assert.assertTrue(iteratorBundles.contains(directBids.get(i).getLicenses()));
+        }
     }
 
     @Test
-    public void testWithoutNullsTooSmallWorld() throws UnsupportedBiddingLanguageException {
+    public void testNoCapTooSmallWorld() throws UnsupportedBiddingLanguageException {
         long seed = 156567345634L;
 
         CATSRegionModel model = new CATSRegionModel();
         model.setNumberOfGoods(4);
         CATSBidder bidder = model.createNewPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
 
-        CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1);
-        Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iteratorWithoutNulls();
+        CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1).noCapForSubstitutableGoods();
+        Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
 
         catsIterator.next(); // Get original bundle already to test that there's no other valid bundle
 
@@ -87,19 +81,19 @@ public class CatsXORTest {
     }
 
     @Test
-    public void testManyWithoutNulls() throws UnsupportedBiddingLanguageException {
+    public void testManyNoCap() throws UnsupportedBiddingLanguageException {
         for (long seed = 2271479L; seed < 3271479L; seed += 10000L) {
-            testWithoutNulls(seed);
+            testNoCap(seed);
         }
     }
 
-    private void testWithoutNulls(long seed) throws UnsupportedBiddingLanguageException {
+    private void testNoCap(long seed) throws UnsupportedBiddingLanguageException {
 
         CATSRegionModel model = new CATSRegionModel();
         CATSBidder bidder = model.createNewPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
 
-        CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1);
-        Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iteratorWithoutNulls();
+        CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1).noCapForSubstitutableGoods();
+        Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
 
         while (catsIterator.hasNext()) {
             try {
