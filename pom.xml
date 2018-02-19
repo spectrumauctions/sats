@@ -3,15 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spectrumauctions</groupId>
 	<artifactId>sats-clt</artifactId>
-	<version>0.5.1</version>
+	<version>0.5.3-SNAPSHOT</version>
 	<name>SATS Command Line Tool</name>
-	<description></description>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.spectrumauctions</groupId>
 			<artifactId>sats-core</artifactId>
-			<version>0.5.2</version>
+			<version>0.5.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -26,6 +25,7 @@
                         <manifest>
                             <mainClass>org.spectrumauctions.sats.clt.CommandLineTool</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
                     <descriptorRefs>

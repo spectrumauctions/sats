@@ -39,9 +39,9 @@ public abstract class ModelOptionParser extends OptionParser {
                 .withRequiredArg().ofType(Integer.class);
         this.accepts(KEY_MULTIPLEFILES, "Define if a separate file should be created for every bidder");
         this.accepts(KEY_ITERATOR,
-                "Define an order in which the atomic bids should be returned. Options are: SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC")
+                "Define an order in which the atomic bids should be returned. Options are: SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC, CATS_SPECIFIC")
                 .withRequiredArg().ofType(BiddingLanguage.class);
-        this.accepts(KEY_XORQ, "Ff flag is set, the returned bids are XOR-Q (And file format JSON)");
+        this.accepts(KEY_XORQ, "If flag is set, the returned bids are XOR-Q (And file format JSON)");
         this.accepts(CommandLineTool.KEY_HELP,
                 "Gives a list of all possible Options. " + "If used with the --model tag, the options for the specified model are also printed.");
         this.accepts(KEY_FILETYPE, "Decide for a File Type in which the bids are returned. Options are JSON and CATS")
@@ -76,6 +76,8 @@ public abstract class ModelOptionParser extends OptionParser {
         }
         if (options.has(KEY_ITERATOR)) {
             builder.setLang((BiddingLanguage) options.valueOf(KEY_ITERATOR));
+        } else if (options.valueOf("model").equals(Model.CATS)) {
+            builder.setLang(BiddingLanguage.CATS_SPECIFIC);
         }
 
         if (options.has(KEY_SEED)) {
