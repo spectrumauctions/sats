@@ -4,7 +4,6 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
@@ -25,17 +24,16 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
 
 
     private final transient long seed;
-    private transient int iterations;
     private final transient int totalSize;
     private final transient Set<GenericValue> cache;
     private final transient int maxBids;
+    private transient int iterations;
 
 
     /**
      * @param genericDefinitions A set of generic definitions
-     * @throws UnsupportedBiddingLanguageException Thrown if the model doesn't support the requested bidding language
      */
-    protected XORQRandomOrderSimple(Collection<T> genericDefinitions, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
+    protected XORQRandomOrderSimple(Collection<T> genericDefinitions, RNGSupplier rngSupplier) {
         super();
         this.rngSupplier = rngSupplier;
         this.seed = this.rngSupplier.getUniformDistributionRNG().nextLong();
@@ -60,26 +58,6 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
             maxBids *= i;
         }
         return maxBids;
-    }
-
-
-    /*
-     * TODO: Check if this constructor is still needed
-     */
-    XORQRandomOrderSimple(Map<T, Integer> maxQuantities, int maxBundleSize, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
-        super();
-        this.rngSupplier = rngSupplier;
-        this.seed = this.rngSupplier.getUniformDistributionRNG().nextLong();
-        int quantitySum = 0;
-        for (Integer size : maxQuantities.values()) {
-            quantitySum += size;
-        }
-        this.maxBids = setMaxBid(maxQuantities);
-        this.maxQuantities = Collections.unmodifiableMap(new LinkedHashMap<>(maxQuantities));
-        this.maxBundleSize = maxBundleSize;
-        this.totalSize = quantitySum;
-        this.iterations = DEFAULT_ITERATIONS;
-        this.cache = new HashSet<>();
     }
 
     /**
@@ -107,8 +85,8 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
 
     class SimpleRandomOrderIterator implements Iterator<GenericValue<T>> {
 
-        private int remainingIterations;
         private final UniformDistributionRNG uniRng;
+        private int remainingIterations;
 
         SimpleRandomOrderIterator(int iterations, UniformDistributionRNG uniRng) {
             this.remainingIterations = iterations;
@@ -116,8 +94,8 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
         }
 
         /* (non-Javadoc)
-                * @see java.util.Iterator#hasNext()
-                */
+         * @see java.util.Iterator#hasNext()
+         */
         @Override
         public boolean hasNext() {
             return remainingIterations > 0
@@ -146,14 +124,6 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
             }
 
             return next();
-        }
-
-        /* (non-Javadoc)
-         * @see java.util.Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
         }
 
         /**

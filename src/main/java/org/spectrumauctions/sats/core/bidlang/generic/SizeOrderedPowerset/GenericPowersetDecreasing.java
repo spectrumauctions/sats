@@ -66,15 +66,5 @@ public abstract class GenericPowersetDecreasing<T extends GenericDefinition> ext
             pickN = new GenericSetsPickN<>(maxQuantities, bundleSize--);
         }
 
-        /* (non-Javadoc)
-         * @see java.util.Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-
     }
-
 }

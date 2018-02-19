@@ -12,11 +12,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- *
- *
- *
  * @author Michael Weiss
- *
  */
 public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
 
@@ -28,9 +24,8 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
     private boolean hasNext;
 
     /**
-     *
      * @param maxQuantities The maximum quantities per type to be returned. The iterator of this map has to return the keys in increasing order of priority
-     * @param target how many items should be picked in total
+     * @param target        how many items should be picked in total
      */
     public GenericSetsPickN(Map<T, Integer> maxQuantities, int target) {
         Preconditions.checkArgument(target > 0);
@@ -51,13 +46,29 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
     }
 
     /**
+     * Appends 0 to a list until it has a certain size
+     */
+    private static void appendZeros(int size, List<Integer> list) {
+        while (list.size() < size) {
+            list.add(0);
+        }
+    }
+
+    private static int sum(List<Integer> summands) {
+        int result = 0;
+        for (int summand : summands) {
+            result += summand;
+        }
+        return result;
+    }
+
+    /**
      * @see java.util.Iterator#hasNext()
      */
     @Override
     public boolean hasNext() {
         return hasNext;
     }
-
 
     /**
      * @see java.util.Iterator#next()
@@ -90,24 +101,6 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
         }
     }
 
-    /**
-     * @see java.util.Iterator#remove()
-     */
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
-
-
-    /**
-     * Appends 0 to a list until it has a certain size
-     */
-    private static void appendZeros(int size, List<Integer> list) {
-        while (list.size() < size) {
-            list.add(0);
-        }
-    }
-
     private class ColumnWalker {
         private final ColumnWalker nextWalker;
         private final int maxValue;
@@ -115,7 +108,7 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
 
         /**
          * @param nextWalker The walker (i.e. number generator) for the next less priorized quantifiable object
-         * @param maxValue the maximum quantity the quantifiable object this walker is working for can have.
+         * @param maxValue   the maximum quantity the quantifiable object this walker is working for can have.
          */
         private ColumnWalker(ColumnWalker nextWalker, int maxValue) {
             super();
@@ -192,15 +185,6 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
                 nextWalker.reset();
             }
         }
-    }
-
-
-    private static int sum(List<Integer> summands) {
-        int result = 0;
-        for (int summand : summands) {
-            result += summand;
-        }
-        return result;
     }
 
 

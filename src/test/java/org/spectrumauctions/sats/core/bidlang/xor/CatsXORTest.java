@@ -70,17 +70,7 @@ public class CatsXORTest {
         Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
 
         catsIterator.next(); // Get original bundle already to test that there's no other valid bundle
-
-        while (catsIterator.hasNext()) {
-            try {
-                catsIterator.next();
-                Assert.fail(); // Should never succeed to get here
-            } catch (NoSuchElementException e) {
-                break; // Should end up here
-            }
-        }
-
-
+        Assert.assertFalse(catsIterator.hasNext());
     }
 
     @Test
@@ -99,12 +89,8 @@ public class CatsXORTest {
         Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
 
         while (catsIterator.hasNext()) {
-            try {
                 XORValue<CATSLicense> xor = catsIterator.next();
-                Assert.assertNotNull(xor);
-            } catch (NoSuchElementException e) {
-                Assert.fail("At seed " + seed + ": " + e.getMessage());
-            }
+                Assert.assertNotNull("Null returned at seed " + seed, xor);
         }
     }
 
@@ -153,15 +139,17 @@ public class CatsXORTest {
             int numberOfGoodsSats = 0;
             double valueOfGoodsSats = 0;
 
+            long seed = 435987123982L;
+
             for (int i = 0; i < dir.list().length / 100; i++) {
                 CATSRegionModel model = new CATSRegionModel();
                 model.setNumberOfGoods(256);
                 model.setNumberOfBidders(25);
-                List<CATSBidder> bidders = model.createNewPopulation();
+                List<CATSBidder> bidders = model.createNewPopulation(seed++);
                 numberOfBiddersSats += bidders.size();
 
                 for (CATSBidder bidder : bidders) {
-                    CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class);
+                    CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed++);
                     Set<XORValue<CATSLicense>> bids = valueFunction.getCATSXORBids();
                     numberOfBidsSats += bids.size();
                     for (XORValue<CATSLicense> bid : bids) {
@@ -177,8 +165,8 @@ public class CatsXORTest {
 
             // TODO: Find the reason why SATS generally has a bit lower prices, a bit less goods per bid,
             // and a bit less goods per bidder.
-            Assert.assertEquals(bidsPerBidderCats, bidsPerBidderSats, 1.5);
-            Assert.assertEquals(avgBundleSize, avgBundleSizeSats, 1);
+            Assert.assertEquals(bidsPerBidderCats, bidsPerBidderSats, 1);
+            Assert.assertEquals(avgBundleSize, avgBundleSizeSats, 2);
             Assert.assertEquals(valuePerGood, valuePerGoodSats, 10);
 
         } else {
