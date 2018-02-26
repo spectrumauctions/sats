@@ -45,16 +45,5 @@ public class IncreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> 
             index = index.add(BigInteger.ONE);
             return new XORValue<>(bundle, IncreasingSizeOrderedXOR.this.getValue(bundle));
         }
-
-        /**
-         * @see java.util.Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-
     }
-
 }

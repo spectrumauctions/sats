@@ -1,6 +1,8 @@
 package org.spectrumauctions.sats.core.bidlang.xor;
 
 import com.google.common.base.Preconditions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.cats.CATSBidder;
 import org.spectrumauctions.sats.core.model.cats.CATSLicense;
@@ -41,6 +43,9 @@ import java.util.stream.Collectors;
  * @author Fabio Isler
  */
 public class CatsXOR implements XORLanguage<CATSLicense> {
+
+    private static final Logger logger = LogManager.getLogger(CatsXOR.class);
+
     private Collection<CATSLicense> goods;
     private CATSBidder bidder;
     private RNGSupplier rngSupplier;
@@ -51,7 +56,7 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
         this.goods = goods;
         this.bidder = bidder;
         this.rngSupplier = rngSupplier;
-        this.world = goods.stream().findAny().orElseThrow(IllegalArgumentException::new).getWorld();
+        this.world = goods.stream().findAny().orElseThrow(() -> new IllegalArgumentException("All passed goods must have a world")).getWorld();
         this.noCapForSubstitutableGoods = false;
     }
 
@@ -127,15 +132,10 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
             int licensesLeftToChoose = goods.size() - originalBundle.size();
             return !(originalBundle.size() <= 1)                // The original bundle included only one license
                         && !originalLicenseQueue.isEmpty()      // We're not done yet with creating substitutable bundles
-                        && licensesLeftToChoose > 0;
+                        && licensesLeftToChoose > 0
+                        && retries < MAX_RETRIES;
         }
 
-        /**
-         * @throws NoSuchElementException This exception is not only thrown if there was no {{@link #hasNext()} query
-         *              before calling this function, but also if no valid bundle was found (not identical to the
-         *              original bid and satisfying budget or min_resale_value constraints) after {{@link #MAX_RETRIES}
-         *              retries.
-         */
         @Override
         public XORValue<CATSLicense> next() throws NoSuchElementException {
             if (!hasNext())
@@ -182,24 +182,24 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
                     retries = 0; // Found one - reset retries counter
                     return new XORValue<>(bundle, value);
                 } else {
-                    return handleNulls(first);
+                    try {
+                        return handleNulls(first);
+                    } catch (NoValidElementFoundException e) {
+                        logger.error(e);
+                        logger.error("Returning null.");
+                        return null;
+                    }
                 }
             }
         }
 
-        private XORValue<CATSLicense> handleNulls(CATSLicense first) throws NoSuchElementException {
+        private XORValue<CATSLicense> handleNulls(CATSLicense first) throws NoValidElementFoundException {
             if (acceptNulls) {
                 return null;
             }
             originalLicenseQueue.add(first); // Add this license to the original queue again
             if (hasNext() && ++retries < MAX_RETRIES) return next();
-            else throw new NoSuchElementException("After " + retries + " retries, no other bundle was found " +
-                    "that was not identical to the original bundle bid and is valid in terms of budget and " +
-                    "min_resale_value constraints. \n" +
-                    "Most likely, there are either almost no licenses to choose from or the original bundle is very" +
-                    "small and highly valued, so that it's difficult to create another bundle that satisfies the" +
-                    "constraints. Try again (maybe with a higher number of goods) or use the the iterator that handles" +
-                    "this situation with null-values.");
+            else throw new NoValidElementFoundException();
         }
 
         private CATSLicense selectLicenseToAdd(Bundle<CATSLicense> bundle) {
@@ -238,12 +238,16 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
             return false;
         }
 
-        /**
-         * @see Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
+        private class NoValidElementFoundException extends Exception {
+            NoValidElementFoundException() {
+                super("After " + retries + " retries, no other bundle was found " +
+                        "that was not identical to the original bundle bid and is valid in terms of budget and " +
+                        "min_resale_value constraints. \n" +
+                        "Most likely, there are either almost no licenses to choose from or the original bundle is very" +
+                        "small and highly valued, so that it's difficult to create another bundle that satisfies the" +
+                        "constraints. Try again (maybe with a higher number of goods) or use the the iterator that handles" +
+                        "this situation with null-values.");
+            }
         }
     }
 
@@ -252,7 +256,7 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
         private final UniformDistributionRNG random;
         private double total = 0;
 
-        public WeightedRandomCollection(UniformDistributionRNG random) {
+        private WeightedRandomCollection(UniformDistributionRNG random) {
             this.random = random;
         }
 

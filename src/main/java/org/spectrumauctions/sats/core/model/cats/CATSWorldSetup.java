@@ -148,7 +148,7 @@ public class CATSWorldSetup {
         // CATS default parameters
         private static final int DEFAULT_NUMBER_OF_ROWS = 16;       // Specified as sqrt(256)
         private static final int DEFAULT_NUMBER_OF_COLUMNS = 16;    // Specified as sqrt(256)
-        private static final double DEFAULT_THREE_PROB = 1.0;
+        private static final double DEFAULT_THREE_PROB = 0.1;
         private static final double DEFAULT_ADDITIONAL_NEIGHBOR = 0.2;
         private static final double DEFAULT_ADDITIVITY = 0.2;
         private static final boolean DEFAULT_QUADRATIC_PRICING_FLAG = false;
