@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spectrumauctions</groupId>
 	<artifactId>sats-clt</artifactId>
-	<version>0.5.3-SNAPSHOT</version>
+	<version>0.5.3</version>
 	<name>SATS Command Line Tool</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.spectrumauctions</groupId>
 			<artifactId>sats-core</artifactId>
-			<version>0.5.3-SNAPSHOT</version>
+			<version>0.5.3</version>
 		</dependency>
 	</dependencies>
 
