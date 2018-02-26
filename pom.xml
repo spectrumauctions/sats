@@ -3,7 +3,7 @@
 
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats-opt</artifactId>
-    <version>0.5.3-SNAPSHOT</version>
+    <version>0.5.3</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -99,7 +99,7 @@
         <connection>scm:git:git://github.com/spectrumauctions/sats-opt.git</connection>
         <developerConnection>scm:git:git@github.com:spectrumauctions/sats-opt.git</developerConnection>
         <url>https://github.com/spectrumauctions/sats-opt/tree/master/</url>
-        <tag>HEAD</tag>
+        <tag>v0.5.3</tag>
     </scm>
 
     <dependencies>
