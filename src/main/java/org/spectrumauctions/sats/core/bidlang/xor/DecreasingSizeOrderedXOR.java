@@ -19,7 +19,6 @@ import java.util.Iterator;
  */
 public class DecreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> {
 
-
     public DecreasingSizeOrderedXOR(Collection<T> goods, Bidder<T> bidder) {
         super(goods, bidder);
     }
@@ -47,13 +46,5 @@ public class DecreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> 
             return new XORValue<>(bundle, DecreasingSizeOrderedXOR.this.getValue(bundle));
         }
 
-        /* (non-Javadoc)
-         * @see java.util.Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
     }
-
 }

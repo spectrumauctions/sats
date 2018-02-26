@@ -10,7 +10,7 @@ import org.spectrumauctions.sats.core.model.Good;
 
 import java.math.BigDecimal;
 
-public class XORValue<T extends Good> {
+public class XORValue<T extends Good> implements Comparable<XORValue<T>> {
 
     private transient final int id;
     private static int ID_COUNT = 0;
@@ -70,4 +70,8 @@ public class XORValue<T extends Good> {
         return id;
     }
 
+    @Override
+    public int compareTo(XORValue<T> o) {
+        return this.value().compareTo(o.value());
+    }
 }

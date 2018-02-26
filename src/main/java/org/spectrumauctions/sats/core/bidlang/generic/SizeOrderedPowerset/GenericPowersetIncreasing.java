@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * Iterates over the Powerset of Generic Values.<br>
- * Attention, this is not suitable for very big models, as this implementation will get very very slow for large bundle sizes. 
- * @author Michael Weiss
+ * Attention, this is not suitable for very big models, as this implementation will get very very slow for large bundle sizes.
  *
+ * @author Michael Weiss
  */
 public abstract class GenericPowersetIncreasing<T extends GenericDefinition> extends GenericPowerset<T> {
 
@@ -60,17 +59,5 @@ public abstract class GenericPowersetIncreasing<T extends GenericDefinition> ext
             pickN = new GenericSetsPickN<>(maxQuantities, bundleSize++);
         }
 
-
-        /**
-         * @see java.util.Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-
     }
-
-
 }

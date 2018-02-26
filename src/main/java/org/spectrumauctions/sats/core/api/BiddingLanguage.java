@@ -18,7 +18,7 @@ import org.spectrumauctions.sats.core.bidlang.xor.*;
  */
 public enum BiddingLanguage {
 
-    SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC;
+    SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC, CATS_SPECIFIC;
 
     @SuppressWarnings("rawtypes")
     public static Class<? extends XORLanguage> getXORLanguage(BiddingLanguage type) throws IllegalConfigException {
@@ -28,8 +28,10 @@ public enum BiddingLanguage {
             return DecreasingSizeOrderedXOR.class;
         } else if (type == RANDOM) {
             return SizeBasedUniqueRandomXOR.class;
-        } else if (type == BiddingLanguage.BIDDER_SPECIFIC) {
+        } else if (type == BIDDER_SPECIFIC) {
             return BidderSpecificXOR.class;
+        } else if (type == CATS_SPECIFIC) {
+            return CatsXOR.class;
         } else {
             if (type == null) {
                 throw new IllegalArgumentException("Language must not be null");
@@ -46,7 +48,7 @@ public enum BiddingLanguage {
             return GenericPowersetDecreasing.class;
         } else if (type == RANDOM) {
             return XORQRandomOrderSimple.class;
-        } else if (type == BiddingLanguage.BIDDER_SPECIFIC) {
+        } else if (type == BIDDER_SPECIFIC) {
             return BidderSpecificGeneric.class;
         } else {
             if (type == null) {

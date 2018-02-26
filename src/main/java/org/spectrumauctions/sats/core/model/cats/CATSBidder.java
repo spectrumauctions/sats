@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
+import org.spectrumauctions.sats.core.bidlang.xor.CatsXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
@@ -57,7 +58,9 @@ public final class CATSBidder extends Bidder<CATSLicense> {
 
     @Override
     public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, long seed) throws UnsupportedBiddingLanguageException {
-        if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
+        if (clazz.isAssignableFrom(CatsXOR.class)) {
+            return clazz.cast(new CatsXOR(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
+        } else if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
                     new SizeBasedUniqueRandomXOR<>(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {

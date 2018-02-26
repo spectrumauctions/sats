@@ -22,6 +22,12 @@ public class CATSWorldSetup {
     private final double additionalNeigh;   //Probability of adding an additional neighbor
     private final double additivity;
     private final boolean useQuadraticPricingOption;
+    private final double deviation;
+    private final double additionalLocation;
+    private double budgetFactor;
+    private double resaleFactor;
+    private double jumpProbability;
+    private int maxSubstitutableBids;
 
     private CATSWorldSetup(Builder builder) {
         super();
@@ -33,10 +39,36 @@ public class CATSWorldSetup {
         this.commonValueInterval = builder.commonValueInterval;
         this.additivity = builder.additivity;
         this.useQuadraticPricingOption = builder.useQuadraticPricingOption;
+        this.deviation = builder.deviation;
+        this.additionalLocation = builder.additionalLocation;
+        this.budgetFactor = builder.budgetFactor;
+        this.resaleFactor = builder.resaleFactor;
+        this.jumpProbability = builder.jumpProbability;
+        this.maxSubstitutableBids = builder.maxSubstitutableBids;
     }
 
     public double getAdditivity() {
         return additivity;
+    }
+
+    public double getDeviation() {
+        return deviation;
+    }
+
+    public double getAdditionalLocation() {
+        return additionalLocation;
+    }
+
+    public double getBudgetFactor() {
+        return budgetFactor;
+    }
+
+    public double getResaleFactor() {
+        return resaleFactor;
+    }
+
+    public double getJumpProbability() {
+        return jumpProbability;
     }
 
     /**
@@ -107,19 +139,23 @@ public class CATSWorldSetup {
         return useQuadraticPricingOption;
     }
 
+    public int getMaxSubstitutableBids() {
+        return maxSubstitutableBids;
+    }
+
     public static class Builder {
 
         // CATS default parameters
         private static final int DEFAULT_NUMBER_OF_ROWS = 16;       // Specified as sqrt(256)
         private static final int DEFAULT_NUMBER_OF_COLUMNS = 16;    // Specified as sqrt(256)
-        private static final double DEFAULT_THREE_PROB = 1.0;
+        private static final double DEFAULT_THREE_PROB = 0.1;
         private static final double DEFAULT_ADDITIONAL_NEIGHBOR = 0.2;
         private static final double DEFAULT_ADDITIVITY = 0.2;
         private static final boolean DEFAULT_QUADRATIC_PRICING_FLAG = false;
         private static final double DEFAULT_MAX_GOOD_VALUE = 100;
-        private static final double DEFAULT_COMMON_VALUE_MIN = 1;   // Specified as rand*(max-1)-1
+        private static final double DEFAULT_COMMON_VALUE_MIN = 1;   // Specified as rand*(max-1)+1
         private static final double DEFAULT_COMMON_VALUE_MAX = DEFAULT_MAX_GOOD_VALUE;
-        private static final double DEFAULT_MAX_SUBSTITUTABLE_BIDS = 5;
+        private static final int DEFAULT_MAX_SUBSTITUTABLE_BIDS = 5;
         private static final double DEFAULT_ADDITIONAL_LOCATION = 0.9;
         private static final double DEFAULT_JUMP_PROB = 0.05;
         private static final double DEFAULT_DEVIATION = 0.5;
@@ -134,6 +170,12 @@ public class CATSWorldSetup {
         private double additionalNeigh;
         private double additivity;
         private boolean useQuadraticPricingOption;
+        private double deviation;
+        private double additionalLocation;
+        private double budgetFactor;
+        private double resaleFactor;
+        private double jumpProbability;
+        private int maxSubstitutableBids;
 
         public Builder() {
             super();
@@ -144,21 +186,33 @@ public class CATSWorldSetup {
             this.additionalNeigh = DEFAULT_ADDITIONAL_NEIGHBOR;
             this.additivity = DEFAULT_ADDITIVITY;
             this.useQuadraticPricingOption = DEFAULT_QUADRATIC_PRICING_FLAG;
+            this.deviation = DEFAULT_DEVIATION;
+            this.additionalLocation = DEFAULT_ADDITIONAL_LOCATION;
+            this.budgetFactor = DEFAULT_BUDGET_FACTOR;
+            this.resaleFactor = DEFAULT_RESALE_FACTOR;
+            this.jumpProbability = DEFAULT_JUMP_PROB;
+            this.maxSubstitutableBids = DEFAULT_MAX_SUBSTITUTABLE_BIDS;
         }
 
         public void setNumberOfRowsInterval(IntegerInterval numberOfRowsInterval) {
-            Preconditions.checkArgument(numberOfRowsInterval.getMinValue() > 0);
+            Preconditions.checkArgument(numberOfRowsInterval.getMinValue() >= 2,
+                    "Please choose a number of columns interval that starts at least at 2," +
+                            "so that a 2x2 grid can be created");
             this.numberOfRowsInterval = numberOfRowsInterval;
         }
 
         public void setNumberOfColumnsInterval(IntegerInterval numberOfColumnsInterval) {
-            Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() > 0);
+            Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() >= 2,
+                    "Please choose a number of columns interval that starts at least at 2," +
+                            "so that a 2x2 grid can be created");
             this.numberOfColumnsInterval = numberOfColumnsInterval;
         }
 
-        public void setNumberOfGoodsInterval(IntegerInterval NumberOfGoodsInterval) {
-            Preconditions.checkArgument(numberOfColumnsInterval.getMinValue() > 0);
-            this.numberOfGoodsInterval = NumberOfGoodsInterval;
+        public void setNumberOfGoodsInterval(IntegerInterval numberOfGoodsInterval) {
+            Preconditions.checkArgument(numberOfGoodsInterval.getMinValue() >= 4,
+                    "Please choose a number of goods interval that starts at least at 4, so that " +
+                            "a 2x2 grid can be created.");
+            this.numberOfGoodsInterval = numberOfGoodsInterval;
         }
 
         public void setCommonValueInterval(DoubleInterval commonValueInterval) {
@@ -182,9 +236,32 @@ public class CATSWorldSetup {
             this.useQuadraticPricingOption = bool;
         }
 
+        public void setDeviation(double deviation) {
+            this.deviation = deviation;
+        }
+
+        public void setAdditionalLocation(double additionalLocation) {
+            this.additionalLocation = additionalLocation;
+        }
+
+        public void setBudgetFactor(double budgetFactor) {
+            this.budgetFactor = budgetFactor;
+        }
+
+        public void setJumpProbability(double jumpProbability) {
+            this.jumpProbability = jumpProbability;
+        }
+
+        public void setMaxSubstitutableBids(int maxSubstitutableBids) {
+            this.maxSubstitutableBids = maxSubstitutableBids;
+        }
+
         public CATSWorldSetup build() {
             return new CATSWorldSetup(this);
         }
 
+        public int getDefaultNumberOfGoods() {
+            return DEFAULT_NUMBER_OF_COLUMNS * DEFAULT_NUMBER_OF_ROWS;
+        }
     }
 }

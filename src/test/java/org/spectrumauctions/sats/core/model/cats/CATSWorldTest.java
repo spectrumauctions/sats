@@ -81,10 +81,12 @@ public class CATSWorldTest {
         builder.setAdditivity(0.5);
         builder.setCommonValueInterval(new DoubleInterval(0, 5));
         builder.setUseQuadraticPricingOption(true);
+        // This will override the previously set number of rows / columns
         builder.setNumberOfGoodsInterval(new IntegerInterval(25));
         CATSWorld world1 = new CATSWorld(builder.build(), new JavaUtilRNGSupplier());
         Set<CATSLicense> licenses = world1.getLicenses();
         Assert.assertEquals(licenses.size(), 25);
+        Assert.assertEquals(world1.getNumberOfGoods(), 25);
         Assert.assertEquals(world1.getAdditivity(), 0.5, 0);
         Assert.assertTrue(world1.getUseQuadraticPricingOption());
     }

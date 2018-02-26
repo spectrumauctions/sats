@@ -130,7 +130,7 @@ public abstract class ModelCreator {
             @SuppressWarnings("unchecked")
             Class<? extends XORLanguage<Good>> langClass = (Class<? extends XORLanguage<Good>>) BiddingLanguage.getXORLanguage(lang);
             if (oneFile) {
-                Collection<XORLanguage<Good>> languages = new ArrayList<>();
+                Collection<XORLanguage<? extends Good>> languages = new ArrayList<>();
                 for (Bidder<? extends Good> bidder : bidders) {
                     XORLanguage<Good> language = bidder.getValueFunction(langClass);
                     languages.add(language);
