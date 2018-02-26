@@ -43,10 +43,10 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeMultiBidderXOR(java.util.Collection, int, java.lang.String)
      */
     @Override
-    public File writeMultiBidderXOR(Collection<XORLanguage<Good>> valueFunctions, int numberOfBids, String filePrefix)
+    public File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException {
         JsonArray json = new JsonArray();
-        for (XORLanguage<Good> lang : valueFunctions) {
+        for (XORLanguage<? extends Good> lang : valueFunctions) {
             JsonObject thisBidder = new JsonObject();
             thisBidder.addProperty("bidder", lang.getBidder().getId());
             thisBidder.add("bids", singleBidderXOR(lang, numberOfBids, filePrefix));
@@ -56,12 +56,12 @@ public class JsonExporter extends FileWriter {
     }
 
 
-    private JsonElement singleBidderXOR(XORLanguage<Good> lang, int numberOfBids, String filePrefix) {
+    private JsonElement singleBidderXOR(XORLanguage<? extends Good> lang, int numberOfBids, String filePrefix) {
         JsonArray result = new JsonArray();
-        Iterator<XORValue<Good>> iter = lang.iterator();
+        Iterator iter = lang.iterator();
         for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
             JsonObject bid = new JsonObject();
-            XORValue<Good> xorValue = iter.next();
+            XORValue<Good> xorValue = (XORValue) iter.next();
             JsonArray licenses = new JsonArray();
             for (Good license : xorValue.getLicenses()) {
                 licenses.add(license.getId());
@@ -77,7 +77,7 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeSingleBidderXOR(XORLanguage, int, java.lang.String)
      */
     @Override
-    public File writeSingleBidderXOR(XORLanguage<Good> valueFunction, int numberOfBids, String filePrefix)
+    public File writeSingleBidderXOR(XORLanguage<? extends Good> valueFunction, int numberOfBids, String filePrefix)
             throws IOException {
         JsonElement singleBidder = singleBidderXOR(valueFunction, numberOfBids, filePrefix);
         return write(singleBidder, filePrefix);

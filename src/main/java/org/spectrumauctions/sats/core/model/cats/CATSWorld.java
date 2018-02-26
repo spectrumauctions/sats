@@ -17,12 +17,18 @@ public final class CATSWorld extends World {
     private static final long serialVersionUID = 1794771578755986936L;
     private static final String MODEL_NAME = "CATS Region Value Model";
     private final double additivity;
+    private final double additionalLocation;
+    private double budgetFactor;
+    private double resaleFactor;
+    private double jumpProbability;
+    private double deviation;
     private final boolean useQuadraticPricingOption;
     private final Mesh2D grid;
     private final int size;
     private final HashSet<CATSLicense> licenses;
 
     private transient ImmutableSet<CATSLicense> licenseSet;
+    private int maxSubstitutableBids;
 
 
     public CATSWorld(CATSWorldSetup worldSetup, RNGSupplier rngSupplier) {
@@ -43,6 +49,12 @@ public final class CATSWorld extends World {
         }
         this.size = this.grid.getVertices().size();
         this.additivity = worldSetup.getAdditivity();
+        this.additionalLocation = worldSetup.getAdditionalLocation();
+        this.budgetFactor = worldSetup.getBudgetFactor();
+        this.resaleFactor = worldSetup.getResaleFactor();
+        this.jumpProbability = worldSetup.getJumpProbability();
+        this.deviation = worldSetup.getDeviation();
+        this.maxSubstitutableBids = worldSetup.getMaxSubstitutableBids();
         this.useQuadraticPricingOption = worldSetup.useQuadraticPricingOption();
         store();
     }
@@ -99,6 +111,18 @@ public final class CATSWorld extends World {
         return additivity;
     }
 
+    public double getAdditionalLocation() {
+        return additionalLocation;
+    }
+
+    public double getBudgetFactor() {
+        return budgetFactor;
+    }
+
+    public double getResaleFactor() {
+        return resaleFactor;
+    }
+
     public int getSize() {
         return size;
     }
@@ -109,5 +133,17 @@ public final class CATSWorld extends World {
 
     public boolean getUseQuadraticPricingOption() {
         return useQuadraticPricingOption;
+    }
+
+    public double getJumpProbability() {
+        return jumpProbability;
+    }
+
+    public double getDeviation() {
+        return deviation;
+    }
+
+    public int getMaxSubstitutableBids() {
+        return maxSubstitutableBids;
     }
 }

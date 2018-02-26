@@ -191,14 +191,6 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             Bundle<T> bundle = sizeOrderedXOR.getBundle(bundleId, bundleSize);
             return new XORValue<>(bundle, getValue(bundle));
         }
-
-        /**
-         * @see java.util.Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
     }
 
 

@@ -3,6 +3,7 @@ package org.spectrumauctions.sats.core.api;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.cats.CATSBidderSetup;
 import org.spectrumauctions.sats.core.model.cats.CATSRegionModel;
+import org.spectrumauctions.sats.core.model.cats.CATSWorldSetup;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,7 @@ public class CATSRegionsModelCreator extends ModelCreator {
         public Builder() {
             super();
             this.numberOfBidders = new CATSBidderSetup.Builder().getNumberOfBidders();
+            this.numberOfGoods = new CATSWorldSetup.Builder().getDefaultNumberOfGoods();
         }
 
         @Override

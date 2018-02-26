@@ -14,7 +14,6 @@ import java.util.*;
 
 /**
  * @author Michael Weiss
- *
  */
 public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends GenericSizeOrdered<T> {
 
@@ -29,8 +28,8 @@ public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends
 
     private class DecreasingIterator implements Iterator<GenericValue<T>> {
 
-        private Iterator<Set<T>> definitionPowersetIterator;
         int round = 0;
+        private Iterator<Set<T>> definitionPowersetIterator;
         private Map<T, Integer> roundSize;
 
         private boolean hasNext;
@@ -105,15 +104,5 @@ public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends
             return val.build();
         }
 
-        /**
-         * @see java.util.Iterator#remove()
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
     }
-
-
 }

@@ -24,10 +24,10 @@ public abstract class FileWriter {
 
     public static final int VALUE_STRING_MAXLENGTH = 7;
 
-    public abstract File writeMultiBidderXOR(Collection<XORLanguage<Good>> valueFunctions, int numberOfBids, String filePrefix)
+    public abstract File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException;
 
-    public abstract File writeSingleBidderXOR(XORLanguage<Good> valueFunction, int numberOfBids, String filePrefix) throws IOException;
+    public abstract File writeSingleBidderXOR(XORLanguage<? extends Good> valueFunction, int numberOfBids, String filePrefix) throws IOException;
 
     public abstract File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException;
