@@ -129,11 +129,11 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
          */
         private List<Integer> walkToNextResult(List<Integer> previousSteps) {
             // Check if this is the last walker without any leftover options
-            if (nextWalker == null & current == 0) {
+            if (nextWalker == null && current == 0) {
                 return null;
             }
 
-            int sum = sum(previousSteps) + current;
+            int sum = previousSteps.stream().mapToInt(Integer::intValue).sum() + current;
             if (sum > target) {
                 if (current == 0) {
                     return null;
@@ -193,15 +193,5 @@ public final class GenericSetsPickN<T> implements Iterator<Map<T, Integer>> {
             }
         }
     }
-
-
-    private static int sum(List<Integer> summands) {
-        int result = 0;
-        for (int summand : summands) {
-            result += summand;
-        }
-        return result;
-    }
-
 
 }
