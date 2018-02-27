@@ -1,3 +1,5 @@
+package org.spectrumauctions.sats.opt;
+
 import edu.harvard.econcs.jopt.example.SimpleLPExample;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.server.cplex.CPlexMIPSolver;
