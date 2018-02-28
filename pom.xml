@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.spectrumauctions</groupId>
-    <artifactId>sats-core</artifactId>
+    <artifactId>sats</artifactId>
     <version>0.6.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -144,9 +144,9 @@
     </build>
 
     <scm>
-        <connection>scm:git:git://github.com/spectrumauctions/sats-core.git</connection>
-        <developerConnection>scm:git:git@github.com:spectrumauctions/sats-core.git</developerConnection>
-        <url>https://github.com/spectrumauctions/sats-core/tree/master/</url>
+        <connection>scm:git:git://github.com/spectrumauctions/sats.git</connection>
+        <developerConnection>scm:git:git@github.com:spectrumauctions/sats.git</developerConnection>
+        <url>https://github.com/spectrumauctions/sats/tree/master/</url>
         <tag>HEAD</tag>
     </scm>
 
