@@ -60,9 +60,9 @@
                 <version>2.19.1</version>
                 <configuration>
                     <includes>
-                        <!-- Only Run the Test Suite for the core -->
+                        <!-- Only run the Test Suite for the core -->
                         <include>**/TestSuite.class</include>
-                        <include>**/sats/opt/*</include>
+                        <include>**/sats/opt/**/*</include>
                     </includes>
                 </configuration>
             </plugin>
