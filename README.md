@@ -8,9 +8,9 @@ For four of the models, SATS also contains a MIP formulation for the winner dete
 which enables users to quickly find the efficient allocation of the auction.
 
 The SATS source code consists of three sub-modules:
-* **Core API**: Contains all value models and all features of SATS
-* **Optimization API**: Contains the winner determination solvers
-* **Command Line Tool**: Allows generation of auction instances (i.e., value files) via command line with limited parametrization options
+* **[Core API](#getting-started-with-the-sats-core-api)**: Contains all value models and all features of SATS
+* **[Optimization API](#getting-started-with-the-sats-optimization-api)**: Contains the winner determination solvers
+* **[Command Line Tool](#getting-started-with-sats-as-a-command-line-tool)**: Allows generation of auction instances (i.e., value files) via command line with limited parametrization options
 
 Since v0.6.0, these sub-modules are merged into a single module called `sats`.
 
