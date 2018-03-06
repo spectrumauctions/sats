@@ -11,7 +11,7 @@ import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
-import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

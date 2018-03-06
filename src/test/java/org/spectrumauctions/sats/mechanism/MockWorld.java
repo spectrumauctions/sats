@@ -1,4 +1,4 @@
-package org.spectrumauctions.sats.opt.vcg.external;
+package org.spectrumauctions.sats.mechanism;
 
 import org.mockito.Mockito;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;

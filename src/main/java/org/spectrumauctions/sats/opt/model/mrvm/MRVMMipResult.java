@@ -13,7 +13,7 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
-import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

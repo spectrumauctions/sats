@@ -1,29 +1,28 @@
 package org.spectrumauctions.sats.opt.model.gsvm;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalDouble;
-
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
-import org.spectrumauctions.sats.opt.model.EfficientAllocator;
-import org.spectrumauctions.sats.opt.model.ModelMIP;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation.ItemAllocationBuilder;
-
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
+import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
+import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation.ItemAllocationBuilder;
+import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
+import org.spectrumauctions.sats.opt.model.ModelMIP;
 
-public class GSVMStandardMIP extends ModelMIP implements EfficientAllocator<ItemAllocation<GSVMLicense>> {
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
+
+public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<GSVMLicense>> {
 
 	private int n; // number of agents
 	private int m; // number of items

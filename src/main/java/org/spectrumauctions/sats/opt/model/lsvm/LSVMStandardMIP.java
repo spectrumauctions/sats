@@ -1,28 +1,6 @@
 package org.spectrumauctions.sats.opt.model.lsvm;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMGrid;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMWorld;
-import org.spectrumauctions.sats.opt.model.EfficientAllocator;
-import org.spectrumauctions.sats.opt.model.ModelMIP;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation.ItemAllocationBuilder;
-
 import com.google.common.collect.ImmutableSet;
-
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
@@ -30,6 +8,22 @@ import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
+import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
+import org.spectrumauctions.sats.core.model.lsvm.LSVMGrid;
+import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
+import org.spectrumauctions.sats.core.model.lsvm.LSVMWorld;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation.ItemAllocationBuilder;
+import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
+import org.spectrumauctions.sats.opt.model.ModelMIP;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * This class implements a mip finding the efficient allocation in an instance
@@ -37,7 +31,7 @@ import edu.harvard.econcs.jopt.solver.mip.Variable;
  *
  * @author Nicolas Küchler
  */
-public class LSVMStandardMIP extends ModelMIP implements EfficientAllocator<ItemAllocation<LSVMLicense>> {
+public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<LSVMLicense>> {
 
 	private int n; // number of agents
 	private int m; // number of items

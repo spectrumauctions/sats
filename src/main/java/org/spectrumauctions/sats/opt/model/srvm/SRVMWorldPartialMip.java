@@ -11,7 +11,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
-import org.spectrumauctions.sats.opt.imip.PartialMIP;
+import org.spectrumauctions.sats.opt.domain.PartialMIP;
 
 import java.util.*;
 

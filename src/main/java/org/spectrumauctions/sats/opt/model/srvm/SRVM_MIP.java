@@ -19,8 +19,8 @@ import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
-import org.spectrumauctions.sats.opt.model.EfficientAllocator;
-import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * @author Fabio Isler
  */
-public class SRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllocation<SRVMBand>> {
+public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<SRVMBand>> {
 
     private static final Logger logger = LogManager.getLogger(SRVM_MIP.class);
 

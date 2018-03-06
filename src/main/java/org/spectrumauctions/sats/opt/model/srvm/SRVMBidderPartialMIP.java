@@ -11,8 +11,8 @@ import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
-import org.spectrumauctions.sats.opt.imip.PartialMIP;
-import org.spectrumauctions.sats.opt.imip.PiecewiseLinearPartialMIP;
+import org.spectrumauctions.sats.opt.domain.PartialMIP;
+import org.spectrumauctions.sats.opt.domain.PiecewiseLinearPartialMIP;
 
 import java.math.BigDecimal;
 import java.util.HashMap;

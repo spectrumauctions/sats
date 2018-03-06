@@ -15,7 +15,7 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
-import org.spectrumauctions.sats.opt.imip.PartialMIP;
+import org.spectrumauctions.sats.opt.domain.PartialMIP;
 
 import java.util.*;
 

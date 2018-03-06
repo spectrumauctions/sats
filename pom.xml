@@ -63,6 +63,7 @@
                         <!-- Only run the Test Suite for the core -->
                         <include>**/TestSuite.class</include>
                         <include>**/sats/opt/**/*</include>
+                        <include>**/sats/mechanism/**/*</include>
                     </includes>
                 </configuration>
             </plugin>

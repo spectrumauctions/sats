@@ -1,13 +1,12 @@
-package org.spectrumauctions.sats.opt.vcg.external.vcg;
+package org.spectrumauctions.sats.opt.domain;
 
 import org.spectrumauctions.sats.core.model.*;
-import org.spectrumauctions.sats.opt.model.Allocation;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 
-public final class ItemAllocation<T extends Good> implements Allocation<Bundle<T>> {
+public final class ItemAllocation<T extends Good> implements Allocation<T> {
 
     private final World world;
     private final Map<Bidder<T>, Bundle<T>> alloc;
@@ -20,7 +19,7 @@ public final class ItemAllocation<T extends Good> implements Allocation<Bundle<T
     }
 
     @Override
-    public Collection<Bidder<T>> getBidders() {
+    public Collection<Bidder<T>> getWinners() {
         return alloc.keySet();
     }
 
@@ -41,6 +40,11 @@ public final class ItemAllocation<T extends Good> implements Allocation<Bundle<T
     @Override
     public BigDecimal getTotalValue() {
         return totalValue;
+    }
+
+    @Override
+    public BigDecimal getTradeValue(Bidder bidder) {
+        return bidder.calculateValue(alloc.get(bidder));
     }
 
     public static final class ItemAllocationBuilder<T extends Good> {

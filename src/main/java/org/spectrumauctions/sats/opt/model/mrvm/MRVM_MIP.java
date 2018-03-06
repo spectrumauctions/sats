@@ -15,22 +15,24 @@ import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
+import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
-import org.spectrumauctions.sats.opt.model.EfficientAllocator;
-import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Michael Weiss
  *
  */
-public class MRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllocation<MRVMGenericDefinition>> {
+public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<MRVMGenericDefinition>> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
 
@@ -45,6 +47,7 @@ public class MRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
     private MRVMWorldPartialMip worldPartialMip;
     private Map<MRVMBidder, MRVMBidderPartialMIP> bidderPartialMips;
     private MRVMWorld world;
+    private Collection<MRVMBidder> bidders;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
         Preconditions.checkNotNull(bidders);
@@ -53,6 +56,7 @@ public class MRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
         getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestPossibleValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
+        this.bidders = bidders;
         this.worldPartialMip = new MRVMWorldPartialMip(
                 bidders,
                 biggestPossibleValue);
@@ -85,6 +89,11 @@ public class MRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
         getMip().add(variable);
     }
 
+
+    @Override
+    public WinnerDeterminator<GenericAllocation<MRVMGenericDefinition>> getWdWithoutBidder(Bidder bidder) {
+        return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
+    }
 
     /* (non-Javadoc)
      * @see EfficientAllocator#calculateEfficientAllocation()

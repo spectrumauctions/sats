@@ -1,26 +1,16 @@
 package org.spectrumauctions.sats.opt.model.gsvm;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMNationalBidderSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMRegionalBidderSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMWorldSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
+import org.spectrumauctions.sats.core.model.gsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 public class GSVMStandardMIPTest {
 

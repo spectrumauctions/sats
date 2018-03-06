@@ -3,7 +3,7 @@
  * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.spectrumauctions.sats.opt.model;
+package org.spectrumauctions.sats.opt.domain;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -37,10 +37,10 @@ public class GenericAllocation<T extends GenericDefinition> implements Allocatio
     }
 
     /* (non-Javadoc)
-     * @see Allocation#getBidders()
+     * @see Allocation#getWinners()
      */
     @Override
-    public Collection<Bidder<?>> getBidders() {
+    public Collection<Bidder<?>> getWinners() {
         return values.keySet();
     }
 

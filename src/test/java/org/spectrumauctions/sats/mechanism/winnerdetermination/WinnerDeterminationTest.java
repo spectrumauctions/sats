@@ -1,4 +1,4 @@
-package org.spectrumauctions.sats.opt.vcg.external.winnerdetermination;
+package org.spectrumauctions.sats.mechanism.winnerdetermination;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -7,12 +7,13 @@ import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.opt.model.EfficientAllocator;
-import org.spectrumauctions.sats.opt.vcg.external.MockWorld;
-import org.spectrumauctions.sats.opt.vcg.external.MockWorld.MockGood;
-import org.spectrumauctions.sats.opt.vcg.external.domain.Auction;
-import org.spectrumauctions.sats.opt.vcg.external.domain.Bids;
-import org.spectrumauctions.sats.opt.vcg.external.domain.XORAllocation;
+import org.spectrumauctions.sats.mechanism.MockWorld;
+import org.spectrumauctions.sats.mechanism.MockWorld.MockGood;
+import org.spectrumauctions.sats.mechanism.domain.Auction;
+import org.spectrumauctions.sats.mechanism.domain.Bids;
+import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
+import org.spectrumauctions.sats.opt.domain.XORAllocation;
+import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -68,7 +69,7 @@ public class WinnerDeterminationTest {
         bids.addBid(new XORBid.Builder<>(bidder(4), Sets.newHashSet(bid4)).build());
 
         Auction<MockGood> auction = new Auction<>(bids, Sets.newHashSet(A, B, C, D));
-        EfficientAllocator<XORAllocation<MockWorld.MockGood>> wd = new XORWinnerDetermination<>(
+        WinnerDeterminator<XORAllocation<MockGood>> wd = new XORWinnerDetermination<>(
                 auction);
         XORAllocation<MockWorld.MockGood> result = wd.calculateAllocation();
         assertTrue(result.getTotalValue().compareTo(BigDecimal.valueOf(4)) == 0);
@@ -105,7 +106,7 @@ public class WinnerDeterminationTest {
         bids.addBid(new XORBid.Builder<>(bidder(9), Sets.newHashSet(bid9)).build());
 
         Auction<MockWorld.MockGood> auction = new Auction<>(bids, Sets.newHashSet(A, B, C, D, E));
-        EfficientAllocator<XORAllocation<MockWorld.MockGood>> wd = new XORWinnerDetermination<>(
+        WinnerDeterminator<XORAllocation<MockGood>> wd = new XORWinnerDetermination<>(
                 auction);
         XORAllocation<MockWorld.MockGood> result = wd.calculateAllocation();
         assertEquals(result.getTotalAllocationValue(), 4514.844, 0);

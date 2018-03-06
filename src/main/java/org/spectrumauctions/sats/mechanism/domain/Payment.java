@@ -1,4 +1,4 @@
-package org.spectrumauctions.sats.opt.vcg.external.domain;
+package org.spectrumauctions.sats.mechanism.domain;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;

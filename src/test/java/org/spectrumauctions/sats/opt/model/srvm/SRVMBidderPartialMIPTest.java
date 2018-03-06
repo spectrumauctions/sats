@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.spectrumauctions.sats.core.model.srvm.*;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.imip.PartialMIP;
+import org.spectrumauctions.sats.opt.domain.PartialMIP;
 
 import java.util.*;
 import java.util.Map.Entry;

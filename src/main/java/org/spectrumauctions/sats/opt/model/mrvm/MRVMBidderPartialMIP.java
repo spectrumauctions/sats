@@ -14,8 +14,8 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
-import org.spectrumauctions.sats.opt.imip.PartialMIP;
-import org.spectrumauctions.sats.opt.imip.PiecewiseLinearPartialMIP;
+import org.spectrumauctions.sats.opt.domain.PartialMIP;
+import org.spectrumauctions.sats.opt.domain.PiecewiseLinearPartialMIP;
 
 import java.math.BigDecimal;
 import java.util.*;
