@@ -76,7 +76,7 @@ public abstract class ModelOptionParser extends OptionParser {
         }
         if (options.has(KEY_ITERATOR)) {
             builder.setLang((BiddingLanguage) options.valueOf(KEY_ITERATOR));
-        } else if (options.valueOf("model").equals(Model.CATS)) {
+        } else if (options.valueOf("model").equals(Model.CATS)) { // Default option for CATS
             builder.setLang(BiddingLanguage.CATS_SPECIFIC);
         }
 
@@ -102,6 +102,8 @@ public abstract class ModelOptionParser extends OptionParser {
 
         if (options.has(KEY_FILETYPE)) {
             builder.setFileType((FileType) options.valueOf(KEY_FILETYPE));
+        } else if (options.valueOf("model").equals(Model.CATS)) { // Default option for CATS
+            builder.setFileType(FileType.CATS);
         } else {
             builder.setFileType(FileType.JSON);
         }
