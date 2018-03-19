@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * In that case, the first bundle of the provided iterator is the initial bundle which the following elements are based
  * on. The next bundles each have one license of the original bundle as a starting point and are extended so that they
  * have the same amount of licenses as the original bundle. In the CATS Regions model, they are called substitutable
- * bids/bundles.
+ * bids/bundles.</p>
  *
  * Two things to consider when using the option {@link #noCapForSubstitutableGoods()}:
  *  <ul>
@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
  *          impossible to detect if it's similar to another substitutable bundle. If duplicate substitutable bundles are
  *          an issue, make sure to handle after you iterated through all the elements.</li>
  *  </ul>
- * </p>
  *
  * @author Fabio Isler
  */

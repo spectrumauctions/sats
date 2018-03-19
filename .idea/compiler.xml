@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="sats-core" />
+        <module name="sats" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="sats-core" target="1.8" />
+      <module name="sats" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
