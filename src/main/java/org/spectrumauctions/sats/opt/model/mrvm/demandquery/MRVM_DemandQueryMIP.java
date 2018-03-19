@@ -47,18 +47,19 @@ public class MRVM_DemandQueryMIP extends ModelMIP {
         mrvmMip.addVariable(priceVar);
         mrvmMip.addObjectiveTerm(-1, priceVar);
         Constraint price = new Constraint(CompareType.EQ, 0);
+        price.addTerm(-1, priceVar);
         for (Map.Entry<MRVMLicense, BigDecimal> entry : prices.entrySet()) {
             MRVMLicense license = entry.getKey();
             Variable xVariable = mrvmMip.getWorldPartialMip().getXVariable(bidder, license.getRegion(), license.getBand());
-            price.addTerm(scalingFactor * entry.getValue().doubleValue(), xVariable);
+            price.addTerm(entry.getValue().doubleValue() / scalingFactor, xVariable);
         }
         mrvmMip.addConstraint(price);
     }
 
     public MRVMDemandQueryMipResult calculateAllocation() {
-        logger.info(mrvmMip.getMip());
+        logger.debug(mrvmMip.getMip());
         IMIPResult mipResult = solver.solve(mrvmMip.getMip());
-        logger.info("Result:\n{}", mipResult);
+        logger.debug("Result:\n{}", mipResult);
 
         double scalingFactor = mrvmMip.getBidderPartialMips().get(bidder).getScalingFactor();
 
@@ -67,7 +68,11 @@ public class MRVM_DemandQueryMIP extends ModelMIP {
         double resultingPrice = mipResult.getValue(priceVar);
         double unscaledValue = resultingValue * scalingFactor;
         double unscaledPrice = resultingPrice * scalingFactor;
-        Preconditions.checkArgument(unscaledValue - unscaledPrice == mipResult.getObjectiveValue() * scalingFactor);
+        double unscaledObjVal = mipResult.getObjectiveValue() * scalingFactor;
+        if (Math.abs(unscaledValue - unscaledPrice - unscaledObjVal) >= 1e-7) {
+            logger.warn("Values don't match. Delta of {}. Unscaled value = {}, Unscaled price = {}, Unscaled objective value = {}",
+                    unscaledValue - unscaledPrice - unscaledObjVal, unscaledValue, unscaledPrice, unscaledObjVal);
+        }
         GenericValue.Builder<MRVMGenericDefinition> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
         for (Region region : world.getRegionsMap().getRegions()) {
             for (MRVMBand band : world.getBands()) {

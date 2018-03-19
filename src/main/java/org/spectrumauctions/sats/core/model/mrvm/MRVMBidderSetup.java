@@ -10,6 +10,7 @@ import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,7 @@ public abstract class MRVMBidderSetup extends BidderSetup {
             BigDecimal dividend = minTerm.multiply(world.getMaximumRegionalCapacity());
             MRVMRegionsMap.Region region = world.getRegionsMap().getRegion(beta.getKey());
             BigDecimal divisor = BigDecimal.valueOf(region.getPopulation()).multiply(beta.getValue());
-            BigDecimal zvalue = dividend.divide(divisor, RoundingMode.HALF_UP);
+            BigDecimal zvalue = dividend.divide(divisor, new MathContext(10, RoundingMode.UP));
             result.put(beta.getKey(), zvalue);
         }
         return result;
