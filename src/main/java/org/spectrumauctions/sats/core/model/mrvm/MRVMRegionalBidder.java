@@ -85,10 +85,15 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle) {
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();
         for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
-            //Note repeately calculating distance is not expensive, as distance is cached in Map Instance
+            // Note that repeatedly calculating distance is not expensive, as distance is cached in Map Instance
             int distance = getWorld().getRegionsMap().getDistance(home, region);
-            BigDecimal discount = distanceDiscounts.get(distance);
-            result.put(region, discount);
+            if (distance > distanceDiscounts.lastKey()) {
+                //Not connected regions
+                result.put(region, BigDecimal.ZERO);
+            } else {
+                BigDecimal discount = distanceDiscounts.get(distance);
+                result.put(region, discount);
+            }
         }
         return result;
     }

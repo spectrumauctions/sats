@@ -69,7 +69,7 @@ public class MRVM_DemandQueryMIP extends ModelMIP {
         double unscaledValue = resultingValue * scalingFactor;
         double unscaledPrice = resultingPrice * scalingFactor;
         double unscaledObjVal = mipResult.getObjectiveValue() * scalingFactor;
-        if (Math.abs(unscaledValue - unscaledPrice - unscaledObjVal) >= 1e-7) {
+        if (Math.abs(unscaledValue - unscaledPrice - unscaledObjVal) >= 1e-6) {
             logger.warn("Values don't match. Delta of {}. Unscaled value = {}, Unscaled price = {}, Unscaled objective value = {}",
                     unscaledValue - unscaledPrice - unscaledObjVal, unscaledValue, unscaledPrice, unscaledObjVal);
         }
