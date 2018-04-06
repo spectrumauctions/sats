@@ -29,10 +29,10 @@ public abstract class FileWriter {
 
     public abstract File writeSingleBidderXOR(XORLanguage<? extends Good> valueFunction, int numberOfBids, String filePrefix) throws IOException;
 
-    public abstract File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition>> valueFunctions, int numberOfBids, String filePrefix)
+    public abstract File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition<? extends Good>, ?>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException;
 
-    public abstract File writeSingleBidderXORQ(GenericLang<GenericDefinition> lang, int numberOfBids, String filePrefix) throws IOException;
+    public abstract File writeSingleBidderXORQ(GenericLang<GenericDefinition<? extends Good>, ?> lang, int numberOfBids, String filePrefix) throws IOException;
 
     /**
      * @return the file ending of the generated bid files

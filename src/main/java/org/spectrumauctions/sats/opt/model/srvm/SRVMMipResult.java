@@ -10,19 +10,21 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMLicense;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
 import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 
 /**
  * @author Michael Weiss
  */
-public final class SRVMMipResult extends GenericAllocation<SRVMBand> {
+public final class SRVMMipResult extends GenericAllocation<SRVMBand, SRVMLicense> {
 
 
     private final SRVMWorld world;
@@ -55,12 +57,12 @@ public final class SRVMMipResult extends GenericAllocation<SRVMBand> {
         String tab = "\t";
         StringBuilder builder = new StringBuilder();
 
-        List<Entry<Bidder<?>, GenericValue<SRVMBand>>> sortedEntries = new ArrayList<>(values.entrySet());
-        Collections.sort(sortedEntries, (e1, e2) -> ((Long) e1.getKey().getId()).compareTo((Long) e2.getKey().getId()));
+        List<Entry<Bidder<SRVMLicense>, GenericValue<SRVMBand, SRVMLicense>>> sortedEntries = new ArrayList<>(values.entrySet());
+        Collections.sort(sortedEntries, Comparator.comparing(e -> ((Long) e.getKey().getId())));
 
 
         builder.append("===== bidder listing =======").append(System.lineSeparator());
-        for (Entry<Bidder<?>, GenericValue<SRVMBand>> entry : sortedEntries) {
+        for (Entry<Bidder<SRVMLicense>, GenericValue<SRVMBand, SRVMLicense>> entry : sortedEntries) {
             SRVMBidder bidder = (SRVMBidder) entry.getKey();
 
             builder.append(entry.getKey().getId())
@@ -87,7 +89,7 @@ public final class SRVMMipResult extends GenericAllocation<SRVMBand> {
             }
             builder.append(System.lineSeparator());
             //Print allocation in reguin
-            for (Entry<Bidder<?>, GenericValue<SRVMBand>> entry : sortedEntries) {
+            for (Entry<Bidder<SRVMLicense>, GenericValue<SRVMBand, SRVMLicense>> entry : sortedEntries) {
                 builder.append(tab);
                 for (SRVMBand band : orderedBands) {
                     int quantity = entry.getValue().getQuantity(band);
@@ -111,7 +113,7 @@ public final class SRVMMipResult extends GenericAllocation<SRVMBand> {
     }
 
 
-    public static final class Builder extends GenericAllocation.Builder<SRVMBand> {
+    public static final class Builder extends GenericAllocation.Builder<SRVMBand, SRVMLicense> {
 
         private SRVMWorld world;
         private double objectiveValue;

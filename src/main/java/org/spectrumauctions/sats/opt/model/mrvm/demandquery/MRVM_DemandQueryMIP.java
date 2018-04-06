@@ -73,7 +73,7 @@ public class MRVM_DemandQueryMIP extends ModelMIP {
             logger.warn("Values don't match. Delta of {}. Unscaled value = {}, Unscaled price = {}, Unscaled objective value = {}",
                     unscaledValue - unscaledPrice - unscaledObjVal, unscaledValue, unscaledPrice, unscaledObjVal);
         }
-        GenericValue.Builder<MRVMGenericDefinition> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+        GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
         for (Region region : world.getRegionsMap().getRegions()) {
             for (MRVMBand band : world.getBands()) {
                 Variable xVar = mrvmMip.getWorldPartialMip().getXVariable(bidder, region, band);

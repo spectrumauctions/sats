@@ -25,16 +25,16 @@ public class XORQtoXOR<T extends Good> implements Iterator<Bundle<T>> {
 
     private static final Logger logger = LogManager.getLogger(XORQtoXOR.class);
 
-    private final ImmutableMap<GenericDefinition, Integer> quantitites;
-    private final ImmutableList<GenericDefinition> orderOfDefs;
+    private final ImmutableMap<GenericDefinition<T>, Integer> quantitites;
+    private final ImmutableList<GenericDefinition<T>> orderOfDefs;
     List<GenericSetsPickN<T>> pickNiterators;
     List<List<T>> currentSets;
 
-    XORQtoXOR(Map<? extends GenericDefinition, Integer> quantitites) {
+    XORQtoXOR(Map<? extends GenericDefinition<T>, Integer> quantitites) {
         super();
-        ImmutableMap.Builder<GenericDefinition, Integer> nonZeroQuantitiesBuilder = new ImmutableMap.Builder<>();
-        ImmutableList.Builder<GenericDefinition> orderBuilder = new ImmutableList.Builder<>();
-        for (Entry<? extends GenericDefinition, Integer> quantity : quantitites.entrySet()) {
+        ImmutableMap.Builder<GenericDefinition<T>, Integer> nonZeroQuantitiesBuilder = new ImmutableMap.Builder<>();
+        ImmutableList.Builder<GenericDefinition<T>> orderBuilder = new ImmutableList.Builder<>();
+        for (Entry<? extends GenericDefinition<T>, Integer> quantity : quantitites.entrySet()) {
             Preconditions.checkArgument(quantity.getValue() >= 0, "Quantity %s of generic definition %s is invalid", quantity.getValue(), quantity.getKey());
             if (quantity.getValue() > 0) {
                 nonZeroQuantitiesBuilder.put(quantity);

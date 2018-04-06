@@ -103,9 +103,9 @@ public abstract class ModelCreator {
         PathResult result;
         if (generic) {
             @SuppressWarnings("unchecked")
-            Class<? extends GenericLang<GenericDefinition>> langClass = (Class<? extends GenericLang<GenericDefinition>>) BiddingLanguage.getXORQLanguage(lang);
+            Class<? extends GenericLang<GenericDefinition<? extends Good>, ?>> langClass = (Class<? extends GenericLang<GenericDefinition<? extends Good>, ?>>) BiddingLanguage.getXORQLanguage(lang);
             if (oneFile) {
-                Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
+                Collection<GenericLang<GenericDefinition<? extends Good>, ?>> languages = new ArrayList<>();
                 for (Bidder<? extends Good> bidder : bidders) {
                     languages.add(bidder.getValueFunction(langClass));
                 }
@@ -114,12 +114,12 @@ public abstract class ModelCreator {
                 result.addValueFile(valueFile);
                 return result;
             } else {
-                Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
+                Collection<GenericLang<GenericDefinition<? extends Good>, ?>> languages = new ArrayList<>();
                 String zipId = String.valueOf(new Date().getTime());
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();
                 for (Bidder<? extends Good> bidder : bidders) {
-                    GenericLang<GenericDefinition> valueFunction = bidder.getValueFunction(langClass);
+                    GenericLang<GenericDefinition<? extends Good>, ?> valueFunction = bidder.getValueFunction(langClass);
                     writer.writeSingleBidderXORQ(valueFunction, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
                 }
                 result = new PathResult(storeWorldSerialization, instanceFolder);

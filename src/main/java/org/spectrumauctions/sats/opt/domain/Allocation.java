@@ -23,9 +23,9 @@ public interface Allocation<T extends Good> {
     /**
      * Returns information about the goods allocated to a specific bidder
      */
-    Bundle<T> getAllocation(Bidder<?> bidder);
+    Bundle<T> getAllocation(Bidder<T> bidder);
 
     BigDecimal getTotalValue();
 
-    BigDecimal getTradeValue(Bidder<?> bidder);
+    BigDecimal getTradeValue(Bidder<T> bidder);
 }

@@ -18,6 +18,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMLicense;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
 import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
@@ -32,7 +33,7 @@ import java.util.Map;
 /**
  * @author Fabio Isler
  */
-public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<SRVMBand>> {
+public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>> {
 
     private static final Logger logger = LogManager.getLogger(SRVM_MIP.class);
 
@@ -126,7 +127,7 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
                 unscaledValue = value * worldPartialMip.getScalingFactor();
             }
 
-            GenericValue.Builder<SRVMBand> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            GenericValue.Builder<SRVMBand, SRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
             for (SRVMBand band : world.getBands()) {
                 Variable xVar = worldPartialMip.getXVariable(bidder, band);
                 double doubleQuantity = mipResult.getValue(xVar);

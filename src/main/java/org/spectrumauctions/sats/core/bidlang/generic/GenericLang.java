@@ -6,6 +6,7 @@
 package org.spectrumauctions.sats.core.bidlang.generic;
 
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.Good;
 
 import java.util.Iterator;
 
@@ -14,9 +15,9 @@ import java.util.Iterator;
  * @author Michael Weiss
  *
  */
-public interface GenericLang<T extends GenericDefinition> extends BiddingLanguage {
+public interface GenericLang<T extends GenericDefinition<S>, S extends Good> extends BiddingLanguage {
 
-    Iterator<GenericValue<T>> iterator();
+    Iterator<GenericValue<T, S>> iterator();
 
 
 }

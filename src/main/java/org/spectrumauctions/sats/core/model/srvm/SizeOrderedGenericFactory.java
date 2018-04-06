@@ -25,7 +25,7 @@ public class SizeOrderedGenericFactory {
 
     static BandComparator comparator = new BandComparator();
 
-    public static GenericSizeOrdered<SRVMBand> getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericSizeOrdered<SRVMBand, SRVMLicense> getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         Set<SRVMBand> bands = bidder.getWorld().getBands();
         if (increasing) {
             return new Increasing(bands, bidder);
@@ -35,7 +35,7 @@ public class SizeOrderedGenericFactory {
     }
 
 
-    private static final class Increasing extends GenericSizeIncreasing<SRVMBand> {
+    private static final class Increasing extends GenericSizeIncreasing<SRVMBand, SRVMLicense> {
 
 
         private final SRVMBidder bidder;
@@ -68,7 +68,7 @@ public class SizeOrderedGenericFactory {
         }
     }
 
-    private static final class Decreasing extends GenericSizeDecreasing<SRVMBand> {
+    private static final class Decreasing extends GenericSizeDecreasing<SRVMBand, SRVMLicense> {
 
 
         private final SRVMBidder bidder;

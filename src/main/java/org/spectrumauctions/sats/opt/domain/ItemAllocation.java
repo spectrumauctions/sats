@@ -24,7 +24,7 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
     }
 
     @Override
-    public Bundle<T> getAllocation(Bidder<?> bidder) {
+    public Bundle<T> getAllocation(Bidder<T> bidder) {
         Bundle<T> candidate = alloc.get(bidder);
         if (candidate == null) {
             if (bidder.getWorld().equals(world)) {

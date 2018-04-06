@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author Michael Weiss
  *
  */
-public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<MRVMGenericDefinition>> {
+public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
 
@@ -95,7 +95,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
 
 
     @Override
-    public WinnerDeterminator<GenericAllocation<MRVMGenericDefinition>> getWdWithoutBidder(Bidder bidder) {
+    public WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>> getWdWithoutBidder(Bidder bidder) {
         return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
     }
 
@@ -117,7 +117,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
 //                logger.info("Scaling SV Value with factor " + svScalingFactor);
 //            }
             double unscaledValue = mipUtilityResult * svScalingFactor;
-            GenericValue.Builder<MRVMGenericDefinition> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
             for (Region region : world.getRegionsMap().getRegions()) {
                 for (MRVMBand band : world.getBands()) {
                     Variable xVar = worldPartialMip.getXVariable(bidder.getKey(), region, band);
@@ -127,7 +127,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
                     valueBuilder.putQuantity(def, quantity);
                 }
             }
-            GenericValue<MRVMGenericDefinition> build = valueBuilder.build();
+            GenericValue<MRVMGenericDefinition, MRVMLicense> build = valueBuilder.build();
             resultBuilder.putGenericValue(bidder.getKey(), build);
         }
         return resultBuilder.build();

@@ -116,7 +116,7 @@ public class CatsExporter extends FileWriter {
      * @see FileWriter#writeMultiBidderXORQ(java.util.Collection, int, java.lang.String)
      */
     @Override
-    public File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition>> valueFunctions, int numberOfBids,
+    public File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition<? extends Good>, ?>> valueFunctions, int numberOfBids,
                                      String filePrefix) throws IOException {
         throw new UnsupportedOperationException("XOR-Q is not compatible with the CATS file format");
     }
@@ -125,7 +125,7 @@ public class CatsExporter extends FileWriter {
      * @see FileWriter#writeSingleBidderXORQ(GenericLang, int, java.lang.String)
      */
     @Override
-    public File writeSingleBidderXORQ(GenericLang<GenericDefinition> lang, int numberOfBids, String filePrefix)
+    public File writeSingleBidderXORQ(GenericLang<GenericDefinition<? extends Good>, ?> lang, int numberOfBids, String filePrefix)
             throws IOException {
         throw new UnsupportedOperationException("XOR-Q is not compatible with the CATS file format");
     }

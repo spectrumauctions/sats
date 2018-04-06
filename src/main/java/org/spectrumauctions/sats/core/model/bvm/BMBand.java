@@ -21,7 +21,7 @@ import java.util.*;
  * @author Michael Weiss
  *
  */
-public class BMBand extends Band implements GenericDefinition, Serializable {
+public class BMBand extends Band implements GenericDefinition<BMLicense>, Serializable {
 
     private static final long serialVersionUID = 1156082993361102068L;
     private final List<BMLicense> licenses;
@@ -114,14 +114,8 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
      * @see GenericDefinition#isPartOf(Good)
      */
     @Override
-    public boolean isPartOf(Good license) {
-        if (license == null) {
-            return false;
-        } else if (!(license instanceof BMLicense)) {
-            return false;
-        }
-        BMLicense bmLicense = (BMLicense) license;
-        return bmLicense.getBand().equals(this);
+    public boolean isPartOf(BMLicense license) {
+        return license != null && license.getBand().equals(this);
     }
 
     /**
@@ -136,7 +130,7 @@ public class BMBand extends Band implements GenericDefinition, Serializable {
      * @see GenericDefinition#allLicenses()
      */
     @Override
-    public Set<Good> allLicenses() {
+    public Set<BMLicense> allLicenses() {
         return new HashSet<>(getLicenses());
     }
 

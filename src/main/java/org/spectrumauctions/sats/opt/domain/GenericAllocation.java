@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableMap;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.Good;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -20,11 +22,11 @@ import java.util.Map;
  * @author Michael Weiss
  *
  */
-public class GenericAllocation<T extends GenericDefinition> implements Allocation<GenericValue<T>> {
+public class GenericAllocation<T extends GenericDefinition<S>, S extends Good> implements Allocation<S> {
 
-    protected final ImmutableMap<Bidder<?>, GenericValue<T>> values;
+    protected final ImmutableMap<Bidder<S>, GenericValue<T, S>> values;
 
-    protected GenericAllocation(Builder<T> builder) {
+    protected GenericAllocation(Builder<T, S> builder) {
         this.values = ImmutableMap.copyOf(builder.storedValues);
     }
 
@@ -32,36 +34,42 @@ public class GenericAllocation<T extends GenericDefinition> implements Allocatio
      * @see Allocation#getAllocatedItems(org.spectrumauctions.sats.core.model.Bidder)
      */
     @Override
-    public GenericValue<T> getAllocation(Bidder<?> bidder) {
-        return values.get(bidder);
+    public Bundle<S> getAllocation(Bidder<S> bidder) {
+        return values.get(bidder).anyConsistentBundle();
     }
 
     /* (non-Javadoc)
      * @see Allocation#getWinners()
      */
     @Override
-    public Collection<Bidder<?>> getWinners() {
+    public Collection<Bidder<S>> getWinners() {
         return values.keySet();
     }
 
     @Override
     public BigDecimal getTotalValue() {
         BigDecimal sum = BigDecimal.ZERO;
-        for (GenericValue<T> genVal : values.values()) {
+        for (GenericValue<T, S> genVal : values.values()) {
             sum.add(genVal.getValue());
         }
         return sum;
     }
 
-    public static class Builder<T extends GenericDefinition> {
+    @Override
+    public BigDecimal getTradeValue(Bidder<S> bidder) {
+        if (bidder == null || !values.containsKey(bidder)) return BigDecimal.ZERO;
+        return values.get(bidder).getValue();
+    }
 
-        private Map<Bidder<?>, GenericValue<T>> storedValues;
+    public static class Builder<T extends GenericDefinition<S>, S extends Good> {
+
+        private Map<Bidder<S>, GenericValue<T, S>> storedValues;
 
         public Builder() {
             this.storedValues = new HashMap<>();
         }
 
-        public void putGenericValue(Bidder<?> bidder, GenericValue<T> value) {
+        public void putGenericValue(Bidder<S> bidder, GenericValue<T, S> value) {
             Preconditions.checkNotNull(bidder);
             Preconditions.checkNotNull(value);
             storedValues.put(bidder, value);

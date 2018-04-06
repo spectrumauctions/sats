@@ -20,7 +20,7 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public final class SRVMBand extends Band implements GenericDefinition {
+public final class SRVMBand extends Band implements GenericDefinition<SRVMLicense> {
 
     private static final long serialVersionUID = 8297467604786037769L;
     private final List<SRVMLicense> licenses;
@@ -121,14 +121,8 @@ public final class SRVMBand extends Band implements GenericDefinition {
      * @see GenericDefinition#isPartOf(Good)
      */
     @Override
-    public boolean isPartOf(Good license) {
-        if (license == null) {
-            return false;
-        } else if (!(license instanceof SRVMLicense)) {
-            return false;
-        }
-        SRVMLicense SRVMLicense = (SRVMLicense) license;
-        return SRVMLicense.getBand().equals(this);
+    public boolean isPartOf(SRVMLicense license) {
+        return license != null && license.getBand().equals(this);
     }
 
     /**
