@@ -48,10 +48,10 @@ public class MRVMDemandQueryTest {
 
     @Test
     public void testAllBiddersInStandardModel() {
-        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation();
+        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
         MRVMWorld world = bidders.iterator().next().getWorld();
         Map<MRVMLicense, BigDecimal> prices = new HashMap<>();
-        world.getLicenses().forEach(l -> prices.put(l, BigDecimal.valueOf(10000000)));
+        world.getLicenses().forEach(l -> prices.put(l, BigDecimal.valueOf(1000000)));
 
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);

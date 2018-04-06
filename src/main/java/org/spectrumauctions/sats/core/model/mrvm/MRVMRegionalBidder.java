@@ -87,13 +87,8 @@ public final class MRVMRegionalBidder extends MRVMBidder {
         for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
             // Note that repeatedly calculating distance is not expensive, as distance is cached in Map Instance
             int distance = getWorld().getRegionsMap().getDistance(home, region);
-            if (distance > distanceDiscounts.lastKey()) {
-                //Not connected regions
-                result.put(region, BigDecimal.ZERO);
-            } else {
-                BigDecimal discount = distanceDiscounts.get(distance);
-                result.put(region, discount);
-            }
+            BigDecimal discount = distanceDiscounts.getOrDefault(distance, BigDecimal.ZERO);
+            result.put(region, discount);
         }
         return result;
     }
