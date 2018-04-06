@@ -78,7 +78,7 @@ public class MRVMDemandQueryTest {
         Map<MRVMLicense, BigDecimal> prices = new HashMap<>();
         minimalWorld.getLicenses().forEach(l -> prices.put(l, BigDecimal.valueOf(10000)));
 
-        Map<MRVMBidder, GenericValue<MRVMGenericDefinition>> resultMap = new HashMap<>();
+        Map<MRVMBidder, GenericValue<MRVMGenericDefinition, MRVMLicense>> resultMap = new HashMap<>();
         Map<MRVMGenericDefinition, Integer> map = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
@@ -120,7 +120,7 @@ public class MRVMDemandQueryTest {
         Map<MRVMLicense, BigDecimal> prices = new HashMap<>();
         minimalWorld.getLicenses().forEach(l -> prices.put(l, BigDecimal.valueOf(10000)));
 
-        Map<MRVMBidder, GenericValue<MRVMGenericDefinition>> resultMap = new HashMap<>();
+        Map<MRVMBidder, GenericValue<MRVMGenericDefinition, MRVMLicense>> resultMap = new HashMap<>();
         Map<MRVMGenericDefinition, Integer> map = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);

@@ -29,7 +29,7 @@ public class SRVMMipTest {
         SRVM_MIP mip = new SRVM_MIP(bidders);
         SRVMMipResult result = mip.calculateAllocation();
         for (SRVMBidder bidder : bidders) {
-            GenericValue<SRVMBand> genVal = result.getAllocation(bidder);
+            GenericValue<SRVMBand, SRVMLicense> genVal = result.getGenericAllocation(bidder);
             for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
                 logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
@@ -57,7 +57,7 @@ public class SRVMMipTest {
         SRVM_MIP mip = new SRVM_MIP(bidders);
         SRVMMipResult result = mip.calculateAllocation();
         for (SRVMBidder bidder : bidders) {
-            GenericValue<SRVMBand> genVal = result.getAllocation(bidder);
+            GenericValue<SRVMBand, SRVMLicense> genVal = result.getGenericAllocation(bidder);
             for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
                 logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));

@@ -15,6 +15,7 @@ import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
+import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
@@ -105,6 +106,11 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
         getMip().add(variable);
     }
 
+
+    @Override
+    public WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>> getWdWithoutBidder(Bidder bidder) {
+        return null;
+    }
 
     /* (non-Javadoc)
      * @see EfficientAllocator#calculateEfficientAllocation()

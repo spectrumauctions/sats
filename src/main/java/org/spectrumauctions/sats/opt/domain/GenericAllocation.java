@@ -30,12 +30,20 @@ public class GenericAllocation<T extends GenericDefinition<S>, S extends Good> i
         this.values = ImmutableMap.copyOf(builder.storedValues);
     }
 
+    public ImmutableMap<T, Integer> getQuantities(Bidder<S> bidder) {
+        return values.get(bidder).getQuantities();
+    }
+
     /* (non-Javadoc)
      * @see Allocation#getAllocatedItems(org.spectrumauctions.sats.core.model.Bidder)
      */
     @Override
     public Bundle<S> getAllocation(Bidder<S> bidder) {
         return values.get(bidder).anyConsistentBundle();
+    }
+
+    public GenericValue<T, S> getGenericAllocation(Bidder<S> bidder) {
+        return values.get(bidder);
     }
 
     /* (non-Javadoc)

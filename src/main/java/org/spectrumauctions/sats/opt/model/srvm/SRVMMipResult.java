@@ -112,7 +112,6 @@ public final class SRVMMipResult extends GenericAllocation<SRVMBand, SRVMLicense
         return builder.toString();
     }
 
-
     public static final class Builder extends GenericAllocation.Builder<SRVMBand, SRVMLicense> {
 
         private SRVMWorld world;

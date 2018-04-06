@@ -87,6 +87,11 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 	}
 
 	@Override
+	public WinnerDeterminator<ItemAllocation<LSVMLicense>> getWdWithoutBidder(Bidder bidder) {
+		return null;
+	}
+
+	@Override
 	public ItemAllocation<LSVMLicense> calculateAllocation() {
 		SolverClient solver = new SolverClient();
 		IMIPResult result = solver.solve(getMip());

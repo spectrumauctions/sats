@@ -63,7 +63,7 @@ public class MRVMOverallValueTest {
     private List<String> assertAllocatonTransformationAndCapCalculation(MRVMMipResult result, IMIPResult imipResult, List<MRVMBidder> bidders, MRVM_MIP mrvm_mip) {
         List<String> assertionResults = new ArrayList<>();
         for (MRVMBidder bidder : bidders) {
-            GenericValue<MRVMGenericDefinition> val = result.getAllocation(bidder);
+            GenericValue<MRVMGenericDefinition, MRVMLicense> val = result.getGenericAllocation(bidder);
             int cplexBundleSize = 0;
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 for (MRVMBand band : bidder.getWorld().getBands()) {
@@ -94,10 +94,10 @@ public class MRVMOverallValueTest {
     private List<String> assertCValues(MRVMMipResult result, IMIPResult imipResult, List<MRVMBidder> bidders, MRVM_MIP mrvm_mip) {
         List<String> assertionResults = new ArrayList<>();
         for (MRVMBidder bidder : bidders) {
-            GenericValue<MRVMGenericDefinition> val = result.getAllocation(bidder);
+            GenericValue<MRVMGenericDefinition, MRVMLicense> val = result.getGenericAllocation(bidder);
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 //Check c variables
-                BigDecimal c = MRVMWorld.c(region, (Bundle<MRVMLicense>) val.anyConsistentBundle());
+                BigDecimal c = MRVMWorld.c(region, val.anyConsistentBundle());
                 Variable cVariable = mrvm_mip.getBidderPartialMips().get(bidder).getCVariable(region);
                 double mipC = imipResult.getValue(cVariable);
                 assertionResults.add(assertEqualsAndGiveResult(c.doubleValue(), mipC, bidder, "c-variable"));
@@ -109,10 +109,10 @@ public class MRVMOverallValueTest {
     private List<String> assertSubscriberValues(MRVMMipResult result, IMIPResult imipResult, List<MRVMBidder> bidders, MRVM_MIP mrvm_mip) {
         List<String> assertionResults = new ArrayList<>();
         for (MRVMBidder bidder : bidders) {
-            GenericValue<MRVMGenericDefinition> val = result.getAllocation(bidder);
+            GenericValue<MRVMGenericDefinition, MRVMLicense> val = result.getGenericAllocation(bidder);
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 //Equivalence of MIP and Model c value tested in previous step of this mip.
-                BigDecimal c = MRVMWorld.c(region, (Bundle<MRVMLicense>) val.anyConsistentBundle());
+                BigDecimal c = MRVMWorld.c(region, val.anyConsistentBundle());
                 BigDecimal sv = bidder.svFunction(region, c);
                 Variable svVariable = mrvm_mip.getBidderPartialMips().get(bidder).getSVVariable(region);
                 double mipSV = imipResult.getValue(svVariable);
@@ -126,10 +126,10 @@ public class MRVMOverallValueTest {
     private List<String> assertOmegaValues(MRVMMipResult result, IMIPResult imipResult, List<MRVMBidder> bidders, MRVM_MIP mrvm_mip) {
         List<String> assertionResults = new ArrayList<>();
         for (MRVMBidder bidder : bidders) {
-            GenericValue<MRVMGenericDefinition> val = result.getAllocation(bidder);
+            GenericValue<MRVMGenericDefinition, MRVMLicense> val = result.getGenericAllocation(bidder);
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 //Equivalence of MIP and Model sv value tested in previous step of this mip.
-                BigDecimal c = MRVMWorld.c(region, (Bundle<MRVMLicense>) val.anyConsistentBundle());
+                BigDecimal c = MRVMWorld.c(region, val.anyConsistentBundle());
                 BigDecimal sv = bidder.svFunction(region, c);
                 BigDecimal expectedOmega = bidder.omegaFactor(region, sv);
                 Variable omegaVariable = mrvm_mip.getBidderPartialMips().get(bidder).getOmegaVariable(region);
@@ -173,8 +173,8 @@ public class MRVMOverallValueTest {
             double mipOmega = joptResult.getValue(omegaVariable);
             BigDecimal bdMipOmega = BigDecimal.valueOf(mipOmega);
             cplexOmegaSum = cplexOmegaSum.add(bdMipOmega);
-            if (bidder.gammaFactor(region, (Bundle<MRVMLicense>) result.getAllocation(bidder).anyConsistentBundle()).equals(BigDecimal.ONE)) {
-                BigDecimal c = MRVMWorld.c(region, (Bundle<MRVMLicense>) result.getAllocation(bidder).anyConsistentBundle());
+            if (bidder.gammaFactor(region, result.getAllocation(bidder)).equals(BigDecimal.ONE)) {
+                BigDecimal c = MRVMWorld.c(region, result.getAllocation(bidder));
                 BigDecimal sv = bidder.svFunction(region, c);
                 BigDecimal omega = bidder.omegaFactor(region, sv);
                 manualOmegaSum = manualOmegaSum.add(omega);
@@ -182,7 +182,7 @@ public class MRVMOverallValueTest {
         }
         double svScaling = localBidderPartialMip.getScalingFactor();
         BigDecimal unscaledValue = cplexOmegaSum.multiply(BigDecimal.valueOf(svScaling));
-        BigDecimal satsValue = bidder.calculateValue(result.getAllocation(bidder).getQuantities());
+        BigDecimal satsValue = bidder.calculateValue(result.getGenericAllocation(bidder).getQuantities());
         assertionResults.add(assertEqualsAndGiveResult(unscaledValue, satsValue, bidder, "local bidder gamma test "));
         assertionResults.add(assertEqualsAndGiveResult(unscaledValue, manualOmegaSum, bidder, "local bidder gamma test (manual)"));
         return assertionResults;
@@ -202,8 +202,8 @@ public class MRVMOverallValueTest {
         //There is no gamma variable, thus we only check if sats-core impl is consistent with was mip is supposed to do
         BigDecimal manualOmegaSum = BigDecimal.ZERO;
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
-            BigDecimal gammaFactor = bidder.gammaFactor(region, (Bundle<MRVMLicense>) result.getAllocation(bidder).anyConsistentBundle());
-            BigDecimal c = MRVMWorld.c(region, (Bundle<MRVMLicense>) result.getAllocation(bidder).anyConsistentBundle());
+            BigDecimal gammaFactor = bidder.gammaFactor(region, result.getAllocation(bidder));
+            BigDecimal c = MRVMWorld.c(region, result.getAllocation(bidder));
             BigDecimal sv = bidder.svFunction(region, c);
             BigDecimal omega = bidder.omegaFactor(region, sv);
             BigDecimal discountedOmega = gammaFactor.multiply(omega);
@@ -224,9 +224,9 @@ public class MRVMOverallValueTest {
     private List<String> assertOverallValue(MRVMMipResult result, IMIPResult joptResult, List<MRVMBidder> bidders, MRVM_MIP mip) {
         List<String> assertionResults = new ArrayList<>();
         for (MRVMBidder bidder : bidders) {
-            GenericValue<MRVMGenericDefinition> outcomeVal = result.getAllocation(bidder);
+            GenericValue<MRVMGenericDefinition, MRVMLicense> outcomeVal = result.getGenericAllocation(bidder);
             BigDecimal satsVal = bidder.calculateValue(outcomeVal.getQuantities());
-            BigDecimal nonGenericSatsVal = bidder.calculateValue((Bundle<MRVMLicense>) outcomeVal.anyConsistentBundle());
+            BigDecimal nonGenericSatsVal = bidder.calculateValue(outcomeVal.anyConsistentBundle());
             assertionResults.add(assertEqualsAndGiveResult(satsVal.doubleValue(), nonGenericSatsVal.doubleValue(), bidder, "test-anyconsistentbundle-values"));
             Variable valVariable = mip.getWorldPartialMip().getValueVariable(bidder);
             double cplexVal = joptResult.getValue(valVariable);

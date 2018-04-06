@@ -25,8 +25,8 @@ import java.util.Map.Entry;
  */
 public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition, MRVMLicense> {
 
-
     private final MRVMWorld world;
+
     private final BigDecimal totalValue;
     private final IMIPResult joptResult;
 
@@ -126,8 +126,8 @@ public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition
         return builder.toString();
     }
 
-
     public static final class Builder extends GenericAllocation.Builder<MRVMGenericDefinition, MRVMLicense> {
+
 
         private MRVMWorld world;
         private double objectiveValue;

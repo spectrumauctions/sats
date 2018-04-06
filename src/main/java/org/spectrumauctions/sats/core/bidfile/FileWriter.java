@@ -9,6 +9,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.bvm.BMLicense;
 import org.spectrumauctions.sats.core.util.CacheMap;
 
 import java.io.File;

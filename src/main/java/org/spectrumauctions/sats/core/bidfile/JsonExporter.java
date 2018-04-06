@@ -12,6 +12,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.bvm.BMLicense;
 
 import java.io.File;
 import java.io.IOException;

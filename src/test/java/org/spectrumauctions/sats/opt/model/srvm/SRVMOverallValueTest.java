@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMLicense;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 
 import java.math.BigDecimal;
@@ -28,7 +29,7 @@ public class SRVMOverallValueTest {
         SRVM_MIP mip = new SRVM_MIP(bidders);
         SRVMMipResult result = mip.calculateAllocation();
         for (SRVMBidder bidder : bidders) {
-            GenericValue<SRVMBand> outcomeVal = result.getAllocation(bidder);
+            GenericValue<SRVMBand, SRVMLicense> outcomeVal = result.getGenericAllocation(bidder);
             BigDecimal satsVal = bidder.calculateValue(outcomeVal.getQuantities());
             Assert.assertEquals(satsVal.doubleValue(), outcomeVal.getValue().doubleValue(), 0.1);
         }

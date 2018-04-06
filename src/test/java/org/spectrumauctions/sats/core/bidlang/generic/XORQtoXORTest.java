@@ -13,6 +13,7 @@ import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.bvm.BMBand;
 import org.spectrumauctions.sats.core.model.bvm.BMBidder;
+import org.spectrumauctions.sats.core.model.bvm.BMLicense;
 import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
 
 import java.util.Iterator;
@@ -28,25 +29,25 @@ public class XORQtoXORTest {
         MultiBandValueModel model = new MultiBandValueModel();
         BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
-        GenericPowersetDecreasing<BMBand> lang =
+        GenericPowersetDecreasing<BMBand, BMLicense> lang =
                 bidder.getValueFunction(GenericPowersetDecreasing.class, 351354);
-        Iterator<GenericValue<BMBand>> xorqIter = lang.iterator();
+        Iterator<GenericValue<BMBand, BMLicense>> xorqIter = lang.iterator();
         boolean didIter = false;
         int count = 0;
         while (xorqIter.hasNext()) {
             if (count++ > 300) {
                 break;
             } //Don't test the full powerset.
-            GenericValue<BMBand> xorq = xorqIter.next();
-            Iterator<XORValue<?>> xorIter = xorq.plainXorIterator();
+            GenericValue<BMBand, BMLicense> xorq = xorqIter.next();
+            Iterator<XORValue<BMLicense>> xorIter = xorq.plainXorIterator();
             while (xorIter.hasNext()) {
                 didIter = true;
-                XORValue<?> xor = xorIter.next();
+                XORValue<BMLicense> xor = xorIter.next();
                 Assert.assertEquals(xorq.getSize(), xor.getLicenses().size());
                 for (BMBand band : bidder.getWorld().getBands()) {
                     int expectedNumberOfLicenses = xorq.getQuantity(band);
                     int actual = 0;
-                    for (Good license : xor.getLicenses()) {
+                    for (BMLicense license : xor.getLicenses()) {
                         if (band.isPartOf(license)) {
                             actual++;
                         }

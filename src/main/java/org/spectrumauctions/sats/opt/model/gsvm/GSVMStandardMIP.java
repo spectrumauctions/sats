@@ -60,6 +60,11 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 	}
 
 	@Override
+	public WinnerDeterminator<ItemAllocation<GSVMLicense>> getWdWithoutBidder(Bidder bidder) {
+		return null;
+	}
+
+	@Override
 	public ItemAllocation<GSVMLicense> calculateAllocation() {
 		SolverClient solver = new SolverClient();
 		IMIPResult result = solver.solve(getMip());
