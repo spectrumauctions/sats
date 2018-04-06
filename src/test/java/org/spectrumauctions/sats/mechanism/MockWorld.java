@@ -2,11 +2,11 @@ package org.spectrumauctions.sats.mechanism;
 
 import org.mockito.Mockito;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.*;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("serial") //No Serialization
 public class MockWorld extends World {
@@ -76,6 +76,15 @@ public class MockWorld extends World {
 
     public class MockBidder extends Bidder<MockGood> {
 
+        Set<XORValue<MockGood>> bids = new HashSet<>();
+
+        public void addBid(Bundle<MockGood> bundle, double value) {
+            bids.add(new XORValue<>(bundle, BigDecimal.valueOf(value)));
+        }
+
+        public Set<XORValue<MockGood>> getBids() {
+            return bids;
+        }
 
         protected MockBidder(long population, long id, long worldId) {
             super(setup, population, id, worldId);
@@ -83,7 +92,9 @@ public class MockWorld extends World {
 
         @Override
         public BigDecimal calculateValue(Bundle<MockGood> bundle) {
-            throw new UnsupportedOperationException("Not supported in mock");
+            Optional<XORValue<MockGood>> value = bids.stream().filter(bid -> bid.getLicenses().equals(bundle)).findFirst();
+            if (value.isPresent()) return value.get().value();
+            else return BigDecimal.ZERO;
         }
 
         @Override

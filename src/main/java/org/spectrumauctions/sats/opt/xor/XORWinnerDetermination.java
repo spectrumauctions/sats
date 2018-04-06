@@ -23,13 +23,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Wraps an OR or OR* winner determination
  *
  * @author Benedikt Buenz
  */
-public class XORWinnerDetermination<T extends Good> implements WinnerDeterminator<Allocation<T>> {
+public class XORWinnerDetermination<T extends Good> implements WinnerDeterminator<Allocation<T>, T> {
     private Map<XORValue<T>, Variable> bidVariables = new HashMap<>();
     private Collection<XORBid<T>> bids;
     private IMIP winnerDeterminationProgram;
@@ -90,8 +91,8 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
     }
 
     @Override
-    public WinnerDeterminator<Allocation<T>> getWdWithoutBidder(Bidder bidder) {
-        return null;
+    public WinnerDeterminator<Allocation<T>, T> getWdWithoutBidder(Bidder bidder) {
+        return new XORWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()));
     }
 
     @Override

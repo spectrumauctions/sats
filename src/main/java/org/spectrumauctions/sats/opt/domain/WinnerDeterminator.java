@@ -6,14 +6,15 @@
 package org.spectrumauctions.sats.opt.domain;
 
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Good;
 
 /**
  * @author Michael Weiss
  *
  */
-public interface WinnerDeterminator<T extends Allocation> {
+public interface WinnerDeterminator<T extends Allocation<S>, S extends Good> {
 
-    WinnerDeterminator<T> getWdWithoutBidder(Bidder bidder);
+    WinnerDeterminator<T, S> getWdWithoutBidder(Bidder<S> bidder);
 
     T calculateAllocation();
 

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author Michael Weiss
  *
  */
-public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>> {
+public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>, MRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
 
@@ -95,7 +95,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
 
 
     @Override
-    public WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>> getWdWithoutBidder(Bidder bidder) {
+    public WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>, MRVMLicense> getWdWithoutBidder(Bidder bidder) {
         return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
     }
 

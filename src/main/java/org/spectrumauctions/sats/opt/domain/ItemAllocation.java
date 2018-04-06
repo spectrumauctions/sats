@@ -43,7 +43,7 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
     }
 
     @Override
-    public BigDecimal getTradeValue(Bidder bidder) {
+    public BigDecimal getTradeValue(Bidder<T> bidder) {
         return bidder.calculateValue(alloc.get(bidder));
     }
 

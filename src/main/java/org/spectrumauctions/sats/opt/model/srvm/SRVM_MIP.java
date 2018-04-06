@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * @author Fabio Isler
  */
-public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>> {
+public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>, SRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(SRVM_MIP.class);
 
@@ -108,7 +108,7 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
 
 
     @Override
-    public WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>> getWdWithoutBidder(Bidder bidder) {
+    public WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>, SRVMLicense> getWdWithoutBidder(Bidder bidder) {
         return null;
     }
 

@@ -12,13 +12,13 @@ import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VCGMechanism<T extends Good> implements AuctionMechanism {
+public class VCGMechanism<T extends Good> implements AuctionMechanism<Allocation<T>, T> {
 
-    private WinnerDeterminator<Allocation<T>> baseWD;
+    private WinnerDeterminator<Allocation<T>, T> baseWD;
     private MechanismResult<T> result;
 
 
-    public VCGMechanism(WinnerDeterminator<Allocation<T>> wdp) {
+    public VCGMechanism(WinnerDeterminator<Allocation<T>, T> wdp) {
         this.baseWD = wdp;
     }
 
@@ -36,8 +36,8 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism {
     }
 
     @Override
-    public WinnerDeterminator<Allocation<T>> getWdWithoutBidder(Bidder bidder) {
-        return null;
+    public WinnerDeterminator<Allocation<T>, T> getWdWithoutBidder(Bidder<T> bidder) {
+        return baseWD.getWdWithoutBidder(bidder);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism {
 
             double valueWithoutBidder = baseAllocation.getTotalValue().doubleValue() - baseAllocation.getTradeValue(bidder).doubleValue();
 
-            WinnerDeterminator<Allocation<T>> wdWithoutBidder = baseWD.getWdWithoutBidder(bidder);
+            WinnerDeterminator<Allocation<T>, T> wdWithoutBidder = baseWD.getWdWithoutBidder(bidder);
             Allocation<T> allocationWithoutBidder = wdWithoutBidder.calculateAllocation();
             double valueWDWithoutBidder = allocationWithoutBidder.getTotalValue().doubleValue();
 

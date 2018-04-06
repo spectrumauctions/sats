@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author Nicolas Küchler
  */
-public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<LSVMLicense>> {
+public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<LSVMLicense>, LSVMLicense> {
 
 	private int n; // number of agents
 	private int m; // number of items
@@ -87,7 +87,7 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 	}
 
 	@Override
-	public WinnerDeterminator<ItemAllocation<LSVMLicense>> getWdWithoutBidder(Bidder bidder) {
+	public WinnerDeterminator<ItemAllocation<LSVMLicense>, LSVMLicense> getWdWithoutBidder(Bidder bidder) {
 		return null;
 	}
 

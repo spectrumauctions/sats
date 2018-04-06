@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
 
-public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<GSVMLicense>> {
+public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<GSVMLicense>, GSVMLicense> {
 
 	private int n; // number of agents
 	private int m; // number of items
@@ -60,7 +60,7 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 	}
 
 	@Override
-	public WinnerDeterminator<ItemAllocation<GSVMLicense>> getWdWithoutBidder(Bidder bidder) {
+	public WinnerDeterminator<ItemAllocation<GSVMLicense>, GSVMLicense> getWdWithoutBidder(Bidder bidder) {
 		return null;
 	}
 
