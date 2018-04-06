@@ -12,20 +12,20 @@ import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VCGMechanism<T extends Good> implements AuctionMechanism<Allocation<T>, T> {
+public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
 
-    private WinnerDeterminator<Allocation<T>, T> baseWD;
+    private WinnerDeterminator<T> baseWD;
     private MechanismResult<T> result;
 
 
-    public VCGMechanism(WinnerDeterminator<Allocation<T>, T> wdp) {
+    public VCGMechanism(WinnerDeterminator<T> wdp) {
         this.baseWD = wdp;
     }
 
     @Override
     public MechanismResult<T> getMechanismResult() {
         if (result == null) {
-            result = calculateVCGPrices();
+            result = calculateVCGPayments();
         }
         return result;
     }
@@ -36,7 +36,7 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<Allocation
     }
 
     @Override
-    public WinnerDeterminator<Allocation<T>, T> getWdWithoutBidder(Bidder<T> bidder) {
+    public WinnerDeterminator<T> getWdWithoutBidder(Bidder<T> bidder) {
         return baseWD.getWdWithoutBidder(bidder);
     }
 
@@ -45,7 +45,7 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<Allocation
         return getMechanismResult().getAllocation();
     }
 
-    protected MechanismResult<T> calculateVCGPrices() {
+    private MechanismResult<T> calculateVCGPayments() {
         Allocation<T> baseAllocation = baseWD.calculateAllocation();
 
         Map<Bidder<T>, BidderPayment> payments = new HashMap<>();
@@ -53,7 +53,7 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<Allocation
 
             double valueWithoutBidder = baseAllocation.getTotalValue().doubleValue() - baseAllocation.getTradeValue(bidder).doubleValue();
 
-            WinnerDeterminator<Allocation<T>, T> wdWithoutBidder = baseWD.getWdWithoutBidder(bidder);
+            WinnerDeterminator<T> wdWithoutBidder = baseWD.getWdWithoutBidder(bidder);
             Allocation<T> allocationWithoutBidder = wdWithoutBidder.calculateAllocation();
             double valueWDWithoutBidder = allocationWithoutBidder.getTotalValue().doubleValue();
 

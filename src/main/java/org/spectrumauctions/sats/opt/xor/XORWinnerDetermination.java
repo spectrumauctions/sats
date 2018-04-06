@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @author Benedikt Buenz
  */
-public class XORWinnerDetermination<T extends Good> implements WinnerDeterminator<Allocation<T>, T> {
+public class XORWinnerDetermination<T extends Good> implements WinnerDeterminator<T> {
     private Map<XORValue<T>, Variable> bidVariables = new HashMap<>();
     private Collection<XORBid<T>> bids;
     private IMIP winnerDeterminationProgram;
@@ -91,7 +91,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
     }
 
     @Override
-    public WinnerDeterminator<Allocation<T>, T> getWdWithoutBidder(Bidder bidder) {
+    public WinnerDeterminator<T> getWdWithoutBidder(Bidder bidder) {
         return new XORWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()));
     }
 

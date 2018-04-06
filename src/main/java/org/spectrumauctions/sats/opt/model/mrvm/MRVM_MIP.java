@@ -9,15 +9,14 @@ import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
-import edu.harvard.econcs.jopt.solver.mip.Constraint;
-import edu.harvard.econcs.jopt.solver.mip.MIP;
-import edu.harvard.econcs.jopt.solver.mip.Variable;
+import edu.harvard.econcs.jopt.solver.mip.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
+import org.spectrumauctions.sats.mechanism.ccg.CCGCapable;
 import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
@@ -28,11 +27,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
+
 /**
  * @author Michael Weiss
  *
  */
-public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>, MRVMLicense> {
+public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense>, CCGCapable<MRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
 
@@ -95,7 +96,8 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
 
 
     @Override
-    public WinnerDeterminator<GenericAllocation<MRVMGenericDefinition, MRVMLicense>, MRVMLicense> getWdWithoutBidder(Bidder bidder) {
+    public WinnerDeterminator<MRVMLicense> getWdWithoutBidder(Bidder<MRVMLicense> bidder) {
+        Preconditions.checkArgument(bidders.contains(bidder));
         return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
     }
 
@@ -133,6 +135,11 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
         return resultBuilder.build();
     }
 
+    @Override
+    public WinnerDeterminator<MRVMLicense> copyOf() {
+        return new MRVM_MIP(bidders);
+    }
+
     public MRVMWorldPartialMip getWorldPartialMip() {
         return worldPartialMip;
     }
@@ -142,4 +149,29 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
     }
 
 
+    @Override
+    public void adjustPayoffs(Map<Bidder<MRVMLicense>, Double> payoffs) {
+        for (Map.Entry<Bidder<MRVMLicense>, Double> entry : payoffs.entrySet()) {
+            MRVMBidder bidder = (MRVMBidder) entry.getKey();
+            double negativePayoff = -entry.getValue();
+            Variable x = new Variable("x_" + bidder.getId(), VarType.BOOLEAN, 0, 1);
+            addVariable(x);
+            addObjectiveTerm(negativePayoff, x);
+
+            Constraint xConstraint = new Constraint(CompareType.GEQ, 0);
+            xConstraint.addTerm(-1, x);
+            for (Variable var : worldPartialMip.getXVariables(bidder)) {
+                xConstraint.addTerm(1, var);
+            }
+            addConstraint(xConstraint);
+
+            Constraint xConstraint2 = new Constraint(CompareType.LEQ, 0);
+            xConstraint2.addTerm(-MAX_VALUE, x);
+            for (Variable var : worldPartialMip.getXVariables(bidder)) {
+                xConstraint2.addTerm(1, var);
+            }
+            addConstraint(xConstraint2);
+
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.opt.model.gsvm;
 
+import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.CompareType;
@@ -21,8 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 
-public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<GSVMLicense>, GSVMLicense> {
+public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVMLicense> {
 
 	private int n; // number of agents
 	private int m; // number of items
@@ -37,6 +39,10 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 
 	private boolean allowAssigningLicensesWithZeroBasevalue;
 
+	public GSVMStandardMIP(List<GSVMBidder> population) {
+		this(population.iterator().next().getWorld(), population, true);
+	}
+
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
 		this(world, population, true);
 	}
@@ -45,7 +51,7 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 			boolean allowAssigningLicensesWithZeroBasevalue) {
 		m = world.getLicenses().size();
 		licenseMap = new HashMap<>(m);
-		world.getLicenses().stream().forEach(license -> licenseMap.put(license.getId(), license));
+		world.getLicenses().forEach(license -> licenseMap.put(license.getId(), license));
 
 		this.allowAssigningLicensesWithZeroBasevalue = allowAssigningLicensesWithZeroBasevalue;
 
@@ -57,11 +63,13 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 		getMip().setObjectiveMax(true);
 		initValues();
 		initVariables();
+		build();
 	}
 
 	@Override
-	public WinnerDeterminator<ItemAllocation<GSVMLicense>, GSVMLicense> getWdWithoutBidder(Bidder bidder) {
-		return null;
+	public WinnerDeterminator<GSVMLicense> getWdWithoutBidder(Bidder<GSVMLicense> bidder) {
+        Preconditions.checkArgument(population.contains(bidder));
+        return new GSVMStandardMIP(population.stream().filter(b -> !b.equals(bidder)).collect(Collectors.toList()));
 	}
 
 	@Override

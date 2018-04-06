@@ -69,7 +69,7 @@ public class WinnerDeterminationTest {
         bids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
         bids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
 
-        WinnerDeterminator<Allocation<MockGood>, MockGood> wd = new XORWinnerDetermination<>(bids);
+        WinnerDeterminator<MockGood> wd = new XORWinnerDetermination<>(bids);
         Allocation<MockGood> result = wd.calculateAllocation();
         assertTrue(result.getTotalValue().compareTo(BigDecimal.valueOf(4)) == 0);
         assertEquals(result.getTradeValue(bidder(2)).doubleValue(), 0, 0.01);
@@ -104,7 +104,7 @@ public class WinnerDeterminationTest {
         bids.add(new XORBid.Builder<>(bidder(8), bidder(8).getBids()).build());
         bids.add(new XORBid.Builder<>(bidder(9), bidder(9).getBids()).build());
 
-        WinnerDeterminator<Allocation<MockGood>, MockGood> wd = new XORWinnerDetermination<>(bids);
+        WinnerDeterminator<MockGood> wd = new XORWinnerDetermination<>(bids);
         Allocation<MockGood> result = wd.calculateAllocation();
         assertEquals(result.getTotalValue().doubleValue(), 4514.844, 0);
         assertEquals(result.getTradeValue(bidder(0)).doubleValue(), 0, 0.0001);

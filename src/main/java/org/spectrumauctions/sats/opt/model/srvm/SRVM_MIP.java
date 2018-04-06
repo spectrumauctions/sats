@@ -30,11 +30,13 @@ import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Fabio Isler
  */
-public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>, SRVMLicense> {
+public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(SRVM_MIP.class);
 
@@ -108,8 +110,9 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
 
 
     @Override
-    public WinnerDeterminator<GenericAllocation<SRVMBand, SRVMLicense>, SRVMLicense> getWdWithoutBidder(Bidder bidder) {
-        return null;
+    public WinnerDeterminator<SRVMLicense> getWdWithoutBidder(Bidder<SRVMLicense> bidder) {
+        Preconditions.checkArgument(bidderPartialMips.containsKey(bidder));
+        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
     }
 
     /* (non-Javadoc)

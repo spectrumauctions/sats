@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author Nicolas Küchler
  */
-public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<ItemAllocation<LSVMLicense>, LSVMLicense> {
+public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVMLicense> {
 
 	private int n; // number of agents
 	private int m; // number of items
@@ -47,6 +47,10 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 
 	private Edge[] edges;
 	private Map<Edge, Set<Integer>> validPathLengths = new HashMap<>();
+
+	public LSVMStandardMIP(List<LSVMBidder> population) {
+		this(population.iterator().next().getWorld(), population);
+	}
 
 	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population) {
 		this.world = world;
@@ -87,8 +91,9 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<Item
 	}
 
 	@Override
-	public WinnerDeterminator<ItemAllocation<LSVMLicense>, LSVMLicense> getWdWithoutBidder(Bidder bidder) {
-		return null;
+	public WinnerDeterminator<LSVMLicense> getWdWithoutBidder(Bidder bidder) {
+		// return new LSVMStandardMIP(bidderMap.values().stream().filter(b -> !b.equals(bidder)).collect(Collectors.toList()));
+        throw new UnsupportedOperationException("LSVM is not ready yet to be solved with one bidder less, since it relies on the bidder ids as indices.");
 	}
 
 	@Override

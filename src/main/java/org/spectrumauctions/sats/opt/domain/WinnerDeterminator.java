@@ -8,14 +8,20 @@ package org.spectrumauctions.sats.opt.domain;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Good;
 
+import java.util.Map;
+
 /**
  * @author Michael Weiss
  *
  */
-public interface WinnerDeterminator<T extends Allocation<S>, S extends Good> {
+public interface WinnerDeterminator<T extends Good> {
 
-    WinnerDeterminator<T, S> getWdWithoutBidder(Bidder<S> bidder);
+    WinnerDeterminator<T> getWdWithoutBidder(Bidder<T> bidder);
 
-    T calculateAllocation();
+    Allocation<T> calculateAllocation();
+
+    WinnerDeterminator<T> copyOf();
+
+    void adjustPayoffs(Map<Bidder<T>, Double> payoffs);
 
 }

@@ -171,6 +171,14 @@ public class MRVMWorldPartialMip extends PartialMIP {
         return var;
     }
 
+    public Set<Variable> getXVariables(MRVMBidder bidder) {
+        Set<Variable> variables = new HashSet<>();
+        for (Map.Entry<Region, Map<Band, Variable>> entry : xVariables.get(bidder).entrySet()) {
+                variables.addAll(entry.getValue().values());
+        }
+        return variables;
+    }
+
 
     public Variable getValueVariable(MRVMBidder bidder) {
         Variable var = valueVariables.get(bidder);
