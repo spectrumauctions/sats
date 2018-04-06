@@ -22,19 +22,26 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
     private final double exponentFactor;
     private final double base;
+    private MRVMRegionsMap.Region predefinedHome;
 
 
     protected MRVMRegionalBidderSetup(Builder builder) {
         super(builder);
         this.exponentFactor = builder.exponentFactor;
         this.base = builder.base;
+        this.predefinedHome = builder.predefinedHome;
     }
 
 
     /**
-     * Selects one of the regions at random
+     * Selects one of the regions at random, or select the predefined region if defined.
      */
     public MRVMRegionsMap.Region drawHome(MRVMWorld world, UniformDistributionRNG rng) {
+        if (predefinedHome != null)  {
+            Preconditions.checkArgument(world.getRegionsMap().getRegions().contains(predefinedHome),
+                    "The predefined home is not part of the specified world!");
+            return predefinedHome;
+        }
         List<MRVMRegionsMap.Region> regions = new ArrayList<>(world.getRegionsMap().getRegions());
         int index = rng.nextInt(regions.size());
         return regions.get(index);
@@ -64,6 +71,7 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
 
         private double exponentFactor;
         private double base;
+        public MRVMRegionsMap.Region predefinedHome;
 
         public Builder() {
             super("Multi Region Model Regional Bidder",
@@ -88,6 +96,13 @@ public class MRVMRegionalBidderSetup extends MRVMBidderSetup {
             Preconditions.checkArgument(exponentFactor > 0);
             this.base = base;
             this.exponentFactor = exponentFactor;
+        }
+
+        /**
+         * Set the predefined home if the home should not be chosen randomly.
+         */
+        public void setPredefinedHome(MRVMRegionsMap.Region home) {
+            this.predefinedHome = home;
         }
 
         /**

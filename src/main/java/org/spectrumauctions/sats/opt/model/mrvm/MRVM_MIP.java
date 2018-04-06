@@ -85,6 +85,10 @@ public class MRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
         getMip().add(variable);
     }
 
+    public void addObjectiveTerm(double coefficient, Variable variable) {
+        getMip().addObjectiveTerm(coefficient, variable);
+    }
+
 
     /* (non-Javadoc)
      * @see EfficientAllocator#calculateEfficientAllocation()
