@@ -119,6 +119,25 @@ You find the latest version of the `sats.jar` in the [latest release](https://gi
 | `--bidders`    | The number of bidders |
 | `--goods` | The number of goods |
 
+### Usage example to get the same output as the [CATS Region](http://www.cs.ubc.ca/~kevinlb/CATS/)
+If no `iterator` option is set when choosing the CATS Region model, SATS defaults to the original, CATS-specific iterator.
+The same goes for the file type.
+
+In the original CATS, the number of bidders are derived from the requested number of bids.
+In SATS, the user can specify the number of bidders, which results in a certain number of bids.
+
+So, creating bids the following way in CATS:
+
+`cats -d "regions-npv" -bids 120 -goods 256`
+
+is the same as creating bids the following way in SATS:
+
+`java -jar sats.jar --model CATS --bidders 20 --goods 256`
+
+Note that there are slight statistical deviations (e.g. average number of bids per bidder, average bundle size, etc.) if the SATS output is compared to the CATS output.
+See the corresponding [tests](https://github.com/spectrumauctions/sats/blob/master/src/test/java/org/spectrumauctions/sats/core/bidlang/xor/CatsXORTest.java) for details.
+Those deviations are very small and probably linked to the differences in the detailed implementations, therefore can be ignored in most cases.
+
 ## Bug Reports, Feature Requests and Contribution Guidelines
 We are grateful for bug reports and other feedback about SATS and are welcoming everyone to contribute to the project, too. 
 If you do have a bug report or have code you want to add to SATS, please follow the following guidelines.

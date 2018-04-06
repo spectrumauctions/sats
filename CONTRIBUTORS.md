@@ -4,6 +4,6 @@ The SATS team consists of
 * Ben Lubin (Boston University)
 * Fabio Isler (University of Zurich)
 
-We are grateful for the contributions to sats-core, sats-opt or sats-clt by (in alphabetical order)
+We are grateful for the contributions to `sats` by (in alphabetical order)
 * Dmitry Moor
 * Nicolas Kuechler

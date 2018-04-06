@@ -38,6 +38,7 @@ public final class MRVMWorldSetup {
     private final double populationStandardDeviation;
     private final boolean usePredefinedGraph;
     private final UndirectedGraph<RegionSetup, DefaultEdge> predefinedGraph;
+    private int randomRegionCount = 0;
 
 
     private MRVMWorldSetup(MRVMWorldSetupBuilder builder) {
@@ -203,7 +204,7 @@ public final class MRVMWorldSetup {
             setNumberOfRegionsInterval(numberOfRegions);
             setAverageAdjacenciesPerRegionInterval(averageOfAdjacenciesPerRegion);
             setPopulationPerRegionMean(populationPerRegionMean);
-            setPopulationStandardDeviation(populationStandardDeviation);
+            setPopulationStandardDeviation(populationPerRegionStandardDeviation);
         }
 
         private void setNumberOfRegionsInterval(IntegerInterval numberOfRegions) {
@@ -276,7 +277,7 @@ public final class MRVMWorldSetup {
      * Creates a naive, random, not necessarily planar graph
      */
     @Deprecated
-    public static UndirectedGraph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(
+    public UndirectedGraph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(
             final double populationPerRegionMean,
             final double populationStandardDeviation,
             UniformDistributionRNG rng,
@@ -288,7 +289,8 @@ public final class MRVMWorldSetup {
         RandomGraphGenerator<RegionSetup, DefaultEdge> randomGraphGenerator = new RandomGraphGenerator<>(
                 numberOfRegions, numberOfAdjacencies, rng.nextLong());
         SimpleGraph<RegionSetup, DefaultEdge> targetGraph = new SimpleGraph<>(DefaultEdge.class);
-        VertexFactory<RegionSetup> vertexFactory = () -> new RegionSetup(populationPerRegionMean, populationStandardDeviation, "randomly created");
+        VertexFactory<RegionSetup> vertexFactory = () ->
+                new RegionSetup(populationPerRegionMean, populationStandardDeviation, randomRegionCount++ + ": randomly created");
         randomGraphGenerator.generateGraph(targetGraph, vertexFactory, null);
         return targetGraph;
     }

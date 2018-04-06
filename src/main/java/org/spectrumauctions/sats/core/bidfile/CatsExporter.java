@@ -91,7 +91,7 @@ public class CatsExporter extends FileWriter {
                 line.append(value.getLicenses().itemIds("\t"));
                 line.append("\t");
                 line.append(dummyItem);
-                line.append("#");
+                line.append("\t#");
                 bidLines.add(line.toString());
             }
             dummyItem--;

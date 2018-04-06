@@ -89,6 +89,10 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<GenericAllo
         getMip().add(variable);
     }
 
+    public void addObjectiveTerm(double coefficient, Variable variable) {
+        getMip().addObjectiveTerm(coefficient, variable);
+    }
+
 
     @Override
     public WinnerDeterminator<GenericAllocation<MRVMGenericDefinition>> getWdWithoutBidder(Bidder bidder) {
