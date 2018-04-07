@@ -148,6 +148,16 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
         return resultBuilder.build();
     }
 
+    @Override
+    public WinnerDeterminator<SRVMLicense> copyOf() {
+        return new SRVM_MIP(bidderPartialMips.keySet());
+    }
+
+    @Override
+    public void adjustPayoffs(Map<Bidder<SRVMLicense>, Double> payoffs) {
+        throw new UnsupportedOperationException("The SRVM MIP does not support CCG yet.");
+    }
+
     public SRVMWorldPartialMip getWorldPartialMip() {
         return worldPartialMip;
     }

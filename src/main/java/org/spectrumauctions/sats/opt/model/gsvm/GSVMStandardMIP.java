@@ -100,6 +100,16 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 		return builder.build();
 	}
 
+	@Override
+	public WinnerDeterminator<GSVMLicense> copyOf() {
+		return new GSVMStandardMIP(population);
+	}
+
+	@Override
+	public void adjustPayoffs(Map<Bidder<GSVMLicense>, Double> payoffs) {
+		throw new UnsupportedOperationException("The GSVM MIP does not support CCG yet.");
+	}
+
 	public void build() {
 		// build objective term
 		for (int i = 0; i < n; i++) {

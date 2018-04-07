@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
+
 /**
  * Wraps an OR or OR* winner determination
  *
@@ -101,6 +103,29 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
             result = solveWinnerDetermination();
         }
         return result;
+    }
+
+    @Override
+    public WinnerDeterminator<T> copyOf() {
+        return new XORWinnerDetermination<>(bids);
+    }
+
+    @Override
+    public void adjustPayoffs(Map<Bidder<T>, Double> payoffs) {
+        for (XORBid<T> bidPerBidder : bids) {
+            Variable x = new Variable("x_" + bidPerBidder.getBidder().getId(), VarType.BOOLEAN, 0, 1);
+            winnerDeterminationProgram.add(x);
+            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0), x);
+
+            Constraint x1 = new Constraint(CompareType.GEQ, 0);
+            Constraint x2 = new Constraint(CompareType.LEQ, 0);
+            x1.addTerm(-1, x);
+            x2.addTerm(-MAX_VALUE, x);
+            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(b)));
+            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(b)));
+            winnerDeterminationProgram.add(x1);
+            winnerDeterminationProgram.add(x2);
+        }
     }
 
     private Allocation<T> solveWinnerDetermination() {

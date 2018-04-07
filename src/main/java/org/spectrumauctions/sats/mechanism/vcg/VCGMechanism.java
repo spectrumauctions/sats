@@ -45,6 +45,16 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
         return getMechanismResult().getAllocation();
     }
 
+    @Override
+    public WinnerDeterminator<T> copyOf() {
+        return baseWD.copyOf();
+    }
+
+    @Override
+    public void adjustPayoffs(Map<Bidder<T>, Double> payoffs) {
+        baseWD.adjustPayoffs(payoffs);
+    }
+
     private MechanismResult<T> calculateVCGPayments() {
         Allocation<T> baseAllocation = baseWD.calculateAllocation();
 

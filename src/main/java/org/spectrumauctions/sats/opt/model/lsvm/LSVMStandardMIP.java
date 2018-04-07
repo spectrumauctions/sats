@@ -38,6 +38,8 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	private double[][] v;
 
+	List<LSVMBidder> population;
+
 	private Map<Long, LSVMBidder> bidderMap;
 	private Map<Long, LSVMLicense> licenseMap;
 	private LSVMWorld world;
@@ -54,6 +56,7 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population) {
 		this.world = world;
+		this.population = population;
 
 		bidderMap = population.stream().collect(Collectors.toMap(b -> b.getId(), Function.identity()));
 		licenseMap = world.getLicenses().stream().collect(Collectors.toMap(l -> l.getId(), Function.identity()));
@@ -118,6 +121,16 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 				.withTotalValue(BigDecimal.valueOf(result.getObjectiveValue())).withAllocation(allocation);
 
 		return builder.build();
+	}
+
+	@Override
+	public WinnerDeterminator<LSVMLicense> copyOf() {
+		return new LSVMStandardMIP(population);
+	}
+
+	@Override
+	public void adjustPayoffs(Map<Bidder<LSVMLicense>, Double> payoffs) {
+        throw new UnsupportedOperationException("The LSVM MIP does not support CCG yet. First, it needs to support VCG.");
 	}
 
 	private void buildObjectiveTerm() {

@@ -16,8 +16,6 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
-import org.spectrumauctions.sats.mechanism.ccg.CCGCapable;
-import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
@@ -33,7 +31,7 @@ import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
  * @author Michael Weiss
  *
  */
-public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense>, CCGCapable<MRVMLicense> {
+public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
 
