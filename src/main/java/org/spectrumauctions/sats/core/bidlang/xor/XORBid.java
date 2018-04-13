@@ -2,6 +2,7 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 
 
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnequalWorldsException;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class XORBid<T extends Good> {
 
@@ -72,6 +74,17 @@ public final class XORBid<T extends Good> {
             this.bidder = bidder;
         }
 
+        public XORValue<T> containsBundle(Bundle<T> bundle) {
+            XORValue<T> exists = null;
+            for (XORValue<T> xorValue : this) {
+                if (xorValue.getLicenses().equals(bundle)) {
+                    exists = xorValue;
+                    break;
+                }
+            }
+            return exists;
+        }
+
         /**
          * Creates a new Builder instance with initial XORValues
          *
@@ -92,6 +105,9 @@ public final class XORBid<T extends Good> {
             return new XORBid<>(this);
         }
 
+        public void removeFromBid(XORValue<T> existing) {
+            super.remove(existing);
+        }
     }
 
 

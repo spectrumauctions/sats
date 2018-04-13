@@ -55,7 +55,7 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
     }
 
     public Set<XORBid<T>> runClockPhase() {
-        Set<XORBid<T>> bids = new HashSet<>();
+        Map<Bidder<T>, XORBid<T>> bids = new HashMap<>();
         World world = bidders.iterator().next().getWorld();
         Map<T, BigDecimal> prices = new HashMap<>();
         Set<T> licenses = (Set<T>) world.getLicenses();
@@ -66,10 +66,8 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
         // Clock phase -> Wrap in while loop
         while (!done) {
             genericMap = new HashMap<>();
-            //Map<Bidder<T>, DemandQueryResult<T>> demandQueryResults = new HashMap<>();
             for (Bidder<T> bidder : bidders) {
                 DemandQueryResult<T> demandQueryResult = demandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices).getResult();
-                //demandQueryResults.put(bidder, demandQueryResult);
                 if (demandQueryResult.getResultingBundle().getTotalQuantity() > 0) {
                     // Fill the generic map
                     for (Map.Entry<? extends GenericDefinition<T>, Integer> entry : demandQueryResult.getResultingBundle().getQuantities().entrySet()) {
@@ -80,14 +78,22 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
 
                     Iterator<XORValue<T>> xorIterator = demandQueryResult.getResultingBundle().plainXorIterator();
                     // Add the bids
-                    XORBid.Builder<T> xorBidBuilder = new XORBid.Builder<>(bidder);
+                    if (bids.get(bidder) == null) {
+                        bids.put(bidder, new XORBid.Builder<>(bidder).build());
+                    }
+                    XORBid.Builder<T> xorBidBuilder = new XORBid.Builder<>(bidder, bids.get(bidder).getValues());
                     while (xorIterator.hasNext()) {
                         XORValue<T> xorValue = xorIterator.next();
                         BigDecimal bid = BigDecimal.valueOf(xorValue.getLicenses().stream().mapToDouble(l -> prices.get(l).doubleValue()).sum()).multiply(SCALE);
+                        XORValue<T> existing = xorBidBuilder.containsBundle(xorValue.getLicenses());
+                        if (existing != null && existing.value().compareTo(bid) < 1) {
+                            xorBidBuilder.removeFromBid(existing);
+                        }
                         XORValue<T> xorValueBid = new XORValue<>(xorValue.getLicenses(), bid);
                         xorBidBuilder.add(xorValueBid);
                     }
-                    bids.add(xorBidBuilder.build());
+                    XORBid<T> newBid = xorBidBuilder.build();
+                    bids.put(bidder, newBid);
                 }
             }
 
@@ -102,7 +108,8 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
                 }
             }
         }
-        return bids;
+        clockPhaseResult = bids.values();
+        return clockPhaseResult;
     }
 
     private BigDecimal updatePrice(BigDecimal current) {
@@ -126,13 +133,15 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
 
         if (maxValue > MAX_VALUE) {
             double scale = MAX_VALUE / maxValue;
-            // TODO: Adjust scale here
+            // TODO: Adjust bids to the scale here
         }
 
         XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
 
-        result = new CCGMechanism<>(wdp).getMechanismResult();
+        CCGMechanism<T> ccg = new CCGMechanism<>(wdp);
+        ccg.setScale(SCALE);
 
+        result = ccg.getMechanismResult();
         return result;
     }
 

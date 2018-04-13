@@ -13,6 +13,7 @@ import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +21,11 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
 
     private WinnerDeterminator<T> baseWD;
     private MechanismResult<T> result;
+    private BigDecimal scale = BigDecimal.ONE;
 
+    public void setScale(BigDecimal scale) {
+        this.scale = scale;
+    }
 
     public CCGMechanism(WinnerDeterminator<T> wdp) {
         this.baseWD = wdp;
@@ -90,7 +95,6 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
 
             double z_p = blockingCoalition.getTotalValue().doubleValue() - traitorPayoffs;
             if (oldBlockingCoalitionValue == z_p) {
-                // LOGGER.warn("Detected endless loop due to rounding inaccuracies. Problem is actually solved.");
                 caughtInLoopDueToRoundingErrors = true;
             } else {
                 oldBlockingCoalitionValue = z_p;
@@ -98,8 +102,12 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
             double payments = payment.getTotalPayments();
             if (caughtInLoopDueToRoundingErrors ||
                     z_p <= payments + 1e-6) {
-                // LOGGER.debug("Final CCG payments are {}", payment);
-                return new MechanismResult<>(payment, originalAllocation);
+                Map<Bidder<T>, BidderPayment> unscaledPaymentMap = new HashMap<>();
+                for (Map.Entry<Bidder<T>, BidderPayment> entry : payment.getPaymentMap().entrySet()) {
+                    unscaledPaymentMap.put(entry.getKey(), new BidderPayment(entry.getValue().getAmount() / scale.doubleValue()));
+                }
+                Payment<T> unscaledPayment = new Payment<>(unscaledPaymentMap);
+                return new MechanismResult<>(unscaledPayment, originalAllocation);
             } else {
                 double coalitionValue = z_p - traitorPayments;
                 Constraint constraint = new Constraint(CompareType.GEQ, coalitionValue);
