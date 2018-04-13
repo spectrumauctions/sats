@@ -25,10 +25,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
 
 public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminator<T> {
     private Map<GenericValue<GenericDefinition<T>, T>, Variable> bidVariables = new HashMap<>();
-    private Collection<GenericBid<GenericDefinition<T>, T>> bids;
+    private Set<GenericBid<GenericDefinition<T>, T>> bids;
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
     private GenericWorld<T> world;
@@ -91,7 +94,7 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
 
     @Override
     public WinnerDeterminator<T> getWdWithoutBidder(Bidder<T> bidder) {
-        return null;
+        return new XORQWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()));
     }
 
     @Override
@@ -104,12 +107,25 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
 
     @Override
     public WinnerDeterminator<T> copyOf() {
-        return null;
+        return new XORQWinnerDetermination<>(bids);
     }
 
     @Override
     public void adjustPayoffs(Map<Bidder<T>, Double> payoffs) {
+        for (GenericBid<GenericDefinition<T>, T> bidPerBidder : bids) {
+            Variable x = new Variable("x_" + bidPerBidder.getBidder().getId(), VarType.BOOLEAN, 0, 1);
+            winnerDeterminationProgram.add(x);
+            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0), x);
 
+            Constraint x1 = new Constraint(CompareType.GEQ, 0);
+            Constraint x2 = new Constraint(CompareType.LEQ, 0);
+            x1.addTerm(-1, x);
+            x2.addTerm(-MAX_VALUE, x);
+            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(b)));
+            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(b)));
+            winnerDeterminationProgram.add(x1);
+            winnerDeterminationProgram.add(x2);
+        }
     }
 
     private Variable getBidVariable(GenericValue<GenericDefinition<T>, T> bundleBid) {

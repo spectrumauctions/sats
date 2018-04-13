@@ -29,7 +29,7 @@ public final class MRVMWorld extends World implements GenericWorld {
     private final HashSet<MRVMBand> bands;
 
     private transient BigDecimal maximalRegionalCapacity = null;
-    private transient Map<MRVMRegionsMap.Region, Map<MRVMBand, GenericDefinition<MRVMLicense>>> genericDefinitions;
+    private transient Map<MRVMRegionsMap.Region, Map<MRVMBand, GenericDefinition<MRVMLicense>>> genericDefinitions = new HashMap<>();
 
     public MRVMWorld(MRVMWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
@@ -285,9 +285,10 @@ public final class MRVMWorld extends World implements GenericWorld {
     }
 
     @Override
-    public GenericDefinition<MRVMLicense> getGenericDefinitionOf(MRVMLicense license) {
-        Preconditions.checkArgument(genericDefinitions.containsKey(license.getRegion()));
-        Preconditions.checkArgument(genericDefinitions.get(license.getRegion()).containsKey(license.getBand()));
-        return genericDefinitions.get(license.getRegion()).get(license.getBand());
+    public GenericDefinition getGenericDefinitionOf(Good license) {
+        MRVMLicense mrvmLicense = (MRVMLicense) license;
+        Preconditions.checkArgument(genericDefinitions.containsKey(mrvmLicense.getRegion()));
+        Preconditions.checkArgument(genericDefinitions.get(mrvmLicense.getRegion()).containsKey(mrvmLicense.getBand()));
+        return genericDefinitions.get(mrvmLicense.getRegion()).get(mrvmLicense.getBand());
     }
 }

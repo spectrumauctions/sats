@@ -57,8 +57,12 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
     @Override
     public MechanismResult<T> getMechanismResult() {
         if (result != null) return result;
-        if (clockPhaseXORResult == null) {
-            clockPhaseXORResult = runClockPhaseForXORBids();
+        if (variant != CCAVariant.XORQ) {
+            if (clockPhaseXORResult == null) {
+                clockPhaseXORResult = runClockPhaseForXORBids();
+            }
+        } else {
+            clockPhaseGenericResult = runClockPhaseForGenericBids();
         }
         result = runCCGPhase();
         return result;
@@ -152,19 +156,21 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
                         int quantity = entry.getValue();
                         genericMap.put(def, genericMap.getOrDefault(def, 0) + quantity);
                     }
+
+                    BigDecimal bid = BigDecimal.ZERO;
+                    for (Map.Entry<GenericDefinition<T>, Integer> entry : genericResult.getQuantities().entrySet()) {
+                        BigDecimal quantityTimesPriceScaled = prices.get(entry.getKey()).multiply(BigDecimal.valueOf(entry.getValue())).multiply(scale);
+                        bid = bid.add(quantityTimesPriceScaled);
+                    }
+
+                    // TODO (but less critical than in XOR): Remove lower bids on the exact same generic definition
+
+                    GenericValue.Builder<GenericDefinition<T>, T> bidBuilder = new GenericValue.Builder<>(bid);
+                    genericResult.getQuantities().forEach(bidBuilder::putQuantity);
+                    GenericBid<GenericDefinition<T>, T> newBid = bids.getOrDefault(bidder, new GenericBid<>(bidder, new ArrayList<>()));
+                    newBid.addValue(bidBuilder.build());
+                    bids.put(bidder, newBid);
                 }
-
-                BigDecimal bid = BigDecimal.ZERO;
-                for (Map.Entry<GenericDefinition<T>, Integer> entry : genericResult.getQuantities().entrySet()) {
-                    BigDecimal quantityTimesPrice = prices.get(entry.getKey()).multiply(BigDecimal.valueOf(entry.getValue()));
-                    bid = bid.add(quantityTimesPrice);
-                }
-
-                // TODO (but less critical than in XOR): Remove lower bids on the exact same generic definition
-
-                GenericValue.Builder<GenericDefinition<T>, T> bidBuilder = new GenericValue.Builder<>(bid);
-                genericResult.getQuantities().forEach(bidBuilder::putQuantity);
-                bids.getOrDefault(bidder, new GenericBid<>(bidder, new ArrayList<>())).addValue(bidBuilder.build());
             }
 
             done = true;
@@ -216,6 +222,11 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
             }
 
             XORQWinnerDetermination<T> wdp = new XORQWinnerDetermination<>(bids);
+            CCGMechanism<T> ccg = new CCGMechanism<>(wdp);
+            ccg.setScale(scale);
+
+            result = ccg.getMechanismResult();
+
         }
         return result;
     }

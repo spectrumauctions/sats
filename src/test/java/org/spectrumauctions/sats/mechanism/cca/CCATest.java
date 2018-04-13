@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 public class CCATest {
 
     @Test
-    @Ignore
     public void testCCAWithStandardMRVM() {
         List<Bidder<MRVMLicense>> bidders = new MultiRegionModel().createNewPopulation(234456867).stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
@@ -32,13 +31,13 @@ public class CCATest {
     }
 
     @Test
-    @Ignore
     public void testCustomizedCCAWithStandardMRVM() {
         List<Bidder<MRVMLicense>> bidders = new MultiRegionModel().createNewPopulation(234456867).stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         CCAMechanism<MRVMLicense> cca = new CCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.valueOf(1e6));
-        cca.setPriceUpdate(BigDecimal.valueOf(0.5));
+        cca.setVariant(CCAVariant.XORQ);
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setPriceUpdate(BigDecimal.valueOf(0.1));
         cca.setEpsilon(0.1);
         Payment<MRVMLicense> payment = cca.getPayment();
         assertEquals(3.4251509777579516e7, cca.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-2);
