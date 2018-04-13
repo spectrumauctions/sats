@@ -7,5 +7,5 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public interface DemandQueryMIPBuilder<T extends Good> {
-    DemandQueryMIP<T> getDemandQueryMipFor(Bidder<T> bidder, Map<T, BigDecimal> prices);
+    DemandQueryMIP<T> getDemandQueryMipFor(Bidder<T> bidder, Map<T, BigDecimal> prices, double epsilon);
 }

@@ -36,6 +36,10 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
     private Variable priceVar;
 
     public MRVM_DemandQueryMIP(MRVMBidder bidder, Map<MRVMLicense, BigDecimal> prices) {
+        this(bidder, prices, 0.001);
+    }
+
+    public MRVM_DemandQueryMIP(MRVMBidder bidder, Map<MRVMLicense, BigDecimal> prices, double epsilon) {
         Preconditions.checkNotNull(bidder);
         this.bidder = bidder;
         Preconditions.checkNotNull(prices);
@@ -43,7 +47,7 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
         Preconditions.checkArgument(prices.size() == world.getNumberOfGoods());
         mrvmMip = new MRVM_MIP(Sets.newHashSet(bidder));
 
-        mrvmMip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
+        mrvmMip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
         double scalingFactor = mrvmMip.getBidderPartialMips().get(bidder).getScalingFactor();
         priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
         mrvmMip.addVariable(priceVar);

@@ -29,7 +29,7 @@ public class MRVM_DemandQueryMIPBuilder implements DemandQueryMIPBuilder<MRVMLic
     private static final Logger logger = LogManager.getLogger(MRVM_DemandQueryMIPBuilder.class);
 
     @Override
-    public DemandQueryMIP<MRVMLicense> getDemandQueryMipFor(Bidder<MRVMLicense> bidder, Map<MRVMLicense, BigDecimal> prices) {
-        return new MRVM_DemandQueryMIP((MRVMBidder) bidder, prices);
+    public DemandQueryMIP<MRVMLicense> getDemandQueryMipFor(Bidder<MRVMLicense> bidder, Map<MRVMLicense, BigDecimal> prices, double epsilon) {
+        return new MRVM_DemandQueryMIP((MRVMBidder) bidder, prices, epsilon);
     }
 }
