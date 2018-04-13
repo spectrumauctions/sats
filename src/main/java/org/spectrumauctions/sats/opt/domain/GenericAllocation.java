@@ -26,7 +26,7 @@ public class GenericAllocation<T extends GenericDefinition<S>, S extends Good> i
 
     protected final ImmutableMap<Bidder<S>, GenericValue<T, S>> values;
 
-    protected GenericAllocation(Builder<T, S> builder) {
+    public GenericAllocation(Builder<T, S> builder) {
         this.values = ImmutableMap.copyOf(builder.storedValues);
     }
 

@@ -118,7 +118,7 @@ public class VCGTest {
         WinnerDeterminator<SRVMLicense> wdp = new SRVM_MIP(bidders);
         AuctionMechanism<SRVMLicense> am = new VCGMechanism<>(wdp);
         Payment<SRVMLicense> payment = am.getPayment();
-        assertEquals(5313.114211, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-2);
+        assertEquals(5314.615783226067, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-2);
     }
 
 

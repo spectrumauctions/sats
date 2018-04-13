@@ -8,6 +8,7 @@ import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.mrvm.*;
@@ -24,12 +25,12 @@ import java.util.Map;
  * @author Fabio Isler
  *
  */
-public class MRVM_DemandQueryMIPBuilder implements DemandQueryMIPBuilder<MRVMLicense> {
+public class MRVM_DemandQueryMIPBuilder implements DemandQueryMIPBuilder {
 
     private static final Logger logger = LogManager.getLogger(MRVM_DemandQueryMIPBuilder.class);
 
     @Override
-    public DemandQueryMIP<MRVMLicense> getDemandQueryMipFor(Bidder<MRVMLicense> bidder, Map<MRVMLicense, BigDecimal> prices, double epsilon) {
-        return new MRVM_DemandQueryMIP((MRVMBidder) bidder, prices, epsilon);
+    public DemandQueryMIP<MRVMGenericDefinition, MRVMLicense> getDemandQueryMipFor(Bidder bidder, Map prices, double epsilon) {
+        return new MRVM_DemandQueryMIP((MRVMBidder) bidder, (Map<MRVMGenericDefinition, BigDecimal>) prices, epsilon);
     }
 }

@@ -23,7 +23,7 @@ import java.util.Map;
  * @author Fabio Isler
  *
  */
-public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVMLicense> {
+public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVMGenericDefinition, MRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_DemandQueryMIP.class);
 
@@ -35,16 +35,16 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
 
     private Variable priceVar;
 
-    public MRVM_DemandQueryMIP(MRVMBidder bidder, Map<MRVMLicense, BigDecimal> prices) {
+    public MRVM_DemandQueryMIP(MRVMBidder bidder, Map<MRVMGenericDefinition, BigDecimal> prices) {
         this(bidder, prices, 0.001);
     }
 
-    public MRVM_DemandQueryMIP(MRVMBidder bidder, Map<MRVMLicense, BigDecimal> prices, double epsilon) {
+    public MRVM_DemandQueryMIP(MRVMBidder bidder, Map<MRVMGenericDefinition, BigDecimal> prices, double epsilon) {
         Preconditions.checkNotNull(bidder);
         this.bidder = bidder;
         Preconditions.checkNotNull(prices);
         this.world = bidder.getWorld();
-        Preconditions.checkArgument(prices.size() == world.getNumberOfGoods());
+        Preconditions.checkArgument(prices.size() == world.getAllGenericDefinitions().size());
         mrvmMip = new MRVM_MIP(Sets.newHashSet(bidder));
 
         mrvmMip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
@@ -54,9 +54,9 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
         mrvmMip.addObjectiveTerm(-1, priceVar);
         Constraint price = new Constraint(CompareType.EQ, 0);
         price.addTerm(-1, priceVar);
-        for (Map.Entry<MRVMLicense, BigDecimal> entry : prices.entrySet()) {
-            MRVMLicense license = entry.getKey();
-            Variable xVariable = mrvmMip.getWorldPartialMip().getXVariable(bidder, license.getRegion(), license.getBand());
+        for (Map.Entry<MRVMGenericDefinition, BigDecimal> entry : prices.entrySet()) {
+            MRVMGenericDefinition bandInRegion = entry.getKey();
+            Variable xVariable = mrvmMip.getWorldPartialMip().getXVariable(bidder, bandInRegion.getRegion(), bandInRegion.getBand());
             price.addTerm(entry.getValue().doubleValue() / scalingFactor, xVariable);
         }
         mrvmMip.addConstraint(price);

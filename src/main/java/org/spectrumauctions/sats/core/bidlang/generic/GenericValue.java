@@ -16,9 +16,15 @@ import java.util.*;
 
 public final class GenericValue<T extends GenericDefinition<S>, S extends Good> {
 
+    private transient final int id;
     private final int totalQuantity;
     private final ImmutableMap<T, Integer> quantities;
     private final BigDecimal value;
+    private static int ID_COUNT = 0;
+
+    private static int getNextId() {
+        return ID_COUNT++;
+    }
 
     private final transient int size;
 
@@ -31,6 +37,7 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
         this.totalQuantity = totalQuantity;
         this.value = builder.value;
         this.size = calcSize();
+        this.id = getNextId();
     }
 
     public int getQuantity(T definition) {
@@ -138,6 +145,10 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
         }
         res.append("\t").append(value);
         return res.toString();
+    }
+
+    public int getId() {
+        return id;
     }
 
     public static class Builder<T extends GenericDefinition<S>, S extends Good> {

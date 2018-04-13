@@ -6,9 +6,8 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.World;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
+import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
@@ -19,7 +18,7 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public final class MRVMWorld extends World {
+public final class MRVMWorld extends World implements GenericWorld {
 
     private static final int BIGDECIMAL_PRECISON = 10;
 
@@ -30,11 +29,18 @@ public final class MRVMWorld extends World {
     private final HashSet<MRVMBand> bands;
 
     private transient BigDecimal maximalRegionalCapacity = null;
+    private transient Map<MRVMRegionsMap.Region, Map<MRVMBand, GenericDefinition<MRVMLicense>>> genericDefinitions;
 
     public MRVMWorld(MRVMWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
         regionsMap = new MRVMRegionsMap(worldSetup, rngSupplier);
         bands = MRVMBand.createBands(this, worldSetup, regionsMap, rngSupplier.getUniformDistributionRNG());
+        for (MRVMRegionsMap.Region region : getRegionsMap().getRegions()) {
+            genericDefinitions.put(region, new HashMap<>());
+            for (MRVMBand band : getBands()) {
+                genericDefinitions.get(region).put(band, new MRVMGenericDefinition(band, region));
+            }
+        }
         store();
     }
 
@@ -269,4 +275,19 @@ public final class MRVMWorld extends World {
         return bidders;
     }
 
+    @Override
+    public Set<GenericDefinition<MRVMLicense>> getAllGenericDefinitions() {
+        Set<GenericDefinition<MRVMLicense>> defs = new HashSet<>();
+        for (MRVMRegionsMap.Region region : getRegionsMap().getRegions()) {
+            defs.addAll(genericDefinitions.get(region).values());
+        }
+        return defs;
+    }
+
+    @Override
+    public GenericDefinition<MRVMLicense> getGenericDefinitionOf(MRVMLicense license) {
+        Preconditions.checkArgument(genericDefinitions.containsKey(license.getRegion()));
+        Preconditions.checkArgument(genericDefinitions.get(license.getRegion()).containsKey(license.getBand()));
+        return genericDefinitions.get(license.getRegion()).get(license.getBand());
+    }
 }

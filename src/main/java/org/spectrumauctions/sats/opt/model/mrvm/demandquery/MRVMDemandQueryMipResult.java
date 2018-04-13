@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * @author Fabio Isler
  *
  */
-public final class MRVMDemandQueryMipResult implements DemandQueryResult<MRVMLicense> {
+public final class MRVMDemandQueryMipResult implements DemandQueryResult<MRVMGenericDefinition, MRVMLicense> {
 
     private final MRVMWorld world;
     private final BigDecimal totalUtility;
