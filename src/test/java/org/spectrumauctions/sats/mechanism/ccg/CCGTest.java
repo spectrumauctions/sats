@@ -134,7 +134,7 @@ public class CCGTest {
         WinnerDeterminator<MRVMLicense> wdp = new MRVM_MIP(bidders);
         AuctionMechanism<MRVMLicense> am = new CCGMechanism<>(wdp);
         Payment<MRVMLicense> payment = am.getPayment();
-        assertEquals(3.42515584861134e7, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-2);
+        assertEquals(3.4251509777579516e7, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-2);
     }
 
 }

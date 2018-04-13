@@ -5,10 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.util.math.LinearFunction;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
@@ -17,7 +15,6 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +52,7 @@ public class MRVMDemandQueryTest {
 
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-            MRVMDemandQueryMipResult result = mip.calculateAllocation();
+            MRVMDemandQueryMipResult result = mip.getResult();
             Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() > 0);
             logger.info(result.getResultingBundle());
         }
@@ -82,7 +79,7 @@ public class MRVMDemandQueryTest {
         Map<MRVMGenericDefinition, Integer> map = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-            MRVMDemandQueryMipResult result = mip.calculateAllocation();
+            MRVMDemandQueryMipResult result = mip.getResult();
             for (Map.Entry<MRVMGenericDefinition, Integer> entry : result.getResultingBundle().getQuantities().entrySet()) {
                 if (!map.containsKey(entry.getKey())) {
                     map.put(entry.getKey(), 0);
@@ -124,7 +121,7 @@ public class MRVMDemandQueryTest {
         Map<MRVMGenericDefinition, Integer> map = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-            MRVMDemandQueryMipResult result = mip.calculateAllocation();
+            MRVMDemandQueryMipResult result = mip.getResult();
             for (Map.Entry<MRVMGenericDefinition, Integer> entry : result.getResultingBundle().getQuantities().entrySet()) {
                 if (!map.containsKey(entry.getKey())) {
                     map.put(entry.getKey(), 0);
@@ -164,7 +161,7 @@ public class MRVMDemandQueryTest {
         // Assert that the bidder doesn't choose licenses from a region because it's too expensive
         licenses.forEach(l -> prices.put(l, BigDecimal.valueOf(1000000000)));
         MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-        MRVMDemandQueryMipResult result = mip.calculateAllocation();
+        MRVMDemandQueryMipResult result = mip.getResult();
         Set<MRVMRegionsMap.Region> regionsCovered = new HashSet<>();
         result.getResultingBundle().getQuantities().entrySet().stream().filter(e -> e.getValue() > 0)
                 .forEach(e -> regionsCovered.add(e.getKey().getRegion()));
@@ -173,7 +170,7 @@ public class MRVMDemandQueryTest {
         // Assert that the bidder still chooses the licenses because the prices are less than the discount for losing a region
         licenses.forEach(l -> prices.put(l, BigDecimal.valueOf(1000)));
         mip = new MRVM_DemandQueryMIP(bidder, prices);
-        result = mip.calculateAllocation();
+        result = mip.getResult();
         Set<MRVMRegionsMap.Region> regionsCovered2 = new HashSet<>();
         result.getResultingBundle().getQuantities().entrySet().stream().filter(e -> e.getValue() > 0)
                 .forEach(e -> regionsCovered2.add(e.getKey().getRegion()));
