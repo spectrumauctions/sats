@@ -61,7 +61,9 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
         Map<Bidder<T>, BidderPayment> payments = new HashMap<>();
         for (Bidder<T> bidder : baseAllocation.getWinners()) {
 
-            double valueWithoutBidder = baseAllocation.getTotalValue().doubleValue() - baseAllocation.getTradeValue(bidder).doubleValue();
+            double baseAllocationTotalValue = baseAllocation.getTotalValue().doubleValue();
+            double baseAllocationBidderValue = baseAllocation.getTradeValue(bidder).doubleValue();
+            double valueWithoutBidder = baseAllocationTotalValue - baseAllocationBidderValue;
 
             WinnerDeterminator<T> wdWithoutBidder = baseWD.getWdWithoutBidder(bidder);
             Allocation<T> allocationWithoutBidder = wdWithoutBidder.calculateAllocation();

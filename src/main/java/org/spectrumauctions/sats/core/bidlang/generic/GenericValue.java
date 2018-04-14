@@ -69,6 +69,7 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
 
         GenericValue<?, ?> that = (GenericValue<?, ?>) o;
 
+        if (id != that.id) return false;
         if (totalQuantity != that.totalQuantity) return false;
         if (size != that.size) return false;
         return (quantities != null ? quantities.equals(that.quantities) : that.quantities == null) && (value != null ? value.equals(that.value) : that.value == null);
@@ -80,6 +81,7 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
         result = 31 * result + (quantities != null ? quantities.hashCode() : 0);
         result = 31 * result + (value != null ? value.hashCode() : 0);
         result = 31 * result + size;
+        result = 31 * result + id;
         return result;
     }
 
