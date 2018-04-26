@@ -108,7 +108,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
         if (PRINT_SOLVER_RESULT) {
             logger.info("Result:\n" + mipResult);
         }
-        MRVMMipResult.Builder resultBuilder = new MRVMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
+        MRVMMipResult.Builder resultBuilder = new MRVMMipResult.Builder(world, mipResult);
         for (Map.Entry<MRVMBidder, MRVMBidderPartialMIP> bidder : bidderPartialMips.entrySet()) {
             Variable bidderValueVar = worldPartialMip.getValueVariable(bidder.getKey());
             double mipUtilityResult = mipResult.getValue(bidderValueVar);

@@ -101,7 +101,10 @@ public class VCGTest {
         WinnerDeterminator<GSVMLicense> wdp = new GSVMStandardMIP(bidders);
         AuctionMechanism<GSVMLicense> am = new VCGMechanism<>(wdp);
         Payment<GSVMLicense> payment = am.getPayment();
-        assertEquals(447.42366, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-2);
+        double totalValue = am.getMechanismResult().getAllocation().getTotalValue().doubleValue();
+        double sumOfValues = bidders.stream().mapToDouble(b -> am.getMechanismResult().getAllocation().getTradeValue(b).doubleValue()).sum();
+        assertEquals(447.42366, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-6);
+        assertEquals(totalValue, sumOfValues, 1e-6);
     }
 
     @Test(expected = UnsupportedOperationException.class) // Needs refactoring of the MIP creation
@@ -118,7 +121,10 @@ public class VCGTest {
         WinnerDeterminator<SRVMLicense> wdp = new SRVM_MIP(bidders);
         AuctionMechanism<SRVMLicense> am = new VCGMechanism<>(wdp);
         Payment<SRVMLicense> payment = am.getPayment();
-        assertEquals(5314.615783226067, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-2);
+        double totalValue = am.getMechanismResult().getAllocation().getTotalValue().doubleValue();
+        double sumOfValues = bidders.stream().mapToDouble(b -> am.getMechanismResult().getAllocation().getTradeValue(b).doubleValue()).sum();
+        assertEquals(1405.9873, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-6);
+        assertEquals(totalValue, sumOfValues, 1e-6);
     }
 
 

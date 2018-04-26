@@ -27,21 +27,13 @@ public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition
 
     private final MRVMWorld world;
 
-    private final BigDecimal totalValue;
     private final IMIPResult joptResult;
 
     private MRVMMipResult(Builder builder) {
         super(builder);
         this.world = builder.world;
-        this.totalValue = BigDecimal.valueOf(builder.objectiveValue);
         this.joptResult = builder.joptResult;
     }
-
-    @Override
-    public BigDecimal getTotalValue() {
-        return totalValue;
-    }
-
 
     public IMIPResult getJoptResult() {
         return joptResult;
@@ -130,18 +122,15 @@ public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition
 
 
         private MRVMWorld world;
-        private double objectiveValue;
         private final IMIPResult joptResult;
 
         /**
          *
-         * @param objectiveValue
          * @param world
          * @param joptResult The result object //TODO Use Result object here in construction to build MRVMMipResult
          */
-        public Builder(double objectiveValue, MRVMWorld world, IMIPResult joptResult) {
+        public Builder(MRVMWorld world, IMIPResult joptResult) {
             super();
-            this.objectiveValue = objectiveValue;
             this.world = world;
             this.joptResult = joptResult;
         }

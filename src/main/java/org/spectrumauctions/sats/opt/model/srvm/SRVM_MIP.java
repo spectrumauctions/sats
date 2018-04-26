@@ -124,7 +124,7 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
         if (PRINT_SOLVER_RESULT) {
             logger.info("Result:\n" + mipResult);
         }
-        SRVMMipResult.Builder resultBuilder = new SRVMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
+        SRVMMipResult.Builder resultBuilder = new SRVMMipResult.Builder(world, mipResult);
         for (SRVMBidder bidder : bidderPartialMips.keySet()) {
             double unscaledValue = 0;
             for (SRVMBand band : world.getBands()) {

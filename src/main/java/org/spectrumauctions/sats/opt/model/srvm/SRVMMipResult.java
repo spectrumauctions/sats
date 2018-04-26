@@ -28,19 +28,12 @@ public final class SRVMMipResult extends GenericAllocation<SRVMBand, SRVMLicense
 
 
     private final SRVMWorld world;
-    private final BigDecimal totalValue;
     private final IMIPResult joptResult;
 
     private SRVMMipResult(Builder builder) {
         super(builder);
         this.world = builder.world;
-        this.totalValue = BigDecimal.valueOf(builder.objectiveValue);
         this.joptResult = builder.joptResult;
-    }
-
-    @Override
-    public BigDecimal getTotalValue() {
-        return totalValue;
     }
 
 
@@ -115,17 +108,14 @@ public final class SRVMMipResult extends GenericAllocation<SRVMBand, SRVMLicense
     public static final class Builder extends GenericAllocation.Builder<SRVMBand, SRVMLicense> {
 
         private SRVMWorld world;
-        private double objectiveValue;
         private final IMIPResult joptResult;
 
         /**
-         * @param objectiveValue
          * @param world
          * @param joptResult     The result object //TODO Use Result object here in construction to build MipResult
          */
-        public Builder(double objectiveValue, SRVMWorld world, IMIPResult joptResult) {
+        public Builder(SRVMWorld world, IMIPResult joptResult) {
             super();
-            this.objectiveValue = objectiveValue;
             this.world = world;
             this.joptResult = joptResult;
         }
