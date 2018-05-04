@@ -97,26 +97,27 @@ public class VCGTest {
 
     @Test
     public void testVCGWithStandardGSVM() {
-        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(234456867);
+        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(234556782);
         WinnerDeterminator<GSVMLicense> wdp = new GSVMStandardMIP(bidders);
         AuctionMechanism<GSVMLicense> am = new VCGMechanism<>(wdp);
         Payment<GSVMLicense> payment = am.getPayment();
         double totalValue = am.getMechanismResult().getAllocation().getTotalValue().doubleValue();
         double sumOfValues = bidders.stream().mapToDouble(b -> am.getMechanismResult().getAllocation().getTradeValue(b).doubleValue()).sum();
-        assertEquals(447.42366, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-6);
+        assertEquals(500.0105998484576, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-6);
         assertEquals(totalValue, sumOfValues, 1e-6);
     }
 
     @Test
     public void testVCGWithStandardLSVM() {
-        List<LSVMBidder> bidders = new LocalSynergyValueModel().createNewPopulation(234456867);
+        List<LSVMBidder> bidders = new LocalSynergyValueModel().createNewPopulation(2345567);
         WinnerDeterminator<LSVMLicense> wdp = new LSVMStandardMIP(bidders);
+        ((LSVMStandardMIP) wdp).setDisplayOutput(true);
         AuctionMechanism<LSVMLicense> am = new VCGMechanism<>(wdp);
         Payment<LSVMLicense> payment = am.getPayment();
         double totalValue = am.getMechanismResult().getAllocation().getTotalValue().doubleValue();
         double sumOfValues = bidders.stream().mapToDouble(b -> am.getMechanismResult().getAllocation().getTradeValue(b).doubleValue()).sum();
-        assertEquals(550.155848, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-6);
         assertEquals(totalValue, sumOfValues, 1e-6);
+        assertEquals(568.2216513366325, totalValue, 1e-6);
     }
 
     @Test
