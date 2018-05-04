@@ -52,7 +52,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
-        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
+        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.00001);
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestPossibleValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         this.bidders = bidders;
