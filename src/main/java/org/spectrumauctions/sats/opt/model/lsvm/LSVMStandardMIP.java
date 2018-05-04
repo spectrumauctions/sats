@@ -36,9 +36,11 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 	private int n; // number of agents
 	private int m; // number of items
 
+	private long excludedBidderId;
+
 	private double[][] v;
 
-	List<LSVMBidder> population;
+	private List<LSVMBidder> population;
 
 	private Map<Long, LSVMBidder> bidderMap;
 	private Map<Long, LSVMLicense> licenseMap;
@@ -55,8 +57,13 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 	}
 
 	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population) {
+		this(world, population, -1L);
+	}
+
+	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population, long excludedBidderId) {
 		this.world = world;
 		this.population = population;
+		this.excludedBidderId = excludedBidderId;
 
 		bidderMap = population.stream().collect(Collectors.toMap(b -> b.getId(), Function.identity()));
 		licenseMap = world.getLicenses().stream().collect(Collectors.toMap(l -> l.getId(), Function.identity()));
@@ -95,8 +102,7 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	@Override
 	public WinnerDeterminator<LSVMLicense> getWdWithoutBidder(Bidder bidder) {
-		// return new LSVMStandardMIP(bidderMap.values().stream().filter(b -> !b.equals(bidder)).collect(Collectors.toList()));
-        throw new UnsupportedOperationException("LSVM is not ready yet to be solved with one bidder less, since it relies on the bidder ids as indices.");
+		return new LSVMStandardMIP(world, population, bidder.getId());
 	}
 
 	@Override
@@ -107,10 +113,12 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		Map<Bidder<LSVMLicense>, Bundle<LSVMLicense>> allocation = new HashMap<>();
 		for (int i = 0; i < n; i++) {
 			Bundle<LSVMLicense> bundle = new Bundle<>();
-			for (int j = 0; j < m; j++) {
-				for (int t = 0; t < m; t++) {
-					if (result.getValue(A[i][j][t]) > 0) {
-						bundle.add(licenseMap.get((long) j));
+			if ((long) i != excludedBidderId) {
+				for (int j = 0; j < m; j++) {
+					for (int t = 0; t < m; t++) {
+						if (result.getValue(A[i][j][t]) > 0) {
+							bundle.add(licenseMap.get((long) j));
+						}
 					}
 				}
 			}
@@ -135,10 +143,12 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	private void buildObjectiveTerm() {
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				for (int t = 0; t < m; t++) {
-					double value = calculateComplementarityMarkup(t + 1, bidderMap.get((long) i)) * v[i][j];
-					getMip().addObjectiveTerm(value, A[i][j][t]);
+			if ((long) i != excludedBidderId) {
+				for (int j = 0; j < m; j++) {
+					for (int t = 0; t < m; t++) {
+						double value = calculateComplementarityMarkup(t + 1, bidderMap.get((long) i)) * v[i][j];
+						getMip().addObjectiveTerm(value, A[i][j][t]);
+					}
 				}
 			}
 		}
@@ -148,8 +158,10 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		for (int j = 0; j < m; j++) {
 			Constraint constraint = new Constraint(CompareType.LEQ, 1);
 			for (int i = 0; i < n; i++) {
-				for (int t = 0; t < m; t++) {
-					constraint.addTerm(1, A[i][j][t]);
+				if ((long) i != excludedBidderId) {
+					for (int t = 0; t < m; t++) {
+						constraint.addTerm(1, A[i][j][t]);
+					}
 				}
 			}
 			getMip().add(constraint);
@@ -160,9 +172,11 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		for (int e = 0; e < edges.length; e++) {
 			Constraint constraint = new Constraint(CompareType.LEQ, 1);
 			for (int i = 0; i < n; i++) {
-				for (int c = 0; c < m; c++) {
-					if (isValidPathLength(edges[e], c + 1)) {
-						constraint.addTerm(1, E[i][e][c]);
+				if ((long) i != excludedBidderId) {
+					for (int c = 0; c < m; c++) {
+						if (isValidPathLength(edges[e], c + 1)) {
+							constraint.addTerm(1, E[i][e][c]);
+						}
 					}
 				}
 			}
@@ -172,21 +186,23 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	private void buildNeighbourConstraints() {
 		for (int i = 0; i < n; i++) {
-			for (int e = 0; e < edges.length; e++) {
-				for (int c = 1; c < m; c++) { // only for c > 1
-					if (isValidPathLength(edges[e], c + 1)) {
-						Constraint constraint = new Constraint(CompareType.GEQ, 0);
-						constraint.addTerm(-1, E[i][e][c]);
-						for (int x : n(gMin(edges[e]))) {
-							int y = gMax(edges[e]);
-							if (x != y) {
-								int ne = fInv(x, y);
-								if (isValidPathLength(edges[ne], c)) {
-									constraint.addTerm(1, E[i][ne][c - 1]);
+			if ((long) i != excludedBidderId) {
+				for (int e = 0; e < edges.length; e++) {
+					for (int c = 1; c < m; c++) { // only for c > 1
+						if (isValidPathLength(edges[e], c + 1)) {
+							Constraint constraint = new Constraint(CompareType.GEQ, 0);
+							constraint.addTerm(-1, E[i][e][c]);
+							for (int x : n(gMin(edges[e]))) {
+								int y = gMax(edges[e]);
+								if (x != y) {
+									int ne = fInv(x, y);
+									if (isValidPathLength(edges[ne], c)) {
+										constraint.addTerm(1, E[i][ne][c - 1]);
+									}
 								}
 							}
+							getMip().add(constraint);
 						}
-						getMip().add(constraint);
 					}
 				}
 			}
@@ -195,61 +211,69 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	private void buildEdgeConstraints() {
 		for (int i = 0; i < n; i++) {
-			for (int e = 0; e < edges.length; e++) {
-				Constraint constraint = new Constraint(CompareType.GEQ, 0);
-				for (int c = 0; c < m; c++) {
-					if (isValidPathLength(edges[e], c + 1)) {
-						constraint.addTerm(-2, E[i][e][c]);
+			if ((long) i != excludedBidderId) {
+				for (int e = 0; e < edges.length; e++) {
+					Constraint constraint = new Constraint(CompareType.GEQ, 0);
+					for (int c = 0; c < m; c++) {
+						if (isValidPathLength(edges[e], c + 1)) {
+							constraint.addTerm(-2, E[i][e][c]);
+						}
 					}
-				}
-				for (int j : f(edges[e])) {
-					for (int t = 0; t < m; t++) {
-						constraint.addTerm(1, A[i][j][t]);
+					for (int j : f(edges[e])) {
+						for (int t = 0; t < m; t++) {
+							constraint.addTerm(1, A[i][j][t]);
+						}
 					}
+					getMip().add(constraint);
 				}
-				getMip().add(constraint);
 			}
 		}
 	}
 
 	private void buildTauConstraints() {
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				Constraint constraint = new Constraint(CompareType.LEQ, 1);
-				for (int t = 0; t < m; t++) {
-					constraint.addTerm(t + 1, A[i][j][t]);
-				}
+			if ((long) i != excludedBidderId) {
+				for (int j = 0; j < m; j++) {
+					Constraint constraint = new Constraint(CompareType.LEQ, 1);
+					for (int t = 0; t < m; t++) {
+						constraint.addTerm(t + 1, A[i][j][t]);
+					}
 
-				for (int x = 0; x < m; x++) {
-					if (x != j) {
-						for (int c = 0; c < m; c++) {
-							int e = fInv(x, j);
-							if (isValidPathLength(edges[e], c + 1)) {
-								constraint.addTerm(-1, E[i][e][c]);
+					for (int x = 0; x < m; x++) {
+						if (x != j) {
+							for (int c = 0; c < m; c++) {
+								int e = fInv(x, j);
+								if (isValidPathLength(edges[e], c + 1)) {
+									constraint.addTerm(-1, E[i][e][c]);
+								}
 							}
 						}
 					}
+					getMip().add(constraint);
 				}
-				getMip().add(constraint);
 			}
 		}
 	}
 
 	private void initBaseValues() {
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				v[i][j] = bidderMap.get((long) i).getBaseValues().getOrDefault((long) j, new BigDecimal(0.0))
-						.doubleValue();
+			if ((long) i != excludedBidderId) {
+				for (int j = 0; j < m; j++) {
+					v[i][j] = bidderMap.get((long) i).getBaseValues().getOrDefault((long) j, new BigDecimal(0.0))
+							.doubleValue();
+				}
 			}
 		}
 	}
 
 	private void initA() {
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				for (int t = 0; t < m; t++) {
-					A[i][j][t] = new Variable(String.format("A_i[%d]j[%d]t[%d]", i, j, t), VarType.BOOLEAN, 0, 1);
-					getMip().add(A[i][j][t]);
+			if ((long) i != excludedBidderId) {
+				for (int j = 0; j < m; j++) {
+					for (int t = 0; t < m; t++) {
+						A[i][j][t] = new Variable(String.format("A_i[%d]j[%d]t[%d]", i, j, t), VarType.BOOLEAN, 0, 1);
+						getMip().add(A[i][j][t]);
+					}
 				}
 			}
 		}
@@ -286,11 +310,13 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	private void initE() {
 		for (int i = 0; i < n; i++) {
-			for (int e = 0; e < edges.length; e++) {
-				for (int c = 0; c < m; c++) {
-					if (isValidPathLength(edges[e], c + 1)) {
-						E[i][e][c] = new Variable(String.format("E_i[%d]e[%d]c[%d]", i, e, c), VarType.BOOLEAN, 0, 1);
-						getMip().add(E[i][e][c]);
+			if ((long) i != excludedBidderId) {
+				for (int e = 0; e < edges.length; e++) {
+					for (int c = 0; c < m; c++) {
+						if (isValidPathLength(edges[e], c + 1)) {
+							E[i][e][c] = new Variable(String.format("E_i[%d]e[%d]c[%d]", i, e, c), VarType.BOOLEAN, 0, 1);
+							getMip().add(E[i][e][c]);
+						}
 					}
 				}
 			}

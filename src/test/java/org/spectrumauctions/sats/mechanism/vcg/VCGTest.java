@@ -107,12 +107,16 @@ public class VCGTest {
         assertEquals(totalValue, sumOfValues, 1e-6);
     }
 
-    @Test(expected = UnsupportedOperationException.class) // Needs refactoring of the MIP creation
+    @Test
     public void testVCGWithStandardLSVM() {
         List<LSVMBidder> bidders = new LocalSynergyValueModel().createNewPopulation(234456867);
         WinnerDeterminator<LSVMLicense> wdp = new LSVMStandardMIP(bidders);
         AuctionMechanism<LSVMLicense> am = new VCGMechanism<>(wdp);
         Payment<LSVMLicense> payment = am.getPayment();
+        double totalValue = am.getMechanismResult().getAllocation().getTotalValue().doubleValue();
+        double sumOfValues = bidders.stream().mapToDouble(b -> am.getMechanismResult().getAllocation().getTradeValue(b).doubleValue()).sum();
+        assertEquals(550.155848, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-6);
+        assertEquals(totalValue, sumOfValues, 1e-6);
     }
 
     @Test
