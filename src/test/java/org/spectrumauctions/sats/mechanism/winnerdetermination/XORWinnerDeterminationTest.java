@@ -23,7 +23,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class WinnerDeterminationTest {
+public class XORWinnerDeterminationTest {
 
     private MockWorld.MockGood A;
     private MockWorld.MockGood B;
@@ -55,7 +55,6 @@ public class WinnerDeterminationTest {
         return fromMap;
     }
 
-    @SuppressWarnings({"deprecation", "unchecked"}) //Use deprecated double-function
     @Test
     public void testSimpleWinnerDetermination() {
         bidder(1).addBid(new Bundle<>(A), 2);
@@ -71,7 +70,7 @@ public class WinnerDeterminationTest {
 
         WinnerDeterminator<MockGood> wd = new XORWinnerDetermination<>(bids);
         Allocation<MockGood> result = wd.calculateAllocation();
-        assertTrue(result.getTotalValue().compareTo(BigDecimal.valueOf(4)) == 0);
+        assertEquals(result.getTotalValue().compareTo(BigDecimal.valueOf(4)), 0);
         assertEquals(result.getTradeValue(bidder(2)).doubleValue(), 0, 0.01);
         assertEquals(result.getTradeValue(bidder(3)).doubleValue(), 2, 0.0001);
         assertEquals(result.getTradeValue(bidder(1)).doubleValue(), 2, 0.0001);

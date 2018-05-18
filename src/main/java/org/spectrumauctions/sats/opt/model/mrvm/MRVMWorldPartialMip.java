@@ -114,8 +114,8 @@ public class MRVMWorldPartialMip extends PartialMIP {
 
     private void appendObjectiveToMip(MIP mip) {
         mip.setObjectiveMax(true);
-        if ((mip.getLinearObjectiveTerms() != null && mip.getQuadraticObjectiveTerms() != null)
-                || mip.getObjectiveTerms().size() != 0) {
+
+        if (!mip.getObjectiveTerms().isEmpty()) {
             logger.warn("There are already existing objective values, when there's still supposed to be none");
         }
         for (Variable var : valueVariables.values()) {
