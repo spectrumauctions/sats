@@ -51,7 +51,7 @@ public class CCATest {
         cca.setEpsilon(0.1);
         MechanismResult<MRVMLicense> result = cca.getMechanismResult();
         long end = System.currentTimeMillis();
-        logger.warn("CCA took {}s." + (end - start) / 1000);
+        logger.warn("CCA took {}s.", (end - start) / 1000);
         Allocation<MRVMLicense> allocationFromMechanism = result.getAllocation();
         Allocation<MRVMLicense> allocationWithTrueValues = allocationFromMechanism.getAllocationWithTrueValues();
         assertTrue(result.getAllocation().getTotalValue().doubleValue() > 0);
@@ -86,7 +86,7 @@ public class CCATest {
         cca.setEpsilon(0.1);
         MechanismResult<MRVMLicense> result = cca.getMechanismResult();
         long end = System.currentTimeMillis();
-        logger.warn("CCA took {}s." + (end - start) / 1000);
+        logger.warn("CCA took {}s.", (end - start) / 1000);
         Allocation<MRVMLicense> allocationFromMechanism = result.getAllocation();
         Allocation<MRVMLicense> allocationWithTrueValues = allocationFromMechanism.getAllocationWithTrueValues();
         assertTrue(allocationFromMechanism.getTotalValue().doubleValue() > 0);
