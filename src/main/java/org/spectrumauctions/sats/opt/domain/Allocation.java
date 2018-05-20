@@ -28,4 +28,6 @@ public interface Allocation<T extends Good> {
     BigDecimal getTotalValue();
 
     BigDecimal getTradeValue(Bidder<T> bidder);
+
+    Allocation<T> getAllocationWithTrueValues();
 }

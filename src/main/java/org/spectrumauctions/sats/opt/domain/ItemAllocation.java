@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.opt.domain;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.model.*;
 
 import java.math.BigDecimal;
@@ -7,6 +9,8 @@ import java.util.Collection;
 import java.util.Map;
 
 public final class ItemAllocation<T extends Good> implements Allocation<T> {
+
+    private static final Logger logger = LogManager.getLogger(ItemAllocation.class);
 
     private final World world;
     private final Map<Bidder<T>, Bundle<T>> alloc;
@@ -45,6 +49,12 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
     @Override
     public BigDecimal getTradeValue(Bidder<T> bidder) {
         return bidder.calculateValue(alloc.get(bidder));
+    }
+
+    @Override
+    public Allocation<T> getAllocationWithTrueValues() {
+        logger.info("For non-generic item allocations, the values are currently always equal to the true values.");
+        return this;
     }
 
     public static final class ItemAllocationBuilder<T extends Good> {

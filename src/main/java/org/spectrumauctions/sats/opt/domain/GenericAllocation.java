@@ -7,6 +7,8 @@ package org.spectrumauctions.sats.opt.domain;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
@@ -23,6 +25,8 @@ import java.util.Map;
  *
  */
 public class GenericAllocation<T extends GenericDefinition<S>, S extends Good> implements Allocation<S> {
+
+    private static final Logger logger = LogManager.getLogger(GenericAllocation.class);
 
     protected final ImmutableMap<Bidder<S>, GenericValue<T, S>> values;
 
@@ -67,6 +71,24 @@ public class GenericAllocation<T extends GenericDefinition<S>, S extends Good> i
     public BigDecimal getTradeValue(Bidder<S> bidder) {
         if (bidder == null || !values.containsKey(bidder)) return BigDecimal.ZERO;
         return values.get(bidder).getValue();
+    }
+
+    @Override
+    public Allocation<S> getAllocationWithTrueValues() {
+        GenericAllocation.Builder<T, S> builder = new GenericAllocation.Builder<>();
+        for (Map.Entry<Bidder<S>, GenericValue<T, S>> bidderEntry : values.entrySet()) {
+            BigDecimal trueValue = bidderEntry.getKey().calculateValue(bidderEntry.getValue().anyConsistentBundle());
+            GenericValue.Builder<T, S> trueEntryBuilder = new GenericValue.Builder<>(trueValue);
+            for (Map.Entry<T, Integer> quantities : bidderEntry.getValue().getQuantities().entrySet()) {
+                trueEntryBuilder.putQuantity(quantities.getKey(), quantities.getValue());
+            }
+            builder.putGenericValue(bidderEntry.getKey(), trueEntryBuilder.build());
+        }
+        Allocation<S> allocationWithTrueValues = new GenericAllocation<>(builder);
+        if (this.equals(allocationWithTrueValues)) {
+            logger.warn("Requested allocation with true values when initial allocation already included true values.");
+        }
+        return allocationWithTrueValues;
     }
 
     public static class Builder<T extends GenericDefinition<S>, S extends Good> {
