@@ -1,9 +1,9 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bidder;
@@ -12,6 +12,7 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMLicense;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.DemandDependentPriceUpdate;
+import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativePriceUpdate;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVMMipResult;
@@ -20,6 +21,7 @@ import org.spectrumauctions.sats.opt.model.mrvm.demandquery.MRVM_DemandQueryMIPB
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,25 +32,35 @@ public class CCATest {
 
     private static final Logger logger = LogManager.getLogger(CCATest.class);
 
-    private static MRVMMipResult efficientAllocation;
-    private static List<MRVMBidder> rawBidders;
-
-    @BeforeClass
-    public static void findEfficientSolution() {
-        rawBidders = new MultiRegionModel().createNewPopulation(234456867);
-        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(rawBidders));
-        efficientAllocation = mip.calculateAllocation();
-    }
+    private static int ITERATIONS = 5;
 
     @Test
-    public void testCCAWithMRVMSimplePriceUpdate() {
+    public void testMultipleCCASimplePriceUpdate() {
+        ArrayList<Double> qualities = new ArrayList<>();
+        for (int i = 0; i < ITERATIONS; i++) {
+            List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+            MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(rawBidders));
+            MRVMMipResult efficientAllocation = mip.calculateAllocation();
+            qualities.add(testCCAWithMRVMSimplePriceUpdate(rawBidders, efficientAllocation));
+        }
+        DescriptiveStatistics stats = new DescriptiveStatistics();
+        qualities.forEach(stats::addValue);
+        logger.warn(stats.toString());
+    }
+
+    private double testCCAWithMRVMSimplePriceUpdate(List<MRVMBidder> rawBidders, MRVMMipResult efficientAllocation) {
         long start = System.currentTimeMillis();
         List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         CCAMechanism<MRVMLicense> cca = new CCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
         cca.setVariant(CCAVariant.XORQ);
         cca.setStartingPrice(BigDecimal.ZERO);
-        cca.setEpsilon(0.1);
+        cca.setEpsilon(0.001);
+
+        SimpleRelativePriceUpdate<MRVMLicense> priceUpdater = new SimpleRelativePriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
+        cca.setPriceUpdater(priceUpdater);
+
         MechanismResult<MRVMLicense> result = cca.getMechanismResult();
         long end = System.currentTimeMillis();
         logger.warn("CCA took {}s.", (end - start) / 1000);
@@ -60,11 +72,16 @@ public class CCATest {
         // Compare allocations:
         BigDecimal quality = allocationWithTrueValues.getTotalValue().divide(efficientAllocation.getTotalValue(), RoundingMode.HALF_UP);
         logger.warn("Quality of this iteration: {}", quality);
+        return quality.doubleValue();
     }
 
     @Test
     @Ignore // It doesn't terminate for now
     public void testCCAWithMRVMComplexPriceUpdate() {
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation(234456867);
+        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(rawBidders));
+        MRVMMipResult efficientAllocation = mip.calculateAllocation();
+
         long start = System.currentTimeMillis();
         List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
