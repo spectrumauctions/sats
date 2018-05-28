@@ -63,6 +63,9 @@ public class CCATest {
 
         MechanismResult<MRVMLicense> result = cca.getMechanismResult();
         long end = System.currentTimeMillis();
+
+        logger.warn("Generic bids count per bidder:\n{}", cca.getGenericBidsCount());
+
         logger.warn("CCA took {}s.", (end - start) / 1000);
         Allocation<MRVMLicense> allocationFromMechanism = result.getAllocation();
         Allocation<MRVMLicense> allocationWithTrueValues = allocationFromMechanism.getAllocationWithTrueValues();

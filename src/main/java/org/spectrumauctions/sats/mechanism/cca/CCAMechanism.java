@@ -264,4 +264,24 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
     public void setVariant(CCAVariant variant) {
         this.variant = variant;
     }
+
+    public Collection<XORBid<T>> getClockPhaseXORResult() {
+        return clockPhaseXORResult;
+    }
+
+    public Collection<GenericBid<GenericDefinition<T>, T>> getClockPhaseGenericResult() {
+        return clockPhaseGenericResult;
+    }
+
+    public Map<Bidder<T>, Integer> getGenericBidsCount() {
+        Map<Bidder<T>, Integer> map = new HashMap<>();
+        clockPhaseGenericResult.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        return map;
+    }
+
+    public Map<Bidder<T>, Integer> getXORBidsCount() {
+        Map<Bidder<T>, Integer> map = new HashMap<>();
+        clockPhaseXORResult.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        return map;
+    }
 }
