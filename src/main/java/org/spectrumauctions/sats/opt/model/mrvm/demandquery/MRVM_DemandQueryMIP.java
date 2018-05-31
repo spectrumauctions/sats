@@ -17,7 +17,9 @@ import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Fabio Isler
@@ -64,7 +66,6 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
 
     public MRVMDemandQueryMipResult getResult() {
         logger.debug(mrvmMip.getMip());
-        mrvmMip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 10);
         IMIPResult mipResult = solver.solve(mrvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
@@ -95,6 +96,48 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
 
         MRVMDemandQueryMipResult.Builder resultBuilder = new MRVMDemandQueryMipResult.Builder(world, unscaledValue - unscaledPrice, valueBuilder.build());
         return resultBuilder.build();
+    }
+
+    public Set<MRVMDemandQueryMipResult> getResultPool(int numberOfResults) {
+
+        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
+        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 2);
+        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 2);
+        IMIPResult mipResult = solver.solve(mrvmMip.getMip());
+        logger.debug("Result:\n{}", mipResult);
+
+        Set<MRVMDemandQueryMipResult> results = new HashSet<>();
+        for (Solution sol : mipResult.getIntermediateSolutions()) {
+            double scalingFactor = mrvmMip.getBidderPartialMips().get(bidder).getScalingFactor();
+
+            Variable bidderValueVar = mrvmMip.getWorldPartialMip().getValueVariable(bidder);
+            double resultingValue = mipResult.getValue(bidderValueVar);
+            double resultingPrice = mipResult.getValue(priceVar);
+            double unscaledValue = resultingValue * scalingFactor;
+            double unscaledPrice = resultingPrice * scalingFactor;
+            double unscaledObjVal = mipResult.getObjectiveValue() * scalingFactor;
+            if (Math.abs(unscaledValue - unscaledPrice - unscaledObjVal) >= 1e-5) {
+                logger.warn("Values don't match. Delta of {}. Unscaled value = {}, Unscaled price = {}, Unscaled objective value = {}",
+                        unscaledValue - unscaledPrice - unscaledObjVal, unscaledValue, unscaledPrice, unscaledObjVal);
+            }
+            GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            for (Region region : world.getRegionsMap().getRegions()) {
+                for (MRVMBand band : world.getBands()) {
+                    Variable xVar = mrvmMip.getWorldPartialMip().getXVariable(bidder, region, band);
+                    double doubleQuantity = mipResult.getValue(xVar);
+                    int quantity = (int) Math.round(doubleQuantity);
+                    if (quantity > 0) {
+                        MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
+                        valueBuilder.putQuantity(def, quantity);
+                    }
+                }
+            }
+
+            MRVMDemandQueryMipResult.Builder resultBuilder = new MRVMDemandQueryMipResult.Builder(world, unscaledValue - unscaledPrice, valueBuilder.build());
+            results.add(resultBuilder.build());
+        }
+
+        return results;
     }
 
 }
