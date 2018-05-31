@@ -8,7 +8,6 @@ import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
@@ -98,11 +97,15 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
         return resultBuilder.build();
     }
 
+    @Override
     public Set<MRVMDemandQueryMipResult> getResultPool(int numberOfResults) {
 
+
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
-        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 2);
+        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 1);
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 2);
+        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_INTENSITY, 4);
+        mrvmMip.getMip().setSolveParam(SolveParam.POPULATE_LIMIT, numberOfResults * 3);
         IMIPResult mipResult = solver.solve(mrvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
@@ -111,11 +114,11 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
             double scalingFactor = mrvmMip.getBidderPartialMips().get(bidder).getScalingFactor();
 
             Variable bidderValueVar = mrvmMip.getWorldPartialMip().getValueVariable(bidder);
-            double resultingValue = mipResult.getValue(bidderValueVar);
-            double resultingPrice = mipResult.getValue(priceVar);
+            double resultingValue = sol.getValue(bidderValueVar);
+            double resultingPrice = sol.getValue(priceVar);
             double unscaledValue = resultingValue * scalingFactor;
             double unscaledPrice = resultingPrice * scalingFactor;
-            double unscaledObjVal = mipResult.getObjectiveValue() * scalingFactor;
+            double unscaledObjVal = sol.getObjectiveValue() * scalingFactor;
             if (Math.abs(unscaledValue - unscaledPrice - unscaledObjVal) >= 1e-5) {
                 logger.warn("Values don't match. Delta of {}. Unscaled value = {}, Unscaled price = {}, Unscaled objective value = {}",
                         unscaledValue - unscaledPrice - unscaledObjVal, unscaledValue, unscaledPrice, unscaledObjVal);
@@ -124,7 +127,7 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
             for (Region region : world.getRegionsMap().getRegions()) {
                 for (MRVMBand band : world.getBands()) {
                     Variable xVar = mrvmMip.getWorldPartialMip().getXVariable(bidder, region, band);
-                    double doubleQuantity = mipResult.getValue(xVar);
+                    double doubleQuantity = sol.getValue(xVar);
                     int quantity = (int) Math.round(doubleQuantity);
                     if (quantity > 0) {
                         MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
@@ -134,6 +137,7 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
             }
 
             MRVMDemandQueryMipResult.Builder resultBuilder = new MRVMDemandQueryMipResult.Builder(world, unscaledValue - unscaledPrice, valueBuilder.build());
+
             results.add(resultBuilder.build());
         }
 

@@ -32,5 +32,13 @@ public class GenericBid<S extends GenericDefinition<T>, T extends Good> {
 
     public void addValue(GenericValue<S, T> value) {
         values.add(value);
-    };
+    }
+
+    public void removeValue(GenericValue<S, T> value) {
+        values.remove(value);
+    }
+
+    public GenericBid<S, T> copyOf() {
+        return new GenericBid<>(this.bidder, this.values);
+    }
 }

@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
@@ -11,6 +13,8 @@ import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.PriceUpdater;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativePriceUpdate;
+import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingSupplementaryRound;
+import org.spectrumauctions.sats.mechanism.cca.supplementaryround.SupplementaryRound;
 import org.spectrumauctions.sats.mechanism.ccg.CCGMechanism;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
 import org.spectrumauctions.sats.mechanism.domain.Payment;
@@ -24,33 +28,34 @@ import org.spectrumauctions.sats.opt.xorq.XORQWinnerDetermination;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
+
+    private static final Logger logger = LogManager.getLogger(CCAMechanism.class);
+
 
     private static final BigDecimal DEFAULT_SCALE = BigDecimal.valueOf(0.001);
     private static final BigDecimal DEFAULT_STARTING_PRICE = BigDecimal.ZERO;
     private static final double DEFAULT_EPSILON = 0.1;
     private static final CCAVariant DEFAULT_VARIANT = CCAVariant.XOR_SIMPLE;
-    private final PriceUpdater<T> DEFAULT_PRICE_UPDATER = new SimpleRelativePriceUpdate<>();
 
     private List<Bidder<T>> bidders;
     private DemandQueryMIPBuilder<GenericDefinition<T>, T> demandQueryMIPBuilder;
     private MechanismResult<T> result;
-    private Collection<XORBid<T>> clockPhaseXORResult;
-    private Collection<GenericBid<GenericDefinition<T>, T>> clockPhaseGenericResult;
-    private Set<XORBid<T>> additionalXORBids;
-    private Set<GenericBid<GenericDefinition<T>, T>> additionalGenericBids;
+    private Map<GenericDefinition<T>, Integer> finalGenericDemand;
+    private Map<GenericDefinition<T>, BigDecimal> finalPrices;
+    private int totalRounds = 1;
+    private Collection<XORBid<T>> XORBidCollection;
+    private Collection<GenericBid<GenericDefinition<T>, T>> genericBidsAfterClockPhase;
+    private Collection<GenericBid<GenericDefinition<T>, T>> genericBidsAfterSupplementaryRound;
 
     private BigDecimal scale = DEFAULT_SCALE;
     private BigDecimal startingPrice = DEFAULT_STARTING_PRICE;
     private double epsilon = DEFAULT_EPSILON;
     private CCAVariant variant = DEFAULT_VARIANT;
-
-    public void setPriceUpdater(PriceUpdater<T> priceUpdater) {
-        this.priceUpdater = priceUpdater;
-    }
-
-    private PriceUpdater<T> priceUpdater = DEFAULT_PRICE_UPDATER;
+    private PriceUpdater<T> priceUpdater = new SimpleRelativePriceUpdate<>();
+    private SupplementaryRound<T> supplementaryRound = new ProfitMaximizingSupplementaryRound<>();
 
     public CCAMechanism(List<Bidder<T>> bidders, DemandQueryMIPBuilder<GenericDefinition<T>, T> demandQueryMIPBuilder) {
         this.bidders = bidders;
@@ -61,12 +66,40 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
     public MechanismResult<T> getMechanismResult() {
         if (result != null) return result;
         if (variant != CCAVariant.XORQ) {
-            if (clockPhaseXORResult == null) {
-                clockPhaseXORResult = runClockPhaseForXORBids();
+            if (XORBidCollection == null) {
+                logger.info("Starting clock phase for XOR bids...");
+                XORBidCollection = runClockPhaseForXORBids();
             }
         } else {
-            clockPhaseGenericResult = runClockPhaseForGenericBids();
+            if (genericBidsAfterClockPhase == null) {
+                logger.info("Starting clock phase for generic bids...");
+                genericBidsAfterClockPhase = runClockPhaseForGenericBids();
+
+                logger.info("Starting to collect bids for supplementary round...");
+                // Supplementary totalRounds
+                for (Bidder<T> bidder : bidders) {
+                    Set<GenericValue<? extends GenericDefinition<T>, T>> newValues = supplementaryRound.getSupplementaryBids(bidder, demandQueryMIPBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon));
+                    Set<GenericValue<? extends GenericDefinition<T>, T>> newValuesAccordingToFinalPrices = newValues.stream().map(value -> {
+                        BigDecimal bid = BigDecimal.ZERO;
+                        for (Map.Entry<? extends GenericDefinition<T>, Integer> entry : value.getQuantities().entrySet()) {
+                            BigDecimal quantityTimesPriceScaled = finalPrices.get(entry.getKey()).multiply(BigDecimal.valueOf(entry.getValue())).multiply(scale);
+                            bid = bid.add(quantityTimesPriceScaled);
+                        }
+                        GenericValue.Builder<GenericDefinition<T>, T> bidBuilder = new GenericValue.Builder<>(bid);
+                        value.getQuantities().forEach(bidBuilder::putQuantity);
+                        return bidBuilder.build();
+                    }).collect(Collectors.toSet());
+
+                    GenericBid bidderBid = genericBidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
+
+                    genericBidsAfterSupplementaryRound = new HashSet<>();
+                    GenericBid newBid = bidderBid.copyOf();
+                    newValuesAccordingToFinalPrices.forEach(newBid::addValue);
+                    genericBidsAfterSupplementaryRound.add(newBid);
+                }
+            }
         }
+        logger.info("Starting CCG with all collected bids...");
         result = runCCGPhase();
         return result;
     }
@@ -103,7 +136,9 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
                         if (existing != null && existing.value().compareTo(bid) < 1) {
                             xorBidBuilder.removeFromBid(existing);
                         }
-                        xorBidBuilder.add(new XORValue<>(bundle, bid));
+                        if (existing == null || existing.value().compareTo(bid) < 0) {
+                            xorBidBuilder.add(new XORValue<>(bundle, bid));
+                        }
                     } else if (variant == CCAVariant.XOR_FULL) {
                         Iterator<XORValue<T>> xorIterator = demandQueryResult.getResultingBundle().plainXorIterator();
                         if (bids.get(bidder) == null) {
@@ -115,11 +150,12 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
                             BigDecimal bid = BigDecimal.valueOf(xorValue.getLicenses().stream().mapToDouble(l -> currentPrices.get(world.getGenericDefinitionOf(l)).doubleValue()).sum()).multiply(scale);
                             // Check for existing equal bundles with a lower value, remove them since they're not needed
                             XORValue<T> existing = xorBidBuilder.containsBundle(xorValue.getLicenses());
-                            if (existing != null && existing.value().compareTo(bid) < 1) {
+                            if (existing != null && existing.value().compareTo(bid) < 0) {
                                 xorBidBuilder.removeFromBid(existing);
                             }
-                            XORValue<T> xorValueBid = new XORValue<>(xorValue.getLicenses(), bid);
-                            xorBidBuilder.add(xorValueBid);
+                            if (existing == null || existing.value().compareTo(bid) < 0) {
+                                xorBidBuilder.add(new XORValue<>(xorValue.getLicenses(), bid));
+                            }
                         }
                     }
                     XORBid<T> newBid = xorBidBuilder.build();
@@ -130,12 +166,15 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
             Map<GenericDefinition<T>, BigDecimal> updatedPrices = priceUpdater.updatePrices(prices, demand);
             if (prices.equals(updatedPrices)) {
                 done = true;
+                finalGenericDemand = demand;
+                finalPrices = prices;
             } else {
                 prices = updatedPrices;
+                totalRounds++;
             }
         }
-        clockPhaseXORResult = bids.values();
-        return clockPhaseXORResult;
+        XORBidCollection = bids.values();
+        return XORBidCollection;
     }
 
     public Collection<GenericBid<GenericDefinition<T>, T>> runClockPhaseForGenericBids() {
@@ -167,41 +206,46 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
                         bid = bid.add(quantityTimesPriceScaled);
                     }
 
-                    // TODO (but less critical than in XOR): Remove lower bids on the exact same generic definition
+                    GenericBid<GenericDefinition<T>, T> currentBid = bids.getOrDefault(bidder, new GenericBid<>(bidder, new ArrayList<>()));
+                    GenericValue<GenericDefinition<T>, T> existingValue = null;
+                    for (GenericValue<GenericDefinition<T>, T> value : currentBid.getValues()) {
+                        if (value.getQuantities().equals(genericResult.getQuantities())) {
+                            existingValue = value;
+                            break;
+                        }
+                    }
 
-                    GenericValue.Builder<GenericDefinition<T>, T> bidBuilder = new GenericValue.Builder<>(bid);
-                    genericResult.getQuantities().forEach(bidBuilder::putQuantity);
-                    GenericBid<GenericDefinition<T>, T> newBid = bids.getOrDefault(bidder, new GenericBid<>(bidder, new ArrayList<>()));
-                    newBid.addValue(bidBuilder.build());
-                    bids.put(bidder, newBid);
+                    if (existingValue != null && existingValue.getValue().compareTo(bid) < 0) {
+                        currentBid.removeValue(existingValue);
+                    }
+                    if (existingValue == null || existingValue.getValue().compareTo(bid) < 0) {
+                        GenericValue.Builder<GenericDefinition<T>, T> bidBuilder = new GenericValue.Builder<>(bid);
+                        genericResult.getQuantities().forEach(bidBuilder::putQuantity);
+                        currentBid.addValue(bidBuilder.build());
+                        bids.put(bidder, currentBid);
+                    }
+
+                    bids.put(bidder, currentBid);
                 }
             }
 
             Map<GenericDefinition<T>, BigDecimal> updatedPrices = priceUpdater.updatePrices(prices, demand);
             if (prices.equals(updatedPrices)) {
                 done = true;
+                finalGenericDemand = demand;
+                finalPrices = prices;
             } else {
                 prices = updatedPrices;
+                totalRounds++;
             }
         }
-        clockPhaseGenericResult = bids.values();
-        return clockPhaseGenericResult;
-    }
-
-    public void addAdditionalXORBids(Set<XORBid<T>> additionalBids) {
-        this.additionalXORBids = additionalBids;
-    }
-
-    public void addAdditionalGenericBids(Set<GenericBid<GenericDefinition<T>, T>> additionalBids) {
-        this.additionalGenericBids = additionalBids;
+        genericBidsAfterClockPhase = bids.values();
+        return genericBidsAfterClockPhase;
     }
 
     public MechanismResult<T> runCCGPhase() {
         if (variant != CCAVariant.XORQ) {
-            Set<XORBid<T>> bids = new HashSet<>(clockPhaseXORResult);
-            if (additionalXORBids != null) {
-                bids.addAll(additionalXORBids);
-            }
+            Set<XORBid<T>> bids = new HashSet<>(XORBidCollection);
 
             XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
 
@@ -210,10 +254,7 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
 
             result = ccg.getMechanismResult();
         } else {
-            Set<GenericBid<GenericDefinition<T>, T>> bids = new HashSet<>(clockPhaseGenericResult);
-            if (additionalGenericBids != null) {
-                bids.addAll(additionalGenericBids);
-            }
+            Set<GenericBid<GenericDefinition<T>, T>> bids = new HashSet<>(genericBidsAfterClockPhase);
 
             XORQWinnerDetermination<T> wdp = new XORQWinnerDetermination<>(bids);
             CCGMechanism<T> ccg = new CCGMechanism<>(wdp);
@@ -265,23 +306,48 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
         this.variant = variant;
     }
 
-    public Collection<XORBid<T>> getClockPhaseXORResult() {
-        return clockPhaseXORResult;
+    public Collection<XORBid<T>> getXORBidCollection() {
+        return XORBidCollection;
     }
 
-    public Collection<GenericBid<GenericDefinition<T>, T>> getClockPhaseGenericResult() {
-        return clockPhaseGenericResult;
+    public Collection<GenericBid<GenericDefinition<T>, T>> getGenericBidsAfterClockPhase() {
+        return genericBidsAfterClockPhase;
     }
 
     public Map<Bidder<T>, Integer> getGenericBidsCount() {
         Map<Bidder<T>, Integer> map = new HashMap<>();
-        clockPhaseGenericResult.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        genericBidsAfterClockPhase.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
         return map;
     }
 
     public Map<Bidder<T>, Integer> getXORBidsCount() {
         Map<Bidder<T>, Integer> map = new HashMap<>();
-        clockPhaseXORResult.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        XORBidCollection.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
         return map;
     }
+
+    public int getTotalRounds() {
+        return totalRounds;
+    }
+
+    public int getSupplyMinusDemand() {
+        GenericWorld<T> world = (GenericWorld<T>) bidders.iterator().next().getWorld();
+        Set<GenericDefinition<T>> genericDefinitions = world.getAllGenericDefinitions();
+        int aggregateDemand = 0;
+        int supply = 0;
+        for (GenericDefinition<T> def : genericDefinitions) {
+            aggregateDemand += finalGenericDemand.getOrDefault(def, 0);
+            supply += def.numberOfLicenses();
+        }
+        return supply - aggregateDemand;
+    }
+
+    public void setPriceUpdater(PriceUpdater<T> priceUpdater) {
+        this.priceUpdater = priceUpdater;
+    }
+
+    public void setSupplementaryRound(SupplementaryRound<T> supplementaryRound) {
+        this.supplementaryRound = supplementaryRound;
+    }
+
 }

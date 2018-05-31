@@ -1,6 +1,5 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
-import edu.harvard.econcs.jopt.solver.SolveParam;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;

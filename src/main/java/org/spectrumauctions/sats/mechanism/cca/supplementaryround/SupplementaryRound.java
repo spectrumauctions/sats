@@ -11,5 +11,5 @@ import java.util.Map;
 import java.util.Set;
 
 public interface SupplementaryRound<T extends Good> {
-    Set<GenericValue<?, T>> getSupplementaryBids(Bidder<T> bidder, Map<GenericDefinition<T>, BigDecimal> prices, DemandQueryMIP<GenericDefinition<T>, T> demandQueryMIP);
+    Set<GenericValue<? extends GenericDefinition<T>, T>> getSupplementaryBids(Bidder<T> bidder, DemandQueryMIP<GenericDefinition<T>, T> demandQueryMIP);
 }

@@ -59,6 +59,25 @@ public class MRVMDemandQueryTest {
     }
 
     @Test
+    public void testSingleBidderResultPool() {
+        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
+        MRVMBidder bidder = bidders.get(bidders.size() - 1);
+        MRVMWorld world = bidders.iterator().next().getWorld();
+        Map<MRVMGenericDefinition, BigDecimal> prices = new HashMap<>();
+        world.getAllGenericDefinitions().forEach(def -> prices.put((MRVMGenericDefinition) def, BigDecimal.valueOf(1000000)));
+
+        MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
+        Set<MRVMDemandQueryMipResult> resultSet = mip.getResultPool(100);
+        for (MRVMDemandQueryMipResult result : resultSet) {
+            Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() > 0);
+            logger.info(result.getResultingBundle());
+            Set<MRVMDemandQueryMipResult> others = resultSet.stream().filter(entry -> !entry.equals(result)).collect(Collectors.toSet());
+            Assert.assertEquals(resultSet.size() - 1, others.size());
+            others.forEach(res -> Assert.assertNotEquals(result.getResultingBundle(), res.getResultingBundle()));
+        }
+    }
+
+    @Test
     public void minimalWorldLocalBidderDemandQueryTest() {
 
         Set<MRVMRegionsMap.Region> regions = minimalWorld.getRegionsMap().getRegions();
