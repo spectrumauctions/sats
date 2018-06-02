@@ -99,7 +99,9 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
 
     @Override
     public Set<MRVMDemandQueryMipResult> getResultPool(int numberOfResults) {
-
+        if (numberOfResults < 1) {
+            return Sets.newHashSet();
+        }
 
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 1);
