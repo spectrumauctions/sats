@@ -40,6 +40,7 @@ public class CCATest {
             logger.info("Starting round {} of {}...", i + 1, ITERATIONS);
             List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
             MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(rawBidders));
+            mip.setEpsilon(0.01);
             MRVMMipResult efficientAllocation = mip.calculateAllocation();
             qualities.add(testCCAWithMRVMSimplePriceUpdate(rawBidders, efficientAllocation));
         }
@@ -55,14 +56,14 @@ public class CCATest {
         CCAMechanism<MRVMLicense> cca = new CCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
         cca.setVariant(CCAVariant.XORQ);
         cca.setStartingPrice(BigDecimal.ZERO);
-        cca.setEpsilon(0.001);
+        cca.setEpsilon(0.0001);
 
         SimpleRelativePriceUpdate<MRVMLicense> priceUpdater = new SimpleRelativePriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
         cca.setPriceUpdater(priceUpdater);
 
         ProfitMaximizingSupplementaryRound<MRVMLicense> supplementaryRound = new ProfitMaximizingSupplementaryRound<>();
-        supplementaryRound.setNumberOfSupplementaryBids(50);
+        supplementaryRound.setNumberOfSupplementaryBids(500);
         cca.setSupplementaryRound(supplementaryRound);
 
         MechanismResult<MRVMLicense> result = cca.getMechanismResult();

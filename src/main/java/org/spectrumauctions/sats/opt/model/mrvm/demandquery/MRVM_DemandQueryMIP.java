@@ -75,6 +75,11 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
         double resultingPrice = mipResult.getValue(priceVar);
         double unscaledValue = resultingValue * scalingFactor;
         double unscaledPrice = resultingPrice * scalingFactor;
+
+        if (unscaledValue < unscaledPrice) {
+            logger.warn("The resulting unscaled value is lower than the resulting unscaled price!");
+        }
+
         double unscaledObjVal = mipResult.getObjectiveValue() * scalingFactor;
         if (Math.abs(unscaledValue - unscaledPrice - unscaledObjVal) >= 1e-5) {
             logger.warn("Values don't match. Delta of {}. Unscaled value = {}, Unscaled price = {}, Unscaled objective value = {}",
@@ -121,26 +126,30 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
             double unscaledValue = resultingValue * scalingFactor;
             double unscaledPrice = resultingPrice * scalingFactor;
             double unscaledObjVal = sol.getObjectiveValue() * scalingFactor;
+
             if (Math.abs(unscaledValue - unscaledPrice - unscaledObjVal) >= 1e-5) {
                 logger.warn("Values don't match. Delta of {}. Unscaled value = {}, Unscaled price = {}, Unscaled objective value = {}",
                         unscaledValue - unscaledPrice - unscaledObjVal, unscaledValue, unscaledPrice, unscaledObjVal);
             }
-            GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
-            for (Region region : world.getRegionsMap().getRegions()) {
-                for (MRVMBand band : world.getBands()) {
-                    Variable xVar = mrvmMip.getWorldPartialMip().getXVariable(bidder, region, band);
-                    double doubleQuantity = sol.getValue(xVar);
-                    int quantity = (int) Math.round(doubleQuantity);
-                    if (quantity > 0) {
-                        MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
-                        valueBuilder.putQuantity(def, quantity);
+
+            if (unscaledValue > unscaledPrice) {
+                GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+                for (Region region : world.getRegionsMap().getRegions()) {
+                    for (MRVMBand band : world.getBands()) {
+                        Variable xVar = mrvmMip.getWorldPartialMip().getXVariable(bidder, region, band);
+                        double doubleQuantity = sol.getValue(xVar);
+                        int quantity = (int) Math.round(doubleQuantity);
+                        if (quantity > 0) {
+                            MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
+                            valueBuilder.putQuantity(def, quantity);
+                        }
                     }
                 }
+
+                MRVMDemandQueryMipResult.Builder resultBuilder = new MRVMDemandQueryMipResult.Builder(world, unscaledValue - unscaledPrice, valueBuilder.build());
+
+                results.add(resultBuilder.build());
             }
-
-            MRVMDemandQueryMipResult.Builder resultBuilder = new MRVMDemandQueryMipResult.Builder(world, unscaledValue - unscaledPrice, valueBuilder.build());
-
-            results.add(resultBuilder.build());
         }
 
         return results;

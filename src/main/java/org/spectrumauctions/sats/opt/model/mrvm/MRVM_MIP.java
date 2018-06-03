@@ -34,6 +34,7 @@ import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
 public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
+    private static final double DEFAULT_EPSILON = 0.00001;
 
     public static boolean PRINT_SOLVER_RESULT = false;
 
@@ -47,12 +48,12 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
     private Map<MRVMBidder, MRVMBidderPartialMIP> bidderPartialMips;
     private MRVMWorld world;
     private Collection<MRVMBidder> bidders;
+    private double epsilon = DEFAULT_EPSILON;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
-        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.00001);
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestPossibleValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         this.bidders = bidders;
@@ -104,6 +105,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
      */
     @Override
     public MRVMMipResult calculateAllocation() {
+        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
         IMIPResult mipResult = SOLVER.solve(getMip());
         if (PRINT_SOLVER_RESULT) {
             logger.info("Result:\n" + mipResult);
@@ -171,5 +173,9 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
             addConstraint(xConstraint2);
 
         }
+    }
+
+    public void setEpsilon(double epsilon) {
+        this.epsilon = epsilon;
     }
 }
