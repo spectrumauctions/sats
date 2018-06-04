@@ -38,25 +38,37 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
     private World world;
+    private double scalingFactor = 1;
 
 
     public XORWinnerDetermination(Collection<XORBid<T>> bids) {
         Preconditions.checkNotNull(bids);
-        Preconditions.checkArgument(bids.size() > 0);
+        Preconditions.checkArgument(!bids.isEmpty());
         this.bids = bids;
+        double maxValue = -1;
+        for (XORBid<T> bid : bids) {
+            for (XORValue<T> value : bid.getValues()) {
+                if (value.value().doubleValue() > maxValue) {
+                    maxValue = value.value().doubleValue();
+                }
+            }
+        }
+        if (maxValue > MIP.MAX_VALUE * 0.9) {
+            this.scalingFactor = 0.9 / maxValue * MIP.MAX_VALUE;
+        }
         this.world = bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
     }
 
     private IMIP createWinnerDeterminationMIP() {
-        MIP winnerDeterminationProgram = new MIP();
-        winnerDeterminationProgram.setObjectiveMax(true);
+        MIP wdp = new MIP();
+        wdp.setObjectiveMax(true);
         // Add decision variables and objective terms:
         for (XORBid<T> xorBid : bids) {
             for (XORValue<T> bundleBid : xorBid.getValues()) {
                 Variable bidI = new Variable("Bid " + bundleBid.getId(), VarType.BOOLEAN, 0, 1);
-                winnerDeterminationProgram.add(bidI);
-                winnerDeterminationProgram.addObjectiveTerm(bundleBid.value().doubleValue(), bidI);
+                wdp.add(bidI);
+                wdp.addObjectiveTerm(bundleBid.value().doubleValue() * scalingFactor, bidI);
                 bidVariables.put(bundleBid, bidI);
             }
         }
@@ -75,13 +87,13 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
                     noDoubleAssignment.addTerm(1.0, bidVariables.get(bundleBid));
                 }
             }
-            winnerDeterminationProgram.add(exclusiveBids);
+            wdp.add(exclusiveBids);
         }
         for (Constraint noDoubleAssignments : goods.values()) {
-            winnerDeterminationProgram.add(noDoubleAssignments);
+            wdp.add(noDoubleAssignments);
         }
 
-        return winnerDeterminationProgram;
+        return wdp;
     }
 
     protected IMIP getMIP() {
@@ -153,7 +165,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         }
 
         ItemAllocation.ItemAllocationBuilder<T> builder = new ItemAllocation.ItemAllocationBuilder<>();
-        return builder.withAllocation(trades).withTotalValue(new BigDecimal(totalValue)).withWorld(world).build();
+        return builder.withAllocation(trades).withTotalValue(BigDecimal.valueOf(totalValue)).withWorld(world).build();
     }
 
 }

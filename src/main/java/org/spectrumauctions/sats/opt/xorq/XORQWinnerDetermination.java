@@ -35,10 +35,25 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
     private GenericWorld<T> world;
+    private double scalingFactor = 1;
+
+
     public XORQWinnerDetermination(Set<GenericBid<GenericDefinition<T>, T>> bids) {
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(bids.size() > 0);
         this.bids = bids;
+        double maxValue = -1;
+        for (GenericBid<GenericDefinition<T>, T> bid : bids) {
+            for (GenericValue<GenericDefinition<T>, T> value : bid.getValues()) {
+                if (value.getValue().doubleValue() > maxValue) {
+                    maxValue = value.getValue().doubleValue();
+                }
+            }
+        }
+        if (maxValue > MIP.MAX_VALUE * 0.9) {
+            this.scalingFactor = 0.9 / maxValue * MIP.MAX_VALUE;
+        }
+
         this.world = (GenericWorld<T>) bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
     }
@@ -52,7 +67,7 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
             for (GenericValue<GenericDefinition<T>, T> value : bid.getValues()) {
                 Variable bidI = new Variable("Bid " + value.getId(), VarType.BOOLEAN, 0, 1);
                 winnerDeterminationProgram.add(bidI);
-                winnerDeterminationProgram.addObjectiveTerm(value.getValue().doubleValue(), bidI);
+                winnerDeterminationProgram.addObjectiveTerm(value.getValue().doubleValue() * scalingFactor, bidI);
                 bidVariables.put(value, bidI);
             }
         }
