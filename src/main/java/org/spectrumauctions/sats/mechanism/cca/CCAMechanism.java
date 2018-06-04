@@ -60,6 +60,32 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
         this.demandQueryMIPBuilder = demandQueryMIPBuilder;
     }
 
+    public Allocation<T> calculateGenericClockPhaseAllocation() {
+        if (genericBidsAfterClockPhase == null) {
+            logger.info("Starting clock phase for generic bids...");
+            genericBidsAfterClockPhase = runClockPhaseForGenericBids();
+        }
+        Set<GenericBid<GenericDefinition<T>, T>> bids = new HashSet<>(genericBidsAfterClockPhase);
+
+        XORQWinnerDetermination<T> wdp = new XORQWinnerDetermination<>(bids);
+        return wdp.calculateAllocation();
+    }
+
+    public Allocation<T> calculateGenericAllocationAfterSupplementaryRound() {
+        if (genericBidsAfterClockPhase == null) {
+            logger.info("Starting clock phase for generic bids...");
+            genericBidsAfterClockPhase = runClockPhaseForGenericBids();
+        }
+        if (genericBidsAfterSupplementaryRound == null) {
+            logger.info("Starting to collect bids for supplementary round...");
+            genericBidsAfterSupplementaryRound = runSupplementaryRoundForGenericBids();
+        }
+        Set<GenericBid<GenericDefinition<T>, T>> bids = new HashSet<>(genericBidsAfterSupplementaryRound);
+
+        XORQWinnerDetermination<T> wdp = new XORQWinnerDetermination<>(bids);
+        return wdp.calculateAllocation();
+    }
+
     @Override
     public MechanismResult<T> getMechanismResult() {
         if (result != null) return result;
@@ -74,22 +100,27 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
                 genericBidsAfterClockPhase = runClockPhaseForGenericBids();
 
                 logger.info("Starting to collect bids for supplementary round...");
-                // Supplementary totalRounds
-                for (Bidder<T> bidder : bidders) {
-                    Set<GenericValue<? extends GenericDefinition<T>, T>> newValues = supplementaryRound.getSupplementaryBids(bidder, demandQueryMIPBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon));
-
-                    GenericBid bidderBid = genericBidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
-
-                    genericBidsAfterSupplementaryRound = new HashSet<>();
-                    GenericBid newBid = bidderBid.copyOf();
-                    newValues.forEach(newBid::addValue);
-                    genericBidsAfterSupplementaryRound.add(newBid);
-                }
+                genericBidsAfterSupplementaryRound = runSupplementaryRoundForGenericBids();
             }
         }
         logger.info("Starting CCG with all collected bids...");
         result = runCCGPhase();
         return result;
+    }
+
+    private Collection<GenericBid<GenericDefinition<T>, T>> runSupplementaryRoundForGenericBids() {
+        Collection<GenericBid<GenericDefinition<T>, T>> bids = new HashSet<>();
+        // Supplementary totalRounds
+        for (Bidder<T> bidder : bidders) {
+            Set<GenericValue<? extends GenericDefinition<T>, T>> newValues = supplementaryRound.getSupplementaryBids(bidder, demandQueryMIPBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon));
+
+            GenericBid bidderBid = genericBidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
+
+            GenericBid newBid = bidderBid.copyOf();
+            newValues.forEach(newBid::addValue);
+            bids.add(newBid);
+        }
+        return bids;
     }
 
     public Collection<XORBid<T>> runClockPhaseForXORBids() {
@@ -241,7 +272,7 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
 
             result = ccg.getMechanismResult();
         } else {
-            Set<GenericBid<GenericDefinition<T>, T>> bids = new HashSet<>(genericBidsAfterClockPhase);
+            Set<GenericBid<GenericDefinition<T>, T>> bids = new HashSet<>(genericBidsAfterSupplementaryRound);
 
             XORQWinnerDetermination<T> wdp = new XORQWinnerDetermination<>(bids);
             CCGMechanism<T> ccg = new CCGMechanism<>(wdp);
@@ -296,9 +327,15 @@ public class CCAMechanism<T extends Good> implements AuctionMechanism<T> {
         return genericBidsAfterClockPhase;
     }
 
-    public Map<Bidder<T>, Integer> getGenericBidsCount() {
+    public Map<Bidder<T>, Integer> getGenericBidCountAfterClockPhase() {
         Map<Bidder<T>, Integer> map = new HashMap<>();
         genericBidsAfterClockPhase.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        return map;
+    }
+
+    public Map<Bidder<T>, Integer> getGenericBidCountAfterSupplementaryRound() {
+        Map<Bidder<T>, Integer> map = new HashMap<>();
+        genericBidsAfterSupplementaryRound.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
         return map;
     }
 

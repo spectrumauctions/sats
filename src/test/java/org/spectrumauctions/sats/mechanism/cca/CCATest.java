@@ -34,6 +34,66 @@ public class CCATest {
     private static int ITERATIONS = 5;
 
     @Test
+    public void testMultipleInstances() {
+        for (int i = 0; i < ITERATIONS; i++) {
+            logger.info("Starting round {} of {}...", i + 1, ITERATIONS);
+            testClockPhaseVsSupplementaryPhaseEfficiency();
+        }
+    }
+
+    private void testClockPhaseVsSupplementaryPhaseEfficiency() {
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(rawBidders));
+        mip.setEpsilon(0.01);
+        MRVMMipResult efficientAllocation = mip.calculateAllocation();
+
+        long start = System.currentTimeMillis();
+        CCAMechanism<MRVMLicense> cca = getMechanism(rawBidders);
+
+        Allocation<MRVMLicense> allocationAfterClockPhase = cca.calculateGenericClockPhaseAllocation();
+        Allocation<MRVMLicense> allocCP = allocationAfterClockPhase.getAllocationWithTrueValues();
+        assertNotEquals(allocationAfterClockPhase, allocCP);
+
+        Allocation<MRVMLicense> allocationAfterSupplementaryRound = cca.calculateGenericAllocationAfterSupplementaryRound();
+        Allocation<MRVMLicense> allocSR = allocationAfterSupplementaryRound.getAllocationWithTrueValues();
+        assertNotEquals(allocationAfterSupplementaryRound, allocSR);
+        long end = System.currentTimeMillis();
+
+        logger.info("Total rounds: {}", cca.getTotalRounds());
+        logger.info("(Supply - Demand) of final round: {}", cca.getSupplyMinusDemand());
+        logger.info("Generic bids after clock phase per bidder: {}", cca.getGenericBidCountAfterClockPhase());
+        logger.info("Generic bids after supplementary round per bidder: {}", cca.getGenericBidCountAfterSupplementaryRound());
+        logger.info("CCA took {}s.", (end - start) / 1000);
+
+        BigDecimal qualityCP = allocCP.getTotalValue().divide(efficientAllocation.getTotalValue(), RoundingMode.HALF_UP);
+        logger.info("Quality after clock phase: {}", qualityCP.setScale(4, RoundingMode.HALF_UP));
+
+        BigDecimal qualitySR = allocSR.getTotalValue().divide(efficientAllocation.getTotalValue(), RoundingMode.HALF_UP);
+        logger.info("Quality with supplementary round: {}", qualitySR.setScale(4, RoundingMode.HALF_UP));
+
+        assertTrue(qualityCP.compareTo(qualitySR) < 0);
+    }
+
+    private CCAMechanism<MRVMLicense> getMechanism(List<MRVMBidder> rawBidders) {
+        List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
+        CCAMechanism<MRVMLicense> cca = new CCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
+        cca.setVariant(CCAVariant.XORQ);
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setEpsilon(0.01);
+
+        SimpleRelativePriceUpdate<MRVMLicense> priceUpdater = new SimpleRelativePriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        cca.setPriceUpdater(priceUpdater);
+
+        ProfitMaximizingSupplementaryRound<MRVMLicense> supplementaryRound = new ProfitMaximizingSupplementaryRound<>();
+        supplementaryRound.setNumberOfSupplementaryBids(500);
+        cca.setSupplementaryRound(supplementaryRound);
+
+        return cca;
+    }
+
+/*    @Test
     public void testMultipleCCASimplePriceUpdate() {
         ArrayList<Double> qualities = new ArrayList<>();
         for (int i = 0; i < ITERATIONS; i++) {
@@ -51,27 +111,13 @@ public class CCATest {
 
     private double testCCAWithMRVMSimplePriceUpdate(List<MRVMBidder> rawBidders, MRVMMipResult efficientAllocation) {
         long start = System.currentTimeMillis();
-        List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
-                .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
-        CCAMechanism<MRVMLicense> cca = new CCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
-        cca.setVariant(CCAVariant.XORQ);
-        cca.setStartingPrice(BigDecimal.ZERO);
-        cca.setEpsilon(0.0001);
-
-        SimpleRelativePriceUpdate<MRVMLicense> priceUpdater = new SimpleRelativePriceUpdate<>();
-        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
-        cca.setPriceUpdater(priceUpdater);
-
-        ProfitMaximizingSupplementaryRound<MRVMLicense> supplementaryRound = new ProfitMaximizingSupplementaryRound<>();
-        supplementaryRound.setNumberOfSupplementaryBids(500);
-        cca.setSupplementaryRound(supplementaryRound);
-
+        CCAMechanism<MRVMLicense> cca = getMechanism(rawBidders);
         MechanismResult<MRVMLicense> result = cca.getMechanismResult();
         long end = System.currentTimeMillis();
 
         logger.info("Total rounds: {}", cca.getTotalRounds());
         logger.info("(Supply - Demand) of final round: {}", cca.getSupplyMinusDemand());
-        logger.info("Generic bids count per bidder:\n{}", cca.getGenericBidsCount());
+        logger.info("Generic bids count per bidder: {}", cca.getGenericBidCountAfterClockPhase());
         logger.info("CCA took {}s.", (end - start) / 1000);
 
         Allocation<MRVMLicense> allocationFromMechanism = result.getAllocation();
@@ -124,5 +170,5 @@ public class CCATest {
         // Compare allocations:
         BigDecimal quality = allocationWithTrueValues.getTotalValue().divide(efficientAllocation.getTotalValue(), RoundingMode.HALF_UP);
         logger.warn("Quality of this iteration: {}", quality);
-    }
+    }*/
 }

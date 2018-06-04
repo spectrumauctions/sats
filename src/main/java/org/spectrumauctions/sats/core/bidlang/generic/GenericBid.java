@@ -4,6 +4,7 @@ package org.spectrumauctions.sats.core.bidlang.generic;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Good;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GenericBid<S extends GenericDefinition<T>, T extends Good> {
@@ -39,6 +40,7 @@ public class GenericBid<S extends GenericDefinition<T>, T extends Good> {
     }
 
     public GenericBid<S, T> copyOf() {
-        return new GenericBid<>(this.bidder, this.values);
+        ArrayList<GenericValue<S, T>> newValues = new ArrayList<>(this.values);
+        return new GenericBid<>(this.bidder, newValues);
     }
 }
