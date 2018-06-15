@@ -22,7 +22,6 @@ import java.util.Set;
 
 /**
  * @author Fabio Isler
- *
  */
 public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVMGenericDefinition, MRVMLicense> {
 
@@ -132,24 +131,22 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVM
                         unscaledValue - unscaledPrice - unscaledObjVal, unscaledValue, unscaledPrice, unscaledObjVal);
             }
 
-            if (unscaledValue > unscaledPrice) {
-                GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
-                for (Region region : world.getRegionsMap().getRegions()) {
-                    for (MRVMBand band : world.getBands()) {
-                        Variable xVar = mrvmMip.getWorldPartialMip().getXVariable(bidder, region, band);
-                        double doubleQuantity = sol.getValue(xVar);
-                        int quantity = (int) Math.round(doubleQuantity);
-                        if (quantity > 0) {
-                            MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
-                            valueBuilder.putQuantity(def, quantity);
-                        }
+            GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            for (Region region : world.getRegionsMap().getRegions()) {
+                for (MRVMBand band : world.getBands()) {
+                    Variable xVar = mrvmMip.getWorldPartialMip().getXVariable(bidder, region, band);
+                    double doubleQuantity = sol.getValue(xVar);
+                    int quantity = (int) Math.round(doubleQuantity);
+                    if (quantity > 0) {
+                        MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
+                        valueBuilder.putQuantity(def, quantity);
                     }
                 }
-
-                MRVMDemandQueryMipResult.Builder resultBuilder = new MRVMDemandQueryMipResult.Builder(world, unscaledValue - unscaledPrice, valueBuilder.build());
-
-                results.add(resultBuilder.build());
             }
+
+            MRVMDemandQueryMipResult.Builder resultBuilder = new MRVMDemandQueryMipResult.Builder(world, unscaledValue - unscaledPrice, valueBuilder.build());
+
+            results.add(resultBuilder.build());
         }
 
         return results;
