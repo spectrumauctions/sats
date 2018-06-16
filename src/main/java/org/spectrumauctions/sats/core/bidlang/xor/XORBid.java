@@ -52,6 +52,13 @@ public final class XORBid<T extends Good> {
         return values;
     }
 
+    public XORBid<T> copyOfWithNewValues(Collection<XORValue<T>> newValues) {
+        ArrayList<XORValue<T>> newList = new ArrayList<>(this.values);
+        newList.addAll(newValues);
+        return new XORBid<>(new XORBid.Builder<>(this.bidder, newList));
+    }
+
+
     /**
      * <p>Builder to create a new set of atomic XORValues, called {@link XORBid}
      * <p>For easy modification of the builder, it extends {@link ArrayList}
@@ -108,6 +115,7 @@ public final class XORBid<T extends Good> {
         public void removeFromBid(XORValue<T> existing) {
             super.remove(existing);
         }
+
     }
 
 

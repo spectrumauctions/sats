@@ -8,7 +8,7 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DemandDependentPriceUpdate<T extends Good> implements PriceUpdater<T> {
+public class DemandDependentGenericPriceUpdate<G extends GenericDefinition<T>, T extends Good> implements GenericPriceUpdater<G, T> {
 
     private static final BigDecimal DEFAULT_CONSTANT = BigDecimal.valueOf(1e6);
 
@@ -16,11 +16,11 @@ public class DemandDependentPriceUpdate<T extends Good> implements PriceUpdater<
     private int round = 1;
 
     @Override
-    public Map<GenericDefinition<T>, BigDecimal> updatePrices(Map<GenericDefinition<T>, BigDecimal> oldPrices, Map<GenericDefinition<T>, Integer> demand) {
-        Map<GenericDefinition<T>, BigDecimal> newPrices = new HashMap<>();
+    public Map<G, BigDecimal> updatePrices(Map<G, BigDecimal> oldPrices, Map<G, Integer> demand) {
+        Map<G, BigDecimal> newPrices = new HashMap<>();
 
-        for (Map.Entry<GenericDefinition<T>, BigDecimal> oldPriceEntry : oldPrices.entrySet()) {
-            GenericDefinition<T> def = oldPriceEntry.getKey();
+        for (Map.Entry<G, BigDecimal> oldPriceEntry : oldPrices.entrySet()) {
+            G def = oldPriceEntry.getKey();
             BigDecimal diff = BigDecimal.valueOf(demand.getOrDefault(def, 0) - def.numberOfLicenses());
             BigDecimal factor = constant.divide(BigDecimal.valueOf(Math.sqrt(round)), RoundingMode.HALF_UP);
             BigDecimal newPrice = oldPriceEntry.getValue().add(factor.multiply(diff));

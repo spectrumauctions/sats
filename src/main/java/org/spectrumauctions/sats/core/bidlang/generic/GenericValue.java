@@ -14,11 +14,11 @@ import org.spectrumauctions.sats.core.model.Good;
 import java.math.BigDecimal;
 import java.util.*;
 
-public final class GenericValue<T extends GenericDefinition<S>, S extends Good> {
+public final class GenericValue<G extends GenericDefinition<S>, S extends Good> {
 
     private transient final int id;
     private final int totalQuantity;
-    private final ImmutableMap<T, Integer> quantities;
+    private final ImmutableMap<G, Integer> quantities;
     private final BigDecimal value;
     private static int ID_COUNT = 0;
 
@@ -28,7 +28,7 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
 
     private final transient int size;
 
-    private GenericValue(Builder<T, S> builder) {
+    private GenericValue(Builder<G, S> builder) {
         this.quantities = ImmutableMap.copyOf(builder.quantities);
         int totalQuantity = 0;
         for (Integer quantity : quantities.values()) {
@@ -40,7 +40,7 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
         this.id = getNextId();
     }
 
-    public int getQuantity(T definition) {
+    public int getQuantity(G definition) {
         Integer result = quantities.get(definition);
         if (result == null) {
             return 0;
@@ -54,7 +54,7 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
 
     public Bundle<S> anyConsistentBundle() {
         Bundle bundle = new Bundle<>();
-        for (Map.Entry<T, Integer> entry : quantities.entrySet()) {
+        for (Map.Entry<G, Integer> entry : quantities.entrySet()) {
             List<S> objects = new ArrayList<>(entry.getKey().allLicenses());
             bundle.addAll(objects.subList(0, entry.getValue()));
         }
@@ -89,7 +89,7 @@ public final class GenericValue<T extends GenericDefinition<S>, S extends Good> 
         return totalQuantity;
     }
 
-    public ImmutableMap<T, Integer> getQuantities() {
+    public ImmutableMap<G, Integer> getQuantities() {
         return quantities;
     }
 

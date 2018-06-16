@@ -1,0 +1,202 @@
+package org.spectrumauctions.sats.mechanism.cca;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
+import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
+import org.spectrumauctions.sats.core.model.*;
+import org.spectrumauctions.sats.mechanism.cca.priceupdate.NonGenericPriceUpdater;
+import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeNonGenericPriceUpdate;
+import org.spectrumauctions.sats.mechanism.cca.supplementaryround.NonGenericSupplementaryRound;
+import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
+import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
+import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
+import org.spectrumauctions.sats.opt.domain.Allocation;
+import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIPBuilder;
+import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryResult;
+import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
+
+    private static final Logger logger = LogManager.getLogger(NonGenericCCAMechanism.class);
+
+    private NonGenericDemandQueryMIPBuilder<T> demandQueryMIPBuilder;
+    private NonGenericPriceUpdater<T> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
+    private NonGenericSupplementaryRound<T> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
+
+    private Collection<XORBid<T>> bidsAfterClockPhase;
+    private Collection<XORBid<T>> bidsAfterSupplementaryRound;
+
+    private Map<T, BigDecimal> finalPrices;
+    private Map<T, Integer> finalDemand;
+
+    public NonGenericCCAMechanism(List<Bidder<T>> bidders, NonGenericDemandQueryMIPBuilder<T> nonGenericDemandQueryMIPBuilder) {
+        super(bidders);
+        this.demandQueryMIPBuilder = nonGenericDemandQueryMIPBuilder;
+    }
+
+    @Override
+    public MechanismResult<T> getMechanismResult() {
+        if (result != null) return result;
+        if (bidsAfterClockPhase == null) {
+            logger.info("Starting clock phase for XOR bids...");
+            bidsAfterClockPhase = runClockPhase();
+        }
+        if (bidsAfterSupplementaryRound == null) {
+            logger.info("Starting to collect bids for supplementary round...");
+            bidsAfterSupplementaryRound = runSupplementaryRound();
+        }
+        logger.info("Starting CCG with all collected bids...");
+        result = runVCGPhase();
+        return null;
+    }
+
+    public Allocation<T> calculateClockPhaseAllocation() {
+        if (bidsAfterClockPhase == null) {
+            logger.info("Starting clock phase for generic bids...");
+            bidsAfterClockPhase = runClockPhase();
+        }
+        Set<XORBid<T>> bids = new HashSet<>(bidsAfterClockPhase);
+
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        return wdp.calculateAllocation();
+    }
+
+    public Allocation<T> calculateAllocationAfterSupplementaryRound() {
+        if (bidsAfterClockPhase == null) {
+            logger.info("Starting clock phase for generic bids...");
+            bidsAfterClockPhase = runClockPhase();
+        }
+        if (bidsAfterSupplementaryRound == null) {
+            logger.info("Starting to collect bids for supplementary round...");
+            bidsAfterSupplementaryRound = runSupplementaryRound();
+        }
+        Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
+
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        return wdp.calculateAllocation();
+    }
+
+    public Collection<XORBid<T>> runClockPhase() {
+        Map<Bidder<T>, XORBid<T>> bids = new HashMap<>();
+        bidders.forEach(bidder -> bids.put(bidder, new XORBid.Builder<>(bidder).build()));
+        Map<T, BigDecimal> prices = new HashMap<>();
+        for (Good good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
+            prices.put((T) good, startingPrice);
+        }
+        Map<T, BigDecimal> currentPrices = prices; // For lambda use
+
+        Map<T, Integer> demand;
+        boolean done = false;
+        while (!done) {
+            demand = new HashMap<>();
+            for (Bidder<T> bidder : bidders) {
+                NonGenericDemandQueryResult<T> demandQueryResult = demandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResult();
+                if (demandQueryResult.getResultingBundle().getLicenses().size() > 0) {
+                    Bundle<T> bundle = demandQueryResult.getResultingBundle().getLicenses();
+                    for (T good : bundle) {
+                        demand.put(good, demand.getOrDefault(good, 0) + 1);
+                    }
+
+                    XORBid.Builder<T> xorBidBuilder = new XORBid.Builder<>(bidder, bids.get(bidder).getValues());
+                    BigDecimal bid = BigDecimal.valueOf(bundle.stream().mapToDouble(l -> currentPrices.get(l).doubleValue()).sum());
+                    XORValue<T> existing = xorBidBuilder.containsBundle(bundle);
+                    if (existing != null && existing.value().compareTo(bid) < 1) {
+                        xorBidBuilder.removeFromBid(existing);
+                    }
+                    if (existing == null || existing.value().compareTo(bid) < 0) {
+                        xorBidBuilder.add(new XORValue<>(bundle, bid));
+                    }
+
+                    XORBid<T> newBid = xorBidBuilder.build();
+                    bids.put(bidder, newBid);
+                }
+            }
+
+            Map<T, BigDecimal> updatedPrices = priceUpdater.updatePrices(prices, demand);
+            if (prices.equals(updatedPrices)) {
+                done = true;
+                finalDemand = demand;
+                finalPrices = prices;
+            } else {
+                prices = updatedPrices;
+                totalRounds++;
+            }
+        }
+        bidsAfterClockPhase = bids.values();
+        return bidsAfterClockPhase;
+    }
+
+    private Collection<XORBid<T>> runSupplementaryRound() {
+        Collection<XORBid<T>> bids = new HashSet<>();
+        // Supplementary totalRounds
+        for (Bidder<T> bidder : bidders) {
+            Set<XORValue<T>> newValues = supplementaryRound.getSupplementaryBids(bidder, demandQueryMIPBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon));
+
+            XORBid<T> bidderBid = bidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
+
+            XORBid<T> newBid = bidderBid.copyOfWithNewValues(newValues);
+            bids.add(newBid);
+        }
+        bidsAfterSupplementaryRound = bids;
+        return bids;
+    }
+
+    public MechanismResult<T> runVCGPhase() {
+        Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        VCGMechanism<T> ccg = new VCGMechanism<>(wdp);
+        result = ccg.getMechanismResult();
+        return result;
+    }
+
+    public int getSupplyMinusDemand() {
+        World world = bidders.iterator().next().getWorld();
+        Set<T> licenses = (Set<T>) world.getLicenses();
+        int aggregateDemand = 0;
+        int supply = 0;
+        for (T def : licenses) {
+            aggregateDemand += finalDemand.getOrDefault(def, 0);
+            supply++;
+        }
+        return supply - aggregateDemand;
+    }
+
+    public Collection<XORBid<T>> getBidsAfterClockPhase() {
+        return bidsAfterClockPhase;
+    }
+
+    public Collection<XORBid<T>> getBidsAfterSupplementaryRound() {
+        return bidsAfterSupplementaryRound;
+    }
+
+    public Map<Bidder<T>, Integer> getXORBidsCount() {
+        Map<Bidder<T>, Integer> map = new HashMap<>();
+        bidsAfterClockPhase.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        return map;
+    }
+
+    public void setPriceUpdater(NonGenericPriceUpdater<T> nonGenericPriceUpdater) {
+        this.priceUpdater = nonGenericPriceUpdater;
+    }
+
+    public void setSupplementaryRound(NonGenericSupplementaryRound<T> supplementaryRound) {
+        this.supplementaryRound = supplementaryRound;
+    }
+
+    public Map<Bidder<T>, Integer> getBidCountAfterClockPhase() {
+        Map<Bidder<T>, Integer> map = new HashMap<>();
+        bidsAfterClockPhase.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        return map;
+    }
+
+    public Map<Bidder<T>, Integer> getBidCountAfterSupplementaryRound() {
+        Map<Bidder<T>, Integer> map = new HashMap<>();
+        bidsAfterSupplementaryRound.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
+        return map;
+    }
+
+}

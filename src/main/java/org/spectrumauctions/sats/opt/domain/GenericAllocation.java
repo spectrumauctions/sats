@@ -91,15 +91,15 @@ public class GenericAllocation<T extends GenericDefinition<S>, S extends Good> i
         return allocationWithTrueValues;
     }
 
-    public static class Builder<T extends GenericDefinition<S>, S extends Good> {
+    public static class Builder<G extends GenericDefinition<T>, T extends Good> {
 
-        private Map<Bidder<S>, GenericValue<T, S>> storedValues;
+        private Map<Bidder<T>, GenericValue<G, T>> storedValues;
 
         public Builder() {
             this.storedValues = new HashMap<>();
         }
 
-        public void putGenericValue(Bidder<S> bidder, GenericValue<T, S> value) {
+        public void putGenericValue(Bidder<T> bidder, GenericValue<G, T> value) {
             Preconditions.checkNotNull(bidder);
             Preconditions.checkNotNull(value);
             storedValues.put(bidder, value);

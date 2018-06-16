@@ -2,7 +2,7 @@ package org.spectrumauctions.sats.opt.model.mrvm.demandquery;
 
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.mrvm.*;
-import org.spectrumauctions.sats.opt.domain.DemandQueryResult;
+import org.spectrumauctions.sats.opt.domain.GenericDemandQueryResult;
 import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 
 import java.math.BigDecimal;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * @author Fabio Isler
  *
  */
-public final class MRVMDemandQueryMipResult implements DemandQueryResult<MRVMGenericDefinition, MRVMLicense> {
+public final class MRVMDemandQueryMipResult implements GenericDemandQueryResult<MRVMGenericDefinition, MRVMLicense> {
 
     private final MRVMWorld world;
     private final BigDecimal totalUtility;

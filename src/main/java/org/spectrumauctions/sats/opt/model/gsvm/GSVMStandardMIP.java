@@ -100,6 +100,19 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 		return builder.build();
 	}
 
+	public Variable[] getXVariables(GSVMBidder bidder, GSVMLicense license) {
+		for (int i = 0; i < n; i++) {
+			if (population.get(i).equals(bidder)) {
+				for (int j = 0; j < m; j++) {
+					if (licenseMap.get((long) j).equals(license)) {
+						return G[i][j];
+					}
+				}
+			}
+		}
+		return new Variable[0];
+	}
+
 	@Override
 	public WinnerDeterminator<GSVMLicense> copyOf() {
 		return new GSVMStandardMIP(population);

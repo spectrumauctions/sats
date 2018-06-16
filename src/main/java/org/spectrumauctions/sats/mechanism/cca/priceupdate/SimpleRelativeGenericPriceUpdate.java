@@ -7,21 +7,23 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleRelativePriceUpdate<T extends Good> implements PriceUpdater<T> {
+public class SimpleRelativeGenericPriceUpdate<G extends GenericDefinition<T>, T extends Good> implements GenericPriceUpdater<G, T> {
 
     private static final BigDecimal DEFAULT_PRICE_UPDATE = BigDecimal.valueOf(0.1);
+    private static final BigDecimal DEFAULT_INITIAL_UPDATE = BigDecimal.valueOf(1e5);
 
     private BigDecimal priceUpdate = DEFAULT_PRICE_UPDATE;
+    private BigDecimal initialUpdate = DEFAULT_INITIAL_UPDATE;
 
     @Override
-    public Map<GenericDefinition<T>, BigDecimal> updatePrices(Map<GenericDefinition<T>, BigDecimal> oldPrices, Map<GenericDefinition<T>, Integer> demand) {
-        Map<GenericDefinition<T>, BigDecimal> newPrices = new HashMap<>();
+    public Map<G, BigDecimal> updatePrices(Map<G, BigDecimal> oldPrices, Map<G, Integer> demand) {
+        Map<G, BigDecimal> newPrices = new HashMap<>();
 
-        for (Map.Entry<GenericDefinition<T>, BigDecimal> oldPriceEntry : oldPrices.entrySet()) {
-            GenericDefinition<T> def = oldPriceEntry.getKey();
+        for (Map.Entry<G, BigDecimal> oldPriceEntry : oldPrices.entrySet()) {
+            G def = oldPriceEntry.getKey();
             if (def.numberOfLicenses() < demand.getOrDefault(def, 0)) {
                 if (oldPriceEntry.getValue().equals(BigDecimal.ZERO))
-                    newPrices.put(def, BigDecimal.valueOf(1e5));
+                    newPrices.put(def, initialUpdate);
                 else
                     newPrices.put(def, oldPriceEntry.getValue().add(oldPriceEntry.getValue().multiply(priceUpdate)));
             } else {
@@ -37,8 +39,17 @@ public class SimpleRelativePriceUpdate<T extends Good> implements PriceUpdater<T
         this.priceUpdate = priceUpdate;
     }
 
-    public SimpleRelativePriceUpdate<T> withPriceUpdate(BigDecimal priceUpdate) {
+    public void setInitialUpdate(BigDecimal initialUpdate) {
+        this.initialUpdate = initialUpdate;
+    }
+
+    public SimpleRelativeGenericPriceUpdate<G, T> withPriceUpdate(BigDecimal priceUpdate) {
         setPriceUpdate(priceUpdate);
+        return this;
+    }
+
+    public SimpleRelativeGenericPriceUpdate<G, T> withInitialUpdate(BigDecimal initialUpdate) {
+        setInitialUpdate(initialUpdate);
         return this;
     }
 }

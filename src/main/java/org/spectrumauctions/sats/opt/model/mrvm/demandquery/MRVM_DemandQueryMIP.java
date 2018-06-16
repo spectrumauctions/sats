@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
-import org.spectrumauctions.sats.opt.domain.DemandQueryMIP;
+import org.spectrumauctions.sats.opt.domain.GenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * @author Fabio Isler
  */
-public class MRVM_DemandQueryMIP extends ModelMIP implements DemandQueryMIP<MRVMGenericDefinition, MRVMLicense> {
+public class MRVM_DemandQueryMIP extends ModelMIP implements GenericDemandQueryMIP<MRVMGenericDefinition, MRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_DemandQueryMIP.class);
 

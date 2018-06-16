@@ -29,22 +29,22 @@ import java.util.stream.Collectors;
 
 import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
 
-public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminator<T> {
-    private Map<GenericValue<GenericDefinition<T>, T>, Variable> bidVariables = new HashMap<>();
-    private Set<GenericBid<GenericDefinition<T>, T>> bids;
+public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends Good> implements WinnerDeterminator<T> {
+    private Map<GenericValue<G, T>, Variable> bidVariables = new HashMap<>();
+    private Set<GenericBid<G, T>> bids;
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
     private GenericWorld<T> world;
     private double scalingFactor = 1;
 
 
-    public XORQWinnerDetermination(Set<GenericBid<GenericDefinition<T>, T>> bids) {
+    public XORQWinnerDetermination(Set<GenericBid<G, T>> bids) {
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(bids.size() > 0);
         this.bids = bids;
         double maxValue = -1;
-        for (GenericBid<GenericDefinition<T>, T> bid : bids) {
-            for (GenericValue<GenericDefinition<T>, T> value : bid.getValues()) {
+        for (GenericBid<G, T> bid : bids) {
+            for (GenericValue<G, T> value : bid.getValues()) {
                 if (value.getValue().doubleValue() > maxValue) {
                     maxValue = value.getValue().doubleValue();
                 }
@@ -63,8 +63,8 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
         winnerDeterminationProgram.setObjectiveMax(true);
 
         // Add decision variables and objective terms:
-        for (GenericBid<GenericDefinition<T>, T> bid : bids) {
-            for (GenericValue<GenericDefinition<T>, T> value : bid.getValues()) {
+        for (GenericBid<G, T> bid : bids) {
+            for (GenericValue<G, T> value : bid.getValues()) {
                 Variable bidI = new Variable("Bid " + value.getId(), VarType.BOOLEAN, 0, 1);
                 winnerDeterminationProgram.add(bidI);
                 winnerDeterminationProgram.addObjectiveTerm(value.getValue().doubleValue() * scalingFactor, bidI);
@@ -74,11 +74,11 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
 
         Map<GenericDefinition<T>, Constraint> numberOfLotsConstraints = new HashMap<>();
 
-        for (GenericBid<GenericDefinition<T>, T> bid : bids) {
+        for (GenericBid<G, T> bid : bids) {
             Constraint exclusiveBids = new Constraint(CompareType.LEQ, 1);
-            for (GenericValue<GenericDefinition<T>, T> value : bid.getValues()) {
+            for (GenericValue<G, T> value : bid.getValues()) {
                 exclusiveBids.addTerm(1, bidVariables.get(value));
-                for (Map.Entry<GenericDefinition<T>, Integer> entry : value.getQuantities().entrySet()) {
+                for (Map.Entry<G, Integer> entry : value.getQuantities().entrySet()) {
                     GenericDefinition<T> def = entry.getKey();
                     int quantity = entry.getValue();
                     Constraint numberOfLotsConstraint = numberOfLotsConstraints.get(def);
@@ -127,7 +127,7 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
 
     @Override
     public void adjustPayoffs(Map<Bidder<T>, Double> payoffs) {
-        for (GenericBid<GenericDefinition<T>, T> bidPerBidder : bids) {
+        for (GenericBid<G, T> bidPerBidder : bids) {
             Variable x = new Variable("x_" + bidPerBidder.getBidder().getId(), VarType.BOOLEAN, 0, 1);
             winnerDeterminationProgram.add(x);
             winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0), x);
@@ -143,15 +143,15 @@ public class XORQWinnerDetermination<T extends Good> implements WinnerDeterminat
         }
     }
 
-    private Variable getBidVariable(GenericValue<GenericDefinition<T>, T> bundleBid) {
+    private Variable getBidVariable(GenericValue<G, T> bundleBid) {
         return bidVariables.get(bundleBid);
     }
 
     private Allocation<T> adaptMIPResult(IMIPResult mipResult) {
 
-        GenericAllocation.Builder<GenericDefinition<T>, T> builder = new GenericAllocation.Builder<>();
-        for (GenericBid<GenericDefinition<T>, T> bid : bids) {
-            for (GenericValue<GenericDefinition<T>, T> value : bid.getValues()) {
+        GenericAllocation.Builder<G, T> builder = new GenericAllocation.Builder<>();
+        for (GenericBid<G, T> bid : bids) {
+            for (GenericValue<G, T> value : bid.getValues()) {
                 if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(value)), 1, 1e-3)) {
                     builder.putGenericValue(bid.getBidder(), value);
                 }
