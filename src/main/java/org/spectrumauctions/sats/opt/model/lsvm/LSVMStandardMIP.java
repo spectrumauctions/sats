@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.opt.model.lsvm;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.SolveParam;
@@ -33,23 +34,15 @@ import java.util.stream.Collectors;
  */
 public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVMLicense> {
 
-	private int n; // number of agents
-	private int m; // number of items
-
-	private long excludedBidderId;
-
-	private double[][] v;
+	private Map<LSVMBidder, Map<LSVMLicense, Double>> valueMap;
 
 	private List<LSVMBidder> population;
 
-	private Map<Long, LSVMBidder> bidderMap;
-	private Map<Long, LSVMLicense> licenseMap;
 	private LSVMWorld world;
 
-	private Variable[][][] A;
-	private Variable[][][] E;
+	private Map<LSVMBidder, Map<LSVMLicense, Map<Integer, Variable>>> aVariables;
+	private Map<LSVMBidder, Map<Edge, Map<Integer, Variable>>> eVariables;
 
-	private Edge[] edges;
 	private Map<Edge, Set<Integer>> validPathLengths = new HashMap<>();
 
 	public LSVMStandardMIP(List<LSVMBidder> population) {
@@ -57,31 +50,8 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 	}
 
 	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population) {
-		this(world, population, -1L);
-	}
-
-	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population, long excludedBidderId) {
 		this.world = world;
 		this.population = population;
-		this.excludedBidderId = excludedBidderId;
-
-		bidderMap = population.stream().collect(Collectors.toMap(b -> b.getId(), Function.identity()));
-		licenseMap = world.getLicenses().stream().collect(Collectors.toMap(l -> l.getId(), Function.identity()));
-
-		m = world.getLicenses().size();
-		n = population.size();
-
-		// init v_{ij}
-		v = new double[n][m];
-
-		// init A_{ijt}
-		A = new Variable[n][m][m];
-
-		// init E_{iec}
-		int numberOfEdges = m * (m - 1) / 2;
-		E = new Variable[n][numberOfEdges][m];
-
-		edges = new Edge[numberOfEdges];
 
 		// init MIP
 		getMip().setObjectiveMax(true);
@@ -102,7 +72,8 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	@Override
 	public WinnerDeterminator<LSVMLicense> getWdWithoutBidder(Bidder bidder) {
-		return new LSVMStandardMIP(world, population, bidder.getId());
+        Preconditions.checkArgument(population.contains(bidder));
+		return new LSVMStandardMIP(population.stream().filter(b -> !b.equals(bidder)).collect(Collectors.toList()));
 	}
 
 	@Override
@@ -111,18 +82,16 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		IMIPResult result = solver.solve(getMip());
 
 		Map<Bidder<LSVMLicense>, Bundle<LSVMLicense>> allocation = new HashMap<>();
-		for (int i = 0; i < n; i++) {
+		for (LSVMBidder bidder : population) {
 			Bundle<LSVMLicense> bundle = new Bundle<>();
-			if ((long) i != excludedBidderId) {
-				for (int j = 0; j < m; j++) {
-					for (int t = 0; t < m; t++) {
-						if (result.getValue(A[i][j][t]) > 0) {
-							bundle.add(licenseMap.get((long) j));
-						}
-					}
-				}
-			}
-			allocation.put(bidderMap.get((long) i), bundle);
+            for (LSVMLicense license : world.getLicenses()) {
+                for (int tau = 0; tau < world.getLicenses().size(); tau++) {
+                    if (result.getValue(aVariables.get(bidder).get(license).get(tau)) > 0) {
+                        bundle.add(license);
+                    }
+                }
+            }
+			allocation.put(bidder, bundle);
 		}
 
 		ItemAllocationBuilder<LSVMLicense> builder = new ItemAllocationBuilder<LSVMLicense>().withWorld(world)
@@ -130,6 +99,19 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 		return builder.build();
 	}
+
+    public Map<Integer, Variable> getXVariables(LSVMBidder bidder, LSVMLicense license) {
+        for (LSVMBidder b : population) {
+            if (b.equals(bidder)) {
+                for (LSVMLicense l : world.getLicenses()) {
+                    if (l.equals(license)) {
+                        return aVariables.get(b).get(l);
+                    }
+                }
+            }
+        }
+        return new HashMap<>();
+    }
 
 	@Override
 	public WinnerDeterminator<LSVMLicense> copyOf() {
@@ -142,150 +124,141 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 	}
 
 	private void buildObjectiveTerm() {
-		for (int i = 0; i < n; i++) {
-			if ((long) i != excludedBidderId) {
-				for (int j = 0; j < m; j++) {
-					for (int t = 0; t < m; t++) {
-						double value = calculateComplementarityMarkup(t + 1, bidderMap.get((long) i)) * v[i][j];
-						getMip().addObjectiveTerm(value, A[i][j][t]);
-					}
-				}
-			}
+		for (LSVMBidder bidder : population) {
+            for (LSVMLicense license : world.getLicenses()) {
+                for (int tau = 0; tau < world.getLicenses().size(); tau++) {
+                    double value = calculateComplementarityMarkup(tau + 1, bidder) * valueMap.get(bidder).get(license);
+                    getMip().addObjectiveTerm(value, aVariables.get(bidder).get(license).get(tau));
+                }
+            }
 		}
 	}
 
 	private void buildSupplyEvalConstraints() {
-		for (int j = 0; j < m; j++) {
+		for (LSVMLicense license : world.getLicenses()) {
 			Constraint constraint = new Constraint(CompareType.LEQ, 1);
-			for (int i = 0; i < n; i++) {
-				if ((long) i != excludedBidderId) {
-					for (int t = 0; t < m; t++) {
-						constraint.addTerm(1, A[i][j][t]);
-					}
-				}
+			for (LSVMBidder bidder : population) {
+                for (int tau = 0; tau < world.getLicenses().size(); tau++) {
+                    constraint.addTerm(1, aVariables.get(bidder).get(license).get(tau));
+                }
 			}
 			getMip().add(constraint);
 		}
 	}
 
 	private void buildEdgeSupplyConstraints() {
-		for (int e = 0; e < edges.length; e++) {
+		for (Map.Entry<Edge, Set<Integer>> entry : validPathLengths.entrySet()) {
 			Constraint constraint = new Constraint(CompareType.LEQ, 1);
-			for (int i = 0; i < n; i++) {
-				if ((long) i != excludedBidderId) {
-					for (int c = 0; c < m; c++) {
-						if (isValidPathLength(edges[e], c + 1)) {
-							constraint.addTerm(1, E[i][e][c]);
-						}
-					}
-				}
+			for (LSVMBidder bidder : population) {
+                for (int c = 0; c < world.getLicenses().size(); c++) {
+                    if (entry.getValue().contains(c + 1)) {
+                        constraint.addTerm(1, eVariables.get(bidder).get(entry.getKey()).get(c));
+                    }
+                }
 			}
 			getMip().add(constraint);
 		}
 	}
 
 	private void buildNeighbourConstraints() {
-		for (int i = 0; i < n; i++) {
-			if ((long) i != excludedBidderId) {
-				for (int e = 0; e < edges.length; e++) {
-					for (int c = 1; c < m; c++) { // only for c > 1
-						if (isValidPathLength(edges[e], c + 1)) {
-							Constraint constraint = new Constraint(CompareType.GEQ, 0);
-							constraint.addTerm(-1, E[i][e][c]);
-							for (int x : n(gMin(edges[e]))) {
-								int y = gMax(edges[e]);
-								if (x != y) {
-									int ne = fInv(x, y);
-									if (isValidPathLength(edges[ne], c)) {
-										constraint.addTerm(1, E[i][ne][c - 1]);
-									}
-								}
-							}
-							getMip().add(constraint);
-						}
-					}
-				}
-			}
+		for (LSVMBidder bidder : population) {
+            for (Map.Entry<Edge, Set<Integer>> entry : validPathLengths.entrySet()) {
+                Edge edge = entry.getKey();
+                for (int c = 1; c < world.getLicenses().size(); c++) { // only for c > 1
+                    if (entry.getValue().contains(c + 1)) {
+                        Constraint constraint = new Constraint(CompareType.GEQ, 0);
+                        constraint.addTerm(-1, eVariables.get(bidder).get(edge).get(c));
+                        for (LSVMLicense x : n(gMin(edge))) {
+                            LSVMLicense y = gMax(edge);
+                            if (!x.equals(y)) {
+                                Edge e = fInv(x, y);
+                                if (validPathLengths.get(e).contains(c)) {
+                                    constraint.addTerm(1, eVariables.get(bidder).get(e).get(c - 1));
+                                }
+                            }
+                        }
+                        getMip().add(constraint);
+                    }
+                }
+            }
 		}
 	}
 
 	private void buildEdgeConstraints() {
-		for (int i = 0; i < n; i++) {
-			if ((long) i != excludedBidderId) {
-				for (int e = 0; e < edges.length; e++) {
-					Constraint constraint = new Constraint(CompareType.GEQ, 0);
-					for (int c = 0; c < m; c++) {
-						if (isValidPathLength(edges[e], c + 1)) {
-							constraint.addTerm(-2, E[i][e][c]);
-						}
-					}
-					for (int j : f(edges[e])) {
-						for (int t = 0; t < m; t++) {
-							constraint.addTerm(1, A[i][j][t]);
-						}
-					}
-					getMip().add(constraint);
-				}
-			}
+		for (LSVMBidder bidder : population) {
+            for (Map.Entry<Edge, Set<Integer>> entry : validPathLengths.entrySet()) {
+                Edge edge = entry.getKey();
+                Constraint constraint = new Constraint(CompareType.GEQ, 0);
+                for (int c = 0; c < world.getLicenses().size(); c++) {
+                    if (entry.getValue().contains(c + 1)) {
+                        constraint.addTerm(-2, eVariables.get(bidder).get(edge).get(c));
+                    }
+                }
+                for (LSVMLicense license : f(edge)) {
+                    for (int tau = 0; tau < world.getLicenses().size(); tau++) {
+                        constraint.addTerm(1, aVariables.get(bidder).get(license).get(tau));
+                    }
+                }
+                getMip().add(constraint);
+            }
 		}
 	}
 
 	private void buildTauConstraints() {
-		for (int i = 0; i < n; i++) {
-			if ((long) i != excludedBidderId) {
-				for (int j = 0; j < m; j++) {
-					Constraint constraint = new Constraint(CompareType.LEQ, 1);
-					for (int t = 0; t < m; t++) {
-						constraint.addTerm(t + 1, A[i][j][t]);
-					}
+		for (LSVMBidder bidder : population) {
+            for (LSVMLicense license : world.getLicenses()) {
+                Constraint constraint = new Constraint(CompareType.LEQ, 1);
+                for (int tau = 0; tau < world.getLicenses().size(); tau++) {
+                    constraint.addTerm(tau + 1, aVariables.get(bidder).get(license).get(tau));
+                }
 
-					for (int x = 0; x < m; x++) {
-						if (x != j) {
-							for (int c = 0; c < m; c++) {
-								int e = fInv(x, j);
-								if (isValidPathLength(edges[e], c + 1)) {
-									constraint.addTerm(-1, E[i][e][c]);
-								}
-							}
-						}
-					}
-					getMip().add(constraint);
-				}
-			}
-		}
+                for (LSVMLicense other : world.getLicenses()) {
+                    if (!other.equals(license)) {
+                        for (int c = 0; c < world.getLicenses().size(); c++) {
+                            Edge edge = fInv(other, license);
+                            if (validPathLengths.get(edge).contains(c + 1)) {
+                                constraint.addTerm(-1, eVariables.get(bidder).get(edge).get(c));
+                            }
+                        }
+                    }
+                }
+                getMip().add(constraint);
+            }
+        }
 	}
 
 	private void initBaseValues() {
-		for (int i = 0; i < n; i++) {
-			if ((long) i != excludedBidderId) {
-				for (int j = 0; j < m; j++) {
-					v[i][j] = bidderMap.get((long) i).getBaseValues().getOrDefault((long) j, new BigDecimal(0.0))
-							.doubleValue();
-				}
-			}
+	    valueMap = new HashMap<>();
+		for (LSVMBidder bidder : population) {
+		    valueMap.put(bidder, new HashMap<>());
+            for (LSVMLicense license : world.getLicenses()) {
+                valueMap.get(bidder).put(license, bidder.getBaseValues().getOrDefault(license.getId(), BigDecimal.ZERO).doubleValue());
+            }
 		}
 	}
 
 	private void initA() {
-		for (int i = 0; i < n; i++) {
-			if ((long) i != excludedBidderId) {
-				for (int j = 0; j < m; j++) {
-					for (int t = 0; t < m; t++) {
-						A[i][j][t] = new Variable(String.format("A_i[%d]j[%d]t[%d]", i, j, t), VarType.BOOLEAN, 0, 1);
-						getMip().add(A[i][j][t]);
-					}
-				}
-			}
+	    aVariables = new HashMap<>();
+		for (LSVMBidder bidder : population) {
+		    aVariables.put(bidder, new HashMap<>());
+            for (LSVMLicense license : world.getLicenses()) {
+                aVariables.get(bidder).put(license, new HashMap<>());
+                for (int tau = 0; tau < world.getLicenses().size(); tau++) {
+                    Variable var = new Variable(String.format("A_i[%d]j[%d]tau[%d]", (int) bidder.getId(), (int) license.getId(), tau), VarType.BOOLEAN, 0, 1);
+                    getMip().add(var);
+                    aVariables.get(bidder).get(license).put(tau, var);
+                }
+            }
 		}
 	}
 
 	private void initEdge() {
-		int index = 0;
-		for (int x = 0; x < m; x++) {
-			for (int y = x + 1; y < m; y++) {
-				edges[index] = new Edge(licenseMap.get((long) x), licenseMap.get((long) y));
-				buildValidPathLength(edges[index]);
-				index++;
+		for (LSVMLicense l1 : world.getLicenses()) {
+			for (LSVMLicense l2 : world.getLicenses()) {
+                Edge edge = new Edge(l1, l2);
+			    if (!validPathLengths.containsKey(edge)) {
+                    buildValidPathLength(edge);
+                }
 			}
 		}
 	}
@@ -294,13 +267,13 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		LSVMGridGraph grid = new LSVMGridGraph(world.getGrid());
 		Set<Set<Vertex>> allPaths = grid.findAllPaths(grid.getVertex(edge.l1), grid.getVertex(edge.l2));
 
-		List<Set<Vertex>> sizeOrderedPaths = allPaths.stream().sorted((a1, a2) -> Integer.compare(a1.size(), a2.size()))
+		List<Set<Vertex>> sizeOrderedPaths = allPaths.stream().sorted(Comparator.comparingInt(Set::size))
 				.collect(Collectors.toList());
 
 		List<Set<Vertex>> solution = new ArrayList<>();
 
 		for (Set<Vertex> current : sizeOrderedPaths) {
-			if (solution.stream().filter(sol -> current.containsAll(sol)).count() == 0l) {
+			if (solution.stream().noneMatch(current::containsAll)) {
 				solution.add(current);
 			}
 		}
@@ -309,23 +282,25 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 	}
 
 	private void initE() {
-		for (int i = 0; i < n; i++) {
-			if ((long) i != excludedBidderId) {
-				for (int e = 0; e < edges.length; e++) {
-					for (int c = 0; c < m; c++) {
-						if (isValidPathLength(edges[e], c + 1)) {
-							E[i][e][c] = new Variable(String.format("E_i[%d]e[%d]c[%d]", i, e, c), VarType.BOOLEAN, 0, 1);
-							getMip().add(E[i][e][c]);
-						}
-					}
-				}
-			}
+	    eVariables = new HashMap<>();
+		for (LSVMBidder bidder : population) {
+		    eVariables.put(bidder, new HashMap<>());
+            for (Map.Entry<Edge, Set<Integer>> entry : validPathLengths.entrySet()) {
+                eVariables.get(bidder).put(entry.getKey(), new HashMap<>());
+                for (int c = 0; c < world.getLicenses().size(); c++) {
+                    if (entry.getValue().contains(c + 1)) {
+                        Variable var = new Variable(String.format("E_i[%d]e[%s]c[%d]", (int) bidder.getId(), entry.getKey(), c), VarType.BOOLEAN, 0, 1);
+                        getMip().add(var);
+                        eVariables.get(bidder).get(entry.getKey()).put(c, var);
+                    }
+                }
+            }
 		}
 	}
 
-	private boolean isValidPathLength(Edge edge, int pathLength) {
-		return validPathLengths.get(edge).contains(pathLength);
-	}
+//	private boolean isValidPathLength(Edge edge, int pathLength) {
+//		return validPathLengths.get(edge).contains(pathLength);
+//	}
 
 	private double calculateComplementarityMarkup(int tau, LSVMBidder bidder) {
 		if (tau < 1) {
@@ -334,56 +309,43 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		return bidder.calculateFactor(tau);
 	}
 
-	private Integer gMin(Edge e) {
-		int l1 = (int) e.l1.getId();
-		int l2 = (int) e.l2.getId();
+	private LSVMLicense gMin(Edge e) {
+		int neighbourCountL1 = n(e.l1).size();
+		int neighbourCountL2 = n(e.l2).size();
 
-		int neighbourCountL1 = n(l1).size();
-		int neighbourCountL2 = n(l2).size();
-
-		if (neighbourCountL1 < neighbourCountL2) {
-			return l1;
-		} else if (neighbourCountL1 > neighbourCountL2) {
-			return l2;
+		if (neighbourCountL1 <= neighbourCountL2) {
+			return e.l1;
 		} else {
-			// if both have the same number of neighbours, return the one with
-			// the lower id
-			return Math.min(l1, l2);
+			return e.l2;
 		}
 	}
 
-	private Integer gMax(Edge e) {
+	private LSVMLicense gMax(Edge e) {
 		// return the other license on the edge not chosen by gMin
-		Set<Integer> immutableSet = f(e);
-		Integer minLicense = gMin(e);
+		Set<LSVMLicense> immutableSet = f(e);
+		LSVMLicense minLicense = gMin(e);
 
-		Set<Integer> mutableSet = immutableSet.stream().filter(l -> l != minLicense).collect(Collectors.toSet());
+		Set<LSVMLicense> mutableSet = immutableSet.stream().filter(l -> l != minLicense).collect(Collectors.toSet());
 
 		assert mutableSet.size() == 1;
 		return mutableSet.iterator().next();
 	}
 
-	private Set<Integer> n(Integer j) {
+	private Set<LSVMLicense> n(LSVMLicense license) {
 		LSVMGrid grid = world.getGrid();
-		LSVMLicense jLicense = licenseMap.get((long) j);
-		return licenseMap.values().stream().filter(x -> grid.isNeighbor(x, jLicense)).map(x -> (int) x.getId())
+		return world.getLicenses().stream().filter(x -> grid.isNeighbor(x, license))
 				.collect(Collectors.toSet());
 
 	}
 
-	private Set<Integer> f(Edge e) {
-		return ImmutableSet.of((int) e.l1.getId(), (int) e.l2.getId());
+	private Set<LSVMLicense> f(Edge e) {
+		return ImmutableSet.of(e.l1, e.l2);
 	}
 
-	private Integer fInv(Integer l1, Integer l2) {
-		for (int e = 0; e < edges.length; e++) {
-			Edge edge = edges[e];
-
-			Integer el1 = (int) edge.l1.getId();
-			Integer el2 = (int) edge.l2.getId();
-
-			if ((el1 == l1 && el2 == l2) || (el1 == l2 && el2 == l1)) {
-				return e;
+	private Edge fInv(LSVMLicense l1, LSVMLicense l2) {
+		for (Edge edge : validPathLengths.keySet()) {
+			if ((edge.l1 == l1 && edge.l2 == l2) || (edge.l1 == l2 && edge.l2 == l1)) {
+				return edge;
 			}
 		}
 		throw new IllegalStateException("Error: fInv edge not found");
@@ -394,10 +356,33 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		LSVMLicense l2;
 
 		public Edge(LSVMLicense l1, LSVMLicense l2) {
-			super();
-			this.l1 = l1;
-			this.l2 = l2;
+		    if (l1.getId() > l2.getId()) {
+                this.l1 = l1;
+                this.l2 = l2;
+            } else {
+		        this.l2 = l1;
+		        this.l1 = l2;
+            }
 		}
-	}
+
+        @Override
+        public String toString() {
+            return "Edge(" + (int) l1.getId() + "," + (int) l2.getId() + ")";
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Edge edge = (Edge) o;
+            return Objects.equals(l1, edge.l1) &&
+                    Objects.equals(l2, edge.l2);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(l1, l2);
+        }
+    }
 
 }

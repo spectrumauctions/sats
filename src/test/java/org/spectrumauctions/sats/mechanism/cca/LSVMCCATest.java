@@ -6,31 +6,26 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
-import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMLicense;
-import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeGenericPriceUpdate;
+import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
+import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
+import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeNonGenericPriceUpdate;
-import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.ItemAllocation;
-import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
-import org.spectrumauctions.sats.opt.model.gsvm.demandquery.GSVM_DemandQueryMIPBuilder;
+import org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP;
+import org.spectrumauctions.sats.opt.model.lsvm.demandquery.LSVM_DemandQueryMIPBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-public class GSVMCCATest {
+public class LSVMCCATest {
 
-    private static final Logger logger = LogManager.getLogger(GSVMCCATest.class);
+    private static final Logger logger = LogManager.getLogger(LSVMCCATest.class);
 
     private static int ITERATIONS = 5;
 
@@ -43,20 +38,20 @@ public class GSVMCCATest {
     }
 
     private void testClockPhaseVsSupplementaryPhaseEfficiency() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
-        GSVMStandardMIP mip = new GSVMStandardMIP(Lists.newArrayList(rawBidders));
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        LSVMStandardMIP mip = new LSVMStandardMIP(Lists.newArrayList(rawBidders));
         mip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.01);
-        ItemAllocation<GSVMLicense> efficientAllocation = mip.calculateAllocation();
+        ItemAllocation<LSVMLicense> efficientAllocation = mip.calculateAllocation();
 
         long start = System.currentTimeMillis();
-        NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);
+        NonGenericCCAMechanism<LSVMLicense> cca = getMechanism(rawBidders);
 
-        Allocation<GSVMLicense> allocationAfterClockPhase = cca.calculateClockPhaseAllocation();
-        Allocation<GSVMLicense> allocCP = allocationAfterClockPhase.getAllocationWithTrueValues();
+        Allocation<LSVMLicense> allocationAfterClockPhase = cca.calculateClockPhaseAllocation();
+        Allocation<LSVMLicense> allocCP = allocationAfterClockPhase.getAllocationWithTrueValues();
         //assertNotEquals(allocationAfterClockPhase, allocCP);
 
-        Allocation<GSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
-        Allocation<GSVMLicense> allocSR = allocationAfterSupplementaryRound.getAllocationWithTrueValues();
+        Allocation<LSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        Allocation<LSVMLicense> allocSR = allocationAfterSupplementaryRound.getAllocationWithTrueValues();
         //assertNotEquals(allocationAfterSupplementaryRound, allocSR);
         long end = System.currentTimeMillis();
 
@@ -75,19 +70,19 @@ public class GSVMCCATest {
         assertTrue(qualityCP.compareTo(qualitySR) < 0);
     }
 
-    private NonGenericCCAMechanism<GSVMLicense> getMechanism(List<GSVMBidder> rawBidders) {
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
-                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-        NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
+    private NonGenericCCAMechanism<LSVMLicense> getMechanism(List<LSVMBidder> rawBidders) {
+        List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
+        NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
         cca.setStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(0.01);
 
-        SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
+        SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
-        priceUpdater.setInitialUpdate(BigDecimal.valueOf(1));
+        priceUpdater.setInitialUpdate(BigDecimal.valueOf(10));
         cca.setPriceUpdater(priceUpdater);
 
-        ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
+        ProfitMaximizingNonGenericSupplementaryRound<LSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
         supplementaryRound.setNumberOfSupplementaryBids(500);
         cca.setSupplementaryRound(supplementaryRound);
 
