@@ -18,23 +18,16 @@ import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalDouble;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVMLicense> {
 
-	private int n; // number of agents
-	private int m; // number of items
-
-	private Variable[][][] G;
-	private double[][] value;
-	private int[] tauHat;
+    private Map<GSVMBidder, Map<GSVMLicense, Map<Integer, Variable>>> gMap;
+	private Map<GSVMBidder, Map<GSVMLicense, Double>> valueMap;
+	private Map<GSVMBidder, Integer> tauHatMap;
 
 	private List<GSVMBidder> population;
-	private Map<Long, GSVMLicense> licenseMap;
 	private GSVMWorld world;
 
 	private boolean allowAssigningLicensesWithZeroBasevalue;
@@ -49,17 +42,13 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population,
 			boolean allowAssigningLicensesWithZeroBasevalue) {
-		m = world.getLicenses().size();
-		licenseMap = new HashMap<>(m);
-		world.getLicenses().forEach(license -> licenseMap.put(license.getId(), license));
 
 		this.allowAssigningLicensesWithZeroBasevalue = allowAssigningLicensesWithZeroBasevalue;
 
-		n = population.size();
 		this.population = population;
 		this.world = world;
-		tauHat = new int[n];
-		value = new double[n][m];
+		tauHatMap = new HashMap<>();
+		valueMap = new HashMap<>();
 		getMip().setObjectiveMax(true);
 		initValues();
 		initVariables();
@@ -79,20 +68,19 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 
 		Map<Bidder<GSVMLicense>, Bundle<GSVMLicense>> allocation = new HashMap<>();
 
-		for (int i = 0; i < n; i++) {
-			GSVMBidder bidder = population.get(i);
-			Bundle<GSVMLicense> bundle = new Bundle<>();
-			for (int j = 0; j < m; j++) {
-				if (allowAssigningLicensesWithZeroBasevalue || value[i][j] > 0) {
-					for (int tau = 0; tau < tauHat[i]; tau++) {
-						if (result.getValue(G[i][j][tau]) == 1) {
-							bundle.add(licenseMap.get((long) j));
-						}
-					}
-				}
-			}
-			allocation.put(bidder, bundle);
-		}
+		for (GSVMBidder bidder : population) {
+            Bundle<GSVMLicense> bundle = new Bundle<>();
+            for (GSVMLicense license : world.getLicenses()) {
+                if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
+                    for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+                        if (result.getValue(gMap.get(bidder).get(license).get(tau)) == 1) {
+                            bundle.add(license);
+                        }
+                    }
+                }
+            }
+            allocation.put(bidder, bundle);
+        }
 
 		ItemAllocationBuilder<GSVMLicense> builder = new ItemAllocationBuilder<GSVMLicense>().withWorld(world)
 				.withTotalValue(BigDecimal.valueOf(result.getObjectiveValue())).withAllocation(allocation);
@@ -100,17 +88,17 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 		return builder.build();
 	}
 
-	public Variable[] getXVariables(GSVMBidder bidder, GSVMLicense license) {
-		for (int i = 0; i < n; i++) {
-			if (population.get(i).equals(bidder)) {
-				for (int j = 0; j < m; j++) {
-					if (licenseMap.get((long) j).equals(license)) {
-						return G[i][j];
+	public Map<Integer, Variable> getXVariables(GSVMBidder bidder, GSVMLicense license) {
+		for (GSVMBidder b : population) {
+			if (b.equals(bidder)) {
+				for (GSVMLicense l : world.getLicenses()) {
+					if (l.equals(license)) {
+						return gMap.get(b).get(l);
 					}
 				}
 			}
 		}
-		return new Variable[0];
+		return new HashMap<>();
 	}
 
 	@Override
@@ -124,24 +112,26 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 	}
 
 	public void build() {
-		// build objective term
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				if (allowAssigningLicensesWithZeroBasevalue || value[i][j] > 0) {
-					for (int tau = 0; tau < tauHat[i]; tau++) {
-						getMip().addObjectiveTerm(calculateComplementarityMarkup(tau + 1) * value[i][j], G[i][j][tau]);
-					}
-				}
-			}
-		}
+
+        // build objective term
+        for (GSVMBidder bidder : population) {
+	        for (GSVMLicense license : world.getLicenses()) {
+                if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
+                    for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+                        getMip().addObjectiveTerm(calculateComplementarityMarkup(tau + 1) * valueMap.get(bidder).get(license), gMap.get(bidder).get(license).get(tau));
+                    }
+                }
+            }
+        }
+
 
 		// build Supply/Eval Constraint (1)
-		for (int j = 0; j < m; j++) {
-			Constraint constraint = new Constraint(CompareType.LEQ, 1, "SupplyConstraint j=" + j);
-			for (int i = 0; i < n; i++) {
-				if (allowAssigningLicensesWithZeroBasevalue || value[i][j] > 0) {
-					for (int tau = 0; tau < tauHat[i]; tau++) {
-						constraint.addTerm(1, G[i][j][tau]);
+		for (GSVMLicense license : world.getLicenses()) {
+			Constraint constraint = new Constraint(CompareType.LEQ, 1, "SupplyConstraint license=" + license.getId());
+			for (GSVMBidder bidder : population) {
+				if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
+					for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+						constraint.addTerm(1, gMap.get(bidder).get(license).get(tau));
 					}
 				}
 			}
@@ -149,22 +139,22 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 		}
 
 		// build Tau Constraint (2)
-		for (int j = 0; j < m; j++) {
-			for (int i = 0; i < n; i++) {
+		for (GSVMLicense j : world.getLicenses()) {
+			for (GSVMBidder bidder : population) {
 				Constraint constraint = new Constraint(CompareType.GEQ, 0);
 				// build left part: Number of items agent i is allocated
-				for (int k = 0; k < m; k++) {
-					if (allowAssigningLicensesWithZeroBasevalue || value[i][k] > 0) {
-						for (int tau = 0; tau < tauHat[i]; tau++) {
-							constraint.addTerm(1, G[i][k][tau]);
+				for (GSVMLicense k : world.getLicenses()) {
+					if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(k) > 0) {
+						for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+							constraint.addTerm(1, gMap.get(bidder).get(k).get(tau));
 						}
 					}
 				}
 				// build right part: Activate tau that matches the number of
 				// allocated items
-				for (int tau = 0; tau < tauHat[i]; tau++) {
-					if (allowAssigningLicensesWithZeroBasevalue || value[i][j] > 0) {
-						constraint.addTerm(-(tau + 1), G[i][j][tau]);
+				for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+					if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(j) > 0) {
+						constraint.addTerm(-(tau + 1), gMap.get(bidder).get(j).get(tau));
 					}
 				}
 				getMip().add(constraint);
@@ -174,16 +164,18 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 
 	private void initValues() {
 
-		for (int i = 0; i < n; i++) {
-			int tauCounter = 0;
-			for (int j = 0; j < m; j++) {
-				value[i][j] = getValue(i, j).orElse(0);
-				if (allowAssigningLicensesWithZeroBasevalue || value[i][j] > 0) {
-					tauCounter++;
-				}
-			}
-			tauHat[i] = tauCounter;
-		}
+	    for (GSVMBidder bidder : population) {
+	        valueMap.put(bidder, new HashMap<>());
+            int tauCounter = 0;
+            for (GSVMLicense license : world.getLicenses()) {
+                BigDecimal val = bidder.getBaseValues().getOrDefault(license.getId(), BigDecimal.ZERO);
+                if (allowAssigningLicensesWithZeroBasevalue || val.doubleValue() > 0) {
+                    tauCounter++;
+                }
+                valueMap.get(bidder).put(license, val.doubleValue());
+            }
+            tauHatMap.put(bidder, tauCounter);
+        }
 	}
 
 	private OptionalDouble getValue(int i, int j) {
@@ -197,16 +189,16 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 	}
 
 	private void initVariables() {
-		G = new Variable[n][][];
-		for (int i = 0; i < n; i++) {
-			G[i] = new Variable[m][];
-			for (int j = 0; j < m; j++) {
-				// only init variables where agent i has a positive base-value
-				if (allowAssigningLicensesWithZeroBasevalue || value[i][j] > 0) {
-					G[i][j] = new Variable[tauHat[i]];
-					for (int tau = 0; tau < tauHat[i]; tau++) {
-						G[i][j][tau] = new Variable("g_i[" + i + "]j[" + j + "]t[" + tau + "]", VarType.BOOLEAN, 0, 1);
-						getMip().add(G[i][j][tau]);
+		gMap = new HashMap<>();
+		for (GSVMBidder bidder : population) {
+		    gMap.put(bidder, new HashMap<>());
+			for (GSVMLicense license : world.getLicenses()) {
+				if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
+				    gMap.get(bidder).put(license, new HashMap<>());
+					for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+					    Variable var = new Variable("g_i[" + (int) bidder.getId() + "]j[" + (int) license.getId() + "]t[" + tau + "]", VarType.BOOLEAN, 0, 1);
+						getMip().add(var);
+						gMap.get(bidder).get(license).put(tau, var);
 					}
 				}
 			}

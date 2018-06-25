@@ -58,8 +58,8 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         price.addTerm(-1, priceVar);
         for (Map.Entry<GSVMLicense, BigDecimal> entry : prices.entrySet()) {
             GSVMLicense license = entry.getKey();
-            Variable[] xVariables = gsvmMip.getXVariables(bidder, license);
-            for (Variable xVariable : xVariables) {
+            Map<Integer, Variable> xVariables = gsvmMip.getXVariables(bidder, license);
+            for (Variable xVariable : xVariables.values()) {
                 price.addTerm(entry.getValue().doubleValue(), xVariable);
             }
         }
@@ -74,8 +74,8 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
 
         Set<GSVMLicense> licenses = new HashSet<>();
         for (GSVMLicense license : world.getLicenses()) {
-            Variable[] xVars = gsvmMip.getXVariables(bidder, license);
-            for (Variable var : xVars) {
+            Map<Integer, Variable> xVars = gsvmMip.getXVariables(bidder, license);
+            for (Variable var : xVars.values()) {
                 double value = mipResult.getValue(var);
                 if (value >= 1 - 1e-6 && value <= 1 + 1e-6) {
                     licenses.add(license);
@@ -108,8 +108,8 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         for (Solution sol : mipResult.getIntermediateSolutions()) {
             Set<GSVMLicense> licenses = new HashSet<>();
             for (GSVMLicense license : world.getLicenses()) {
-                Variable[] xVars = gsvmMip.getXVariables(bidder, license);
-                for (Variable var : xVars) {
+                Map<Integer, Variable> xVars = gsvmMip.getXVariables(bidder, license);
+                for (Variable var : xVars.values()) {
                     double value = sol.getValue(var);
                     if (value >= 1 - 1e-6 && value <= 1 + 1e-6) {
                         licenses.add(license);
