@@ -120,7 +120,7 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 
 	@Override
 	public void adjustPayoffs(Map<Bidder<LSVMLicense>, Double> payoffs) {
-        throw new UnsupportedOperationException("The LSVM MIP does not support CCG yet. First, it needs to support VCG.");
+        throw new UnsupportedOperationException("The LSVM MIP does not support CCG yet.");
 	}
 
 	private void buildObjectiveTerm() {
@@ -298,10 +298,6 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		}
 	}
 
-//	private boolean isValidPathLength(Edge edge, int pathLength) {
-//		return validPathLengths.get(edge).contains(pathLength);
-//	}
-
 	private double calculateComplementarityMarkup(int tau, LSVMBidder bidder) {
 		if (tau < 1) {
 			throw new IllegalArgumentException("Error: tau has to be >=1");
@@ -325,7 +321,7 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
 		Set<LSVMLicense> immutableSet = f(e);
 		LSVMLicense minLicense = gMin(e);
 
-		Set<LSVMLicense> mutableSet = immutableSet.stream().filter(l -> l != minLicense).collect(Collectors.toSet());
+		Set<LSVMLicense> mutableSet = immutableSet.stream().filter(l -> !l.equals(minLicense)).collect(Collectors.toSet());
 
 		assert mutableSet.size() == 1;
 		return mutableSet.iterator().next();
