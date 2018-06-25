@@ -87,11 +87,11 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         for (Good good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
             prices.put((T) good, startingPrice);
         }
-        Map<T, BigDecimal> currentPrices = prices; // For lambda use
 
         Map<T, Integer> demand;
         boolean done = false;
         while (!done) {
+            Map<T, BigDecimal> currentPrices = prices; // For lambda use
             demand = new HashMap<>();
             for (Bidder<T> bidder : bidders) {
                 NonGenericDemandQueryResult<T> demandQueryResult = demandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResult();

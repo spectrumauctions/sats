@@ -84,6 +84,7 @@ public class GSVMCCATest {
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        priceUpdater.setInitialUpdate(BigDecimal.valueOf(1));
         cca.setPriceUpdater(priceUpdater);
 
         ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
