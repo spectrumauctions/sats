@@ -21,11 +21,9 @@ public class GSVMStandardMIPTest {
         List<GSVMBidder> population = model.createPopulation(world);
 
         GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-        gsvmMIP.build();
         ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
         GSVMStandardMIP secondGsvmMIP = new GSVMStandardMIP(world, population);
-        secondGsvmMIP.build();
         ItemAllocation<GSVMLicense> secondAllocation = secondGsvmMIP.calculateAllocation();
 
         population.forEach(bidder -> Assert.assertEquals(allocation.getAllocation(bidder), secondAllocation.getAllocation(bidder)));
@@ -42,11 +40,9 @@ public class GSVMStandardMIPTest {
         Assert.assertEquals(population.get(0), invertedPopulation.get(invertedPopulation.size() - 1));
 
         GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-        gsvmMIP.build();
         ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
         GSVMStandardMIP invertedGsvmMIP = new GSVMStandardMIP(world, invertedPopulation);
-        invertedGsvmMIP.build();
         ItemAllocation<GSVMLicense> invertedAllocation = invertedGsvmMIP.calculateAllocation();
 
         population.forEach(bidder -> Assert.assertEquals(allocation.getAllocation(bidder), invertedAllocation.getAllocation(bidder)));
@@ -59,7 +55,6 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = model.createPopulation(world);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		Map<GSVMLicense, GSVMBidder> invertedAllocation = new HashMap<>();
@@ -85,7 +80,6 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = customPopulation(world, 2, 1);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		// Efficient Allocation should be 91.0
@@ -102,7 +96,6 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = buildSpecialPopulation(world);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, true);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		GSVMBidder nationalBidder = population.stream()
@@ -127,7 +120,6 @@ public class GSVMStandardMIPTest {
 
 		// use only licenses with positive values
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, false);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		GSVMBidder nationalBidder = population.stream()

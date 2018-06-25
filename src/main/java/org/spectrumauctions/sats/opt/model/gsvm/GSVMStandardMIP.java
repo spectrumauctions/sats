@@ -111,7 +111,7 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 		throw new UnsupportedOperationException("The GSVM MIP does not support CCG yet.");
 	}
 
-	public void build() {
+	private void build() {
 
         // build objective term
         for (GSVMBidder bidder : population) {

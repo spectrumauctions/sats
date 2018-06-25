@@ -56,16 +56,10 @@ public class BasicExamples {
     @Ignore
     public void basicGSVMExample() {
         List<GSVMBidder> bidders = (new GlobalSynergyValueModel()).createNewPopulation();   // Create bidders
-        // TODO: align this with other models:
-        // - just pass a collection of bidders
-        // - include build() in calculateAllocation()
-        // - Align result handling
-        GSVMWorld world = bidders.stream().findFirst().get().getWorld();                    // Get the world
-        GSVMStandardMIP mip = new GSVMStandardMIP(world, bidders);                          // Create the MIP
-        mip.build();                                                                        // Build the MIP
+        GSVMStandardMIP mip = new GSVMStandardMIP(bidders);                                 // Create the MIP
         ItemAllocation<GSVMLicense> result = mip.calculateAllocation();                     // Solve the MIP
         for (Bidder<GSVMLicense> bidder : result.getWinners()) {
-            StringBuilder sb = new StringBuilder();                                             // Show the allocation
+            StringBuilder sb = new StringBuilder();                                         // Show the allocation
             sb.append(bidder.getId());
             sb.append(":\t[ ");
             for (GSVMLicense license : result.getAllocation(bidder)) {
