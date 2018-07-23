@@ -64,10 +64,10 @@ public class MRVMDemandQueryTest {
         MRVMBidder bidder = bidders.get(bidders.size() - 1);
         MRVMWorld world = bidders.iterator().next().getWorld();
         Map<MRVMGenericDefinition, BigDecimal> prices = new HashMap<>();
-        world.getAllGenericDefinitions().forEach(def -> prices.put((MRVMGenericDefinition) def, BigDecimal.valueOf(1000000)));
+        world.getAllGenericDefinitions().forEach(def -> prices.put(def, BigDecimal.valueOf(1000000)));
 
         MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-        Set<MRVMDemandQueryMipResult> resultSet = mip.getResultPool(100);
+        List<MRVMDemandQueryMipResult> resultSet = mip.getResultPool(100);
         for (MRVMDemandQueryMipResult result : resultSet) {
             Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() > 0);
             logger.info(result.getResultingBundle());

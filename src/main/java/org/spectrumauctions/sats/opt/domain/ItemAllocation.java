@@ -6,6 +6,7 @@ import org.spectrumauctions.sats.core.model.*;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public final class ItemAllocation<T extends Good> implements Allocation<T> {
@@ -14,12 +15,26 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
 
     private final World world;
     private final Map<Bidder<T>, Bundle<T>> alloc;
+    private final Map<Bidder<T>, BigDecimal> declaredValues;
+
     private final BigDecimal totalValue;
 
     private ItemAllocation(ItemAllocationBuilder<T> builder) {
         this.world = builder.world;
         this.alloc = builder.alloc;
-        this.totalValue = builder.totalValue;
+        if (builder.declaredValues == null) {
+            declaredValues = new HashMap<>();
+            for (Map.Entry<Bidder<T>, Bundle<T>> entry : alloc.entrySet()) {
+                declaredValues.put(entry.getKey(), entry.getKey().calculateValue(entry.getValue()));
+            }
+        } else {
+            this.declaredValues = builder.declaredValues;
+        }
+        if (builder.totalValue == null) {
+            this.totalValue = BigDecimal.valueOf(this.declaredValues.values().stream().mapToDouble(BigDecimal::doubleValue).sum());
+        } else {
+            this.totalValue = builder.totalValue;
+        }
     }
 
     @Override
@@ -48,13 +63,16 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
 
     @Override
     public BigDecimal getTradeValue(Bidder<T> bidder) {
-        return bidder.calculateValue(alloc.get(bidder));
+        return declaredValues.getOrDefault(bidder, BigDecimal.ZERO);
     }
 
     @Override
     public Allocation<T> getAllocationWithTrueValues() {
-        logger.info("For non-generic item allocations, the values are currently always equal to the true values.");
-        return this;
+        ItemAllocationBuilder<T> builder = new ItemAllocationBuilder<>();
+        return builder
+                .withAllocation(alloc)
+                .withWorld(world)
+                .build();
     }
 
     public static final class ItemAllocationBuilder<T extends Good> {
@@ -62,6 +80,7 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
         private World world;
         private Map<Bidder<T>, Bundle<T>> alloc;
         private BigDecimal totalValue;
+        private Map<Bidder<T>, BigDecimal> declaredValues;
 
         public ItemAllocationBuilder<T> withWorld(World world) {
             setWorld(world);
@@ -78,8 +97,14 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
             return this;
         }
 
+        public ItemAllocationBuilder<T> withDeclaredValues(Map<Bidder<T>, BigDecimal> declaredValues) {
+            setDeclaredValues(declaredValues);
+            return this;
+        }
+
+
         public ItemAllocation<T> build() {
-            return new ItemAllocation<T>(this);
+            return new ItemAllocation<>(this);
         }
 
         private void setWorld(World world) {
@@ -92,6 +117,10 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
 
         private void setTotalValue(BigDecimal totalValue) {
             this.totalValue = totalValue;
+        }
+
+        public void setDeclaredValues(Map<Bidder<T>, BigDecimal> declaredValues) {
+            this.declaredValues = declaredValues;
         }
     }
 }

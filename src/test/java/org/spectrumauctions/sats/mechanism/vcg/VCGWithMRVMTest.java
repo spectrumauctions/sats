@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.mechanism.vcg;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
@@ -28,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 public class VCGWithMRVMTest {
 
     @Test
+    @Ignore
     public void testVCGWithStandardMRVM() {
         List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(234456867);
         WinnerDeterminator<MRVMLicense> wdp = new MRVM_MIP(bidders);

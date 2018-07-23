@@ -19,9 +19,7 @@ import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Fabio Isler
@@ -66,34 +64,17 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         gsvmMip.getMip().add(price);
     }
 
+    @Override
     public GSVM_DemandQueryMipResult getResult() {
-        logger.debug(gsvmMip.getMip());
-        IMIPResult mipResult = solver.solve(gsvmMip.getMip());
-        logger.debug("Result:\n{}", mipResult);
-
-
-        Set<GSVMLicense> licenses = new HashSet<>();
-        for (GSVMLicense license : world.getLicenses()) {
-            Map<Integer, Variable> xVars = gsvmMip.getXVariables(bidder, license);
-            for (Variable var : xVars.values()) {
-                double value = mipResult.getValue(var);
-                if (value >= 1 - 1e-6 && value <= 1 + 1e-6) {
-                    licenses.add(license);
-                }
-            }
-        }
-
-        Bundle<GSVMLicense> bundle = new Bundle<>(licenses);
-
-        XORValue<GSVMLicense> xorValue = new XORValue<>(bundle, bidder.calculateValue(bundle));
-
-        return new GSVM_DemandQueryMipResult(BigDecimal.valueOf(mipResult.getObjectiveValue()), xorValue);
+        List<GSVM_DemandQueryMipResult> results = getResultPool(1);
+        if (results.size() > 1) logger.warn("Requested one solution, got {}.", results.size());
+        return results.get(0);
     }
 
     @Override
-    public Set<GSVM_DemandQueryMipResult> getResultPool(int numberOfResults) {
+    public List<GSVM_DemandQueryMipResult> getResultPool(int numberOfResults) {
         if (numberOfResults < 1) {
-            return Sets.newHashSet();
+            return Lists.newArrayList();
         }
 
         gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
@@ -104,7 +85,7 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         IMIPResult mipResult = solver.solve(gsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
-        Set<GSVM_DemandQueryMipResult> results = new HashSet<>();
+        List<GSVM_DemandQueryMipResult> results = new ArrayList<>();
         for (Solution sol : mipResult.getIntermediateSolutions()) {
             Set<GSVMLicense> licenses = new HashSet<>();
             for (GSVMLicense license : world.getLicenses()) {

@@ -6,6 +6,7 @@ import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryResult;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public class ProfitMaximizingNonGenericSupplementaryRound<T extends Good> implem
 
     @Override
     public Set<XORValue<T>> getSupplementaryBids(Bidder<T> bidder, NonGenericDemandQueryMIP<T> genericDemandQueryMIP) {
-        Set<? extends NonGenericDemandQueryResult<T>> resultSet = genericDemandQueryMIP.getResultPool(numberOfSupplementaryBids);
+        List<? extends NonGenericDemandQueryResult<T>> resultSet = genericDemandQueryMIP.getResultPool(numberOfSupplementaryBids);
         return resultSet.stream().map(NonGenericDemandQueryResult::getResultingBundle).collect(Collectors.toSet());
     }
 

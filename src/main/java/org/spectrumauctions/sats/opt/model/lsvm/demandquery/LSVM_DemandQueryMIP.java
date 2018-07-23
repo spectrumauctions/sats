@@ -19,9 +19,7 @@ import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Fabio Isler
@@ -66,34 +64,17 @@ public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         lsvmMip.getMip().add(price);
     }
 
+    @Override
     public LSVM_DemandQueryMipResult getResult() {
-        logger.debug(lsvmMip.getMip());
-        IMIPResult mipResult = solver.solve(lsvmMip.getMip());
-        logger.debug("Result:\n{}", mipResult);
-
-
-        Set<LSVMLicense> licenses = new HashSet<>();
-        for (LSVMLicense license : world.getLicenses()) {
-            Map<Integer, Variable> xVars = lsvmMip.getXVariables(bidder, license);
-            for (Variable var : xVars.values()) {
-                double value = mipResult.getValue(var);
-                if (value >= 1 - 1e-6 && value <= 1 + 1e-6) {
-                    licenses.add(license);
-                }
-            }
-        }
-
-        Bundle<LSVMLicense> bundle = new Bundle<>(licenses);
-
-        XORValue<LSVMLicense> xorValue = new XORValue<>(bundle, bidder.calculateValue(bundle));
-
-        return new LSVM_DemandQueryMipResult(BigDecimal.valueOf(mipResult.getObjectiveValue()), xorValue);
+        List<LSVM_DemandQueryMipResult> results = getResultPool(1);
+        if (results.size() > 1) logger.warn("Requested one solution, got {}.", results.size());
+        return results.get(0);
     }
 
     @Override
-    public Set<LSVM_DemandQueryMipResult> getResultPool(int numberOfResults) {
+    public List<LSVM_DemandQueryMipResult> getResultPool(int numberOfResults) {
         if (numberOfResults < 1) {
-            return Sets.newHashSet();
+            return Lists.newArrayList();
         }
 
         lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
@@ -104,7 +85,7 @@ public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         IMIPResult mipResult = solver.solve(lsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
-        Set<LSVM_DemandQueryMipResult> results = new HashSet<>();
+        List<LSVM_DemandQueryMipResult> results = new ArrayList<>();
         for (Solution sol : mipResult.getIntermediateSolutions()) {
             Set<LSVMLicense> licenses = new HashSet<>();
             for (LSVMLicense license : world.getLicenses()) {

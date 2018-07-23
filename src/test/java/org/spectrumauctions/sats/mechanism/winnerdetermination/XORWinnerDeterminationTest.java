@@ -4,8 +4,6 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
-import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
-import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.mechanism.MockWorld;
 import org.spectrumauctions.sats.mechanism.MockWorld.MockGood;
@@ -21,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class XORWinnerDeterminationTest {
 

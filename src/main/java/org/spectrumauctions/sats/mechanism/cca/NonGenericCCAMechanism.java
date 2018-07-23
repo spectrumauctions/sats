@@ -9,7 +9,9 @@ import org.spectrumauctions.sats.mechanism.cca.priceupdate.NonGenericPriceUpdate
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeNonGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.NonGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
+import org.spectrumauctions.sats.mechanism.ccg.CCGMechanism;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
+import org.spectrumauctions.sats.mechanism.domain.mechanisms.AuctionMechanism;
 import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIPBuilder;
@@ -56,7 +58,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     public Allocation<T> calculateClockPhaseAllocation() {
         if (bidsAfterClockPhase == null) {
-            logger.info("Starting clock phase for generic bids...");
+            logger.info("Starting clock phase for XOR bids...");
             bidsAfterClockPhase = runClockPhase();
         }
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterClockPhase);
@@ -67,7 +69,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     public Allocation<T> calculateAllocationAfterSupplementaryRound() {
         if (bidsAfterClockPhase == null) {
-            logger.info("Starting clock phase for generic bids...");
+            logger.info("Starting clock phase for XOR bids...");
             bidsAfterClockPhase = runClockPhase();
         }
         if (bidsAfterSupplementaryRound == null) {
@@ -93,31 +95,36 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         while (!done) {
             Map<T, BigDecimal> currentPrices = prices; // For lambda use
             demand = new HashMap<>();
+
             for (Bidder<T> bidder : bidders) {
-                NonGenericDemandQueryResult<T> demandQueryResult = demandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResult();
-                if (demandQueryResult.getResultingBundle().getLicenses().size() > 0) {
-                    Bundle<T> bundle = demandQueryResult.getResultingBundle().getLicenses();
-                    for (T good : bundle) {
+                List<? extends NonGenericDemandQueryResult<T>> demandQueryResults = demandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResultPool(clockPhaseNumberOfBundles);
+                Bundle<T> firstBundle = demandQueryResults.get(0).getResultingBundle().getLicenses();
+                if (firstBundle.size() > 0) {
+                    for (T good : firstBundle) {
                         demand.put(good, demand.getOrDefault(good, 0) + 1);
                     }
+                }
+                for (NonGenericDemandQueryResult<T> demandQueryResult : demandQueryResults) {
+                    if (demandQueryResult.getResultingBundle().getLicenses().size() > 0) {
+                        Bundle<T> bundle = demandQueryResult.getResultingBundle().getLicenses();
 
-                    XORBid.Builder<T> xorBidBuilder = new XORBid.Builder<>(bidder, bids.get(bidder).getValues());
-                    BigDecimal bid = BigDecimal.valueOf(bundle.stream().mapToDouble(l -> currentPrices.get(l).doubleValue()).sum());
-                    XORValue<T> existing = xorBidBuilder.containsBundle(bundle);
-                    if (existing != null && existing.value().compareTo(bid) < 1) {
-                        xorBidBuilder.removeFromBid(existing);
-                    }
-                    if (existing == null || existing.value().compareTo(bid) < 0) {
-                        xorBidBuilder.add(new XORValue<>(bundle, bid));
-                    }
+                        XORBid.Builder<T> xorBidBuilder = new XORBid.Builder<>(bidder, bids.get(bidder).getValues());
+                        BigDecimal bid = BigDecimal.valueOf(bundle.stream().mapToDouble(l -> currentPrices.get(l).doubleValue()).sum());
+                        XORValue<T> existing = xorBidBuilder.containsBundle(bundle);
+                        if (existing != null && existing.value().compareTo(bid) < 1) {
+                            xorBidBuilder.removeFromBid(existing);
+                        }
+                        if (existing == null || existing.value().compareTo(bid) < 0) {
+                            xorBidBuilder.add(new XORValue<>(bundle, bid));
+                        }
 
-                    XORBid<T> newBid = xorBidBuilder.build();
-                    bids.put(bidder, newBid);
+                        XORBid<T> newBid = xorBidBuilder.build();
+                        bids.put(bidder, newBid);
+                    }
                 }
             }
-
             Map<T, BigDecimal> updatedPrices = priceUpdater.updatePrices(prices, demand);
-            if (prices.equals(updatedPrices)) {
+            if (prices.equals(updatedPrices) || totalRounds >= maxRounds) {
                 done = true;
                 finalDemand = demand;
                 finalPrices = prices;
@@ -145,11 +152,20 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return bids;
     }
 
-    public MechanismResult<T> runVCGPhase() {
+    private MechanismResult<T> runVCGPhase() {
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
         XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
-        VCGMechanism<T> ccg = new VCGMechanism<>(wdp);
-        result = ccg.getMechanismResult();
+        AuctionMechanism<T> mechanism;
+        switch (paymentRule) {
+            case CCG:
+                mechanism = new CCGMechanism<>(wdp);
+                break;
+            case VCG:
+            default:
+                mechanism = new VCGMechanism<>(wdp);
+                break;
+        }
+        result = mechanism.getMechanismResult();
         return result;
     }
 

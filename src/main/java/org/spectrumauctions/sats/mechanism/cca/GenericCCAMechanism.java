@@ -8,12 +8,14 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.mechanism.PaymentRuleEnum;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.GenericPriceUpdater;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.GenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.ccg.CCGMechanism;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
+import org.spectrumauctions.sats.mechanism.domain.mechanisms.AuctionMechanism;
 import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.GenericDemandQueryMIPBuilder;
@@ -101,47 +103,52 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         while (!done) {
             demand = new HashMap<>();
             for (Bidder<T> bidder : bidders) {
-                GenericDemandQueryResult<G, T> genericDemandQueryResult = genericDemandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResult();
-                GenericValue<G, T> genericResult = genericDemandQueryResult.getResultingBundle();
-                if (genericResult.getTotalQuantity() > 0) {
-                    // Fill the generic map
-                    for (Map.Entry<G, Integer> entry : genericDemandQueryResult.getResultingBundle().getQuantities().entrySet()) {
+                List<? extends GenericDemandQueryResult<G, T>> genericDemandQueryResults = genericDemandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResultPool(clockPhaseNumberOfBundles);
+                // Fill the generic map
+                GenericValue<G, T> firstResult = genericDemandQueryResults.get(0).getResultingBundle();
+                if (firstResult.getTotalQuantity() > 0) {
+                    for (Map.Entry<G, Integer> entry : genericDemandQueryResults.get(0).getResultingBundle().getQuantities().entrySet()) {
                         G def = entry.getKey();
                         int quantity = entry.getValue();
                         demand.put(def, demand.getOrDefault(def, 0) + quantity);
                     }
+                }
+                for (GenericDemandQueryResult<G, T> genericDemandQueryResult : genericDemandQueryResults) {
+                    GenericValue<G, T> genericResult = genericDemandQueryResult.getResultingBundle();
+                    if (genericResult.getTotalQuantity() > 0) {
 
-                    BigDecimal bid = BigDecimal.ZERO;
-                    for (Map.Entry<G, Integer> entry : genericResult.getQuantities().entrySet()) {
-                        BigDecimal quantityTimesPrice = prices.get(entry.getKey()).multiply(BigDecimal.valueOf(entry.getValue()));
-                        bid = bid.add(quantityTimesPrice);
-                    }
-
-                    GenericBid<G, T> currentBid = bids.getOrDefault(bidder, new GenericBid<>(bidder, new ArrayList<>()));
-                    GenericValue<G, T> existingValue = null;
-                    for (GenericValue<G, T> value : currentBid.getValues()) {
-                        if (value.getQuantities().equals(genericResult.getQuantities())) {
-                            existingValue = value;
-                            break;
+                        BigDecimal bid = BigDecimal.ZERO;
+                        for (Map.Entry<G, Integer> entry : genericResult.getQuantities().entrySet()) {
+                            BigDecimal quantityTimesPrice = prices.get(entry.getKey()).multiply(BigDecimal.valueOf(entry.getValue()));
+                            bid = bid.add(quantityTimesPrice);
                         }
-                    }
 
-                    if (existingValue != null && existingValue.getValue().compareTo(bid) < 0) {
-                        currentBid.removeValue(existingValue);
-                    }
-                    if (existingValue == null || existingValue.getValue().compareTo(bid) < 0) {
-                        GenericValue.Builder<G, T> bidBuilder = new GenericValue.Builder<>(bid);
-                        genericResult.getQuantities().forEach(bidBuilder::putQuantity);
-                        currentBid.addValue(bidBuilder.build());
+                        GenericBid<G, T> currentBid = bids.getOrDefault(bidder, new GenericBid<>(bidder, new ArrayList<>()));
+                        GenericValue<G, T> existingValue = null;
+                        for (GenericValue<G, T> value : currentBid.getValues()) {
+                            if (value.getQuantities().equals(genericResult.getQuantities())) {
+                                existingValue = value;
+                                break;
+                            }
+                        }
+
+                        if (existingValue != null && existingValue.getValue().compareTo(bid) < 0) {
+                            currentBid.removeValue(existingValue);
+                        }
+                        if (existingValue == null || existingValue.getValue().compareTo(bid) < 0) {
+                            GenericValue.Builder<G, T> bidBuilder = new GenericValue.Builder<>(bid);
+                            genericResult.getQuantities().forEach(bidBuilder::putQuantity);
+                            currentBid.addValue(bidBuilder.build());
+                            bids.put(bidder, currentBid);
+                        }
+
                         bids.put(bidder, currentBid);
                     }
-
-                    bids.put(bidder, currentBid);
                 }
             }
 
             Map<G, BigDecimal> updatedPrices = priceUpdater.updatePrices(prices, demand);
-            if (prices.equals(updatedPrices)) {
+            if (prices.equals(updatedPrices) || totalRounds >= maxRounds) {
                 done = true;
                 finalDemand = demand;
                 finalPrices = prices;
@@ -170,11 +177,21 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         return bids;
     }
 
-    public MechanismResult<T> runVCGPhase() {
+    private MechanismResult<T> runVCGPhase() {
         Set<GenericBid<G, T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
         XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids);
-        VCGMechanism<T> ccg = new VCGMechanism<>(wdp);
-        result = ccg.getMechanismResult();
+        AuctionMechanism<T> mechanism;
+        switch (paymentRule) {
+            case CCG:
+                mechanism = new CCGMechanism<>(wdp);
+                break;
+            case VCG:
+            default:
+                mechanism = new VCGMechanism<>(wdp);
+                break;
+        }
+
+        result = mechanism.getMechanismResult();
         return result;
     }
 

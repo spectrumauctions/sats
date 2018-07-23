@@ -149,23 +149,31 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
     private Allocation<T> adaptMIPResult(IMIPResult mipResult) {
 
         Map<Bidder<T>, Bundle<T>> trades = new HashMap<>();
+        Map<Bidder<T>, BigDecimal> declaredValues = new HashMap<>();
         double totalValue = 0;
         for (XORBid<T> xorBid : bids) {
+            double bidValue = 0;
             ImmutableSet.Builder<T> goodsBuilder = ImmutableSet.builder();
             for (XORValue<T> bundleBid : xorBid.getValues()) {
                 if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(bundleBid)), 1, 1e-3)) {
                     goodsBuilder.addAll(bundleBid.getLicenses());
                     totalValue += bundleBid.value().doubleValue();
+                    bidValue += bundleBid.value().doubleValue();
                 }
             }
             Set<T> goods = goodsBuilder.build();
             if (!goods.isEmpty()) {
                 trades.put(xorBid.getBidder(), new Bundle<>(goods));
+                declaredValues.put(xorBid.getBidder(), BigDecimal.valueOf(bidValue));
             }
         }
 
         ItemAllocation.ItemAllocationBuilder<T> builder = new ItemAllocation.ItemAllocationBuilder<>();
-        return builder.withAllocation(trades).withTotalValue(BigDecimal.valueOf(totalValue)).withWorld(world).build();
+        return builder
+                .withAllocation(trades)
+                .withTotalValue(BigDecimal.valueOf(totalValue))
+                .withDeclaredValues(declaredValues)
+                .withWorld(world).build();
     }
 
 }

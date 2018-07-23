@@ -7,6 +7,7 @@ import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.opt.domain.GenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.domain.GenericDemandQueryResult;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ public class ProfitMaximizingGenericSupplementaryRound<G extends GenericDefiniti
 
     @Override
     public Set<GenericValue<G, T>> getSupplementaryBids(Bidder<T> bidder, GenericDemandQueryMIP<G, T> genericDemandQueryMIP) {
-        Set<? extends GenericDemandQueryResult<G, T>> resultSet = genericDemandQueryMIP.getResultPool(numberOfSupplementaryBids);
+        List<? extends GenericDemandQueryResult<G, T>> resultSet = genericDemandQueryMIP.getResultPool(numberOfSupplementaryBids);
         return resultSet.stream().map(GenericDemandQueryResult::getResultingBundle).collect(Collectors.toSet());
     }
 
