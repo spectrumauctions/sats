@@ -8,7 +8,6 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.mechanism.PaymentRuleEnum;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.GenericPriceUpdater;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingGenericSupplementaryRound;
@@ -59,8 +58,8 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
             bidsAfterSupplementaryRound = runSupplementaryRound();
         }
 
-        logger.info("Starting CCG with all collected bids...");
-        result = runVCGPhase();
+        logger.info("Starting to calculate payments with all collected bids...");
+        result = calculatePayments();
         return result;
     }
 
@@ -177,7 +176,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         return bids;
     }
 
-    private MechanismResult<T> runVCGPhase() {
+    private MechanismResult<T> calculatePayments() {
         Set<GenericBid<G, T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
         XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids);
         AuctionMechanism<T> mechanism;

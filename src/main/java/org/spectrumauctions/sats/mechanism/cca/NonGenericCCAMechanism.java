@@ -51,9 +51,9 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
             logger.info("Starting to collect bids for supplementary round...");
             bidsAfterSupplementaryRound = runSupplementaryRound();
         }
-        logger.info("Starting CCG with all collected bids...");
-        result = runVCGPhase();
-        return null;
+        logger.info("Starting to calculate payments with all collected bids...");
+        result = calculatePayments();
+        return result;
     }
 
     public Allocation<T> calculateClockPhaseAllocation() {
@@ -152,7 +152,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return bids;
     }
 
-    private MechanismResult<T> runVCGPhase() {
+    private MechanismResult<T> calculatePayments() {
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
         XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
         AuctionMechanism<T> mechanism;
