@@ -5,11 +5,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
+import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.mechanism.PaymentRuleEnum;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.DemandDependentGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeGenericPriceUpdate;
+import org.spectrumauctions.sats.mechanism.cca.supplementaryround.LastBidsTrueValueGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
 import org.spectrumauctions.sats.opt.domain.Allocation;
@@ -92,7 +95,7 @@ public class MRVMCCATest {
 
         ProfitMaximizingGenericSupplementaryRound<MRVMGenericDefinition, MRVMLicense> supplementaryRound = new ProfitMaximizingGenericSupplementaryRound<>();
         supplementaryRound.setNumberOfSupplementaryBids(500);
-        cca.setSupplementaryRound(supplementaryRound);
+        cca.addSupplementaryRound(supplementaryRound);
 
         return cca;
     }
@@ -119,9 +122,55 @@ public class MRVMCCATest {
 
         ProfitMaximizingGenericSupplementaryRound<MRVMGenericDefinition, MRVMLicense> supplementaryRound = new ProfitMaximizingGenericSupplementaryRound<>();
         supplementaryRound.setNumberOfSupplementaryBids(500);
-        cca.setSupplementaryRound(supplementaryRound);
+        cca.addSupplementaryRound(supplementaryRound);
 
         return cca;
+    }
+
+    @Test
+    public void testMultipleSupplementaryRounds() {
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = getMechanism(rawBidders);
+
+        ProfitMaximizingGenericSupplementaryRound<MRVMGenericDefinition, MRVMLicense> supplementaryRoundLastPrices = new ProfitMaximizingGenericSupplementaryRound<>();
+        supplementaryRoundLastPrices.setNumberOfSupplementaryBids(150);
+        supplementaryRoundLastPrices.useLastDemandedPrices(true);
+        cca.addSupplementaryRound(supplementaryRoundLastPrices);
+
+        Allocation<MRVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        rawBidders.forEach(b -> assertEquals(cca.getBidCountAfterSupplementaryRound().get(b) - cca.getBidCountAfterClockPhase().get(b), 650));
+    }
+
+    @Test
+    public void testLastBidsSupplementaryRound() {
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setEpsilon(1e-5);
+
+        SimpleRelativeGenericPriceUpdate<MRVMGenericDefinition, MRVMLicense> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        cca.setPriceUpdater(priceUpdater);
+
+        LastBidsTrueValueGenericSupplementaryRound<MRVMGenericDefinition, MRVMLicense> lastBidsSupplementaryRound = new LastBidsTrueValueGenericSupplementaryRound<>();
+        lastBidsSupplementaryRound.setNumberOfSupplementaryBids(10);
+        cca.addSupplementaryRound(lastBidsSupplementaryRound);
+
+        Allocation<MRVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        for (MRVMBidder bidder : rawBidders) {
+            GenericBid<MRVMGenericDefinition, MRVMLicense> bid = cca.getBidAfterSupplementaryRound(bidder);
+            int maxBids = Math.min(10, bid.getValues().size() / 2);
+            int count = 0;
+            for (int i = bid.getValues().size() - 1; i > 0 && count++ < maxBids; i--) {
+                GenericValue<MRVMGenericDefinition, MRVMLicense> current = bid.getValues().get(i);
+                int baseIndex = 2 * bid.getValues().size() - 2*maxBids - 1 - i;
+                GenericValue<MRVMGenericDefinition, MRVMLicense> base = bid.getValues().get(baseIndex);
+                assertEquals(current.getQuantities(), base.getQuantities());
+                assertTrue(current.getValue().compareTo(base.getValue()) > 0);
+            }
+        }
     }
 
 }

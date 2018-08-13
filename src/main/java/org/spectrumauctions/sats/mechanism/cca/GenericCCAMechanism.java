@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
+import com.google.common.base.Preconditions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
@@ -8,6 +9,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.GenericPriceUpdater;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingGenericSupplementaryRound;
@@ -36,7 +38,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
 
     private GenericDemandQueryMIPBuilder<G, T> genericDemandQueryMIPBuilder;
     private GenericPriceUpdater<G, T> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();
-    private GenericSupplementaryRound<G, T> supplementaryRound = new ProfitMaximizingGenericSupplementaryRound<>();
+    private List<GenericSupplementaryRound<G, T>> supplementaryRounds = new ArrayList<>();
 
 
     public GenericCCAMechanism(List<Bidder<T>> bidders, GenericDemandQueryMIPBuilder<G, T> genericDemandQueryMIPBuilder) {
@@ -89,7 +91,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         return wdp.calculateAllocation();
     }
 
-    public Collection<GenericBid<G, T>> runClockPhase() {
+    private Collection<GenericBid<G, T>> runClockPhase() {
         Map<Bidder<T>, GenericBid<G, T>> bids = new HashMap<>();
         GenericWorld<T> world = (GenericWorld<T>) bidders.iterator().next().getWorld();
         Map<G, BigDecimal> prices = new HashMap<>();
@@ -138,7 +140,6 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
                             GenericValue.Builder<G, T> bidBuilder = new GenericValue.Builder<>(bid);
                             genericResult.getQuantities().forEach(bidBuilder::putQuantity);
                             currentBid.addValue(bidBuilder.build());
-                            bids.put(bidder, currentBid);
                         }
 
                         bids.put(bidder, currentBid);
@@ -162,13 +163,17 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
 
     private Collection<GenericBid<G, T>> runSupplementaryRound() {
         Collection<GenericBid<G, T>> bids = new HashSet<>();
-        // Supplementary totalRounds
+        if (supplementaryRounds.isEmpty()) supplementaryRounds.add(new ProfitMaximizingGenericSupplementaryRound<>());
+
         for (Bidder<T> bidder : bidders) {
-            Set<GenericValue<G, T>> newValues = supplementaryRound.getSupplementaryBids(bidder, genericDemandQueryMIPBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon));
+            List<GenericValue<G, T>> newValues = new ArrayList<>();
+            for (GenericSupplementaryRound<G, T> supplementaryRound : supplementaryRounds) {
+                 newValues.addAll(supplementaryRound.getSupplementaryBids(this, bidder));
+            }
 
-            GenericBid bidderBid = bidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
+            GenericBid<G, T> bidderBid = bidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
 
-            GenericBid newBid = bidderBid.copyOf();
+            GenericBid<G, T> newBid = bidderBid.copyOf();
             newValues.forEach(newBid::addValue);
             bids.add(newBid);
         }
@@ -207,11 +212,13 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
     }
 
     public void setPriceUpdater(GenericPriceUpdater<G, T> genericPriceUpdater) {
+        Preconditions.checkArgument(bidsAfterClockPhase == null, "Already ran clock phase! Set the price updater before.");
         this.priceUpdater = genericPriceUpdater;
     }
 
-    public void setSupplementaryRound(GenericSupplementaryRound<G, T> genericSupplementaryRound) {
-        this.supplementaryRound = genericSupplementaryRound;
+    public void addSupplementaryRound(GenericSupplementaryRound<G, T> genericSupplementaryRound) {
+        Preconditions.checkArgument(bidsAfterSupplementaryRound == null, "Already ran supplementary round!");
+        this.supplementaryRounds.add(genericSupplementaryRound);
     }
 
     public Map<Bidder<T>, Integer> getBidCountAfterClockPhase() {
@@ -224,5 +231,34 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         Map<Bidder<T>, Integer> map = new HashMap<>();
         bidsAfterSupplementaryRound.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
         return map;
+    }
+
+    public GenericDemandQueryMIPBuilder<G, T> getDemandQueryBuilder() {
+        return this.genericDemandQueryMIPBuilder;
+    }
+
+    public Map<G, BigDecimal> getFinalPrices() {
+        return finalPrices;
+    }
+
+    public Map<G, BigDecimal> getLastPrices() {
+        return priceUpdater.getLastPrices();
+    }
+
+    public GenericBid<G, T> getBidAfterClockPhase(Bidder<T> bidder) {
+        for (GenericBid<G, T> bid : bidsAfterClockPhase) {
+            if (bid.getBidder().equals(bidder)) return bid;
+        }
+        logger.warn("Couldn't find a bid for bidder {} after clock phase.", bidder);
+        return null;
+    }
+
+
+    public GenericBid<G, T> getBidAfterSupplementaryRound(Bidder<T> bidder) {
+        for (GenericBid<G, T> bid : bidsAfterSupplementaryRound) {
+            if (bid.getBidder().equals(bidder)) return bid;
+        }
+        logger.warn("Couldn't find a bid for bidder {} after supplementary round.", bidder);
+        return null;
     }
 }

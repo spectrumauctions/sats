@@ -17,15 +17,12 @@ public class GenericBid<S extends GenericDefinition<T>, T extends Good> {
         this.values = values;
     }
 
-    /**
-     * @return The bidder for which this bid
-     */
     public Bidder<T> getBidder() {
         return bidder;
     }
 
     /**
-     * @return Returns an unmodifiable list of all (atomic) XOR values in this bid
+     * @return Returns an unmodifiable list of all (atomic) XORQ values in this bid
      */
     public List<GenericValue<S, T>> getValues() {
         return values;

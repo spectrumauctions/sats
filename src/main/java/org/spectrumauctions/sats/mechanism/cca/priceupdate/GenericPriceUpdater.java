@@ -8,4 +8,5 @@ import java.util.Map;
 
 public interface GenericPriceUpdater<G extends GenericDefinition<S>, S extends Good> {
     Map<G, BigDecimal> updatePrices(Map<G, BigDecimal> oldPrices, Map<G, Integer> demand);
+    Map<G, BigDecimal> getLastPrices();
 }

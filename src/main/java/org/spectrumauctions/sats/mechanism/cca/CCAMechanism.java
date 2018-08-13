@@ -92,4 +92,7 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
         this.paymentRule = paymentRule;
     }
 
+    public double getEpsilon() {
+        return epsilon;
+    }
 }
