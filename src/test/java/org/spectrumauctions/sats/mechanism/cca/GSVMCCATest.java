@@ -6,15 +6,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
+import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMLicense;
-import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeNonGenericPriceUpdate;
-import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingGenericSupplementaryRound;
+import org.spectrumauctions.sats.mechanism.cca.supplementaryround.LastBidsTrueValueNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.ItemAllocation;
@@ -97,8 +96,55 @@ public class GSVMCCATest {
 
         ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
         supplementaryRound.setNumberOfSupplementaryBids(500);
-        cca.setSupplementaryRound(supplementaryRound);
+        cca.addSupplementaryRound(supplementaryRound);
 
         return cca;
+    }
+
+    @Test
+    public void testMultipleSupplementaryRounds() {
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);
+
+        ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRoundLastPrices = new ProfitMaximizingNonGenericSupplementaryRound<>();
+        supplementaryRoundLastPrices.setNumberOfSupplementaryBids(150);
+        supplementaryRoundLastPrices.useLastDemandedPrices(true);
+        cca.addSupplementaryRound(supplementaryRoundLastPrices);
+
+        Allocation<GSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        rawBidders.forEach(b -> assertEquals(cca.getBidCountAfterSupplementaryRound().get(b) - cca.getBidCountAfterClockPhase().get(b), 650));
+    }
+
+    @Test
+    public void testLastBidsSupplementaryRound() {
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
+        NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setEpsilon(1e-5);
+
+        SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        priceUpdater.setInitialUpdate(BigDecimal.valueOf(0.5));
+        cca.setPriceUpdater(priceUpdater);
+
+        LastBidsTrueValueNonGenericSupplementaryRound<GSVMLicense> lastBidsSupplementaryRound = new LastBidsTrueValueNonGenericSupplementaryRound<>();
+        lastBidsSupplementaryRound.setNumberOfSupplementaryBids(10);
+        cca.addSupplementaryRound(lastBidsSupplementaryRound);
+
+        Allocation<GSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        for (GSVMBidder bidder : rawBidders) {
+            XORBid<GSVMLicense> bid = cca.getBidAfterSupplementaryRound(bidder);
+            int maxBids = Math.min(10, bid.getValues().size() / 2);
+            int count = 0;
+            for (int i = bid.getValues().size() - 1; i > 0 && count++ < maxBids; i--) {
+                XORValue<GSVMLicense> current = bid.getValues().get(i);
+                int baseIndex = 2 * bid.getValues().size() - 2*maxBids - 1 - i;
+                XORValue<GSVMLicense> base = bid.getValues().get(baseIndex);
+                assertEquals(current.getLicenses(), base.getLicenses());
+                assertTrue(current.value().compareTo(base.value()) > 0);
+            }
+        }
     }
 }

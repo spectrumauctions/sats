@@ -6,11 +6,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
+import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeNonGenericPriceUpdate;
+import org.spectrumauctions.sats.mechanism.cca.supplementaryround.LastBidsTrueValueNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.ItemAllocation;
@@ -22,6 +25,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -92,8 +96,55 @@ public class LSVMCCATest {
 
         ProfitMaximizingNonGenericSupplementaryRound<LSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
         supplementaryRound.setNumberOfSupplementaryBids(500);
-        cca.setSupplementaryRound(supplementaryRound);
+        cca.addSupplementaryRound(supplementaryRound);
 
         return cca;
+    }
+
+    @Test
+    public void testMultipleSupplementaryRounds() {
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        NonGenericCCAMechanism<LSVMLicense> cca = getMechanism(rawBidders);
+
+        ProfitMaximizingNonGenericSupplementaryRound<LSVMLicense> supplementaryRoundLastPrices = new ProfitMaximizingNonGenericSupplementaryRound<>();
+        supplementaryRoundLastPrices.setNumberOfSupplementaryBids(150);
+        supplementaryRoundLastPrices.useLastDemandedPrices(true);
+        cca.addSupplementaryRound(supplementaryRoundLastPrices);
+
+        Allocation<LSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        rawBidders.forEach(b -> assertEquals(cca.getBidCountAfterSupplementaryRound().get(b) - cca.getBidCountAfterClockPhase().get(b), 650));
+    }
+
+    @Test
+    public void testLastBidsSupplementaryRound() {
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
+        NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setEpsilon(1e-5);
+
+        SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        priceUpdater.setInitialUpdate(BigDecimal.valueOf(5));
+        cca.setPriceUpdater(priceUpdater);
+
+        LastBidsTrueValueNonGenericSupplementaryRound<LSVMLicense> lastBidsSupplementaryRound = new LastBidsTrueValueNonGenericSupplementaryRound<>();
+        lastBidsSupplementaryRound.setNumberOfSupplementaryBids(10);
+        cca.addSupplementaryRound(lastBidsSupplementaryRound);
+
+        Allocation<LSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        for (LSVMBidder bidder : rawBidders) {
+            XORBid<LSVMLicense> bid = cca.getBidAfterSupplementaryRound(bidder);
+            int maxBids = Math.min(10, bid.getValues().size() / 2);
+            int count = 0;
+            for (int i = bid.getValues().size() - 1; i > 0 && count++ < maxBids; i--) {
+                XORValue<LSVMLicense> current = bid.getValues().get(i);
+                int baseIndex = 2 * bid.getValues().size() - 2*maxBids - 1 - i;
+                XORValue<LSVMLicense> base = bid.getValues().get(baseIndex);
+                assertEquals(current.getLicenses(), base.getLicenses());
+                assertTrue(current.value().compareTo(base.value()) > 0);
+            }
+        }
     }
 }

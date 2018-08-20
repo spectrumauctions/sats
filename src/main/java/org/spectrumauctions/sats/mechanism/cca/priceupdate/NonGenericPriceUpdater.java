@@ -7,4 +7,5 @@ import java.util.Map;
 
 public interface NonGenericPriceUpdater<T extends Good> {
     Map<T, BigDecimal> updatePrices(Map<T, BigDecimal> oldPrices, Map<T, Integer> demand);
+    Map<T, BigDecimal> getLastPrices();
 }

@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
+import com.google.common.base.Preconditions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
@@ -27,7 +28,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private NonGenericDemandQueryMIPBuilder<T> demandQueryMIPBuilder;
     private NonGenericPriceUpdater<T> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
-    private NonGenericSupplementaryRound<T> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
+    private List<NonGenericSupplementaryRound<T>> supplementaryRounds = new ArrayList<>();
 
     private Collection<XORBid<T>> bidsAfterClockPhase;
     private Collection<XORBid<T>> bidsAfterSupplementaryRound;
@@ -82,7 +83,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return wdp.calculateAllocation();
     }
 
-    public Collection<XORBid<T>> runClockPhase() {
+    private Collection<XORBid<T>> runClockPhase() {
         Map<Bidder<T>, XORBid<T>> bids = new HashMap<>();
         bidders.forEach(bidder -> bids.put(bidder, new XORBid.Builder<>(bidder).build()));
         Map<T, BigDecimal> prices = new HashMap<>();
@@ -139,9 +140,14 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private Collection<XORBid<T>> runSupplementaryRound() {
         Collection<XORBid<T>> bids = new HashSet<>();
-        // Supplementary totalRounds
+        if (supplementaryRounds.isEmpty()) supplementaryRounds.add(new ProfitMaximizingNonGenericSupplementaryRound<>());
+
         for (Bidder<T> bidder : bidders) {
-            Set<XORValue<T>> newValues = supplementaryRound.getSupplementaryBids(bidder, demandQueryMIPBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon));
+            List<XORValue<T>> newValues = new ArrayList<>();
+            for (NonGenericSupplementaryRound<T> supplementaryRound : supplementaryRounds) {
+                newValues.addAll(supplementaryRound.getSupplementaryBids(this, bidder));
+            }
+
 
             XORBid<T> bidderBid = bidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
 
@@ -196,11 +202,13 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
     }
 
     public void setPriceUpdater(NonGenericPriceUpdater<T> nonGenericPriceUpdater) {
+        Preconditions.checkArgument(bidsAfterClockPhase == null, "Already ran clock phase! Set the price updater before.");
         this.priceUpdater = nonGenericPriceUpdater;
     }
 
-    public void setSupplementaryRound(NonGenericSupplementaryRound<T> supplementaryRound) {
-        this.supplementaryRound = supplementaryRound;
+    public void addSupplementaryRound(NonGenericSupplementaryRound<T> nonGenericSupplementaryRound) {
+        Preconditions.checkArgument(bidsAfterSupplementaryRound == null, "Already ran supplementary round!");
+        this.supplementaryRounds.add(nonGenericSupplementaryRound);
     }
 
     public Map<Bidder<T>, Integer> getBidCountAfterClockPhase() {
@@ -213,6 +221,35 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         Map<Bidder<T>, Integer> map = new HashMap<>();
         bidsAfterSupplementaryRound.forEach(bid -> map.put(bid.getBidder(), bid.getValues().size()));
         return map;
+    }
+
+    public NonGenericDemandQueryMIPBuilder<T> getDemandQueryBuilder() {
+        return this.demandQueryMIPBuilder;
+    }
+
+    public Map<T, BigDecimal> getFinalPrices() {
+        return finalPrices;
+    }
+
+    public Map<T, BigDecimal> getLastPrices() {
+        return priceUpdater.getLastPrices();
+    }
+
+    public XORBid<T> getBidAfterClockPhase(Bidder<T> bidder) {
+        for (XORBid<T> bid : bidsAfterClockPhase) {
+            if (bid.getBidder().equals(bidder)) return bid;
+        }
+        logger.warn("Couldn't find a bid for bidder {} after clock phase.", bidder);
+        return null;
+    }
+
+
+    public XORBid<T> getBidAfterSupplementaryRound(Bidder<T> bidder) {
+        for (XORBid<T> bid : bidsAfterSupplementaryRound) {
+            if (bid.getBidder().equals(bidder)) return bid;
+        }
+        logger.warn("Couldn't find a bid for bidder {} after supplementary round.", bidder);
+        return null;
     }
 
 }
