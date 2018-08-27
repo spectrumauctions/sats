@@ -102,6 +102,56 @@ public class GSVMCCATest {
     }
 
     @Test
+    public void testEfficiencyAnomaly() {
+        double numberOfTests = 5;
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
+        for (int i = 0; i < numberOfTests; i++) {
+            assertEquals(rawBidders, new GlobalSynergyValueModel().createNewPopulation(123456));
+        }
+
+        // Efficient allocation
+        GSVMStandardMIP mip = new GSVMStandardMIP(Lists.newArrayList(rawBidders));
+        mip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 1e-10);
+        ItemAllocation<GSVMLicense> efficientAllocation = mip.calculateAllocation();
+        Allocation<GSVMLicense> efficientAllocationWithTrueValues = efficientAllocation.getAllocationWithTrueValues();
+        double diff = efficientAllocation.getTotalValue().doubleValue() - efficientAllocationWithTrueValues.getTotalValue().doubleValue();
+        assertTrue(diff > -1e-6 && diff < 1e-6);
+
+        BigDecimal result = null;
+        for (int i = 0; i < numberOfTests; i++) {
+            // Set up mechanism
+            List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+                    .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
+            NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
+            cca.setStartingPrice(BigDecimal.TEN);
+            cca.setEpsilon(1e-10);
+            SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
+            priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
+            cca.setPriceUpdater(priceUpdater);
+            ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
+            supplementaryRound.setNumberOfSupplementaryBids(100);
+            cca.addSupplementaryRound(supplementaryRound);
+
+            // Solve mechanism
+            Allocation<GSVMLicense> allocationAfterClockPhase = cca.calculateClockPhaseAllocation();
+            Allocation<GSVMLicense> allocCP = allocationAfterClockPhase.getAllocationWithTrueValues();
+            assertNotEquals(allocationAfterClockPhase, allocCP);
+            Allocation<GSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+            Allocation<GSVMLicense> allocSR = allocationAfterSupplementaryRound.getAllocationWithTrueValues();
+            assertNotEquals(allocationAfterSupplementaryRound, allocSR);
+
+            BigDecimal qualitySR = allocSR.getTotalValue().divide(efficientAllocationWithTrueValues.getTotalValue(), RoundingMode.HALF_UP).setScale(4, RoundingMode.HALF_UP);
+            logger.info("Quality with supplementary round: {}", qualitySR);
+            if (result == null) result = qualitySR;
+            assertEquals(result, qualitySR);
+        }
+
+    }
+
+    @Test
+    public void testEfficiencyIncreaseWithPool() {}
+
+    @Test
     public void testMultipleSupplementaryRounds() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
         NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);

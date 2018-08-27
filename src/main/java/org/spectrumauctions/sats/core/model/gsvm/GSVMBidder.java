@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Fabio Isler
@@ -82,6 +83,22 @@ public final class GSVMBidder extends Bidder<GSVMLicense> {
         } else {
             throw new IllegalArgumentException("World is not of correct type");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        GSVMBidder that = (GSVMBidder) o;
+        return getBidderPosition() == that.getBidderPosition() &&
+                Objects.equals(values, that.values) &&
+                Objects.equals(getWorld(), that.getWorld());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getBidderPosition(), values, getWorld());
     }
 
     public Map<Long, BigDecimal> getBaseValues() {
