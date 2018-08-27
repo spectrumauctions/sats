@@ -46,8 +46,8 @@ public final class GSVMBidder extends Bidder<GSVMLicense> {
             }
         }
         double factor = 0;
-        if (bundle.size() > 0) factor = 0.2 * (bundle.size() - 1);
-        return new BigDecimal(value + value * factor);
+        if (!bundle.isEmpty()) factor = 0.2 * (bundle.size() - 1);
+        return BigDecimal.valueOf(value + value * factor);
     }
 
     public int getBidderPosition() {

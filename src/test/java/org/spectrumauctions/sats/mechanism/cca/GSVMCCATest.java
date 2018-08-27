@@ -162,7 +162,7 @@ public class GSVMCCATest {
         cca.addSupplementaryRound(supplementaryRoundLastPrices);
 
         Allocation<GSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
-        rawBidders.forEach(b -> assertEquals(cca.getBidCountAfterSupplementaryRound().get(b) - cca.getBidCountAfterClockPhase().get(b), 650));
+        rawBidders.forEach(b -> assertEquals(650, cca.getBidCountAfterSupplementaryRound().get(b) - cca.getBidCountAfterClockPhase().get(b)));
     }
 
     @Test
