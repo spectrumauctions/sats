@@ -75,6 +75,50 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
                 .build();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ItemAllocation<?> that = (ItemAllocation<?>) o;
+
+        if (world != null ? !world.equals(that.world) : that.world != null) return false;
+        if (alloc != null ? !alloc.equals(that.alloc) : that.alloc != null) return false;
+        if (declaredValues != null ? !declaredValues.equals(that.declaredValues) : that.declaredValues != null)
+            return false;
+        return getTotalValue() != null ? getTotalValue().equals(that.getTotalValue()) : that.getTotalValue() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = world != null ? world.hashCode() : 0;
+        result = 31 * result + (alloc != null ? alloc.hashCode() : 0);
+        result = 31 * result + (declaredValues != null ? declaredValues.hashCode() : 0);
+        result = 31 * result + (getTotalValue() != null ? getTotalValue().hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder allocation = new StringBuilder("[");
+        for (Map.Entry<Bidder<T>, Bundle<T>> entry : alloc.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                allocation.append(entry.getKey().getSetupType()).append(": ").append(entry.getValue().itemIds(",")).append(";    ");
+            }
+        }
+        allocation.append("]");
+        StringBuilder values = new StringBuilder("[");
+        for (Map.Entry<Bidder<T>, BigDecimal> entry : declaredValues.entrySet()) {
+            values.append(entry.getKey().getSetupType()).append(": ").append(entry.getValue()).append(";    ");
+        }
+        values.append("]");
+        return "ItemAllocation{" +
+                "alloc=" + allocation.toString() +
+                ", declaredValues=" + values.toString() +
+                ", totalValue=" + totalValue +
+                '}';
+    }
+
     public static final class ItemAllocationBuilder<T extends Good> {
 
         private World world;

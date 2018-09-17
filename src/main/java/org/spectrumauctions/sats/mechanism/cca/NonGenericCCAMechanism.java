@@ -188,10 +188,19 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
     }
 
     public Collection<XORBid<T>> getBidsAfterClockPhase() {
+        if (bidsAfterClockPhase == null) {
+            runClockPhase();
+        }
         return bidsAfterClockPhase;
     }
 
     public Collection<XORBid<T>> getBidsAfterSupplementaryRound() {
+        if (bidsAfterClockPhase == null) {
+            runClockPhase();
+        }
+        if (bidsAfterSupplementaryRound == null) {
+            runSupplementaryRound();
+        }
         return bidsAfterSupplementaryRound;
     }
 

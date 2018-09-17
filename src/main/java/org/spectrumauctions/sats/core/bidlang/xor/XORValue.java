@@ -74,4 +74,22 @@ public class XORValue<T extends Good> implements Comparable<XORValue<T>> {
     public int compareTo(XORValue<T> o) {
         return this.value().compareTo(o.value());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        XORValue<?> xorValue = (XORValue<?>) o;
+
+        if (!licenses.equals(xorValue.licenses)) return false;
+        return value.equals(xorValue.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = licenses.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
+    }
 }

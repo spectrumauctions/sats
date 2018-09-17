@@ -58,6 +58,24 @@ public final class XORBid<T extends Good> {
         return new XORBid<>(new XORBid.Builder<>(this.bidder, newList));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        XORBid<?> xorBid = (XORBid<?>) o;
+
+        if (getBidder() != null ? !getBidder().equals(xorBid.getBidder()) : xorBid.getBidder() != null) return false;
+        return getValues() != null ? getValues().equals(xorBid.getValues()) : xorBid.getValues() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getBidder() != null ? getBidder().hashCode() : 0;
+        result = 31 * result + (getValues() != null ? getValues().hashCode() : 0);
+        return result;
+    }
+
 
     /**
      * <p>Builder to create a new set of atomic XORValues, called {@link XORBid}
@@ -117,6 +135,4 @@ public final class XORBid<T extends Good> {
         }
 
     }
-
-
 }
