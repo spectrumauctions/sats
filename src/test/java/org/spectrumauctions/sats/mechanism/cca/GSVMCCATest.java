@@ -275,12 +275,18 @@ public class GSVMCCATest {
 
     @Test
     public void testBidsAnomaly() {
+        /*
+         * This doesn't seem to catch the problem.
+         * Ideas:
+         * - Find a way to catch the fact that a piece of unrelated code changes the outcome (bidders? bids?)
+         * - For this, maybe save the result serialized and compare it manually
+         */
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
         List<Collection<XORBid<GSVMLicense>>> resultingBids = new ArrayList<>();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         resultingBids.add(runStandardCCA(bidders));
-        for (int i = 0; i > 3; i++) {
+        for (int i = 0; i < 3; i++) {
             // Unrelated code
             new GlobalSynergyValueModel().createNewPopulation();
             // Add another instance
