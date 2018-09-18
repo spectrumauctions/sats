@@ -19,10 +19,11 @@ import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVMMipResult;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 import org.spectrumauctions.sats.opt.model.mrvm.demandquery.MRVM_DemandQueryMIPBuilder;
+import org.spectrumauctions.sats.opt.xorq.XORQWinnerDetermination;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -171,6 +172,59 @@ public class MRVMCCATest {
                 assertTrue(current.getValue().compareTo(base.getValue()) > 0);
             }
         }
+    }
+
+
+    @Test
+    public void testBidsAnomaly() {
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation(123456);
+        new MultiRegionModel().createNewPopulation();
+        List<Collection<GenericBid<MRVMGenericDefinition, MRVMLicense>>> resultingBids = new ArrayList<>();
+        List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
+        resultingBids.add(runStandardCCA(bidders));
+        //for (int i = 0; i < 3; i++) {
+        //    // Unrelated code
+        //    new MultiRegionModel().createNewPopulation();
+        //    // Add another instance
+        //    resultingBids.add(runStandardCCA(bidders));
+        //}
+        Collection<GenericBid<MRVMGenericDefinition, MRVMLicense>> first = resultingBids.get(0);
+        Set<GenericBid<MRVMGenericDefinition, MRVMLicense>> firstBids = new HashSet<>(first);
+        XORQWinnerDetermination<MRVMGenericDefinition, MRVMLicense> firstWdp = new XORQWinnerDetermination<>(firstBids);
+        Allocation<MRVMLicense> firstAllocation = firstWdp.calculateAllocation();
+        Allocation<MRVMLicense> firstAllocationTrueValues = firstAllocation.getAllocationWithTrueValues();
+
+        for (Collection<GenericBid<MRVMGenericDefinition, MRVMLicense>> set : resultingBids) {
+            // Check for bids equality
+            assertEquals(first, set);
+
+            Set<GenericBid<MRVMGenericDefinition, MRVMLicense>> bids = new HashSet<>(set);
+            XORQWinnerDetermination<MRVMGenericDefinition, MRVMLicense> wdp = new XORQWinnerDetermination<>(bids);
+            Allocation<MRVMLicense> allocation = wdp.calculateAllocation();
+            logger.info("Allocation: {}", allocation);
+            logger.info("Total Declared Value: {}", allocation.getTotalValue());
+            Allocation<MRVMLicense> allocationTrueValues = allocation.getAllocationWithTrueValues();
+            logger.info("Total True Value:     {}", allocationTrueValues.getTotalValue());
+            // Check for allocation equality
+            //assertEquals(firstAllocationTrueValues, allocationTrueValues);
+        }
+    }
+
+    private Collection<GenericBid<MRVMGenericDefinition, MRVMLicense>> runStandardCCA(List<Bidder<MRVMLicense>> bidders) {
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setEpsilon(1e-5);
+
+        SimpleRelativeGenericPriceUpdate<MRVMGenericDefinition, MRVMLicense> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        cca.setPriceUpdater(priceUpdater);
+
+        ProfitMaximizingGenericSupplementaryRound<MRVMGenericDefinition, MRVMLicense> supplementaryRound = new ProfitMaximizingGenericSupplementaryRound<>();
+        supplementaryRound.setNumberOfSupplementaryBids(100);
+        cca.addSupplementaryRound(supplementaryRound);
+
+        return cca.getBidsAfterSupplementaryRound();
     }
 
 }

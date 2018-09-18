@@ -91,6 +91,16 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         return wdp.calculateAllocation();
     }
 
+    public Collection<GenericBid<G, T>> getBidsAfterSupplementaryRound() {
+        if (bidsAfterClockPhase == null) {
+            runClockPhase();
+        }
+        if (bidsAfterSupplementaryRound == null) {
+            runSupplementaryRound();
+        }
+        return bidsAfterSupplementaryRound;
+    }
+
     private Collection<GenericBid<G, T>> runClockPhase() {
         Map<Bidder<T>, GenericBid<G, T>> bids = new HashMap<>();
         GenericWorld<T> world = (GenericWorld<T>) bidders.iterator().next().getWorld();

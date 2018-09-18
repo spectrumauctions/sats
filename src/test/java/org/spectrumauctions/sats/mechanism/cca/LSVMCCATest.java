@@ -19,10 +19,11 @@ import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.ItemAllocation;
 import org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP;
 import org.spectrumauctions.sats.opt.model.lsvm.demandquery.LSVM_DemandQueryMIPBuilder;
+import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -146,5 +147,71 @@ public class LSVMCCATest {
                 assertTrue(current.value().compareTo(base.value()) > 0);
             }
         }
+    }
+
+    @Test
+    public void testBidsAnomaly() {
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation(123456);
+        assertEquals(rawBidders, new LocalSynergyValueModel().createNewPopulation());
+        List<Collection<XORBid<LSVMLicense>>> resultingBids = new ArrayList<>();
+        List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
+        resultingBids.add(runStandardCCA(bidders));
+        //for (int i = 0; i < 3; i++) {
+        //    // Unrelated code
+        //    new LocalSynergyValueModel().createNewPopulation();
+        //    // Add another instance
+        //    resultingBids.add(runStandardCCA(bidders));
+        //}
+        Collection<XORBid<LSVMLicense>> first = resultingBids.get(0);
+        Set<XORBid<LSVMLicense>> firstBids = new HashSet<>(first);
+        XORWinnerDetermination<LSVMLicense> firstWdp = new XORWinnerDetermination<>(firstBids);
+        Allocation<LSVMLicense> firstAllocation = firstWdp.calculateAllocation();
+        Allocation<LSVMLicense> firstAllocationTrueValues = firstAllocation.getAllocationWithTrueValues();
+
+        for (Collection<XORBid<LSVMLicense>> set : resultingBids) {
+            // Check for bids equality
+            assertEquals(first, set);
+            for (XORBid<LSVMLicense> bid : set) {
+                XORBid<LSVMLicense> otherBid = firstBids.stream().filter(b -> b.getBidder().equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
+                for (XORValue<LSVMLicense> value : bid.getValues()) {
+                    XORValue<LSVMLicense> otherValue = otherBid.getValues().stream().filter(v -> v.getLicenses().equals(value.getLicenses()) && v.value().equals(value.value())).findFirst().orElseThrow(NoSuchElementException::new);
+                    assertEquals(value.getLicenses(), otherValue.getLicenses());
+                    assertEquals(value.value(), otherValue.value());
+                }
+            }
+            Set<XORBid<LSVMLicense>> bids = new HashSet<>(set);
+            XORWinnerDetermination<LSVMLicense> wdp = new XORWinnerDetermination<>(bids);
+            Allocation<LSVMLicense> allocation = wdp.calculateAllocation();
+            logger.info("Allocation: {}", allocation);
+            logger.info("Total Declared Value: {}", allocation.getTotalValue());
+            Allocation<LSVMLicense> allocationTrueValues = allocation.getAllocationWithTrueValues();
+            logger.info("Total True Value:     {}", allocationTrueValues.getTotalValue());
+            // Check for allocation equality
+            assertEquals(firstAllocationTrueValues, allocationTrueValues);
+            for (Bidder<LSVMLicense> bidder : bidders) {
+                assertEquals(firstAllocationTrueValues.getAllocation(bidder), allocationTrueValues.getAllocation(bidder));
+                assertEquals(firstAllocationTrueValues.getTradeValue(bidder), allocationTrueValues.getTradeValue(bidder));
+            }
+            assertEquals(firstAllocationTrueValues.getTotalValue(), allocationTrueValues.getTotalValue());
+            assertEquals(firstAllocationTrueValues.getWinners(), allocationTrueValues.getWinners());
+        }
+    }
+
+    private Collection<XORBid<LSVMLicense>> runStandardCCA(List<Bidder<LSVMLicense>> bidders) {
+        NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setEpsilon(1e-5);
+
+        SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        priceUpdater.setInitialUpdate(BigDecimal.valueOf(5));
+        cca.setPriceUpdater(priceUpdater);
+
+        ProfitMaximizingNonGenericSupplementaryRound<LSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
+        supplementaryRound.setNumberOfSupplementaryBids(10);
+        cca.addSupplementaryRound(supplementaryRound);
+
+        return cca.getBidsAfterSupplementaryRound();
     }
 }
