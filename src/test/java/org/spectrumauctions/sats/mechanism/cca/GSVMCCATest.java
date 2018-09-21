@@ -344,4 +344,47 @@ public class GSVMCCATest {
 
         return cca.getBidsAfterSupplementaryRound();
     }
+
+    @Test
+    public void testMinimalExample() {
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
+        //new FindJoptTest().joptLibrarySimpleExample();
+        /*int x = 0;
+        for (int i = 0; i < 100000; i++) {
+            x++;
+        }
+        System.out.println(x);*/
+        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
+        Bidder<GSVMLicense> firstBidder = bidders.get(0);
+        NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
+        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setEpsilon(1e-5);
+        //cca.setClockPhaseNumberOfBundles(3);
+
+        SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        priceUpdater.setInitialUpdate(BigDecimal.valueOf(0.5));
+        cca.setPriceUpdater(priceUpdater);
+
+        ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
+        supplementaryRound.setNumberOfSupplementaryBids(10);
+        cca.addSupplementaryRound(supplementaryRound);
+
+        Allocation<GSVMLicense> allocationSR = cca.calculateAllocationAfterSupplementaryRound();
+
+        Collection<XORBid<GSVMLicense>> bidsSR = cca.getBidsAfterSupplementaryRound();
+        XORBid<GSVMLicense> bid = cca.getBidAfterSupplementaryRound(firstBidder);
+        logger.info("Bids: {}", bid.getValues());
+        Map<Long, BigDecimal> finalPricesMap = new HashMap<>();
+        cca.getFinalPrices().forEach((key, value) -> finalPricesMap.put(key.getId(), value));
+        logger.info("Final Prices: {}", finalPricesMap);
+
+
+
+        logger.info("Allocation: {}", allocationSR);
+        logger.info("Total Declared Value: {}", allocationSR.getTotalValue());
+        Allocation<GSVMLicense> allocationTrueValues = allocationSR.getAllocationWithTrueValues();
+        logger.info("Total True Value:     {}", allocationTrueValues.getTotalValue());
+    }
 }

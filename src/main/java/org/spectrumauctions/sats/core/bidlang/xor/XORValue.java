@@ -92,4 +92,13 @@ public class XORValue<T extends Good> implements Comparable<XORValue<T>> {
         result = 31 * result + value.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "XORValue{" +
+                "id=" + id +
+                ", licenses=" + licenses.itemIds(",") +
+                ", value=" + value +
+                '}';
+    }
 }
