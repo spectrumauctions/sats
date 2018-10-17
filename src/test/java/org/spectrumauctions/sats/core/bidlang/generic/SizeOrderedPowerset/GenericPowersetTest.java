@@ -24,7 +24,7 @@ public class GenericPowersetTest {
         MultiRegionModel model = new MultiRegionModel();
         MRVMBidder bidder = model.createNewPopulation(89127349).iterator().next();
         try {
-            GenericLang<?> lang = bidder.getValueFunction(GenericPowersetDecreasing.class);
+            GenericLang<?, ?> lang = bidder.getValueFunction(GenericPowersetDecreasing.class);
             Assert.fail();
         } catch (UnsupportedBiddingLanguageException e) {
             //Passed

@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class SizeOrderedGenericPowersetFactory {
 
-    public static GenericPowerset<MRVMGenericDefinition> getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericPowerset<MRVMGenericDefinition, MRVMLicense> getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<MRVMGenericDefinition> bands = new ArrayList<>();
         for (MRVMBand band : bidder.getWorld().getBands()) {
             for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -36,7 +36,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
     }
 
-    private static final class Increasing extends GenericPowersetIncreasing<MRVMGenericDefinition> {
+    private static final class Increasing extends GenericPowersetIncreasing<MRVMGenericDefinition, MRVMLicense> {
 
         private MRVMBidder bidder;
 
@@ -60,7 +60,7 @@ public class SizeOrderedGenericPowersetFactory {
 
     }
 
-    private static final class Decreasing extends GenericPowersetDecreasing<MRVMGenericDefinition> {
+    private static final class Decreasing extends GenericPowersetDecreasing<MRVMGenericDefinition, MRVMLicense> {
 
         private MRVMBidder bidder;
 

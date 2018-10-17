@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.World;
 
+import java.util.Objects;
+
 /**
  * @author Fabio Isler
  */
@@ -37,6 +39,22 @@ public class GSVMLicense extends Good {
         this.world = circle.getWorld();
         // TODO: Refresh circle?
         // Preconditions.checkArgument(circle.getId() == this.circleId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        GSVMLicense that = (GSVMLicense) o;
+        return position == that.position &&
+                Objects.equals(world, that.world);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), position, world);
     }
 
     public int getPosition() {

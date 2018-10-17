@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class SizeOrderedGenericPowersetFactory {
 
-    public static GenericPowerset<BMBand> getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericPowerset<BMBand, BMLicense> getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         if (increasing) {
             return new Increasing(bands, bidder);
@@ -30,7 +30,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
     }
 
-    private static final class Increasing extends GenericPowersetIncreasing<BMBand> {
+    private static final class Increasing extends GenericPowersetIncreasing<BMBand, BMLicense> {
 
         private BMBidder bidder;
 
@@ -54,7 +54,7 @@ public class SizeOrderedGenericPowersetFactory {
 
     }
 
-    private static final class Decreasing extends GenericPowersetDecreasing<BMBand> {
+    private static final class Decreasing extends GenericPowersetDecreasing<BMBand, BMLicense> {
 
         private BMBidder bidder;
 

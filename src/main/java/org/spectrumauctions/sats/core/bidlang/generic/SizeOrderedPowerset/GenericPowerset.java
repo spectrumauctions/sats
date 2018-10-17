@@ -4,12 +4,13 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
+import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.*;
 import java.util.Map.Entry;
 
-public abstract class GenericPowerset<T extends GenericDefinition> implements GenericLang<T> {
+public abstract class GenericPowerset<T extends GenericDefinition<S>, S extends Good> implements GenericLang<T, S> {
 
     final Map<T, Integer> maxQuantities;
     final int maxBundleSize;
@@ -38,7 +39,7 @@ public abstract class GenericPowerset<T extends GenericDefinition> implements Ge
 
     protected abstract GenericValueBidder<T> getGenericBidder();
 
-    abstract class PowersetIterator implements Iterator<GenericValue<T>> {
+    abstract class PowersetIterator implements Iterator<GenericValue<T, S>> {
 
 
         int bundleSize;
@@ -48,12 +49,12 @@ public abstract class GenericPowerset<T extends GenericDefinition> implements Ge
          * @see java.util.Iterator#next()
          */
         @Override
-        public GenericValue<T> next() {
+        public GenericValue<T, S> next() {
             if (!pickN.hasNext()) {
                 intiPickN();
             }
             Map<T, Integer> quantities = pickN.next();
-            GenericValue.Builder<T> genValBuilder = new GenericValue.Builder<>(getGenericBidder());
+            GenericValue.Builder<T, S> genValBuilder = new GenericValue.Builder<>(getGenericBidder());
             for (Entry<T, Integer> entry : quantities.entrySet()) {
                 genValBuilder.putQuantity(entry.getKey(), entry.getValue());
             }

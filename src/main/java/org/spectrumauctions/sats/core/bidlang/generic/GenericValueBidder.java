@@ -14,5 +14,5 @@ import java.util.Map;
  */
 public interface GenericValueBidder<T extends GenericDefinition> {
 
-    public BigDecimal calculateValue(Map<T, Integer> genericQuantities);
+    BigDecimal calculateValue(Map<T, Integer> genericQuantities);
 }

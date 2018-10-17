@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
+import org.spectrumauctions.sats.opt.domain.PiecewiseLinearPartialMIP;
 
 import java.math.BigDecimal;
 import java.util.HashMap;

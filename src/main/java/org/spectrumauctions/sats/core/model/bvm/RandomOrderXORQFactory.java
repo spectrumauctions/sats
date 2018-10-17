@@ -27,25 +27,25 @@ public class RandomOrderXORQFactory implements Serializable {
     private static final long serialVersionUID = 3752749595977909372L;
     static BandComparator comparator = new BandComparator();
 
-    public static XORQRandomOrderSimple<BMBand> getXORQRandomOrderSimpleLang(BMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple<BMBand, BMLicense> getXORQRandomOrderSimpleLang(BMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, rngSupplier);
     }
 
-    public static XORQRandomOrderSimple<BMBand> getXORQRandomOrderSimpleLang(BMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple<BMBand, BMLicense> getXORQRandomOrderSimpleLang(BMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, new JavaUtilRNGSupplier());
     }
 
 
-    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<BMBand> {
+    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<BMBand, BMLicense> {
 
 
         private final BMBidder bidder;
 
-        SimpleRandomOrder(Collection<BMBand> allPossibleGenericDefintions, BMBidder bidder, RNGSupplier rngSupplier)
+        SimpleRandomOrder(Collection<BMBand> allPossibleGenericDefinitions, BMBidder bidder, RNGSupplier rngSupplier)
                 throws UnsupportedBiddingLanguageException {
-            super(allPossibleGenericDefintions, rngSupplier);
+            super(allPossibleGenericDefinitions, rngSupplier);
             this.bidder = bidder;
         }
 

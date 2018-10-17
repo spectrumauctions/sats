@@ -12,6 +12,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.bvm.BMLicense;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,10 +88,10 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeMultiBidderXORQ(java.util.Collection, int, java.lang.String)
      */
     @Override
-    public File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition>> valueFunctions, int numberOfBids,
+    public File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition<? extends Good>, ?>> valueFunctions, int numberOfBids,
                                      String filePrefix) throws IOException {
         JsonArray json = new JsonArray();
-        for (GenericLang<GenericDefinition> lang : valueFunctions) {
+        for (GenericLang<GenericDefinition<? extends Good>, ?> lang : valueFunctions) {
             JsonObject thisBidder = new JsonObject();
             thisBidder.addProperty("bidder", lang.getBidder().getId());
             thisBidder.add("bids", singleBidderXORQ(lang, numberOfBids, filePrefix));
@@ -103,20 +104,20 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeSingleBidderXORQ(GenericLang, int, java.lang.String)
      */
     @Override
-    public File writeSingleBidderXORQ(GenericLang<GenericDefinition> lang, int numberOfBids, String filePrefix)
+    public File writeSingleBidderXORQ(GenericLang<GenericDefinition<? extends Good>, ?> lang, int numberOfBids, String filePrefix)
             throws IOException {
         JsonElement singleBidder = singleBidderXORQ(lang, numberOfBids, filePrefix);
         return write(singleBidder, filePrefix);
     }
 
-    private JsonElement singleBidderXORQ(GenericLang<GenericDefinition> lang, int numberOfBids, String filePrefix) {
+    private JsonElement singleBidderXORQ(GenericLang<GenericDefinition<? extends Good>, ?> lang, int numberOfBids, String filePrefix) {
         JsonArray result = new JsonArray();
-        Iterator<GenericValue<GenericDefinition>> iter = lang.iterator();
+        Iterator<? extends GenericValue<GenericDefinition<? extends Good>, ?>> iter = lang.iterator();
         for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
             JsonObject bid = new JsonObject();
-            GenericValue<GenericDefinition> val = iter.next();
+            GenericValue<GenericDefinition<? extends Good>, ?> val = iter.next();
             JsonArray quantities = new JsonArray();
-            for (Entry<GenericDefinition, Integer> quant : val.getQuantities().entrySet()) {
+            for (Entry<GenericDefinition<? extends Good>, Integer> quant : val.getQuantities().entrySet()) {
                 if (quant.getValue() != 0 || !ONLY_NONZERO_QUANTITIES) {
                     JsonObject object = new JsonObject();
                     object.add("generic definition", quant.getKey().shortJson());

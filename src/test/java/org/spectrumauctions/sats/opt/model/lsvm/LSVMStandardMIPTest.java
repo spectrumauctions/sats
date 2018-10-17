@@ -1,24 +1,19 @@
 package org.spectrumauctions.sats.opt.model.lsvm;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMBidderSetup;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMWorld;
-import org.spectrumauctions.sats.core.model.lsvm.LSVMWorldSetup;
-import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
+import org.spectrumauctions.sats.core.model.lsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class provides some basic unit tests for the LSVMStandardMIP

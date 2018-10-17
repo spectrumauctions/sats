@@ -15,12 +15,14 @@ import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
+import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMLicense;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
-import org.spectrumauctions.sats.opt.model.EfficientAllocator;
-import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
@@ -28,11 +30,13 @@ import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Fabio Isler
  */
-public class SRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllocation<SRVMBand>> {
+public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(SRVM_MIP.class);
 
@@ -105,6 +109,12 @@ public class SRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
     }
 
 
+    @Override
+    public WinnerDeterminator<SRVMLicense> getWdWithoutBidder(Bidder<SRVMLicense> bidder) {
+        Preconditions.checkArgument(bidderPartialMips.containsKey(bidder));
+        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
+    }
+
     /* (non-Javadoc)
      * @see EfficientAllocator#calculateEfficientAllocation()
      */
@@ -114,7 +124,7 @@ public class SRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
         if (PRINT_SOLVER_RESULT) {
             logger.info("Result:\n" + mipResult);
         }
-        SRVMMipResult.Builder resultBuilder = new SRVMMipResult.Builder(mipResult.getObjectiveValue(), world, mipResult);
+        SRVMMipResult.Builder resultBuilder = new SRVMMipResult.Builder(world, mipResult);
         for (SRVMBidder bidder : bidderPartialMips.keySet()) {
             double unscaledValue = 0;
             for (SRVMBand band : world.getBands()) {
@@ -126,7 +136,7 @@ public class SRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
                 unscaledValue = value * worldPartialMip.getScalingFactor();
             }
 
-            GenericValue.Builder<SRVMBand> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            GenericValue.Builder<SRVMBand, SRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
             for (SRVMBand band : world.getBands()) {
                 Variable xVar = worldPartialMip.getXVariable(bidder, band);
                 double doubleQuantity = mipResult.getValue(xVar);
@@ -136,6 +146,16 @@ public class SRVM_MIP extends ModelMIP implements EfficientAllocator<GenericAllo
             resultBuilder.putGenericValue(bidder, valueBuilder.build());
         }
         return resultBuilder.build();
+    }
+
+    @Override
+    public WinnerDeterminator<SRVMLicense> copyOf() {
+        return new SRVM_MIP(bidderPartialMips.keySet());
+    }
+
+    @Override
+    public void adjustPayoffs(Map<Bidder<SRVMLicense>, Double> payoffs) {
+        throw new UnsupportedOperationException("The SRVM MIP does not support CCG yet.");
     }
 
     public SRVMWorldPartialMip getWorldPartialMip() {

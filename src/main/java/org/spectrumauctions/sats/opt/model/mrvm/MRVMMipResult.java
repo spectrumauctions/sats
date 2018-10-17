@@ -8,16 +8,14 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMGenericDefinition;
+import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
-import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -25,25 +23,17 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition> {
-
+public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition, MRVMLicense> {
 
     private final MRVMWorld world;
-    private final BigDecimal totalValue;
+
     private final IMIPResult joptResult;
 
     private MRVMMipResult(Builder builder) {
         super(builder);
         this.world = builder.world;
-        this.totalValue = BigDecimal.valueOf(builder.objectiveValue);
         this.joptResult = builder.joptResult;
     }
-
-    @Override
-    public BigDecimal getTotalValue() {
-        return totalValue;
-    }
-
 
     public IMIPResult getJoptResult() {
         return joptResult;
@@ -58,12 +48,12 @@ public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition
         String tab = "\t";
         StringBuilder builder = new StringBuilder();
 
-        List<Entry<Bidder<?>, GenericValue<MRVMGenericDefinition>>> sortedEntries = new ArrayList<>(values.entrySet());
-        Collections.sort(sortedEntries, (e1, e2) -> ((Long) e1.getKey().getId()).compareTo((Long) e2.getKey().getId()));
+        List<Entry<Bidder<MRVMLicense>, GenericValue<MRVMGenericDefinition, MRVMLicense>>> sortedEntries = new ArrayList<>(values.entrySet());
+        Collections.sort(sortedEntries, Comparator.comparing(e -> ((Long) e.getKey().getId())));
 
 
         builder.append("===== bidder listing =======").append(System.lineSeparator());
-        for (Entry<Bidder<?>, GenericValue<MRVMGenericDefinition>> entry : sortedEntries) {
+        for (Entry<Bidder<MRVMLicense>, GenericValue<MRVMGenericDefinition, MRVMLicense>> entry : sortedEntries) {
             MRVMBidder bidder = (MRVMBidder) entry.getKey();
 
             builder.append(entry.getKey().getId())
@@ -101,7 +91,7 @@ public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition
                         .append(")")
                         .append(System.lineSeparator());
                 //Print allocation in reguin
-                for (Entry<Bidder<?>, GenericValue<MRVMGenericDefinition>> entry : sortedEntries) {
+                for (Entry<Bidder<MRVMLicense>, GenericValue<MRVMGenericDefinition, MRVMLicense>> entry : sortedEntries) {
                     builder.append(tab);
                     for (MRVMBand band : orderedBands) {
                         MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
@@ -128,22 +118,19 @@ public final class MRVMMipResult extends GenericAllocation<MRVMGenericDefinition
         return builder.toString();
     }
 
+    public static final class Builder extends GenericAllocation.Builder<MRVMGenericDefinition, MRVMLicense> {
 
-    public static final class Builder extends GenericAllocation.Builder<MRVMGenericDefinition> {
 
         private MRVMWorld world;
-        private double objectiveValue;
         private final IMIPResult joptResult;
 
         /**
          *
-         * @param objectiveValue
          * @param world
          * @param joptResult The result object //TODO Use Result object here in construction to build MRVMMipResult
          */
-        public Builder(double objectiveValue, MRVMWorld world, IMIPResult joptResult) {
+        public Builder(MRVMWorld world, IMIPResult joptResult) {
             super();
-            this.objectiveValue = objectiveValue;
             this.world = world;
             this.joptResult = joptResult;
         }

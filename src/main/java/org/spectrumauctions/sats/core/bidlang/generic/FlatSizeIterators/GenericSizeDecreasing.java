@@ -8,6 +8,7 @@ package org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators;
 import com.google.common.collect.Sets;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
+import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.*;
@@ -15,18 +16,18 @@ import java.util.*;
 /**
  * @author Michael Weiss
  */
-public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends GenericSizeOrdered<T> {
+public abstract class GenericSizeDecreasing<T extends GenericDefinition<S>, S extends Good> extends GenericSizeOrdered<T, S> {
 
     protected GenericSizeDecreasing(Collection<T> allPossibleGenericDefintions) throws UnsupportedBiddingLanguageException {
         super(allPossibleGenericDefintions);
     }
 
     @Override
-    public Iterator<GenericValue<T>> iterator() {
+    public Iterator<GenericValue<T, S>> iterator() {
         return new DecreasingIterator();
     }
 
-    private class DecreasingIterator implements Iterator<GenericValue<T>> {
+    private class DecreasingIterator implements Iterator<GenericValue<T, S>> {
 
         int round = 0;
         private Iterator<Set<T>> definitionPowersetIterator;
@@ -85,11 +86,11 @@ public abstract class GenericSizeDecreasing<T extends GenericDefinition> extends
          * @see java.util.Iterator#next()
          */
         @Override
-        public GenericValue<T> next() {
+        public GenericValue<T, S> next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            GenericValue.Builder<T> val = new GenericValue.Builder<>(getGenericBidder());
+            GenericValue.Builder<T, S> val = new GenericValue.Builder<>(getGenericBidder());
             Set<T> toSubstract = definitionPowersetIterator.next();
             for (T def : allDefintions) {
                 int quantity = roundSize.get(def);

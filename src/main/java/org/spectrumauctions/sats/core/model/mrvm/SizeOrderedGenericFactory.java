@@ -27,7 +27,7 @@ public class SizeOrderedGenericFactory implements Serializable {
     private static final long serialVersionUID = 4716571861676046858L;
     static BandComparator comparator = new BandComparator();
 
-    public static GenericSizeOrdered<MRVMGenericDefinition> getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericSizeOrdered<MRVMGenericDefinition, MRVMLicense> getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<MRVMGenericDefinition> bands = new ArrayList<>();
         for (MRVMBand band : bidder.getWorld().getBands()) {
             for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -42,7 +42,7 @@ public class SizeOrderedGenericFactory implements Serializable {
     }
 
 
-    private static final class Increasing extends GenericSizeIncreasing<MRVMGenericDefinition> {
+    private static final class Increasing extends GenericSizeIncreasing<MRVMGenericDefinition, MRVMLicense> {
 
 
         private final MRVMBidder bidder;
@@ -75,7 +75,7 @@ public class SizeOrderedGenericFactory implements Serializable {
         }
     }
 
-    private static final class Decreasing extends GenericSizeDecreasing<MRVMGenericDefinition> {
+    private static final class Decreasing extends GenericSizeDecreasing<MRVMGenericDefinition, MRVMLicense> {
 
 
         private final MRVMBidder bidder;

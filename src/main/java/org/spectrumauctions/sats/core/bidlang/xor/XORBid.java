@@ -2,6 +2,7 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 
 
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnequalWorldsException;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class XORBid<T extends Good> {
 
@@ -50,6 +52,31 @@ public final class XORBid<T extends Good> {
         return values;
     }
 
+    public XORBid<T> copyOfWithNewValues(Collection<XORValue<T>> newValues) {
+        ArrayList<XORValue<T>> newList = new ArrayList<>(this.values);
+        newList.addAll(newValues);
+        return new XORBid<>(new XORBid.Builder<>(this.bidder, newList));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        XORBid<?> xorBid = (XORBid<?>) o;
+
+        if (getBidder() != null ? !getBidder().equals(xorBid.getBidder()) : xorBid.getBidder() != null) return false;
+        return getValues() != null ? getValues().equals(xorBid.getValues()) : xorBid.getValues() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getBidder() != null ? getBidder().hashCode() : 0;
+        result = 31 * result + (getValues() != null ? getValues().hashCode() : 0);
+        return result;
+    }
+
+
     /**
      * <p>Builder to create a new set of atomic XORValues, called {@link XORBid}
      * <p>For easy modification of the builder, it extends {@link ArrayList}
@@ -72,6 +99,17 @@ public final class XORBid<T extends Good> {
             this.bidder = bidder;
         }
 
+        public XORValue<T> containsBundle(Bundle<T> bundle) {
+            XORValue<T> exists = null;
+            for (XORValue<T> xorValue : this) {
+                if (xorValue.getLicenses().equals(bundle)) {
+                    exists = xorValue;
+                    break;
+                }
+            }
+            return exists;
+        }
+
         /**
          * Creates a new Builder instance with initial XORValues
          *
@@ -92,7 +130,9 @@ public final class XORBid<T extends Good> {
             return new XORBid<>(this);
         }
 
+        public void removeFromBid(XORValue<T> existing) {
+            super.remove(existing);
+        }
+
     }
-
-
 }

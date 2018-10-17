@@ -25,7 +25,7 @@ public class LSVMGridGraph extends Graph {
 
 		addListOfVertices(vertices);
 
-		vertices.forEach(v -> addAdjacencyList(new ArrayList<VertexCell>()));
+		vertices.forEach(v -> addAdjacencyList(new ArrayList<>()));
 
 		for (int v = 0; v < vertices.size(); v++) {
 			int curr = v + 1;

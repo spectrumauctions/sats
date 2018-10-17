@@ -27,13 +27,13 @@ public class SizeOrderedIteratorTest {
         BaseValueModel model = new BaseValueModel();
         BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
-        GenericSizeOrdered<BMBand> lang = bidder.getValueFunction(GenericSizeDecreasing.class, 351354);
+        GenericSizeOrdered<BMBand, BMLicense> lang = bidder.getValueFunction(GenericSizeDecreasing.class, 351354);
         int currentSize = Integer.MAX_VALUE;
         int iteration = 0;
-        Iterator<GenericValue<BMBand>> iter = lang.iterator();
+        Iterator<GenericValue<BMBand, BMLicense>> iter = lang.iterator();
         while (iter.hasNext()) {
             int quantity = 0;
-            GenericValue<BMBand> val = iter.next();
+            GenericValue<BMBand, BMLicense> val = iter.next();
             for (BMBand band : bidder.getWorld().getBands()) {
                 quantity += val.getQuantity(band);
             }
@@ -48,13 +48,13 @@ public class SizeOrderedIteratorTest {
         BaseValueModel model = new BaseValueModel();
         BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
-        GenericSizeOrdered<BMBand> lang = bidder.getValueFunction(GenericSizeIncreasing.class, 351354);
+        GenericSizeOrdered<BMBand, BMLicense> lang = bidder.getValueFunction(GenericSizeIncreasing.class, 351354);
         int currentSize = 0;
         int iteration = 0;
-        Iterator<GenericValue<BMBand>> iter = lang.iterator();
+        Iterator<GenericValue<BMBand, BMLicense>> iter = lang.iterator();
         while (iter.hasNext()) {
             int quantity = 0;
-            GenericValue<BMBand> val = iter.next();
+            GenericValue<BMBand, BMLicense> val = iter.next();
             for (BMBand band : bidder.getWorld().getBands()) {
                 quantity += val.getQuantity(band);
             }

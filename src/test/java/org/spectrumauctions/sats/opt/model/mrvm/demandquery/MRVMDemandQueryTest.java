@@ -5,10 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.util.math.LinearFunction;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
@@ -17,7 +15,6 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -50,14 +47,33 @@ public class MRVMDemandQueryTest {
     public void testAllBiddersInStandardModel() {
         List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
         MRVMWorld world = bidders.iterator().next().getWorld();
-        Map<MRVMLicense, BigDecimal> prices = new HashMap<>();
-        world.getLicenses().forEach(l -> prices.put(l, BigDecimal.valueOf(1000000)));
+        Map<MRVMGenericDefinition, BigDecimal> prices = new HashMap<>();
+        world.getAllGenericDefinitions().forEach(def -> prices.put((MRVMGenericDefinition) def, BigDecimal.valueOf(1000000)));
 
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-            MRVMDemandQueryMipResult result = mip.calculateAllocation();
+            MRVMDemandQueryMipResult result = mip.getResult();
             Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() > 0);
             logger.info(result.getResultingBundle());
+        }
+    }
+
+    @Test
+    public void testSingleBidderResultPool() {
+        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
+        MRVMBidder bidder = bidders.get(bidders.size() - 1);
+        MRVMWorld world = bidders.iterator().next().getWorld();
+        Map<MRVMGenericDefinition, BigDecimal> prices = new HashMap<>();
+        world.getAllGenericDefinitions().forEach(def -> prices.put(def, BigDecimal.valueOf(1000000)));
+
+        MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
+        List<MRVMDemandQueryMipResult> resultSet = mip.getResultPool(100);
+        for (MRVMDemandQueryMipResult result : resultSet) {
+            Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() > 0);
+            logger.info(result.getResultingBundle());
+            Set<MRVMDemandQueryMipResult> others = resultSet.stream().filter(entry -> !entry.equals(result)).collect(Collectors.toSet());
+            Assert.assertEquals(resultSet.size() - 1, others.size());
+            others.forEach(res -> Assert.assertNotEquals(result.getResultingBundle(), res.getResultingBundle()));
         }
     }
 
@@ -75,14 +91,14 @@ public class MRVMDemandQueryTest {
 
         List<MRVMBidder> bidders = minimalWorld.createPopulation(localBidderSetups, new HashSet<>(), new HashSet<>(), new JavaUtilRNGSupplier(654798));
 
-        Map<MRVMLicense, BigDecimal> prices = new HashMap<>();
-        minimalWorld.getLicenses().forEach(l -> prices.put(l, BigDecimal.valueOf(10000)));
+        Map<MRVMGenericDefinition, BigDecimal> prices = new HashMap<>();
+        minimalWorld.getAllGenericDefinitions().forEach(def -> prices.put((MRVMGenericDefinition) def, BigDecimal.valueOf(10000)));
 
-        Map<MRVMBidder, GenericValue<MRVMGenericDefinition>> resultMap = new HashMap<>();
+        Map<MRVMBidder, GenericValue<MRVMGenericDefinition, MRVMLicense>> resultMap = new HashMap<>();
         Map<MRVMGenericDefinition, Integer> map = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-            MRVMDemandQueryMipResult result = mip.calculateAllocation();
+            MRVMDemandQueryMipResult result = mip.getResult();
             for (Map.Entry<MRVMGenericDefinition, Integer> entry : result.getResultingBundle().getQuantities().entrySet()) {
                 if (!map.containsKey(entry.getKey())) {
                     map.put(entry.getKey(), 0);
@@ -117,14 +133,14 @@ public class MRVMDemandQueryTest {
 
         List<MRVMBidder> bidders = minimalWorld.createPopulation(new HashSet<>(), regionalBidderSetups, new HashSet<>(), new JavaUtilRNGSupplier(654798));
 
-        Map<MRVMLicense, BigDecimal> prices = new HashMap<>();
-        minimalWorld.getLicenses().forEach(l -> prices.put(l, BigDecimal.valueOf(10000)));
+        Map<MRVMGenericDefinition, BigDecimal> prices = new HashMap<>();
+        minimalWorld.getAllGenericDefinitions().forEach(def -> prices.put((MRVMGenericDefinition) def, BigDecimal.valueOf(10000)));
 
-        Map<MRVMBidder, GenericValue<MRVMGenericDefinition>> resultMap = new HashMap<>();
+        Map<MRVMBidder, GenericValue<MRVMGenericDefinition, MRVMLicense>> resultMap = new HashMap<>();
         Map<MRVMGenericDefinition, Integer> map = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-            MRVMDemandQueryMipResult result = mip.calculateAllocation();
+            MRVMDemandQueryMipResult result = mip.getResult();
             for (Map.Entry<MRVMGenericDefinition, Integer> entry : result.getResultingBundle().getQuantities().entrySet()) {
                 if (!map.containsKey(entry.getKey())) {
                     map.put(entry.getKey(), 0);
@@ -156,24 +172,24 @@ public class MRVMDemandQueryTest {
 
         MRVMWorld world = new MultiRegionModel().createWorld(new JavaUtilRNGSupplier(74563245));
         MRVMBidder bidder = world.createPopulation(new HashSet<>(), new HashSet<>(), nationalBidderSetups,  new JavaUtilRNGSupplier(654798)).iterator().next();
-        Map<MRVMLicense, BigDecimal> prices = new HashMap<>();
-        world.getLicenses().forEach(l -> prices.put(l, BigDecimal.ZERO));
+        Map<MRVMGenericDefinition, BigDecimal> prices = new HashMap<>();
+        world.getAllGenericDefinitions().forEach(def -> prices.put((MRVMGenericDefinition) def, BigDecimal.ZERO));
         MRVMRegionsMap.Region region = world.getRegionsMap().getRegions().stream().findAny().get();
-        Set<MRVMLicense> licenses = world.getLicenses().stream().filter(l -> l.getRegion().equals(region)).collect(Collectors.toSet());
+        Set<MRVMGenericDefinition> genericDefinitions = prices.keySet().stream().filter(def -> def.getRegion().equals(region)).collect(Collectors.toSet());
 
         // Assert that the bidder doesn't choose licenses from a region because it's too expensive
-        licenses.forEach(l -> prices.put(l, BigDecimal.valueOf(1000000000)));
+        genericDefinitions.forEach(def -> prices.put(def, BigDecimal.valueOf(1000000000)));
         MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-        MRVMDemandQueryMipResult result = mip.calculateAllocation();
+        MRVMDemandQueryMipResult result = mip.getResult();
         Set<MRVMRegionsMap.Region> regionsCovered = new HashSet<>();
         result.getResultingBundle().getQuantities().entrySet().stream().filter(e -> e.getValue() > 0)
                 .forEach(e -> regionsCovered.add(e.getKey().getRegion()));
         Assert.assertEquals(regionsCovered.size(), world.getRegionsMap().getNumberOfRegions() - 1);
 
         // Assert that the bidder still chooses the licenses because the prices are less than the discount for losing a region
-        licenses.forEach(l -> prices.put(l, BigDecimal.valueOf(1000)));
+        genericDefinitions.forEach(l -> prices.put(l, BigDecimal.valueOf(1000)));
         mip = new MRVM_DemandQueryMIP(bidder, prices);
-        result = mip.calculateAllocation();
+        result = mip.getResult();
         Set<MRVMRegionsMap.Region> regionsCovered2 = new HashSet<>();
         result.getResultingBundle().getQuantities().entrySet().stream().filter(e -> e.getValue() > 0)
                 .forEach(e -> regionsCovered2.add(e.getKey().getRegion()));
