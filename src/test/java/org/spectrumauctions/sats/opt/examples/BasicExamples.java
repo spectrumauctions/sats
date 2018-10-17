@@ -13,12 +13,12 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVMMipResult;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 import org.spectrumauctions.sats.opt.model.srvm.SRVMMipResult;
 import org.spectrumauctions.sats.opt.model.srvm.SRVM_MIP;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
 
 import java.util.Collection;
 import java.util.List;
@@ -56,16 +56,10 @@ public class BasicExamples {
     @Ignore
     public void basicGSVMExample() {
         List<GSVMBidder> bidders = (new GlobalSynergyValueModel()).createNewPopulation();   // Create bidders
-        // TODO: align this with other models:
-        // - just pass a collection of bidders
-        // - include build() in calculateAllocation()
-        // - Align result handling
-        GSVMWorld world = bidders.stream().findFirst().get().getWorld();                    // Get the world
-        GSVMStandardMIP mip = new GSVMStandardMIP(world, bidders);                          // Create the MIP
-        mip.build();                                                                        // Build the MIP
+        GSVMStandardMIP mip = new GSVMStandardMIP(bidders);                                 // Create the MIP
         ItemAllocation<GSVMLicense> result = mip.calculateAllocation();                     // Solve the MIP
-        for (Bidder<GSVMLicense> bidder : result.getBidders()) {
-            StringBuilder sb = new StringBuilder();                                             // Show the allocation
+        for (Bidder<GSVMLicense> bidder : result.getWinners()) {
+            StringBuilder sb = new StringBuilder();                                         // Show the allocation
             sb.append(bidder.getId());
             sb.append(":\t[ ");
             for (GSVMLicense license : result.getAllocation(bidder)) {

@@ -20,18 +20,18 @@ class RandomOrderXORQFactory implements Serializable {
     private static final BandComparator comparator = new BandComparator();
     private static final long serialVersionUID = -337996389686369882L;
 
-    public static XORQRandomOrderSimple<SRVMBand> getXORQRandomOrderSimpleLang(SRVMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple<SRVMBand, SRVMLicense> getXORQRandomOrderSimpleLang(SRVMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         Set<SRVMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, rngSupplier);
     }
 
-    public static XORQRandomOrderSimple<SRVMBand> getXORQRandomOrderSimpleLang(SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple<SRVMBand, SRVMLicense> getXORQRandomOrderSimpleLang(SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         Set<SRVMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, new JavaUtilRNGSupplier());
     }
 
 
-    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<SRVMBand> {
+    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<SRVMBand, SRVMLicense> {
 
 
         private final SRVMBidder bidder;

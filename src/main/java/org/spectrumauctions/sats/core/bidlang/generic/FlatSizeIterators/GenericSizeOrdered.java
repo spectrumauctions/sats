@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
+import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.Collection;
@@ -21,7 +22,7 @@ import java.util.Set;
  *
  * @param <T>
  */
-public abstract class GenericSizeOrdered<T extends GenericDefinition> implements GenericLang<T> {
+public abstract class GenericSizeOrdered<T extends GenericDefinition<S>, S extends Good> implements GenericLang<T, S> {
 
     protected final Set<T> allDefintions;
 

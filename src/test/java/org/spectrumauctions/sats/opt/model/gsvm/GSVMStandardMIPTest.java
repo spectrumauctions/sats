@@ -1,28 +1,52 @@
 package org.spectrumauctions.sats.opt.model.gsvm;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMNationalBidderSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMRegionalBidderSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMWorldSetup;
-import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
+import org.spectrumauctions.sats.core.model.gsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.vcg.external.vcg.ItemAllocation;
+import org.spectrumauctions.sats.opt.domain.ItemAllocation;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 public class GSVMStandardMIPTest {
+
+    @Test
+    public void testDeterministicOutcome() {
+        GlobalSynergyValueModel model = new GlobalSynergyValueModel();
+        GSVMWorld world = model.createWorld();
+        List<GSVMBidder> population = model.createPopulation(world);
+
+        GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
+        ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+
+        GSVMStandardMIP secondGsvmMIP = new GSVMStandardMIP(world, population);
+        ItemAllocation<GSVMLicense> secondAllocation = secondGsvmMIP.calculateAllocation();
+
+        population.forEach(bidder -> Assert.assertEquals(allocation.getAllocation(bidder), secondAllocation.getAllocation(bidder)));
+    }
+
+	@Test
+    public void testDifferentOrderOfBidders() {
+        GlobalSynergyValueModel model = new GlobalSynergyValueModel();
+        GSVMWorld world = model.createWorld();
+        List<GSVMBidder> population = model.createPopulation(world);
+        List<GSVMBidder> invertedPopulation = new ArrayList<>(population);
+        Collections.reverse(population);
+
+        Assert.assertEquals(population.get(0), invertedPopulation.get(invertedPopulation.size() - 1));
+
+        GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
+        ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+
+        GSVMStandardMIP invertedGsvmMIP = new GSVMStandardMIP(world, invertedPopulation);
+        ItemAllocation<GSVMLicense> invertedAllocation = invertedGsvmMIP.calculateAllocation();
+
+        population.forEach(bidder -> Assert.assertEquals(allocation.getAllocation(bidder), invertedAllocation.getAllocation(bidder)));
+    }
 
 	@Test
 	public void testValidAllocationDefaultSetup() {
@@ -31,7 +55,6 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = model.createPopulation(world);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		Map<GSVMLicense, GSVMBidder> invertedAllocation = new HashMap<>();
@@ -57,7 +80,6 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = customPopulation(world, 2, 1);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		// Efficient Allocation should be 91.0
@@ -74,7 +96,6 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = buildSpecialPopulation(world);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, true);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		GSVMBidder nationalBidder = population.stream()
@@ -84,7 +105,7 @@ public class GSVMStandardMIPTest {
 
 		// the efficient allocation is giving all licenses (including the
 		// licenses of the regional circle) to the one national bidder
-		Assert.assertEquals(0, nationalBidder.calculateValue(fullBundle).compareTo(allocation.getTotalValue()));
+		Assert.assertEquals(fullBundle, allocation.getAllocation(nationalBidder));
 
 		testTotalValue(population, allocation);
 	}
@@ -99,7 +120,6 @@ public class GSVMStandardMIPTest {
 
 		// use only licenses with positive values
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, false);
-		gsvmMIP.build();
 		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
 
 		GSVMBidder nationalBidder = population.stream()
@@ -107,9 +127,8 @@ public class GSVMStandardMIPTest {
 
 		Bundle<GSVMLicense> fullBundle = new Bundle<>(world.getLicenses());
 
-		// the efficient allocation is giving all licenses (including the
-		// licenses of the regional circle) to the one national bidder
-		Assert.assertEquals(1, nationalBidder.calculateValue(fullBundle).compareTo(allocation.getTotalValue()));
+		// the efficient allocation is not giving all licenses to the one national bidder
+		Assert.assertTrue(fullBundle.size() > allocation.getAllocation(nationalBidder).size());
 
 		testTotalValue(population, allocation);
 	}
@@ -123,7 +142,7 @@ public class GSVMStandardMIPTest {
 		}
 
 		double delta = 0.00000001;
-		Assert.assertEquals("Values of allocated bundles don't match with objectie value of MIP ",
+		Assert.assertEquals("Values of allocated bundles don't match with objective value of MIP ",
 				allocation.getTotalValue().doubleValue(), totalValue.doubleValue(), delta);
 	}
 

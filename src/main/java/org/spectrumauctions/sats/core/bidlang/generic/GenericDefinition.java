@@ -8,9 +8,9 @@ import java.util.Set;
 /**
  * @author Michael Weiss
  */
-public interface GenericDefinition {
+public interface GenericDefinition<T extends Good> {
 
-    boolean isPartOf(Good license);
+    boolean isPartOf(T license);
 
     /**
      * @return the number of licenses of this generic type
@@ -20,7 +20,7 @@ public interface GenericDefinition {
     /**
      * @return all licenses which are part of this GenericDefinition
      */
-    Set<? extends Good> allLicenses();
+    Set<T> allLicenses();
 
     /**
      * @return a json representation of self, uniquely defining the definition, without expanding its members

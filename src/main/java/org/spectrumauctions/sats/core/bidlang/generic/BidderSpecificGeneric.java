@@ -5,7 +5,9 @@
  */
 package org.spectrumauctions.sats.core.bidlang.generic;
 
-public interface BidderSpecificGeneric<T extends GenericDefinition> extends GenericLang<T> {
+import org.spectrumauctions.sats.core.model.Good;
+
+public interface BidderSpecificGeneric<T extends GenericDefinition<S>, S extends Good> extends GenericLang<T, S> {
 
 
 }

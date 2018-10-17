@@ -27,7 +27,7 @@ public class SizeOrderedGenericFactory implements Serializable {
     private static final long serialVersionUID = -6233538112013604627L;
     static BandComparator comparator = new BandComparator();
 
-    public static GenericSizeOrdered<BMBand> getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericSizeOrdered<BMBand, BMLicense> getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         if (increasing) {
             return new Increasing(bands, bidder);
@@ -37,7 +37,7 @@ public class SizeOrderedGenericFactory implements Serializable {
     }
 
 
-    private static final class Increasing extends GenericSizeIncreasing<BMBand> {
+    private static final class Increasing extends GenericSizeIncreasing<BMBand, BMLicense> {
 
 
         private final BMBidder bidder;
@@ -70,7 +70,7 @@ public class SizeOrderedGenericFactory implements Serializable {
         }
     }
 
-    private static final class Decreasing extends GenericSizeDecreasing<BMBand> {
+    private static final class Decreasing extends GenericSizeDecreasing<BMBand, BMLicense> {
 
 
         private final BMBidder bidder;

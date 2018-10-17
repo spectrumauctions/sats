@@ -47,7 +47,7 @@ The SATS Optimization API is based on the SATS Core API and provides winner dete
 #### Highly recommended dependency: `CPLEX`
 * When using `maven`, include your local `cplex.jar` in your maven repository by the following command:
   ```
-  mvn install:install-file -Dfile=<path-to-cplex-jar> -DgroupId=cplex -DartifactId=cplex -Dversion=12.6 -Dpackaging=jar
+  mvn install:install-file -Dfile=<path-to-cplex-jar> -DgroupId=cplex -DartifactId=cplex -Dversion=12.8 -Dpackaging=jar
   ```
 * Make sure to add your native CPLEX binaries to your `PATH` (Windows) / `LD_LIBRARY_PATH` (Unix) environment variable so sats-opt can find it! This may be done automatically when installing CPLEX. 
 * If you don't provide a `cplex.jar`, sats-opt will use LPSolve as a solver, which is considerably less performant.

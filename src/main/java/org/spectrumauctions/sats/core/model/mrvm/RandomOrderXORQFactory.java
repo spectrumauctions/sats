@@ -23,7 +23,7 @@ public class RandomOrderXORQFactory implements Serializable {
     @SuppressWarnings("CanBeFinal")
     private static BandComparator comparator = new BandComparator();
 
-    public static XORQRandomOrderSimple<MRVMGenericDefinition> getXORQRandomOrderSimpleLang(MRVMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple<MRVMGenericDefinition, MRVMLicense> getXORQRandomOrderSimpleLang(MRVMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         List<MRVMGenericDefinition> bands = new ArrayList<>();
         for (MRVMBand band : bidder.getWorld().getBands()) {
             for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -33,7 +33,7 @@ public class RandomOrderXORQFactory implements Serializable {
         return new SimpleRandomOrder(bands, bidder, rngSupplier);
     }
 
-    public static XORQRandomOrderSimple<MRVMGenericDefinition> getXORQRandomOrderSimpleLang(MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple<MRVMGenericDefinition, MRVMLicense> getXORQRandomOrderSimpleLang(MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<MRVMGenericDefinition> bands = new ArrayList<>();
         for (MRVMBand band : bidder.getWorld().getBands()) {
             for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -44,7 +44,7 @@ public class RandomOrderXORQFactory implements Serializable {
     }
 
 
-    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<MRVMGenericDefinition> {
+    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<MRVMGenericDefinition, MRVMLicense> {
 
 
         private final MRVMBidder bidder;

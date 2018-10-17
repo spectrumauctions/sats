@@ -63,6 +63,7 @@
                         <!-- Only run the Test Suite for the core -->
                         <include>**/TestSuite.class</include>
                         <include>**/sats/opt/**/*</include>
+                        <include>**/sats/mechanism/**/*</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -110,8 +111,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
-                    <finalName>sats</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
                     <outputDirectory>${project.basedir}/bin/</outputDirectory>
                     <archive>
                         <manifest>
@@ -239,13 +238,13 @@
         <dependency>
             <groupId>edu.harvard.eecs</groupId>
             <artifactId>jopt</artifactId>
-            <version>1.3.0</version>
+            <version>1.3.1</version>
         </dependency>
 
         <dependency>
             <groupId>cplex</groupId>
             <artifactId>cplex</artifactId>
-            <version>12.6</version>
+            <version>12.8</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>

@@ -56,7 +56,7 @@ public class Scalor {
         if (maxVal.compareTo(highestValidVal) < 0) {
             return 1;
         } else {
-            logger.info("Scaling MIP-CALC");
+            logger.debug("Scaling MIP-CALC");
             BigDecimal proposedScalingFactor = maxVal.divide(highestValidVal, RoundingMode.HALF_DOWN);
             return Math.round(proposedScalingFactor.doubleValue())+1;
         }

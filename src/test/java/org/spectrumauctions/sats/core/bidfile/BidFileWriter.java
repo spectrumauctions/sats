@@ -16,6 +16,7 @@ import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.bvm.BMBidder;
+import org.spectrumauctions.sats.core.model.bvm.BMLicense;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 
 import java.io.File;
@@ -83,12 +84,12 @@ public abstract class BidFileWriter {
     protected void testMultiBidderXORQ(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
         Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
-        Collection<GenericLang<GenericDefinition>> languages = new ArrayList<>();
+        Collection<GenericLang<GenericDefinition<? extends Good>, ?>> languages = new ArrayList<>();
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {
                 @SuppressWarnings("unchecked")
-                GenericSizeDecreasing<GenericDefinition> lang = bidder
+                GenericSizeDecreasing<GenericDefinition<? extends Good>, ?> lang = bidder
                         .getValueFunction(GenericSizeDecreasing.class);
                 languages.add(lang);
             } catch (UnsupportedBiddingLanguageException e) {
@@ -110,7 +111,7 @@ public abstract class BidFileWriter {
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {
-                GenericSizeIncreasing<GenericDefinition> lang = bidder
+                GenericSizeIncreasing<GenericDefinition<? extends Good>, ?> lang = bidder
                         .getValueFunction(GenericSizeIncreasing.class);
                 File file = exporter.writeSingleBidderXORQ(lang, bidsPerBidder, "TestSingleXORQ_" + new Random().nextInt());
                 logger.info(file.toPath().toString());

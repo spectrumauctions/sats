@@ -14,15 +14,21 @@ import org.spectrumauctions.sats.core.model.Good;
 import java.math.BigDecimal;
 import java.util.*;
 
-public final class GenericValue<T extends GenericDefinition> {
+public final class GenericValue<G extends GenericDefinition<S>, S extends Good> {
 
+    private transient final int id;
     private final int totalQuantity;
-    private final ImmutableMap<T, Integer> quantities;
+    private final ImmutableMap<G, Integer> quantities;
     private final BigDecimal value;
+    private static int ID_COUNT = 0;
+
+    private static int getNextId() {
+        return ID_COUNT++;
+    }
 
     private final transient int size;
 
-    private GenericValue(Builder<T> builder) {
+    private GenericValue(Builder<G, S> builder) {
         this.quantities = ImmutableMap.copyOf(builder.quantities);
         int totalQuantity = 0;
         for (Integer quantity : quantities.values()) {
@@ -31,9 +37,10 @@ public final class GenericValue<T extends GenericDefinition> {
         this.totalQuantity = totalQuantity;
         this.value = builder.value;
         this.size = calcSize();
+        this.id = getNextId();
     }
 
-    public int getQuantity(T definition) {
+    public int getQuantity(G definition) {
         Integer result = quantities.get(definition);
         if (result == null) {
             return 0;
@@ -45,10 +52,10 @@ public final class GenericValue<T extends GenericDefinition> {
         return value;
     }
 
-    public Bundle<?> anyConsistentBundle() {
+    public Bundle<S> anyConsistentBundle() {
         Bundle bundle = new Bundle<>();
-        for (Map.Entry<T, Integer> entry : quantities.entrySet()) {
-            List<? extends Good> objects = new ArrayList<>(entry.getKey().allLicenses());
+        for (Map.Entry<G, Integer> entry : quantities.entrySet()) {
+            List<S> objects = new ArrayList<>(entry.getKey().allLicenses());
             bundle.addAll(objects.subList(0, entry.getValue()));
         }
         return bundle;
@@ -60,8 +67,9 @@ public final class GenericValue<T extends GenericDefinition> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        GenericValue<?> that = (GenericValue<?>) o;
+        GenericValue<?, ?> that = (GenericValue<?, ?>) o;
 
+        if (id != that.id) return false;
         if (totalQuantity != that.totalQuantity) return false;
         if (size != that.size) return false;
         return (quantities != null ? quantities.equals(that.quantities) : that.quantities == null) && (value != null ? value.equals(that.value) : that.value == null);
@@ -73,6 +81,7 @@ public final class GenericValue<T extends GenericDefinition> {
         result = 31 * result + (quantities != null ? quantities.hashCode() : 0);
         result = 31 * result + (value != null ? value.hashCode() : 0);
         result = 31 * result + size;
+        result = 31 * result + id;
         return result;
     }
 
@@ -80,7 +89,7 @@ public final class GenericValue<T extends GenericDefinition> {
         return totalQuantity;
     }
 
-    public ImmutableMap<T, Integer> getQuantities() {
+    public ImmutableMap<G, Integer> getQuantities() {
         return quantities;
     }
 
@@ -98,10 +107,10 @@ public final class GenericValue<T extends GenericDefinition> {
     /**
      * An iterator over all XORValues consistent with this XOR-Q (XOR with quantities) instance
      */
-    public Iterator<XORValue<?>> plainXorIterator() {
-        return new Iterator<XORValue<?>>() {
+    public Iterator<XORValue<S>> plainXorIterator() {
+        return new Iterator<XORValue<S>>() {
 
-            private XORQtoXOR<Good> quantitiesIter = new XORQtoXOR<>(quantities);
+            private XORQtoXOR<S> quantitiesIter = new XORQtoXOR<>(quantities);
 
             @Override
             public boolean hasNext() {
@@ -109,8 +118,8 @@ public final class GenericValue<T extends GenericDefinition> {
             }
 
             @Override
-            public XORValue<?> next() {
-                Bundle<Good> bundle = quantitiesIter.next();
+            public XORValue<S> next() {
+                Bundle<S> bundle = quantitiesIter.next();
                 return new XORValue<>(bundle, GenericValue.this.value);
             }
 
@@ -140,7 +149,11 @@ public final class GenericValue<T extends GenericDefinition> {
         return res.toString();
     }
 
-    public static class Builder<T extends GenericDefinition> {
+    public int getId() {
+        return id;
+    }
+
+    public static class Builder<T extends GenericDefinition<S>, S extends Good> {
 
         private BigDecimal value;
         private GenericValueBidder<T> bidder;
@@ -164,7 +177,7 @@ public final class GenericValue<T extends GenericDefinition> {
             quantities.put(def, quantity);
         }
 
-        public GenericValue<T> build() {
+        public GenericValue<T, S> build() {
             if (value == null) {
                 value = bidder.calculateValue(quantities);
             }

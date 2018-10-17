@@ -18,12 +18,12 @@ import java.util.Set;
  * @author Michael Weiss
  *
  */
-public final class MRVMGenericDefinition implements GenericDefinition {
+public final class MRVMGenericDefinition implements GenericDefinition<MRVMLicense> {
 
     private final MRVMBand band;
     private final MRVMRegionsMap.Region region;
 
-    private transient ImmutableSet<Good> licenses;
+    private transient ImmutableSet<MRVMLicense> licenses;
 
     public MRVMGenericDefinition(MRVMBand band, MRVMRegionsMap.Region region) {
         super();
@@ -57,15 +57,8 @@ public final class MRVMGenericDefinition implements GenericDefinition {
      * @see GenericDefinition#isPartOf(Good)
      */
     @Override
-    public boolean isPartOf(Good license) {
-        if (license == null) {
-            return false;
-        } else if (!(license instanceof MRVMLicense)) {
-            return false;
-        } else {
-            MRVMLicense l = (MRVMLicense) license;
-            return l.getBand().equals(band) && l.getRegion().equals(region);
-        }
+    public boolean isPartOf(MRVMLicense license) {
+        return license != null && license.getBand().equals(band) && license.getRegion().equals(region);
     }
 
 
@@ -123,9 +116,9 @@ public final class MRVMGenericDefinition implements GenericDefinition {
      * @see GenericDefinition#allLicenses()
      */
     @Override
-    public Set<Good> allLicenses() {
+    public Set<MRVMLicense> allLicenses() {
         if (licenses == null) {
-            ImmutableSet.Builder<Good> licBuilder = new ImmutableSet.Builder<>();
+            ImmutableSet.Builder<MRVMLicense> licBuilder = new ImmutableSet.Builder<>();
             for (MRVMLicense lic : band.getLicenses()) {
                 if (lic.getRegion().equals(region)) {
                     licBuilder.add(lic);

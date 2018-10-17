@@ -2,7 +2,8 @@ package org.spectrumauctions.sats.opt.model.mrvm.demandquery;
 
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.mrvm.*;
-import org.spectrumauctions.sats.opt.model.GenericAllocation;
+import org.spectrumauctions.sats.opt.domain.GenericDemandQueryResult;
+import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 
 import java.math.BigDecimal;
 
@@ -10,11 +11,11 @@ import java.math.BigDecimal;
  * @author Fabio Isler
  *
  */
-public final class MRVMDemandQueryMipResult {
+public final class MRVMDemandQueryMipResult implements GenericDemandQueryResult<MRVMGenericDefinition, MRVMLicense> {
 
     private final MRVMWorld world;
     private final BigDecimal totalUtility;
-    private final GenericValue<MRVMGenericDefinition> resultingBundle;
+    private final GenericValue<MRVMGenericDefinition, MRVMLicense> resultingBundle;
 
     private MRVMDemandQueryMipResult(Builder builder) {
         this.world = builder.world;
@@ -22,7 +23,8 @@ public final class MRVMDemandQueryMipResult {
         this.resultingBundle = builder.result;
     }
 
-    public GenericValue<MRVMGenericDefinition> getResultingBundle() {
+    @Override
+    public GenericValue<MRVMGenericDefinition, MRVMLicense> getResultingBundle() {
         return resultingBundle;
     }
 
@@ -32,13 +34,13 @@ public final class MRVMDemandQueryMipResult {
     }
 
 
-    public static final class Builder extends GenericAllocation.Builder<MRVMGenericDefinition> {
+    public static final class Builder extends GenericAllocation.Builder<MRVMGenericDefinition, MRVMLicense> {
 
         private MRVMWorld world;
         private double totalUtility;
-        private GenericValue<MRVMGenericDefinition> result;
+        private GenericValue<MRVMGenericDefinition, MRVMLicense> result;
 
-        public Builder(MRVMWorld world, double totalUtility, GenericValue<MRVMGenericDefinition> result) {
+        public Builder(MRVMWorld world, double totalUtility, GenericValue<MRVMGenericDefinition, MRVMLicense> result) {
             super();
             this.world = world;
             this.totalUtility = totalUtility;

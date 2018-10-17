@@ -43,11 +43,11 @@ public class SimpleRandomOrderTest {
     @Test
     public void testSRMSimpleRandomReduceBidAmount() {
         Bidder bidder = new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
-        XORQRandomOrderSimple<?> valueFunction;
+        XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
             valueFunction.setIterations(5000);
-            Iterator<? extends GenericValue<?>> xorqBidIterator = valueFunction.iterator();
+            Iterator<? extends GenericValue<?, ?>> xorqBidIterator = valueFunction.iterator();
             Set<GenericValue> bids = createBids(xorqBidIterator);
             int assumedSize = (int) (0.8 * (6 * 9 * 14 + 1));
             Assert.assertTrue(bids.size() == assumedSize);
@@ -60,11 +60,11 @@ public class SimpleRandomOrderTest {
     @Test
     public void testMRMSimpleRandomLarge() {
         Bidder bidder = new MultiRegionModel().createNewPopulation().stream().findAny().orElse(null);
-        XORQRandomOrderSimple<?> valueFunction;
+        XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
             valueFunction.setIterations(5000);
-            Iterator<? extends GenericValue<?>> xorqBidIterator = valueFunction.iterator();
+            Iterator<? extends GenericValue<?, ?>> xorqBidIterator = valueFunction.iterator();
             Set<GenericValue> bids = createBids(xorqBidIterator);
             Assert.assertTrue(bids.size() == 5000);
         } catch (UnsupportedBiddingLanguageException e) {
@@ -76,10 +76,10 @@ public class SimpleRandomOrderTest {
     // ------- Helpers ------- //
 
     private void testSimple(Bidder bidder, Integer assumedBidSize) {
-        XORQRandomOrderSimple<?> valueFunction;
+        XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
-            Iterator<? extends GenericValue<?>> xorqBidIterator = valueFunction.iterator();
+            Iterator<? extends GenericValue<?, ?>> xorqBidIterator = valueFunction.iterator();
             Set<GenericValue> bids = createBids(xorqBidIterator);
 
             Assert.assertTrue(bids.size() == assumedBidSize);
@@ -89,7 +89,7 @@ public class SimpleRandomOrderTest {
         }
     }
 
-    private Set<GenericValue> createBids(Iterator<? extends GenericValue<?>> xorqBidIterator) {
+    private Set<GenericValue> createBids(Iterator<? extends GenericValue<?, ?>> xorqBidIterator) {
         Set<GenericValue> cache = new HashSet<>();
         while (xorqBidIterator.hasNext()) {
             GenericValue bid = xorqBidIterator.next();

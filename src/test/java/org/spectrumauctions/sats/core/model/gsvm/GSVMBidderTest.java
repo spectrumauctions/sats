@@ -126,7 +126,7 @@ public class GSVMBidderTest {
         for (int i = 3; i < 4; i++) checkBidder(customPopulation.get(i), "Test National Bidder");
 
         // Assert that national bidder has zero value for the whole regional bundle
-        Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle), BigDecimal.ZERO);
+        Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
 
         float factor = (complete.size() - 1) * 0.2f;
 
@@ -172,7 +172,7 @@ public class GSVMBidderTest {
         Bundle<GSVMLicense> complete = new Bundle<>(world.getLicenses());
 
         // Assert that national bidder has zero value for the whole regional bundle
-        Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle), BigDecimal.ZERO);
+        Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
 
         float factor = (complete.size() - 1) * 0.2f;
 

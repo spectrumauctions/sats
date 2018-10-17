@@ -4,6 +4,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
+import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
@@ -13,7 +14,7 @@ import java.util.Map.Entry;
 /**
  * @author Fabio Isler
  */
-public abstract class XORQRandomOrderSimple<T extends GenericDefinition> implements GenericLang<T> {
+public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S extends Good> implements GenericLang<T, S> {
 
     private static final double MAX_POSSIBLE_BIDS_FACTOR = 0.8;
     private static final int ABSOLUTE_MAX_BIDS = 1000000;
@@ -75,7 +76,7 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
      * @see GenericLang#iterator()
      */
     @Override
-    public Iterator<GenericValue<T>> iterator() {
+    public Iterator<GenericValue<T, S>> iterator() {
         return new SimpleRandomOrderIterator(iterations, rngSupplier.getUniformDistributionRNG(seed));
     }
 
@@ -83,7 +84,7 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
 
     protected abstract Comparator<T> getDefComparator();
 
-    class SimpleRandomOrderIterator implements Iterator<GenericValue<T>> {
+    class SimpleRandomOrderIterator implements Iterator<GenericValue<T, S>> {
 
         private final UniformDistributionRNG uniRng;
         private int remainingIterations;
@@ -106,16 +107,16 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition> impleme
          * @see java.util.Iterator#next()
          */
         @Override
-        public GenericValue<T> next() {
+        public GenericValue<T, S> next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
             Map<T, Integer> quantities = getRandomQuantities();
-            GenericValue.Builder<T> genValBuilder = new GenericValue.Builder<>(getGenericBidder());
+            GenericValue.Builder<T, S> genValBuilder = new GenericValue.Builder<>(getGenericBidder());
             for (Entry<T, Integer> entry : quantities.entrySet()) {
                 genValBuilder.putQuantity(entry.getKey(), entry.getValue());
             }
-            GenericValue<T> result = genValBuilder.build();
+            GenericValue<T, S> result = genValBuilder.build();
 
             if (!cache.contains(result)) {
                 cache.add(result);

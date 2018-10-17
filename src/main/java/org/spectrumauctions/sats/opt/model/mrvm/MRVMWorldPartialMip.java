@@ -15,7 +15,7 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
-import org.spectrumauctions.sats.opt.imip.PartialMIP;
+import org.spectrumauctions.sats.opt.domain.PartialMIP;
 
 import java.util.*;
 
@@ -114,8 +114,8 @@ public class MRVMWorldPartialMip extends PartialMIP {
 
     private void appendObjectiveToMip(MIP mip) {
         mip.setObjectiveMax(true);
-        if ((mip.getLinearObjectiveTerms() != null && mip.getQuadraticObjectiveTerms() != null)
-                || mip.getObjectiveTerms().size() != 0) {
+
+        if (!mip.getObjectiveTerms().isEmpty()) {
             logger.warn("There are already existing objective values, when there's still supposed to be none");
         }
         for (Variable var : valueVariables.values()) {
@@ -169,6 +169,14 @@ public class MRVMWorldPartialMip extends PartialMIP {
             throw new NullPointerException();
         }
         return var;
+    }
+
+    public Set<Variable> getXVariables(MRVMBidder bidder) {
+        Set<Variable> variables = new HashSet<>();
+        for (Map.Entry<Region, Map<Band, Variable>> entry : xVariables.get(bidder).entrySet()) {
+                variables.addAll(entry.getValue().values());
+        }
+        return variables;
     }
 
 
