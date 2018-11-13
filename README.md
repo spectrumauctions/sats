@@ -10,8 +10,7 @@ More information about SATS, and the ability to run SATS as a web service, is av
 
 ## Citation
 
-SATS was developed in a [collaboration](https://github.com/spectrumauctions/sats/blob/master/CONTRIBUTORS.md)  
-between the [University of Zurich](http://www.uzh.ch/) and [Boston University](http://www.bu.edu/).
+SATS was developed in a [collaboration](https://github.com/spectrumauctions/sats/blob/master/CONTRIBUTORS.md) between the [University of Zurich](http://www.uzh.ch/) and [Boston University](http://www.bu.edu/).
 
 The System is described in detail in the following paper: 
 
