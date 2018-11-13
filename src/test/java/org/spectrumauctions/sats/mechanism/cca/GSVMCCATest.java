@@ -9,6 +9,8 @@ import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
@@ -17,6 +19,8 @@ import org.spectrumauctions.sats.mechanism.cca.supplementaryround.LastBidsTrueVa
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.ItemAllocation;
+import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIP;
+import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryResult;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 import org.spectrumauctions.sats.opt.model.gsvm.demandquery.GSVM_DemandQueryMIPBuilder;
 import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
@@ -26,9 +30,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GSVMCCATest {
 
@@ -387,4 +389,43 @@ public class GSVMCCATest {
         Allocation<GSVMLicense> allocationTrueValues = allocationSR.getAllocationWithTrueValues();
         logger.info("Total True Value:     {}", allocationTrueValues.getTotalValue());
     }
+
+    @Test
+    public void testOnlySupplementaryRound() {
+        Map<Long, BigDecimal> pricesPerId = new HashMap<>();
+        pricesPerId.put( 0L, BigDecimal.valueOf(-1 + 20.5723888946254326390406163794986002117455));
+        pricesPerId.put( 1L, BigDecimal.valueOf(-1 + 17.00197429307886994962034411528809934855));
+        pricesPerId.put( 2L, BigDecimal.valueOf(-1 + 18.702171722386756944582378526816909283405));
+        pricesPerId.put( 3L, BigDecimal.valueOf(-1 + 20.5723888946254326390406163794986002117455));
+        pricesPerId.put( 4L, BigDecimal.valueOf(-1 + 20.5723888946254326390406163794986002117455));
+        pricesPerId.put( 5L, BigDecimal.valueOf(-1 + 20.5723888946254326390406163794986002117455));
+        pricesPerId.put( 6L, BigDecimal.valueOf(-1 + 20.5723888946254326390406163794986002117455));
+        pricesPerId.put( 7L, BigDecimal.valueOf(-1 + 20.5723888946254326390406163794986002117455));
+        pricesPerId.put( 8L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
+        pricesPerId.put( 9L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
+        pricesPerId.put(10L, BigDecimal.valueOf(-1 + 17.00197429307886994962034411528809934855));
+        pricesPerId.put(11L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
+        pricesPerId.put(12L, BigDecimal.valueOf(-1 + 17.00197429307886994962034411528809934855));
+        pricesPerId.put(13L, BigDecimal.valueOf(-1 + 20.5723888946254326390406163794986002117455));
+        pricesPerId.put(14L, BigDecimal.valueOf(-1 + 15.4563402664353363178366764684437266805));
+        pricesPerId.put(15L, BigDecimal.valueOf(-1 + 17.00197429307886994962034411528809934855));
+        pricesPerId.put(16L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
+        pricesPerId.put(17L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
+
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
+        new GlobalSynergyValueModel().createNewPopulation(); // This line makes a difference in the solution pool!
+        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
+        Bidder<GSVMLicense> firstBidder = bidders.get(0);
+        Map<GSVMLicense, BigDecimal> prices = new HashMap<>();
+        for (Good good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
+            BigDecimal price = pricesPerId.get(good.getId());
+            prices.put((GSVMLicense) good, price);
+        }
+        NonGenericDemandQueryMIP<GSVMLicense> demandQueryMIP = new GSVM_DemandQueryMIPBuilder().getDemandQueryMipFor(firstBidder, prices, 1e-8);
+        List<NonGenericDemandQueryResult<GSVMLicense>> results = (List<NonGenericDemandQueryResult<GSVMLicense>>) demandQueryMIP.getResultPool(10);
+        double sumOfValues = results.stream().mapToDouble(r -> r.getResultingBundle().value().doubleValue()).sum();
+        System.out.println("Sum of values: " + sumOfValues);
+    }
+
 }

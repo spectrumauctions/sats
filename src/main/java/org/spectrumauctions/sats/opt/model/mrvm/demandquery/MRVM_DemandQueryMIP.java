@@ -78,7 +78,7 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements GenericDemandQueryM
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 1);
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 2);
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_INTENSITY, 4);
-        mrvmMip.getMip().setSolveParam(SolveParam.POPULATE_LIMIT, numberOfResults * 3);
+        mrvmMip.getMip().setSolveParam(SolveParam.POPULATE_LIMIT, 100000);
         IMIPResult mipResult = solver.solve(mrvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
