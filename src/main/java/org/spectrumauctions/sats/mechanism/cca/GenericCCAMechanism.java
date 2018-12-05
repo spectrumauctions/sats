@@ -1,15 +1,16 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.GenericWorld;
-import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
+import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
+import org.spectrumauctions.sats.core.model.*;
+import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.GenericPriceUpdater;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingGenericSupplementaryRound;
@@ -23,8 +24,10 @@ import org.spectrumauctions.sats.opt.domain.GenericDemandQueryMIPBuilder;
 import org.spectrumauctions.sats.opt.domain.GenericDemandQueryResult;
 import org.spectrumauctions.sats.opt.xorq.XORQWinnerDetermination;
 
+import javax.management.RuntimeErrorException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good> extends CCAMechanism<T> {
 
@@ -32,6 +35,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
 
     private Collection<GenericBid<G, T>> bidsAfterClockPhase;
     private Collection<GenericBid<G, T>> bidsAfterSupplementaryRound;
+    private Map<G, BigDecimal> startingPrices = new HashMap<>();
     private Map<G, BigDecimal> finalPrices;
     private Map<G, Integer> finalDemand;
 
@@ -44,6 +48,10 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
     public GenericCCAMechanism(List<Bidder<T>> bidders, GenericDemandQueryMIPBuilder<G, T> genericDemandQueryMIPBuilder) {
         super(bidders);
         this.genericDemandQueryMIPBuilder = genericDemandQueryMIPBuilder;
+    }
+
+    public void setStartingPrice(G good, BigDecimal price) {
+        startingPrices.put(good, price);
     }
 
     @Override
@@ -63,6 +71,47 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         logger.info("Starting to calculate payments with all collected bids...");
         result = calculatePayments();
         return result;
+    }
+
+    @Override
+    public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
+        GenericWorld<T> world = (GenericWorld<T>) bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
+
+        Map<G, SimpleRegression> regressions = new HashMap<>();
+        for (GenericDefinition<T> genericDefinition : world.getAllGenericDefinitions()) {
+            regressions.put((G) genericDefinition, new SimpleRegression());
+        }
+
+        RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
+        for (int i = 0; i < numberOfWorldSamples; i++) {
+            List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
+            for (Bidder<T> bidder : alternateBidders) {
+                XORQRandomOrderSimple<G, T> valueFunction;
+                try {
+                    valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class, rngSupplier);
+                    valueFunction.setIterations(bidsPerBidder);
+
+                    Iterator<? extends GenericValue<G, T>> bidIterator = valueFunction.iterator();
+                    while (bidIterator.hasNext()) {
+                        GenericValue<G, T> bid = bidIterator.next();
+                        for (Map.Entry<G, Integer> entry : bid.getQuantities().entrySet()) {
+                            double y = bid.getValue().doubleValue() * entry.getValue() / bid.getTotalQuantity();
+                            regressions.get(entry.getKey()).addData(entry.getValue().doubleValue(), y);
+                        }
+                    }
+                } catch (UnsupportedBiddingLanguageException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        for (Map.Entry<G, SimpleRegression> entry : regressions.entrySet()) {
+            double y = entry.getValue().predict(1);
+            double price = y * fraction;
+            logger.info("{}:\nFound y of {}, setting starting price to {}.",
+                    entry.getKey(), y, price);
+            setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+        }
     }
 
     public Allocation<T> calculateClockPhaseAllocation() {
@@ -107,7 +156,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         Map<G, BigDecimal> prices = new HashMap<>();
         Set<G> genericDefinitions = (Set<G>) world.getAllGenericDefinitions();
         for (G def : genericDefinitions) {
-            prices.put(def, startingPrice);
+            prices.put(def, startingPrices.getOrDefault(def, fallbackStartingPrice));
         }
         Map<G, Integer> demand;
         boolean done = false;

@@ -76,7 +76,10 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements GenericDemandQueryM
         }
 
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
-        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 3);
+        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
+        // TODO: Mode 3 doesn't work because so far because the X variables are actually integers...
+        // mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 3);
+        // mrvmMip.getMip().setVariablesOfInterest(mrvmMip.getXVariables());
         IMIPResult mipResult = solver.solve(mrvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 

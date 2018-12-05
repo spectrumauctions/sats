@@ -18,14 +18,14 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
 
     private static final Logger logger = LogManager.getLogger(CCAMechanism.class);
 
-    private static final BigDecimal DEFAULT_STARTING_PRICE = BigDecimal.ZERO;
+    protected static final BigDecimal DEFAULT_STARTING_PRICE = BigDecimal.ZERO;
     private static final double DEFAULT_EPSILON = 0.1;
     private static final int DEFAULT_MAX_ROUNDS = 1000;
     private static final int DEFAULT_CLOCKPHASE_NUMBER_OF_BUNDLES = 1;
 
     protected List<Bidder<T>> bidders;
     protected int totalRounds = 1;
-    protected BigDecimal startingPrice = DEFAULT_STARTING_PRICE;
+    protected BigDecimal fallbackStartingPrice = DEFAULT_STARTING_PRICE;
     protected double epsilon = DEFAULT_EPSILON;
     protected int maxRounds = DEFAULT_MAX_ROUNDS;
     protected PaymentRuleEnum paymentRule = PaymentRuleEnum.VCG;
@@ -72,9 +72,15 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
         throw new UnsupportedOperationException("Not supported"); // FIXME: Clean up interfaces
     }
 
-    public void setStartingPrice(BigDecimal startingPrice) {
-        this.startingPrice = startingPrice;
+    public void setFallbackStartingPrice(BigDecimal fallbackStartingPrice) {
+        this.fallbackStartingPrice = fallbackStartingPrice;
     }
+
+    public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction) {
+        calculateSampledStartingPrices(bidsPerBidder, numberOfWorldSamples, fraction, System.currentTimeMillis());
+    }
+
+    public abstract void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed);
 
     public void setMaxRounds(int maxRounds) {
         this.maxRounds = maxRounds;

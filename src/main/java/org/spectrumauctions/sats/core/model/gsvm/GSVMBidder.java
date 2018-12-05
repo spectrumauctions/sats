@@ -55,10 +55,10 @@ public final class GSVMBidder extends Bidder<GSVMLicense> {
     }
 
     @Override
-    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, long seed) throws UnsupportedBiddingLanguageException {
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
+                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
                     new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
@@ -83,6 +83,11 @@ public final class GSVMBidder extends Bidder<GSVMLicense> {
         } else {
             throw new IllegalArgumentException("World is not of correct type");
         }
+    }
+
+    @Override
+    public Bidder<GSVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new GSVMBidder((GSVMBidderSetup) getSetup(), getWorld(), getBidderPosition(), getId(), getPopulation(), rngSupplier);
     }
 
     @Override

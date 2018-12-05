@@ -18,7 +18,7 @@ import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
@@ -238,11 +238,11 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
 
 
     @Override
-    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, long seed)
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, RNGSupplier rngSupplier)
             throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
+                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
                     new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));

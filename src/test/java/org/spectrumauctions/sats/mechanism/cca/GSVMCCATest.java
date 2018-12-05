@@ -88,7 +88,7 @@ public class GSVMCCATest {
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
         cca.setClockPhaseNumberOfBundles(3);
 
@@ -127,7 +127,7 @@ public class GSVMCCATest {
             List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                     .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
             NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-            cca.setStartingPrice(BigDecimal.ZERO);
+            cca.setFallbackStartingPrice(BigDecimal.ZERO);
             cca.setEpsilon(1e-10);
             SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
             priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
@@ -184,7 +184,7 @@ public class GSVMCCATest {
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
@@ -217,7 +217,7 @@ public class GSVMCCATest {
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
@@ -332,7 +332,7 @@ public class GSVMCCATest {
 
     private Collection<XORBid<GSVMLicense>> runStandardCCA(List<Bidder<GSVMLicense>> bidders) {
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
@@ -360,7 +360,7 @@ public class GSVMCCATest {
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         Bidder<GSVMLicense> firstBidder = bidders.get(0);
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
         //cca.setClockPhaseNumberOfBundles(3);
 

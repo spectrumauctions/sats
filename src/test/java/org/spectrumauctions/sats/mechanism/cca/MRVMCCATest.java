@@ -87,7 +87,7 @@ public class MRVMCCATest {
         List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeGenericPriceUpdate<MRVMGenericDefinition, MRVMLicense> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();
@@ -106,7 +106,7 @@ public class MRVMCCATest {
         List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
         cca.setPaymentRule(PaymentRuleEnum.CCG);
         cca.setClockPhaseNumberOfBundles(3);
@@ -143,12 +143,23 @@ public class MRVMCCATest {
     }
 
     @Test
+    public void testSampledStartingPrices() {
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = getMechanism(rawBidders);
+
+        cca.calculateSampledStartingPrices(10, 100, 0.1);
+
+        Allocation<MRVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
+        rawBidders.forEach(b -> assertEquals(cca.getBidCountAfterSupplementaryRound().get(b) - cca.getBidCountAfterClockPhase().get(b), 650));
+    }
+
+    @Test
     public void testLastBidsSupplementaryRound() {
         List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
         List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeGenericPriceUpdate<MRVMGenericDefinition, MRVMLicense> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();
@@ -213,7 +224,7 @@ public class MRVMCCATest {
 
     private Collection<GenericBid<MRVMGenericDefinition, MRVMLicense>> runStandardCCA(List<Bidder<MRVMLicense>> bidders) {
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeGenericPriceUpdate<MRVMGenericDefinition, MRVMLicense> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();

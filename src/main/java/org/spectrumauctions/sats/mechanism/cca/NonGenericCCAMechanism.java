@@ -57,6 +57,11 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return result;
     }
 
+    @Override
+    public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
+        // TODO: Implement
+    }
+
     public Allocation<T> calculateClockPhaseAllocation() {
         if (bidsAfterClockPhase == null) {
             logger.info("Starting clock phase for XOR bids...");
@@ -88,7 +93,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         bidders.forEach(bidder -> bids.put(bidder, new XORBid.Builder<>(bidder).build()));
         Map<T, BigDecimal> prices = new HashMap<>();
         for (Good good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
-            prices.put((T) good, startingPrice);
+            prices.put((T) good, fallbackStartingPrice);
         }
 
         Map<T, Integer> demand;

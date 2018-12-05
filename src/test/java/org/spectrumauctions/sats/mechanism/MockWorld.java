@@ -10,6 +10,7 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.*;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -168,7 +169,7 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
         }
 
         @Override
-        public <T extends BiddingLanguage> T getValueFunction(Class<T> type, long seed) {
+        public <T extends BiddingLanguage> T getValueFunction(Class<T> type, RNGSupplier rngSupplier) {
             throw new UnsupportedOperationException("Not supported in mock");
         }
 
@@ -179,6 +180,11 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
 
         @Override
         public void refreshReference(World world) {
+            throw new UnsupportedOperationException("Not supported in mock");
+        }
+
+        @Override
+        public Bidder<MockGood> drawSimilarBidder(RNGSupplier rngSupplier) {
             throw new UnsupportedOperationException("Not supported in mock");
         }
 

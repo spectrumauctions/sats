@@ -86,7 +86,7 @@ public class LSVMCCATest {
         List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-2);
 //        cca.setClockPhaseNumberOfBundles(3);
 
@@ -122,7 +122,7 @@ public class LSVMCCATest {
         List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
@@ -200,7 +200,7 @@ public class LSVMCCATest {
 
     private Collection<XORBid<LSVMLicense>> runStandardCCA(List<Bidder<LSVMLicense>> bidders) {
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();

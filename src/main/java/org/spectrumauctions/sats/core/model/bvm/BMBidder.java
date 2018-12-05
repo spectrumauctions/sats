@@ -19,7 +19,7 @@ import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.model.*;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
@@ -148,6 +148,11 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
         return result;
     }
 
+    @Override
+    public Bidder<BMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new BMBidder(getPopulation(), (int) getId(), getWorld(), (BMBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+    }
+
 
     /**
      * @see Bidder#getWorld()
@@ -169,12 +174,12 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
     }
 
     @Override
-    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, long seed)
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, RNGSupplier rngSupplier)
             throws UnsupportedBiddingLanguageException {
 
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
+                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
                     new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
