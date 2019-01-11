@@ -80,7 +80,7 @@ public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         }
 
         lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
-        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 3);
+        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
         lsvmMip.getMip().setVariablesOfInterest(variablesOfInterest);
         IMIPResult mipResult = solver.solve(lsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
