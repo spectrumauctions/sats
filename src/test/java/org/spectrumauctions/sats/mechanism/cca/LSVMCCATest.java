@@ -88,7 +88,6 @@ public class LSVMCCATest {
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-2);
-//        cca.setClockPhaseNumberOfBundles(3);
 
         SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
