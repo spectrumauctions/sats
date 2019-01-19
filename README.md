@@ -55,7 +55,7 @@ The complete `sats` package is deployed to Maven Central, so including it in you
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats</artifactId>
-    <version>0.6.0</version>
+    <version>0.6.2</version>
 </dependency>
 ```
 
