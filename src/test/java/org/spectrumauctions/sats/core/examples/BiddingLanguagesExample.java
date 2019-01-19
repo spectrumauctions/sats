@@ -54,8 +54,9 @@ public class BiddingLanguagesExample {
             //If you want, you can override defaults
             int meanBundleSize = 3;
             double standardDeviation = 0;
-            int numberOfBids = 30; //More bids than specified here must not be requested.
-            valueFunction.setDistribution(meanBundleSize, standardDeviation, numberOfBids);
+            valueFunction.setDistribution(meanBundleSize, standardDeviation);
+            int numberOfBids = 30; // More bids than specified here must not be requested.
+            valueFunction.setIterations(numberOfBids);
             // Do something with the generated bids
             Iterator<? extends XORValue<?>> xorBidIterator = valueFunction.iterator();
             while (xorBidIterator.hasNext()) {

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
+import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
@@ -75,15 +76,13 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements GenericDemandQueryM
         }
 
         mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
-        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 1);
-        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 2);
-        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_INTENSITY, 4);
-        mrvmMip.getMip().setSolveParam(SolveParam.POPULATE_LIMIT, numberOfResults * 3);
+        mrvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
+        mrvmMip.getMip().setVariablesOfInterest(mrvmMip.getXVariables());
         IMIPResult mipResult = solver.solve(mrvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
         List<MRVMDemandQueryMipResult> results = new ArrayList<>();
-        for (Solution sol : mipResult.getIntermediateSolutions()) {
+        for (ISolution sol : mipResult.getPoolSolutions()) {
             double scalingFactor = mrvmMip.getBidderPartialMips().get(bidder).getScalingFactor();
 
             Variable bidderValueVar = mrvmMip.getWorldPartialMip().getValueVariable(bidder);

@@ -44,26 +44,43 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
         return bidder;
     }
 
-
     public void setDefaultDistribution() {
         this.meanBundleSize = goods.size() / 2;
         this.standardDeviation = meanBundleSize / 2.;
+    }
+
+    public void setMaxIterations() {
         int exponent = goods.size() < 13 ? goods.size() : 13;
         this.iterations = (int) Math.pow(2, exponent) - 1;
     }
 
+   /**
+    * Set the number of iterations of this iterator.
+    *
+    * @param iterations
+    *            : The number of iterations before iterator.hasNext() returns false. Note that setting this parameter
+    *            too high will result in a slow iterator and possibly cause a StackOverflowException while iterating.
+    */
+
+    public void setIterations(int iterations) {
+        this.iterations = iterations;
+    }
+
     /**
-     * Set the basic properties of this iterator.
+     * Set the basic distribution of this iterator.
      * Note that the parameters are not checked for its validity and meaningfulness.
      *
      * @param meanBundleSize
      *            : The mean bundle size of the randomly generated packages. Should by greater than 0 and less than or equal to the number of goods.
      * @param standardDeviation
      *            : The bundle size standard deviation
-     * @param iterations
-     *            : The number of iterations before iterator.hasNext() returns false. Note that setting this parameter
-     *            too high will result in a slow iterator and possibly cause a StackOverflowException while iterating.
      */
+    public void setDistribution(int meanBundleSize, double standardDeviation) {
+        this.meanBundleSize = meanBundleSize;
+        this.standardDeviation = standardDeviation;
+    }
+
+    @Deprecated
     public void setDistribution(int meanBundleSize, double standardDeviation, int iterations) {
         this.meanBundleSize = meanBundleSize;
         this.standardDeviation = standardDeviation;
@@ -76,8 +93,11 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
      */
     @Override
     public Iterator<XORValue<T>> iterator() {
-        if (meanBundleSize < 0 || standardDeviation < 0 || iterations < 0) {
+        if (meanBundleSize < 0 || standardDeviation < 0) {
             setDefaultDistribution();
+        }
+        if (iterations < 0) {
+            setMaxIterations();
         }
         return new ValueIterator(rngSupplier.getUniformDistributionRNG(seed),
                 rngSupplier.getGaussianDistributionRNG(seed + 1), meanBundleSize, standardDeviation, iterations);

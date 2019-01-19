@@ -1,6 +1,7 @@
 package org.spectrumauctions.sats.opt.model.mrvm.demandquery;
 
 import com.google.common.collect.Lists;
+import edu.harvard.econcs.jopt.solver.SolveParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
@@ -67,10 +68,14 @@ public class MRVMDemandQueryTest {
         world.getAllGenericDefinitions().forEach(def -> prices.put(def, BigDecimal.valueOf(1000000)));
 
         MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
+        mip.getMip().setSolveParam(SolveParam.DISPLAY_OUTPUT, true);
         List<MRVMDemandQueryMipResult> resultSet = mip.getResultPool(100);
+        double firstValue = resultSet.get(0).getResultingBundle().getValue().doubleValue();
         for (MRVMDemandQueryMipResult result : resultSet) {
             Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() > 0);
-            logger.info(result.getResultingBundle());
+            Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() <= firstValue);
+            Assert.assertTrue(result.getResultingBundle().getValue().doubleValue() > firstValue / 2);
+            //logger.info(result.getResultingBundle());
             Set<MRVMDemandQueryMipResult> others = resultSet.stream().filter(entry -> !entry.equals(result)).collect(Collectors.toSet());
             Assert.assertEquals(resultSet.size() - 1, others.size());
             others.forEach(res -> Assert.assertNotEquals(result.getResultingBundle(), res.getResultingBundle()));

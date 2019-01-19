@@ -2,8 +2,8 @@ package org.spectrumauctions.sats.opt.model.lsvm.demandquery;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
+import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
@@ -33,7 +33,7 @@ public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
     private LSVMBidder bidder;
     private LSVMWorld world;
     private LSVMStandardMIP lsvmMip;
-
+    private Set<Variable> variablesOfInterest;
     private Variable priceVar;
 
     public LSVM_DemandQueryMIP(LSVMBidder bidder, Map<LSVMLicense, BigDecimal> prices) {
@@ -54,10 +54,12 @@ public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         lsvmMip.getMip().addObjectiveTerm(-1, priceVar);
         Constraint price = new Constraint(CompareType.EQ, 0);
         price.addTerm(-1, priceVar);
+        variablesOfInterest = new HashSet<>();
         for (Map.Entry<LSVMLicense, BigDecimal> entry : prices.entrySet()) {
             LSVMLicense license = entry.getKey();
             Map<Integer, Variable> xVariables = lsvmMip.getXVariables(bidder, license);
             for (Variable xVariable : xVariables.values()) {
+                variablesOfInterest.add(xVariable);
                 price.addTerm(entry.getValue().doubleValue(), xVariable);
             }
         }
@@ -78,15 +80,13 @@ public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         }
 
         lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
-        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 1);
-        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 2);
-        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_INTENSITY, 4);
-        lsvmMip.getMip().setSolveParam(SolveParam.POPULATE_LIMIT, numberOfResults * 3);
+        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
+        lsvmMip.getMip().setVariablesOfInterest(variablesOfInterest);
         IMIPResult mipResult = solver.solve(lsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
         List<LSVM_DemandQueryMipResult> results = new ArrayList<>();
-        for (Solution sol : mipResult.getIntermediateSolutions()) {
+        for (ISolution sol : mipResult.getPoolSolutions()) {
             Set<LSVMLicense> licenses = new HashSet<>();
             for (LSVMLicense license : world.getLicenses()) {
                 Map<Integer, Variable> xVars = lsvmMip.getXVariables(bidder, license);

@@ -178,4 +178,13 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
     public void setEpsilon(double epsilon) {
         this.epsilon = epsilon;
     }
+
+    public Collection<Variable> getXVariables() {
+
+        return bidders
+                .stream()
+                .map(b -> worldPartialMip.getXVariables(b))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
 }

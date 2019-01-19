@@ -2,8 +2,8 @@ package org.spectrumauctions.sats.opt.model.gsvm.demandquery;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
+import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
@@ -33,7 +33,7 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
     private GSVMBidder bidder;
     private GSVMWorld world;
     private GSVMStandardMIP gsvmMip;
-
+    private Set<Variable> variablesOfInterest;
     private Variable priceVar;
 
     public GSVM_DemandQueryMIP(GSVMBidder bidder, Map<GSVMLicense, BigDecimal> prices) {
@@ -54,10 +54,12 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         gsvmMip.getMip().addObjectiveTerm(-1, priceVar);
         Constraint price = new Constraint(CompareType.EQ, 0);
         price.addTerm(-1, priceVar);
+        variablesOfInterest = new HashSet<>();
         for (Map.Entry<GSVMLicense, BigDecimal> entry : prices.entrySet()) {
             GSVMLicense license = entry.getKey();
             Map<Integer, Variable> xVariables = gsvmMip.getXVariables(bidder, license);
             for (Variable xVariable : xVariables.values()) {
+                variablesOfInterest.add(xVariable);
                 price.addTerm(entry.getValue().doubleValue(), xVariable);
             }
         }
@@ -78,15 +80,14 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         }
 
         gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
-        gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_REPLACEMENT, 1);
-        gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 2);
-        gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_INTENSITY, 4);
-        gsvmMip.getMip().setSolveParam(SolveParam.POPULATE_LIMIT, numberOfResults * 3);
+        gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
+        gsvmMip.getMip().setVariablesOfInterest(variablesOfInterest);
+
         IMIPResult mipResult = solver.solve(gsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
 
         List<GSVM_DemandQueryMipResult> results = new ArrayList<>();
-        for (Solution sol : mipResult.getIntermediateSolutions()) {
+        for (ISolution sol : mipResult.getPoolSolutions()) {
             Set<GSVMLicense> licenses = new HashSet<>();
             for (GSVMLicense license : world.getLicenses()) {
                 Map<Integer, Variable> xVars = gsvmMip.getXVariables(bidder, license);
