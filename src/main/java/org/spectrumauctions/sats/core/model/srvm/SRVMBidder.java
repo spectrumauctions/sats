@@ -183,13 +183,17 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
         return firstFactor.multiply(baseValue);
     }
 
+    @Override
+    public Bidder<SRVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new SRVMBidder((SRVMBidderSetup) getSetup(), getWorld(), getId(), getPopulation(), rngSupplier);
+    }
 
     @Override
-    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, long seed)
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, RNGSupplier rngSupplier)
             throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
+                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
                     new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));

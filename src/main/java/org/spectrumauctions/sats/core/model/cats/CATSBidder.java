@@ -57,12 +57,12 @@ public final class CATSBidder extends Bidder<CATSLicense> {
 
 
     @Override
-    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, long seed) throws UnsupportedBiddingLanguageException {
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(CatsXOR.class)) {
-            return clazz.cast(new CatsXOR(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
+            return clazz.cast(new CatsXOR(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), new JavaUtilRNGSupplier(seed), this));
+                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
                     new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
@@ -96,6 +96,11 @@ public final class CATSBidder extends Bidder<CATSLicense> {
         } else {
             throw new IllegalArgumentException("World is not of correct type");
         }
+    }
+
+    @Override
+    public Bidder<CATSLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new CATSBidder((CATSBidderSetup) getSetup(), getWorld(), getId(), getPopulation(), rngSupplier);
     }
 
 }

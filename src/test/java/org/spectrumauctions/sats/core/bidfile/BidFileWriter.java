@@ -45,7 +45,8 @@ public abstract class BidFileWriter {
                 @SuppressWarnings("unchecked")
                 SizeBasedUniqueRandomXOR<Good> lang = bidder
                         .getValueFunction(SizeBasedUniqueRandomXOR.class);
-                lang.setDistribution(3, 2, bidsPerBidder);
+                lang.setDistribution(3, 2);
+                lang.setIterations(bidsPerBidder);
                 languages.add(lang);
             } catch (UnsupportedBiddingLanguageException e) {
                 fail("Unsupported Bidding Iterator");
@@ -68,7 +69,8 @@ public abstract class BidFileWriter {
             try {
                 SizeBasedUniqueRandomXOR<Good> lang = bidder
                         .getValueFunction(SizeBasedUniqueRandomXOR.class);
-                lang.setDistribution(3, 2, bidsPerBidder);
+                lang.setDistribution(3, 2);
+                lang.setIterations(bidsPerBidder);
                 File file = exporter.writeSingleBidderXOR(lang, bidsPerBidder, "TestSingleXOR_" + new Random().nextInt());
                 logger.info(file.toPath().toString());
             } catch (UnsupportedBiddingLanguageException e) {

@@ -23,7 +23,6 @@ import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryResult;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 import org.spectrumauctions.sats.opt.model.gsvm.demandquery.GSVM_DemandQueryMIPBuilder;
-import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -88,9 +87,8 @@ public class GSVMCCATest {
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
-        cca.setClockPhaseNumberOfBundles(3);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
@@ -103,66 +101,6 @@ public class GSVMCCATest {
 
         return cca;
     }
-
-    @Test
-    public void testEfficiencyAnomaly() {
-        double numberOfTests = 5;
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        for (int i = 0; i < numberOfTests; i++) {
-            assertEquals(rawBidders, new GlobalSynergyValueModel().createNewPopulation(123456));
-        }
-
-        // Efficient allocation
-        GSVMStandardMIP mip = new GSVMStandardMIP(Lists.newArrayList(rawBidders));
-        mip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 1e-10);
-        ItemAllocation<GSVMLicense> efficientAllocation = mip.calculateAllocation();
-        Allocation<GSVMLicense> efficientAllocationWithTrueValues = efficientAllocation.getAllocationWithTrueValues();
-        logger.info("Efficient Allocation Value: {}", efficientAllocationWithTrueValues.getTotalValue());
-        double diff = efficientAllocation.getTotalValue().doubleValue() - efficientAllocationWithTrueValues.getTotalValue().doubleValue();
-        assertTrue(diff > -1e-6 && diff < 1e-6);
-
-        BigDecimal result = null;
-        for (int i = 0; i < numberOfTests; i++) {
-            // Set up mechanism
-            List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
-                    .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-            NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-            cca.setStartingPrice(BigDecimal.ZERO);
-            cca.setEpsilon(1e-10);
-            SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
-            priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
-            priceUpdater.setInitialUpdate(BigDecimal.valueOf(0.5));
-            cca.setPriceUpdater(priceUpdater);
-            ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
-            supplementaryRound.setNumberOfSupplementaryBids(100);
-            //supplementaryRound.useZeroPrices(true);
-            cca.addSupplementaryRound(supplementaryRound);
-
-            // Solve mechanism
-            Allocation<GSVMLicense> allocationAfterClockPhase = cca.calculateClockPhaseAllocation();
-            logger.warn("CP: total declared value: {}", allocationAfterClockPhase.getTotalValue());
-            // logger.warn("CP:       {}", allocationAfterClockPhase);
-            Allocation<GSVMLicense> allocCP = allocationAfterClockPhase.getAllocationWithTrueValues();
-            // logger.warn("CP True:  {}", allocCP);
-            logger.info("Value CP: {}", allocCP.getTotalValue());
-            assertNotEquals(allocationAfterClockPhase, allocCP);
-            Allocation<GSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
-            logger.warn("SR: total declared value: {}", allocationAfterSupplementaryRound.getTotalValue());
-            // logger.warn("SR:       {}", allocationAfterSupplementaryRound);
-            Allocation<GSVMLicense> allocSR = allocationAfterSupplementaryRound.getAllocationWithTrueValues();
-            //logger.warn("SR True   {}", allocSR);
-            // assertNotEquals(allocationAfterSupplementaryRound, allocSR);
-            // BigDecimal qualitySR = allocSR.getTotalValue().divide(efficientAllocationWithTrueValues.getTotalValue(), RoundingMode.HALF_UP).setScale(4, RoundingMode.HALF_UP);
-            BigDecimal qualitySR = allocSR.getTotalValue();
-            logger.info("Value SR: {}", qualitySR);
-            if (result == null) result = qualitySR;
-            assertEquals(result, qualitySR);
-        }
-
-    }
-
-    @Test
-    public void testEfficiencyIncreaseWithPool() {}
 
     @Test
     public void testMultipleSupplementaryRounds() {
@@ -179,12 +117,31 @@ public class GSVMCCATest {
     }
 
     @Test
+    public void testSampledStartingPrices() {
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        NonGenericCCAMechanism<GSVMLicense> ccaZero = getMechanism(rawBidders);
+        long startZero = System.currentTimeMillis();
+        Allocation<GSVMLicense> allocZero = ccaZero.calculateClockPhaseAllocation();
+        BigDecimal zeroTotalValue = allocZero.getAllocationWithTrueValues().getTotalValue();
+        long durationZero = System.currentTimeMillis() - startZero;
+
+        NonGenericCCAMechanism<GSVMLicense> ccaSampled = getMechanism(rawBidders);
+        ccaSampled.calculateSampledStartingPrices(10, 100, 0.1);
+        long startSampled = System.currentTimeMillis();
+        Allocation<GSVMLicense> allocSampled = ccaSampled.calculateClockPhaseAllocation();
+        BigDecimal sampledTotalValue = allocSampled.getAllocationWithTrueValues().getTotalValue();
+        long durationSampled = System.currentTimeMillis() - startSampled;
+
+        assertTrue(durationZero > durationSampled);
+    }
+
+    @Test
     public void testLastBidsSupplementaryRound() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
@@ -217,7 +174,7 @@ public class GSVMCCATest {
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
@@ -226,113 +183,27 @@ public class GSVMCCATest {
         cca.setPriceUpdater(priceUpdater);
 
         ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
-        supplementaryRound.setNumberOfSupplementaryBids(1);
+        supplementaryRound.setNumberOfSupplementaryBids(50);
         cca.addSupplementaryRound(supplementaryRound);
 
         // Solve mechanism
         Allocation<GSVMLicense> allocationAfterClockPhase = cca.calculateClockPhaseAllocation();
-        //Allocation<GSVMLicense> allocCP = allocationAfterClockPhase.getAllocationWithTrueValues();
-        //assertNotEquals(allocationAfterClockPhase, allocCP);
+        Allocation<GSVMLicense> allocCP = allocationAfterClockPhase.getAllocationWithTrueValues();
+        assertNotEquals(allocationAfterClockPhase, allocCP);
         double efficiencyCP = allocationAfterClockPhase.getTotalValue().doubleValue();
         logger.info("Value CP: {}", efficiencyCP);
         Allocation<GSVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
-        //Allocation<GSVMLicense> allocSR = allocationAfterSupplementaryRound.getAllocationWithTrueValues();
-        //assertNotEquals(allocationAfterSupplementaryRound, allocSR);
+        Allocation<GSVMLicense> allocSR = allocationAfterSupplementaryRound.getAllocationWithTrueValues();
+        assertNotEquals(allocationAfterSupplementaryRound, allocSR);
         double efficiencySR = allocationAfterSupplementaryRound.getTotalValue().doubleValue();
         logger.info("Value SR: {}", efficiencySR);
         assertTrue(efficiencySR >= efficiencyCP);
     }
 
-    private Allocation<GSVMLicense> run1() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        List<Collection<XORBid<GSVMLicense>>> resultingBids = new ArrayList<>();
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
-                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-        resultingBids.add(runStandardCCA(bidders));
-        Collection<XORBid<GSVMLicense>> first = resultingBids.get(0);
-        Set<XORBid<GSVMLicense>> firstBids = new HashSet<>(first);
-        XORWinnerDetermination<GSVMLicense> firstWdp = new XORWinnerDetermination<>(firstBids);
-        return firstWdp.calculateAllocation();
-    }
-
-    private Allocation<GSVMLicense> run2() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        List<Collection<XORBid<GSVMLicense>>> resultingBids = new ArrayList<>();
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
-                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-        new GlobalSynergyValueModel().createNewPopulation();
-        resultingBids.add(runStandardCCA(bidders));
-        Collection<XORBid<GSVMLicense>> first = resultingBids.get(0);
-        Set<XORBid<GSVMLicense>> firstBids = new HashSet<>(first);
-        XORWinnerDetermination<GSVMLicense> firstWdp = new XORWinnerDetermination<>(firstBids);
-        return firstWdp.calculateAllocation();
-    }
-
-    @Test
-    public void testWeirdBehavior() {
-        Allocation<GSVMLicense> allocation1 = run1();
-        Allocation<GSVMLicense> allocation2 = run2();
-        assertEquals(allocation1, allocation2);
-    }
-
-    @Test
-    public void testBidsAnomaly() {
-        /*
-         * This doesn't seem to catch the problem.
-         * Ideas:
-         * - Find a way to catch the fact that a piece of unrelated code changes the outcome (bidders? bids?)
-         * - For this, maybe save the result serialized and compare it manually
-         */
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        List<Collection<XORBid<GSVMLicense>>> resultingBids = new ArrayList<>();
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
-                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-        resultingBids.add(runStandardCCA(bidders));
-        for (int i = 0; i < 3; i++) {
-            // Unrelated code
-            new GlobalSynergyValueModel().createNewPopulation();
-            // Add another instance
-            resultingBids.add(runStandardCCA(bidders));
-        }
-        Collection<XORBid<GSVMLicense>> first = resultingBids.get(0);
-        Set<XORBid<GSVMLicense>> firstBids = new HashSet<>(first);
-        XORWinnerDetermination<GSVMLicense> firstWdp = new XORWinnerDetermination<>(firstBids);
-        Allocation<GSVMLicense> firstAllocation = firstWdp.calculateAllocation();
-        Allocation<GSVMLicense> firstAllocationTrueValues = firstAllocation.getAllocationWithTrueValues();
-
-        for (Collection<XORBid<GSVMLicense>> set : resultingBids) {
-            // Check for bids equality
-            assertEquals(first, set);
-            for (XORBid<GSVMLicense> bid : set) {
-                XORBid<GSVMLicense> otherBid = firstBids.stream().filter(b -> b.getBidder().equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);
-                for (XORValue<GSVMLicense> value : bid.getValues()) {
-                    XORValue<GSVMLicense> otherValue = otherBid.getValues().stream().filter(v -> v.getLicenses().equals(value.getLicenses()) && v.value().equals(value.value())).findFirst().orElseThrow(NoSuchElementException::new);
-                    assertEquals(value.getLicenses(), otherValue.getLicenses());
-                    assertEquals(value.value(), otherValue.value());
-                }
-            }
-            Set<XORBid<GSVMLicense>> bids = new HashSet<>(set);
-            XORWinnerDetermination<GSVMLicense> wdp = new XORWinnerDetermination<>(bids);
-            Allocation<GSVMLicense> allocation = wdp.calculateAllocation();
-            logger.info("Allocation: {}", allocation);
-            logger.info("Total Declared Value: {}", allocation.getTotalValue());
-            Allocation<GSVMLicense> allocationTrueValues = allocation.getAllocationWithTrueValues();
-            logger.info("Total True Value:     {}", allocationTrueValues.getTotalValue());
-            // Check for allocation equality
-            assertEquals(firstAllocationTrueValues, allocationTrueValues);
-            for (Bidder<GSVMLicense> bidder : bidders) {
-                assertEquals(firstAllocationTrueValues.getAllocation(bidder), allocationTrueValues.getAllocation(bidder));
-                assertEquals(firstAllocationTrueValues.getTradeValue(bidder), allocationTrueValues.getTradeValue(bidder));
-            }
-            assertEquals(firstAllocationTrueValues.getTotalValue(), allocationTrueValues.getTotalValue());
-            assertEquals(firstAllocationTrueValues.getWinners(), allocationTrueValues.getWinners());
-        }
-    }
-
 
     private Collection<XORBid<GSVMLicense>> runStandardCCA(List<Bidder<GSVMLicense>> bidders) {
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
@@ -350,19 +221,14 @@ public class GSVMCCATest {
     @Test
     public void testMinimalExample() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        //new FindJoptTest().joptLibrarySimpleExample();
-        /*int x = 0;
-        for (int i = 0; i < 100000; i++) {
-            x++;
-        }
-        System.out.println(x);*/
+        // The following line used to make a difference in the solution pool and thus the allocation, but it does not anymore
+        // new FindJoptTest().joptLibrarySimpleExample();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         Bidder<GSVMLicense> firstBidder = bidders.get(0);
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.setStartingPrice(BigDecimal.ZERO);
+        cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
-        //cca.setClockPhaseNumberOfBundles(3);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
@@ -413,7 +279,8 @@ public class GSVMCCATest {
         pricesPerId.put(17L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
 
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        new GlobalSynergyValueModel().createNewPopulation(); // This line makes a difference in the solution pool!
+        // The following line used to make a difference in the solution pool, but it does not anymore
+        // new GlobalSynergyValueModel().createNewPopulation();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         Bidder<GSVMLicense> firstBidder = bidders.get(0);

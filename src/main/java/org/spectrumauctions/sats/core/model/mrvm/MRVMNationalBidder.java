@@ -6,12 +6,13 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.BigDecimalUtils;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
@@ -116,13 +117,18 @@ public final class MRVMNationalBidder extends MRVMBidder {
         return gammaValues.get(uncoveredRegions);
     }
 
+    @Override
+    public Bidder<MRVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new MRVMNationalBidder(getId(), getPopulation(), getWorld(), (MRVMNationalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+    }
+
     /* (non-Javadoc)
      * @see Bidder#getValueFunctionRepresentation(java.lang.Class, long)
      */
     @Override
-    public <T extends BiddingLanguage> T getValueFunction(Class<T> type, long seed)
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> type, RNGSupplier rngSupplier)
             throws UnsupportedBiddingLanguageException {
-        return super.getValueFunction(type, seed);
+        return super.getValueFunction(type, rngSupplier);
     }
 
     @Override

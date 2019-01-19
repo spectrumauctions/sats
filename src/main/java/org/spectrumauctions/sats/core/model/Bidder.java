@@ -7,6 +7,8 @@ package org.spectrumauctions.sats.core.model;
 
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
+import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -19,9 +21,10 @@ public abstract class Bidder<G extends Good> implements Serializable {
     private final long population;
     private final long id;
     private final long worldId;
-
+    private final BidderSetup setup;
 
     protected Bidder(BidderSetup setup, long population, long id, long worldId) {
+        this.setup = setup;
         this.setupType = setup.getSetupName();
         this.id = id;
         this.population = population;
@@ -97,7 +100,12 @@ public abstract class Bidder<G extends Good> implements Serializable {
      *             which are not supported by the implementing bidder class. This javadoc should be extended by
      *             the implementing class, specifying which value function representation are supported.
      */
-    public abstract <T extends BiddingLanguage> T getValueFunction(Class<T> type, long seed)
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> type, long seed)
+            throws UnsupportedBiddingLanguageException {
+        return getValueFunction(type, new JavaUtilRNGSupplier(seed));
+    }
+
+    public abstract <T extends BiddingLanguage> T getValueFunction(Class<T> type, RNGSupplier rngSupplier)
             throws UnsupportedBiddingLanguageException;
 
     /**
@@ -134,6 +142,8 @@ public abstract class Bidder<G extends Good> implements Serializable {
         return worldId;
     }
 
+    public abstract Bidder<G> drawSimilarBidder(RNGSupplier rngSupplier);
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -163,4 +173,7 @@ public abstract class Bidder<G extends Good> implements Serializable {
     }
 
 
+    protected BidderSetup getSetup() {
+        return setup;
+    }
 }
