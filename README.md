@@ -1,11 +1,39 @@
 # Spectrum Auction Test Suite (SATS)
 
-SATS is a universal "Spectrum Auction Test Suite" that was developed at the [University of Zurich](http://www.uzh.ch/)
-in collaboration with [Boston University](http://www.bu.edu/). SATS contains seven value models (some stylized and some realistic)
+SATS is a universal "Spectrum Auction Test Suite". SATS contains seven value models (some stylized and some realistic)
 for spectrum auctions. The SATS software provides auction instance generators for each of the value models, i.e.,
 it allows a user to generate an arbitrary number of auction instances for any of the spectrum value models.
 For four of the models, SATS also contains a MIP formulation for the winner determination problem,
-which enables users to quickly find the efficient allocation of the auction.
+which enables users to quickly find the efficient allocation of the auction (and without restriction to a small number of sampled bundles, as occurs in CATS [Leyton-Brown et al., 2000]).
+
+More information about SATS, and the ability to run SATS as a web service, is available at the SATS web page [spectrumauctions.org](http://spectrumauctions.org/).
+
+## Citation
+
+SATS was developed in a [collaboration](https://github.com/spectrumauctions/sats/blob/master/CONTRIBUTORS.md) between the [University of Zurich](http://www.uzh.ch/) and [Boston University](http://www.bu.edu/).
+
+The System is described in detail in the following paper: 
+
+**SATS: A Universal Spectrum Auction Test Suite**
+Michael Weiss, Benjamin Lubin, and Sven Seuken. 
+In Proceedings of the 16th International Conference on Autonomous Agents and Multiagent Systems (AAMAS), São Paulo, Brazil, May 2017.
+[[pdf](http://www.ifi.uzh.ch/ce/publications/SATS_Weiss_et_al_AAMAS_2017.pdf)]
+
+
+If you use this software for academic purposes, please cite the above in your work.  Bibtex for this reference is as follows:
+
+```
+@inproceedings{weiss2017sats,
+  title={Sats: A universal spectrum auction test suite},
+  author={Weiss, Michael and Lubin, Benjamin and Seuken, Sven},
+  booktitle={Proceedings of the 16th Conference on Autonomous Agents and MultiAgent Systems},
+  address={São Paulo, Brazil},
+  pages={51--59},
+  year={2017},
+}
+```
+
+## Code Modules
 
 The SATS source code consists of three sub-modules:
 * **[Core API](#getting-started-with-the-sats-core-api)**: Contains all value models and all features of SATS
