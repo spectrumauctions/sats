@@ -145,12 +145,20 @@ public class MRVMCCATest {
     @Test
     public void testSampledStartingPrices() {
         List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
-        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = getMechanism(rawBidders);
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> ccaZero = getMechanism(rawBidders);
+        long startZero = System.currentTimeMillis();
+        Allocation<MRVMLicense> allocZero = ccaZero.calculateClockPhaseAllocation();
+        BigDecimal zeroTotalValue = allocZero.getAllocationWithTrueValues().getTotalValue();
+        long durationZero = System.currentTimeMillis() - startZero;
 
-        cca.calculateSampledStartingPrices(10, 100, 0.1);
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> ccaSampled = getMechanism(rawBidders);
+        ccaSampled.calculateSampledStartingPrices(10, 100, 0.1);
+        long startSampled = System.currentTimeMillis();
+        Allocation<MRVMLicense> allocSampled = ccaSampled.calculateClockPhaseAllocation();
+        BigDecimal sampledTotalValue = allocSampled.getAllocationWithTrueValues().getTotalValue();
+        long durationSampled = System.currentTimeMillis() - startSampled;
 
-        Allocation<MRVMLicense> allocationAfterSupplementaryRound = cca.calculateAllocationAfterSupplementaryRound();
-        rawBidders.forEach(b -> assertEquals(cca.getBidCountAfterSupplementaryRound().get(b) - cca.getBidCountAfterClockPhase().get(b), 650));
+        assertTrue(durationZero > durationSampled);
     }
 
     @Test

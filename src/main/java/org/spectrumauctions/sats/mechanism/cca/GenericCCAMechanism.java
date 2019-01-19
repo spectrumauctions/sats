@@ -79,7 +79,9 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
 
         Map<G, SimpleRegression> regressions = new HashMap<>();
         for (GenericDefinition<T> genericDefinition : world.getAllGenericDefinitions()) {
-            regressions.put((G) genericDefinition, new SimpleRegression());
+            SimpleRegression regression = new SimpleRegression();
+            regression.addData(0.0, 0.0);
+            regressions.put((G) genericDefinition, regression);
         }
 
         RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);

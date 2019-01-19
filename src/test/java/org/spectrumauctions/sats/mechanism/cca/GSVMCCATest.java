@@ -117,6 +117,25 @@ public class GSVMCCATest {
     }
 
     @Test
+    public void testSampledStartingPrices() {
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        NonGenericCCAMechanism<GSVMLicense> ccaZero = getMechanism(rawBidders);
+        long startZero = System.currentTimeMillis();
+        Allocation<GSVMLicense> allocZero = ccaZero.calculateClockPhaseAllocation();
+        BigDecimal zeroTotalValue = allocZero.getAllocationWithTrueValues().getTotalValue();
+        long durationZero = System.currentTimeMillis() - startZero;
+
+        NonGenericCCAMechanism<GSVMLicense> ccaSampled = getMechanism(rawBidders);
+        ccaSampled.calculateSampledStartingPrices(10, 100, 0.1);
+        long startSampled = System.currentTimeMillis();
+        Allocation<GSVMLicense> allocSampled = ccaSampled.calculateClockPhaseAllocation();
+        BigDecimal sampledTotalValue = allocSampled.getAllocationWithTrueValues().getTotalValue();
+        long durationSampled = System.currentTimeMillis() - startSampled;
+
+        assertTrue(durationZero > durationSampled);
+    }
+
+    @Test
     public void testLastBidsSupplementaryRound() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()

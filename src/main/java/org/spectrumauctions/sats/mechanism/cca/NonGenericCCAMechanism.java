@@ -1,11 +1,15 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.*;
+import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.NonGenericPriceUpdater;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeNonGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.NonGenericSupplementaryRound;
@@ -21,12 +25,14 @@ import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private static final Logger logger = LogManager.getLogger(NonGenericCCAMechanism.class);
 
     private NonGenericDemandQueryMIPBuilder<T> demandQueryMIPBuilder;
+    private Map<Good, BigDecimal> startingPrices = new HashMap<>();
     private NonGenericPriceUpdater<T> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
     private List<NonGenericSupplementaryRound<T>> supplementaryRounds = new ArrayList<>();
 
@@ -57,9 +63,53 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return result;
     }
 
+    public void setStartingPrice(Good good, BigDecimal price) {
+        startingPrices.put(good, price);
+    }
+
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
-        // TODO: Implement
+        World world = bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
+
+        Map<Good, SimpleRegression> regressions = new HashMap<>();
+        for (Good good : world.getLicenses()) {
+            SimpleRegression regression = new SimpleRegression();
+            regression.addData(0.0, 0.0);
+            regressions.put(good, regression);
+        }
+
+        RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
+        for (int i = 0; i < numberOfWorldSamples; i++) {
+            List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
+            for (Bidder<T> bidder : alternateBidders) {
+                SizeBasedUniqueRandomXOR valueFunction;
+                try {
+                    valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
+                    valueFunction.setIterations(bidsPerBidder);
+
+                    Iterator<XORValue<T>> bidIterator = valueFunction.iterator();
+                    while (bidIterator.hasNext()) {
+                        XORValue<T> bid = bidIterator.next();
+                        Bundle<T> bundle = bid.getLicenses();
+                        BigDecimal value = bid.value();
+                        for (Good good : bundle) {
+                            double y = value.doubleValue() / bundle.size();
+                            regressions.get(good).addData(1.0, y);
+                        }
+                    }
+                } catch (UnsupportedBiddingLanguageException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        for (Map.Entry<Good, SimpleRegression> entry : regressions.entrySet()) {
+            double y = entry.getValue().predict(1);
+            double price = y * fraction;
+            logger.info("{}:\nFound y of {}, setting starting price to {}.",
+                    entry.getKey(), y, price);
+            setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+        }
     }
 
     public Allocation<T> calculateClockPhaseAllocation() {
@@ -93,7 +143,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         bidders.forEach(bidder -> bids.put(bidder, new XORBid.Builder<>(bidder).build()));
         Map<T, BigDecimal> prices = new HashMap<>();
         for (Good good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
-            prices.put((T) good, fallbackStartingPrice);
+            prices.put((T) good,  startingPrices.getOrDefault(good, fallbackStartingPrice));
         }
 
         Map<T, Integer> demand;

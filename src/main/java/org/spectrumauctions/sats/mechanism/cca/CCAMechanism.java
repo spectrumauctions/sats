@@ -80,6 +80,18 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
         calculateSampledStartingPrices(bidsPerBidder, numberOfWorldSamples, fraction, System.currentTimeMillis());
     }
 
+    /**
+     * This method allows to simulate a certain knowledge about the player's values.
+     * It can be compared to the auctioneer conducting some research before the auction about the bidder's preferences.
+     * That way, the starting prices can be adjusted to speed up the auction without sacrificing efficiency.
+     * This is simulated by drawing a number of bids from newly created (but based on the same value distributions)
+     * bidders
+     *
+     * @param bidsPerBidder         How many bids are collected per bidder in each world
+     * @param numberOfWorldSamples  How many parallel worlds are created to collect these bids
+     * @param fraction              The fraction of the estimated value that is turned into the starting price
+     * @param seed                  The seed used for drawing the values
+     */
     public abstract void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed);
 
     public void setMaxRounds(int maxRounds) {
