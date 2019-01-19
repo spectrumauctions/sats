@@ -69,7 +69,7 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
     }
 
     @Override
-    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz,RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
+    public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
                     new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
