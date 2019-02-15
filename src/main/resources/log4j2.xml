@@ -9,8 +9,5 @@
         <Root level="INFO">
             <AppenderRef ref="Console" />
         </Root>
-        <Logger name="edu.harvard.econcs" level="info">
-            <Appender-ref ref="Console" />
-        </Logger>
     </Loggers>
 </Configuration>

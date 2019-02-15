@@ -76,20 +76,19 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
         GenericWorld<T> world = (GenericWorld<T>) bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
+        try {
+            Map<G, SimpleRegression> regressions = new HashMap<>();
+            for (GenericDefinition<T> genericDefinition : world.getAllGenericDefinitions()) {
+                SimpleRegression regression = new SimpleRegression();
+                regression.addData(0.0, 0.0);
+                regressions.put((G) genericDefinition, regression);
+            }
 
-        Map<G, SimpleRegression> regressions = new HashMap<>();
-        for (GenericDefinition<T> genericDefinition : world.getAllGenericDefinitions()) {
-            SimpleRegression regression = new SimpleRegression();
-            regression.addData(0.0, 0.0);
-            regressions.put((G) genericDefinition, regression);
-        }
-
-        RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
-        for (int i = 0; i < numberOfWorldSamples; i++) {
-            List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
-            for (Bidder<T> bidder : alternateBidders) {
-                XORQRandomOrderSimple<G, T> valueFunction;
-                try {
+            RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
+            for (int i = 0; i < numberOfWorldSamples; i++) {
+                List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
+                for (Bidder<T> bidder : alternateBidders) {
+                    XORQRandomOrderSimple<G, T> valueFunction;
                     valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class, rngSupplier);
                     valueFunction.setIterations(bidsPerBidder);
 
@@ -101,18 +100,22 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
                             regressions.get(entry.getKey()).addData(entry.getValue().doubleValue(), y);
                         }
                     }
-                } catch (UnsupportedBiddingLanguageException e) {
-                    throw new RuntimeException(e);
                 }
             }
-        }
 
-        for (Map.Entry<G, SimpleRegression> entry : regressions.entrySet()) {
-            double y = entry.getValue().predict(1);
-            double price = y * fraction;
-            logger.info("{}:\nFound y of {}, setting starting price to {}.",
-                    entry.getKey(), y, price);
-            setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+            for (Map.Entry<G, SimpleRegression> entry : regressions.entrySet()) {
+                double y = entry.getValue().predict(1);
+                double price = y * fraction;
+                logger.info("{}:\nFound y of {}, setting starting price to {}.",
+                        entry.getKey(), y, price);
+                setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+            }
+
+        } catch (UnsupportedBiddingLanguageException e) {
+            // Catching this error here, because it's very unlikely to happen and we don't want to bother
+            // the user with handling this error. We just log it and don't set the starting prices.
+            logger.error("Tried to calculate sampled starting prices, but {} doesn't support the " +
+                    "SizeBasedUniqueRandomXOR bidding language. Not setting any starting prices.", world);
         }
     }
 
@@ -229,7 +232,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         for (Bidder<T> bidder : bidders) {
             List<GenericValue<G, T>> newValues = new ArrayList<>();
             for (GenericSupplementaryRound<G, T> supplementaryRound : supplementaryRounds) {
-                 newValues.addAll(supplementaryRound.getSupplementaryBids(this, bidder));
+                newValues.addAll(supplementaryRound.getSupplementaryBids(this, bidder));
             }
 
             GenericBid<G, T> bidderBid = bidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);

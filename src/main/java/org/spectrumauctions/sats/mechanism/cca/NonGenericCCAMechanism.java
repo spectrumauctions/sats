@@ -70,20 +70,20 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
         World world = bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
+        try {
+            Map<Good, SimpleRegression> regressions = new HashMap<>();
+            for (Good good : world.getLicenses()) {
+                SimpleRegression regression = new SimpleRegression();
+                regression.addData(0.0, 0.0);
+                regressions.put(good, regression);
+            }
 
-        Map<Good, SimpleRegression> regressions = new HashMap<>();
-        for (Good good : world.getLicenses()) {
-            SimpleRegression regression = new SimpleRegression();
-            regression.addData(0.0, 0.0);
-            regressions.put(good, regression);
-        }
+            RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
+            for (int i = 0; i < numberOfWorldSamples; i++) {
+                List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
+                for (Bidder<T> bidder : alternateBidders) {
+                    SizeBasedUniqueRandomXOR valueFunction;
 
-        RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
-        for (int i = 0; i < numberOfWorldSamples; i++) {
-            List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
-            for (Bidder<T> bidder : alternateBidders) {
-                SizeBasedUniqueRandomXOR valueFunction;
-                try {
                     valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
                     valueFunction.setIterations(bidsPerBidder);
 
@@ -97,18 +97,22 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                             regressions.get(good).addData(1.0, y);
                         }
                     }
-                } catch (UnsupportedBiddingLanguageException e) {
-                    throw new RuntimeException(e);
                 }
             }
-        }
 
-        for (Map.Entry<Good, SimpleRegression> entry : regressions.entrySet()) {
-            double y = entry.getValue().predict(1);
-            double price = y * fraction;
-            logger.info("{}:\nFound y of {}, setting starting price to {}.",
-                    entry.getKey(), y, price);
-            setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+            for (Map.Entry<Good, SimpleRegression> entry : regressions.entrySet()) {
+                double y = entry.getValue().predict(1);
+                double price = y * fraction;
+                logger.info("{}:\nFound y of {}, setting starting price to {}.",
+                        entry.getKey(), y, price);
+                setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+            }
+
+        } catch (UnsupportedBiddingLanguageException e) {
+            // Catching this error here, because it's very unlikely to happen and we don't want to bother
+            // the user with handling this error. We just log it and don't set the starting prices.
+            logger.error("Tried to calculate sampled starting prices, but {} doesn't support the " +
+                    "SizeBasedUniqueRandomXOR bidding language. Not setting any starting prices.", world);
         }
     }
 
@@ -143,7 +147,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         bidders.forEach(bidder -> bids.put(bidder, new XORBid.Builder<>(bidder).build()));
         Map<T, BigDecimal> prices = new HashMap<>();
         for (Good good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
-            prices.put((T) good,  startingPrices.getOrDefault(good, fallbackStartingPrice));
+            prices.put((T) good, startingPrices.getOrDefault(good, fallbackStartingPrice));
         }
 
         Map<T, Integer> demand;
@@ -195,7 +199,8 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private Collection<XORBid<T>> runSupplementaryRound() {
         Collection<XORBid<T>> bids = new HashSet<>();
-        if (supplementaryRounds.isEmpty()) supplementaryRounds.add(new ProfitMaximizingNonGenericSupplementaryRound<>());
+        if (supplementaryRounds.isEmpty())
+            supplementaryRounds.add(new ProfitMaximizingNonGenericSupplementaryRound<>());
 
         for (Bidder<T> bidder : bidders) {
             List<XORValue<T>> newValues = new ArrayList<>();
