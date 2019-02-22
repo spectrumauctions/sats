@@ -86,12 +86,12 @@ public class LSVMCCATest {
         List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
-        cca.setFallbackStartingPrice(BigDecimal.ZERO);
+        cca.calculateSampledStartingPrices(50, 100, 0.1);
         cca.setEpsilon(1e-5);
+        cca.setTimeLimit(60);
 
         SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
-        priceUpdater.setInitialUpdate(BigDecimal.valueOf(0.5));
         cca.setPriceUpdater(priceUpdater);
 
         ProfitMaximizingNonGenericSupplementaryRound<LSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();

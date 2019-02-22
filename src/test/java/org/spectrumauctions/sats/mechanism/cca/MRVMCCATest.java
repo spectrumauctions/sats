@@ -19,7 +19,6 @@ import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVMMipResult;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 import org.spectrumauctions.sats.opt.model.mrvm.demandquery.MRVM_DemandQueryMIPBuilder;
-import org.spectrumauctions.sats.opt.xorq.XORQWinnerDetermination;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -89,6 +88,7 @@ public class MRVMCCATest {
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
+        cca.setTimeLimit(60);
 
         SimpleRelativeGenericPriceUpdate<MRVMGenericDefinition, MRVMLicense> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
@@ -158,6 +158,7 @@ public class MRVMCCATest {
         BigDecimal sampledTotalValue = allocSampled.getAllocationWithTrueValues().getTotalValue();
         long durationSampled = System.currentTimeMillis() - startSampled;
 
+        assertTrue(ccaZero.getTotalRounds() > ccaSampled.getTotalRounds());
         assertTrue(durationZero > durationSampled);
     }
 

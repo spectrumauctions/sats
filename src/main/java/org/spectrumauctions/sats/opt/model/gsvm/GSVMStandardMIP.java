@@ -92,7 +92,7 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 		for (GSVMBidder b : population) {
 			if (b.equals(bidder)) {
 				for (GSVMLicense l : world.getLicenses()) {
-					if (l.equals(license)) {
+					if (l.equals(license) && gMap.get(b).containsKey(l)) {
 						return gMap.get(b).get(l);
 					}
 				}

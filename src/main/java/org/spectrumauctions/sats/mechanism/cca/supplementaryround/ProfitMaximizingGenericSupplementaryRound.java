@@ -12,7 +12,6 @@ import org.spectrumauctions.sats.opt.domain.GenericDemandQueryResult;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProfitMaximizingGenericSupplementaryRound<G extends GenericDefinition<T>, T extends Good> implements GenericSupplementaryRound<G, T> {
@@ -34,6 +33,9 @@ public class ProfitMaximizingGenericSupplementaryRound<G extends GenericDefiniti
         } else {
             demandQueryMIP =  genericDemandQueryMIPBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon);
         }
+        demandQueryMIP.setTimeLimit(cca.getTimeLimit());
+        demandQueryMIP.setRelativeResultPoolTolerance(cca.getRelativeResultPoolTolerance());
+        demandQueryMIP.setAbsoluteResultPoolTolerance(cca.getAbsoluteResultPoolTolerance());
         List<? extends GenericDemandQueryResult<G, T>> resultSet = demandQueryMIP.getResultPool(numberOfSupplementaryBids);
         return resultSet.stream().map(GenericDemandQueryResult::getResultingBundle).collect(Collectors.toList());
     }

@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @author Fabio Isler
  */
-public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQueryMIP<LSVMLicense> {
+public class LSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<LSVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(LSVM_DemandQueryMIP.class);
 
@@ -108,4 +108,8 @@ public class LSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         return results;
     }
 
+    @Override
+    public ModelMIP getMip() {
+        return lsvmMip;
+    }
 }

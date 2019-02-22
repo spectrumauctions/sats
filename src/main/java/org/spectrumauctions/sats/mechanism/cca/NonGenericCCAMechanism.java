@@ -1,7 +1,7 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
@@ -19,6 +19,7 @@ import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
 import org.spectrumauctions.sats.mechanism.domain.mechanisms.AuctionMechanism;
 import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
+import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIPBuilder;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryResult;
 import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
@@ -70,13 +71,11 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
         World world = bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
+        // We need a fixed order -> List
+        List<Good> licenseList = new ArrayList<>(world.getLicenses());
         try {
-            Map<Good, SimpleRegression> regressions = new HashMap<>();
-            for (Good good : world.getLicenses()) {
-                SimpleRegression regression = new SimpleRegression();
-                regression.addData(0.0, 0.0);
-                regressions.put(good, regression);
-            }
+            ArrayList<Double> yVector = new ArrayList<>();
+            ArrayList<ArrayList<Double>> xVectors = new ArrayList<>();
 
             RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
             for (int i = 0; i < numberOfWorldSamples; i++) {
@@ -90,22 +89,43 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                     Iterator<XORValue<T>> bidIterator = valueFunction.iterator();
                     while (bidIterator.hasNext()) {
                         XORValue<T> bid = bidIterator.next();
-                        Bundle<T> bundle = bid.getLicenses();
-                        BigDecimal value = bid.value();
-                        for (Good good : bundle) {
-                            double y = value.doubleValue() / bundle.size();
-                            regressions.get(good).addData(1.0, y);
+                        yVector.add(bid.value().doubleValue());
+                        ArrayList<Double> xVector = new ArrayList<>();
+                        for (Good license : licenseList) {
+                            double value = 0;
+                            if (bid.getLicenses().contains(license)) {
+                                value = 1;
+                            }
+                            xVector.add(value);
                         }
+                        xVectors.add(xVector);
                     }
                 }
             }
 
-            for (Map.Entry<Good, SimpleRegression> entry : regressions.entrySet()) {
-                double y = entry.getValue().predict(1);
-                double price = y * fraction;
-                logger.info("{}:\nFound y of {}, setting starting price to {}.",
-                        entry.getKey(), y, price);
-                setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+
+            OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
+            regression.setNoIntercept(true);
+            double[] yArray = new double[yVector.size()];
+            for (int i = 0; i < yVector.size(); i++) {
+                yArray[i] = yVector.get(i);
+            }
+            double[][] xArrays = new double[xVectors.size()][xVectors.get(0).size()];
+            for (int i = 0; i < xVectors.size(); i++) {
+                for (int j = 0; j < xVectors.get(i).size(); j++) {
+                    xArrays[i][j] = xVectors.get(i).get(j);
+                }
+            }
+
+            regression.newSampleData(yArray, xArrays);
+            double[] betas = regression.estimateRegressionParameters();
+
+            for (int i = 0; i < licenseList.size(); i++) {
+                double prediction = betas[i];
+                double price = prediction * fraction;
+                logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
+                        licenseList.get(i), prediction, price);
+                setStartingPrice(licenseList.get(i), BigDecimal.valueOf(price));
             }
 
         } catch (UnsupportedBiddingLanguageException e) {
@@ -157,7 +177,9 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
             demand = new HashMap<>();
 
             for (Bidder<T> bidder : bidders) {
-                List<? extends NonGenericDemandQueryResult<T>> demandQueryResults = demandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResultPool(clockPhaseNumberOfBundles);
+                NonGenericDemandQueryMIP<T> demandQueryMIP = demandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon);
+                demandQueryMIP.setTimeLimit(getTimeLimit());
+                List<? extends NonGenericDemandQueryResult<T>> demandQueryResults = demandQueryMIP.getResultPool(clockPhaseNumberOfBundles);
                 Bundle<T> firstBundle = demandQueryResults.get(0).getResultingBundle().getLicenses();
                 if (firstBundle.size() > 0) {
                     for (T good : firstBundle) {

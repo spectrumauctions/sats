@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @author Fabio Isler
  */
-public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQueryMIP<GSVMLicense> {
+public class GSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<GSVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(GSVM_DemandQueryMIP.class);
 
@@ -46,7 +46,7 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         Preconditions.checkNotNull(prices);
         this.world = bidder.getWorld();
         Preconditions.checkArgument(prices.size() == world.getLicenses().size());
-        gsvmMip = new GSVMStandardMIP(Lists.newArrayList(bidder));
+        gsvmMip = new GSVMStandardMIP(world, Lists.newArrayList(bidder), false);
 
         gsvmMip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
         priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
@@ -109,4 +109,8 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         return results;
     }
 
+    @Override
+    public ModelMIP getMip() {
+        return gsvmMip;
+    }
 }

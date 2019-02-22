@@ -5,7 +5,6 @@ import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.mechanism.cca.NonGenericCCAMechanism;
-import org.spectrumauctions.sats.opt.domain.GenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryMIPBuilder;
 import org.spectrumauctions.sats.opt.domain.NonGenericDemandQueryResult;
@@ -14,7 +13,6 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProfitMaximizingNonGenericSupplementaryRound<T extends Good> implements NonGenericSupplementaryRound<T> {
@@ -43,6 +41,9 @@ public class ProfitMaximizingNonGenericSupplementaryRound<T extends Good> implem
         } else {
             demandQueryMIP = nonGenericDemandQueryMipBuilder.getDemandQueryMipFor(bidder, finalPrices, epsilon);
         }
+        demandQueryMIP.setTimeLimit(cca.getTimeLimit());
+        demandQueryMIP.setRelativeResultPoolTolerance(cca.getRelativeResultPoolTolerance());
+        demandQueryMIP.setAbsoluteResultPoolTolerance(cca.getAbsoluteResultPoolTolerance());
         List<? extends NonGenericDemandQueryResult<T>> resultSet = demandQueryMIP.getResultPool(numberOfSupplementaryBids);
         return resultSet.stream().map(NonGenericDemandQueryResult::getResultingBundle).collect(Collectors.toList());
     }
@@ -63,4 +64,5 @@ public class ProfitMaximizingNonGenericSupplementaryRound<T extends Good> implem
     public void useZeroPrices(boolean useZeroPrices) {
         this.useZeroPrices = useZeroPrices;
     }
+
 }
