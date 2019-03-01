@@ -133,35 +133,6 @@ public class GSVMCCATest {
     }
 
     @Test
-    public void testOfGianluca() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
-                .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-
-        GSVMStandardMIP mip = new GSVMStandardMIP(Lists.newArrayList(rawBidders));
-        mip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 1e-5);
-        Allocation<GSVMLicense> efficientAllocation = mip.calculateAllocation();
-
-        NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
-        cca.calculateSampledStartingPrices(50, 100, 0.2);
-        cca.setEpsilon(1e-7);
-        cca.setTimeLimit(60);
-
-        SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
-        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
-        cca.setPriceUpdater(priceUpdater);
-
-        ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
-        supplementaryRound.setNumberOfSupplementaryBids(5);
-        cca.addSupplementaryRound(supplementaryRound);
-
-        Allocation<GSVMLicense> allocation = cca.calculateAllocation();
-
-        BigDecimal quality = allocation.getTotalValue().divide(efficientAllocation.getTotalValue(), RoundingMode.HALF_UP);
-        logger.info("Quality: {}", quality.setScale(4, RoundingMode.HALF_UP));
-    }
-
-    @Test
     public void testMultipleSupplementaryRounds() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
         NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);

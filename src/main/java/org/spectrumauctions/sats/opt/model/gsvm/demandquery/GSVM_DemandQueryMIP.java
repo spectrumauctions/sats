@@ -33,7 +33,7 @@ public class GSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<GSVMLicense
     private GSVMBidder bidder;
     private GSVMWorld world;
     private GSVMStandardMIP gsvmMip;
-    private Set<Variable> variablesOfInterest;
+    private Collection<Collection<Variable>> variableSetsOfInterest;
     private Variable priceVar;
 
     public GSVM_DemandQueryMIP(GSVMBidder bidder, Map<GSVMLicense, BigDecimal> prices) {
@@ -54,14 +54,16 @@ public class GSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<GSVMLicense
         gsvmMip.getMip().addObjectiveTerm(-1, priceVar);
         Constraint price = new Constraint(CompareType.EQ, 0);
         price.addTerm(-1, priceVar);
-        variablesOfInterest = new HashSet<>();
+        variableSetsOfInterest = new HashSet<>();
         for (Map.Entry<GSVMLicense, BigDecimal> entry : prices.entrySet()) {
+            Set<Variable> variablesOfInterest = new HashSet<>();
             GSVMLicense license = entry.getKey();
             Map<Integer, Variable> xVariables = gsvmMip.getXVariables(bidder, license);
             for (Variable xVariable : xVariables.values()) {
                 variablesOfInterest.add(xVariable);
                 price.addTerm(entry.getValue().doubleValue(), xVariable);
             }
+            variableSetsOfInterest.add(variablesOfInterest);
         }
         gsvmMip.getMip().add(price);
     }
@@ -81,7 +83,7 @@ public class GSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<GSVMLicense
 
         gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
         gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
-        gsvmMip.getMip().setVariablesOfInterest(variablesOfInterest);
+        gsvmMip.getMip().setAdvancedVariablesOfInterest(variableSetsOfInterest);
 
         IMIPResult mipResult = solver.solve(gsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
