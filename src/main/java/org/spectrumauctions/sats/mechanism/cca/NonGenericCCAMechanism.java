@@ -121,7 +121,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
             double[] betas = regression.estimateRegressionParameters();
 
             for (int i = 0; i < licenseList.size(); i++) {
-                double prediction = betas[i];
+                double prediction = Math.max(betas[i], 0.0);
                 double price = prediction * fraction;
                 logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
                         licenseList.get(i), prediction, price);

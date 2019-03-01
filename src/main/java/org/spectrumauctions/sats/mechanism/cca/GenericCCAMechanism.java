@@ -121,7 +121,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
             double[] betas = regression.estimateRegressionParameters();
 
             for (int i = 0; i < genericDefinitions.size(); i++) {
-                double prediction = betas[i];
+                double prediction = Math.max(betas[i], 0.0);
                 double price = prediction * fraction;
                 logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
                         genericDefinitions.get(i), prediction, price);
