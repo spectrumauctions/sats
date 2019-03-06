@@ -86,12 +86,13 @@ public class LSVMCCATest {
         List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
-        cca.setFallbackStartingPrice(BigDecimal.ZERO);
+        cca.calculateSampledStartingPrices(50, 100, 0.1);
         cca.setEpsilon(1e-5);
+        cca.setTimeLimit(60);
 
         SimpleRelativeNonGenericPriceUpdate<LSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
         priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
-        priceUpdater.setInitialUpdate(BigDecimal.valueOf(0.5));
+        priceUpdater.setInitialUpdate(BigDecimal.valueOf(0.2));
         cca.setPriceUpdater(priceUpdater);
 
         ProfitMaximizingNonGenericSupplementaryRound<LSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
@@ -99,6 +100,35 @@ public class LSVMCCATest {
         cca.addSupplementaryRound(supplementaryRound);
 
         return cca;
+    }
+
+    @Test
+    public void testNoDuplicatesInSupplementaryRound() {
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        NonGenericCCAMechanism<LSVMLicense> cca = getMechanism(rawBidders);
+        cca.calculateSampledStartingPrices(50, 100 ,0.1);
+        cca.setTimeLimit(30);
+
+        for (LSVMBidder bidder : rawBidders) {
+            List<XORValue<LSVMLicense>> valuesCP = cca.getBidsAfterClockPhase()
+                    .stream()
+                    .filter(bid -> bid.getBidder().equals(bidder))
+                    .map(XORBid::getValues)
+                    .findFirst().orElseThrow(NoSuchElementException::new);
+            List<XORValue<LSVMLicense>> valuesSR = new ArrayList<>(
+                    cca.getBidsAfterSupplementaryRound()
+                            .stream()
+                            .filter(bid -> bid.getBidder().equals(bidder))
+                            .map(XORBid::getValues)
+                            .findFirst().orElseThrow(NoSuchElementException::new)
+            );
+            valuesSR.removeAll(valuesCP);
+            for (int i = 0; i < valuesSR.size(); i++) {
+                for (int j = i + 1; j < valuesSR.size(); j++) {
+                    assertNotEquals(valuesSR.get(i).getLicenses(), valuesSR.get(j).getLicenses());
+                }
+            }
+        }
     }
 
     @Test
@@ -125,12 +155,13 @@ public class LSVMCCATest {
         long durationZero = System.currentTimeMillis() - startZero;
 
         NonGenericCCAMechanism<LSVMLicense> ccaSampled = getMechanism(rawBidders);
-        ccaSampled.calculateSampledStartingPrices(10, 100, 0.1);
+        ccaSampled.calculateSampledStartingPrices(10, 100, 0.5);
         long startSampled = System.currentTimeMillis();
         Allocation<LSVMLicense> allocSampled = ccaSampled.calculateClockPhaseAllocation();
         BigDecimal sampledTotalValue = allocSampled.getAllocationWithTrueValues().getTotalValue();
         long durationSampled = System.currentTimeMillis() - startSampled;
 
+        assertTrue(ccaZero.getTotalRounds() > ccaSampled.getTotalRounds());
         assertTrue(durationZero > durationSampled);
     }
     @Test
