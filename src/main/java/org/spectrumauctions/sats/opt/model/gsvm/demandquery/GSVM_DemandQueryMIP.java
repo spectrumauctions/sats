@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @author Fabio Isler
  */
-public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQueryMIP<GSVMLicense> {
+public class GSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<GSVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(GSVM_DemandQueryMIP.class);
 
@@ -33,7 +33,7 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
     private GSVMBidder bidder;
     private GSVMWorld world;
     private GSVMStandardMIP gsvmMip;
-    private Set<Variable> variablesOfInterest;
+    private Collection<Collection<Variable>> variableSetsOfInterest;
     private Variable priceVar;
 
     public GSVM_DemandQueryMIP(GSVMBidder bidder, Map<GSVMLicense, BigDecimal> prices) {
@@ -46,7 +46,7 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         Preconditions.checkNotNull(prices);
         this.world = bidder.getWorld();
         Preconditions.checkArgument(prices.size() == world.getLicenses().size());
-        gsvmMip = new GSVMStandardMIP(Lists.newArrayList(bidder));
+        gsvmMip = new GSVMStandardMIP(world, Lists.newArrayList(bidder), false);
 
         gsvmMip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
         priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
@@ -54,14 +54,16 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         gsvmMip.getMip().addObjectiveTerm(-1, priceVar);
         Constraint price = new Constraint(CompareType.EQ, 0);
         price.addTerm(-1, priceVar);
-        variablesOfInterest = new HashSet<>();
+        variableSetsOfInterest = new HashSet<>();
         for (Map.Entry<GSVMLicense, BigDecimal> entry : prices.entrySet()) {
+            Set<Variable> variablesOfInterest = new HashSet<>();
             GSVMLicense license = entry.getKey();
             Map<Integer, Variable> xVariables = gsvmMip.getXVariables(bidder, license);
             for (Variable xVariable : xVariables.values()) {
                 variablesOfInterest.add(xVariable);
                 price.addTerm(entry.getValue().doubleValue(), xVariable);
             }
+            variableSetsOfInterest.add(variablesOfInterest);
         }
         gsvmMip.getMip().add(price);
     }
@@ -81,7 +83,7 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
 
         gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
         gsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
-        gsvmMip.getMip().setVariablesOfInterest(variablesOfInterest);
+        gsvmMip.getMip().setAdvancedVariablesOfInterest(variableSetsOfInterest);
 
         IMIPResult mipResult = solver.solve(gsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);
@@ -109,4 +111,8 @@ public class GSVM_DemandQueryMIP extends ModelMIP implements NonGenericDemandQue
         return results;
     }
 
+    @Override
+    public ModelMIP getMip() {
+        return gsvmMip;
+    }
 }

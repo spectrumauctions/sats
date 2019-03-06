@@ -1,7 +1,7 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
@@ -20,11 +20,11 @@ import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
 import org.spectrumauctions.sats.mechanism.domain.mechanisms.AuctionMechanism;
 import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
+import org.spectrumauctions.sats.opt.domain.GenericDemandQueryMIP;
 import org.spectrumauctions.sats.opt.domain.GenericDemandQueryMIPBuilder;
 import org.spectrumauctions.sats.opt.domain.GenericDemandQueryResult;
 import org.spectrumauctions.sats.opt.xorq.XORQWinnerDetermination;
 
-import javax.management.RuntimeErrorException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -76,43 +76,63 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
         GenericWorld<T> world = (GenericWorld<T>) bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
+        // We need a fixed order -> List
+        List<GenericDefinition<T>> genericDefinitions = new ArrayList<>(world.getAllGenericDefinitions());
+        try {
+            ArrayList<Double> yVector = new ArrayList<>();
+            ArrayList<ArrayList<Double>> xVectors = new ArrayList<>();
 
-        Map<G, SimpleRegression> regressions = new HashMap<>();
-        for (GenericDefinition<T> genericDefinition : world.getAllGenericDefinitions()) {
-            SimpleRegression regression = new SimpleRegression();
-            regression.addData(0.0, 0.0);
-            regressions.put((G) genericDefinition, regression);
-        }
-
-        RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
-        for (int i = 0; i < numberOfWorldSamples; i++) {
-            List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
-            for (Bidder<T> bidder : alternateBidders) {
-                XORQRandomOrderSimple<G, T> valueFunction;
-                try {
+            RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
+            for (int i = 0; i < numberOfWorldSamples; i++) {
+                List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
+                for (Bidder<T> bidder : alternateBidders) {
+                    XORQRandomOrderSimple<G, T> valueFunction;
                     valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class, rngSupplier);
                     valueFunction.setIterations(bidsPerBidder);
 
                     Iterator<? extends GenericValue<G, T>> bidIterator = valueFunction.iterator();
                     while (bidIterator.hasNext()) {
                         GenericValue<G, T> bid = bidIterator.next();
-                        for (Map.Entry<G, Integer> entry : bid.getQuantities().entrySet()) {
-                            double y = bid.getValue().doubleValue() * entry.getValue() / bid.getTotalQuantity();
-                            regressions.get(entry.getKey()).addData(entry.getValue().doubleValue(), y);
+                        yVector.add(bid.getValue().doubleValue());
+                        ArrayList<Double> xVector = new ArrayList<>();
+                        for (GenericDefinition<T> definition : genericDefinitions) {
+                            xVector.add((double) bid.getQuantities().getOrDefault(definition, 0));
                         }
+                        xVectors.add(xVector);
                     }
-                } catch (UnsupportedBiddingLanguageException e) {
-                    throw new RuntimeException(e);
                 }
             }
-        }
 
-        for (Map.Entry<G, SimpleRegression> entry : regressions.entrySet()) {
-            double y = entry.getValue().predict(1);
-            double price = y * fraction;
-            logger.info("{}:\nFound y of {}, setting starting price to {}.",
-                    entry.getKey(), y, price);
-            setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+
+            OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
+            regression.setNoIntercept(true);
+            double[] yArray = new double[yVector.size()];
+            for (int i = 0; i < yVector.size(); i++) {
+                yArray[i] = yVector.get(i);
+            }
+            double[][] xArrays = new double[xVectors.size()][xVectors.get(0).size()];
+            for (int i = 0; i < xVectors.size(); i++) {
+                for (int j = 0; j < xVectors.get(i).size(); j++) {
+                    xArrays[i][j] = xVectors.get(i).get(j);
+                }
+            }
+
+            regression.newSampleData(yArray, xArrays);
+            double[] betas = regression.estimateRegressionParameters();
+
+            for (int i = 0; i < genericDefinitions.size(); i++) {
+                double prediction = Math.max(betas[i], 0.0);
+                double price = prediction * fraction;
+                logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
+                        genericDefinitions.get(i), prediction, price);
+                setStartingPrice((G) genericDefinitions.get(i), BigDecimal.valueOf(price));
+            }
+
+        } catch (UnsupportedBiddingLanguageException e) {
+            // Catching this error here, because it's very unlikely to happen and we don't want to bother
+            // the user with handling this error. We just log it and don't set the starting prices.
+            logger.error("Tried to calculate sampled starting prices, but {} doesn't support the " +
+                    "SizeBasedUniqueRandomXOR bidding language. Not setting any starting prices.", world);
         }
     }
 
@@ -165,7 +185,9 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         while (!done) {
             demand = new HashMap<>();
             for (Bidder<T> bidder : bidders) {
-                List<? extends GenericDemandQueryResult<G, T>> genericDemandQueryResults = genericDemandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon).getResultPool(clockPhaseNumberOfBundles);
+                GenericDemandQueryMIP<G, T> demandQueryMIP = genericDemandQueryMIPBuilder.getDemandQueryMipFor(bidder, prices, epsilon);
+                demandQueryMIP.setTimeLimit(getTimeLimit());
+                List<? extends GenericDemandQueryResult<G, T>> genericDemandQueryResults = demandQueryMIP.getResultPool(clockPhaseNumberOfBundles);
                 // Fill the generic map
                 GenericValue<G, T> firstResult = genericDemandQueryResults.get(0).getResultingBundle();
                 if (firstResult.getTotalQuantity() > 0) {
@@ -229,7 +251,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         for (Bidder<T> bidder : bidders) {
             List<GenericValue<G, T>> newValues = new ArrayList<>();
             for (GenericSupplementaryRound<G, T> supplementaryRound : supplementaryRounds) {
-                 newValues.addAll(supplementaryRound.getSupplementaryBids(this, bidder));
+                newValues.addAll(supplementaryRound.getSupplementaryBids(this, bidder));
             }
 
             GenericBid<G, T> bidderBid = bidsAfterClockPhase.stream().filter(bid -> bidder.equals(bid.getBidder())).findFirst().orElseThrow(NoSuchElementException::new);

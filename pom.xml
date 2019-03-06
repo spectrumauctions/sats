@@ -3,7 +3,7 @@
 
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats</artifactId>
-    <version>0.6.2</version>
+    <version>0.6.3</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -146,7 +146,7 @@
         <connection>scm:git:git://github.com/spectrumauctions/sats.git</connection>
         <developerConnection>scm:git:git@github.com:spectrumauctions/sats.git</developerConnection>
         <url>https://github.com/spectrumauctions/sats/tree/master/</url>
-        <tag>v0.6.2</tag>
+        <tag>v0.6.3</tag>
     </scm>
 
     <dependencies>
@@ -238,7 +238,7 @@
         <dependency>
             <groupId>edu.harvard.eecs</groupId>
             <artifactId>jopt</artifactId>
-            <version>1.3.2</version>
+            <version>1.3.3</version>
         </dependency>
 
         <dependency>

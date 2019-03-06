@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * @author Fabio Isler
  */
-public class MRVM_DemandQueryMIP extends ModelMIP implements GenericDemandQueryMIP<MRVMGenericDefinition, MRVMLicense> {
+public class MRVM_DemandQueryMIP implements GenericDemandQueryMIP<MRVMGenericDefinition, MRVMLicense> {
 
     private static final Logger logger = LogManager.getLogger(MRVM_DemandQueryMIP.class);
 
@@ -116,6 +116,11 @@ public class MRVM_DemandQueryMIP extends ModelMIP implements GenericDemandQueryM
         }
 
         return results;
+    }
+
+    @Override
+    public ModelMIP getMip() {
+        return mrvmMip;
     }
 
 }

@@ -21,6 +21,9 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
     protected static final BigDecimal DEFAULT_STARTING_PRICE = BigDecimal.ZERO;
     private static final double DEFAULT_EPSILON = 0.1;
     private static final int DEFAULT_MAX_ROUNDS = 1000;
+    private static final int DEFAULT_TIME_LIMIT = 600;
+    private static final int DEFAULT_REL_RESULT_POOL_TOLERANCE = 0;
+    private static final int DEFAULT_ABS_RESULT_POOL_TOLERANCE = 0;
     private static final int DEFAULT_CLOCKPHASE_NUMBER_OF_BUNDLES = 1;
 
     protected List<Bidder<T>> bidders;
@@ -28,6 +31,10 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
     protected BigDecimal fallbackStartingPrice = DEFAULT_STARTING_PRICE;
     protected double epsilon = DEFAULT_EPSILON;
     protected int maxRounds = DEFAULT_MAX_ROUNDS;
+    protected double timeLimit = DEFAULT_TIME_LIMIT;
+
+    protected double relativeResultPoolTolerance = DEFAULT_REL_RESULT_POOL_TOLERANCE;
+    protected double absoluteResultPoolTolerance = DEFAULT_ABS_RESULT_POOL_TOLERANCE;
     protected PaymentRuleEnum paymentRule = PaymentRuleEnum.VCG;
 
     // The number of bundles returned in a demand query in the clock phase
@@ -96,6 +103,49 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
 
     public void setMaxRounds(int maxRounds) {
         this.maxRounds = maxRounds;
+    }
+
+    public double getTimeLimit() {
+        return timeLimit;
+    }
+
+    /**
+     * This time limit (in seconds) is applied to all the demand queries
+     */
+    public void setTimeLimit(double timeLimit) {
+        this.timeLimit = timeLimit;
+    }
+
+    public double getAbsoluteResultPoolTolerance() {
+        return absoluteResultPoolTolerance;
+    }
+
+
+    public double getRelativeResultPoolTolerance() {
+        return relativeResultPoolTolerance;
+    }
+
+    /**
+     * In some cases in CCA (e.g., the profit maximizing supplementary round), we're interested in a collection of
+     * most optimal results.
+     * Since that can take a long time and setting a time limit is sometimes not the best option to solve this,
+     * the user can specify a result pool tolerance.
+     *
+     * This tolerance defines "how far the worst solution is allowed to be from the best solution to stop looking
+     * for other solutions and return the current collection of solutions".
+     *
+     */
+    public void setAbsoluteResultPoolTolerance(double absoluteResultPoolTolerance) {
+        this.absoluteResultPoolTolerance = absoluteResultPoolTolerance;
+    }
+
+    /**
+     *  Same as {@link #setAbsoluteResultPoolTolerance(double)}, but in a relative way (e.g., 0.1 for 10% tolerance).
+     *  This is usually more helpful than the absolute tolerance, but if the best solution has an objective value of 0,
+     *  the relative tolerance won't work.
+     */
+    public void setRelativeResultPoolTolerance(double relativeResultPoolTolerance) {
+        this.relativeResultPoolTolerance = relativeResultPoolTolerance;
     }
 
     public void setClockPhaseNumberOfBundles(int clockPhaseNumberOfBundles) {

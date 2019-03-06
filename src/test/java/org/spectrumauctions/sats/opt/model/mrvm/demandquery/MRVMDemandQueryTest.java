@@ -68,7 +68,7 @@ public class MRVMDemandQueryTest {
         world.getAllGenericDefinitions().forEach(def -> prices.put(def, BigDecimal.valueOf(1000000)));
 
         MRVM_DemandQueryMIP mip = new MRVM_DemandQueryMIP(bidder, prices);
-        mip.getMip().setSolveParam(SolveParam.DISPLAY_OUTPUT, true);
+        mip.getMip().getMip().setSolveParam(SolveParam.DISPLAY_OUTPUT, true);
         List<MRVMDemandQueryMipResult> resultSet = mip.getResultPool(100);
         double firstValue = resultSet.get(0).getResultingBundle().getValue().doubleValue();
         for (MRVMDemandQueryMipResult result : resultSet) {

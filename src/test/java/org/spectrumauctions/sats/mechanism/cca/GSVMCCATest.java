@@ -1,6 +1,7 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,10 +97,39 @@ public class GSVMCCATest {
         cca.setPriceUpdater(priceUpdater);
 
         ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRound = new ProfitMaximizingNonGenericSupplementaryRound<>();
-        supplementaryRound.setNumberOfSupplementaryBids(500);
+        supplementaryRound.setNumberOfSupplementaryBids(100);
         cca.addSupplementaryRound(supplementaryRound);
 
         return cca;
+    }
+
+    @Test
+    public void testNoDuplicatesInSupplementaryRound() {
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);
+        cca.calculateSampledStartingPrices(50, 100 ,0.1);
+        cca.setTimeLimit(30);
+
+        for (GSVMBidder bidder : rawBidders) {
+            List<XORValue<GSVMLicense>> valuesCP = cca.getBidsAfterClockPhase()
+                    .stream()
+                    .filter(bid -> bid.getBidder().equals(bidder))
+                    .map(XORBid::getValues)
+                    .findFirst().orElseThrow(NoSuchElementException::new);
+            List<XORValue<GSVMLicense>> valuesSR = new ArrayList<>(
+                    cca.getBidsAfterSupplementaryRound()
+                    .stream()
+                    .filter(bid -> bid.getBidder().equals(bidder))
+                    .map(XORBid::getValues)
+                    .findFirst().orElseThrow(NoSuchElementException::new)
+            );
+            valuesSR.removeAll(valuesCP);
+            for (int i = 0; i < valuesSR.size(); i++) {
+                for (int j = i + 1; j < valuesSR.size(); j++) {
+                    assertNotEquals(valuesSR.get(i).getLicenses(), valuesSR.get(j).getLicenses());
+                }
+            }
+        }
     }
 
     @Test
@@ -132,6 +162,7 @@ public class GSVMCCATest {
         BigDecimal sampledTotalValue = allocSampled.getAllocationWithTrueValues().getTotalValue();
         long durationSampled = System.currentTimeMillis() - startSampled;
 
+        assertTrue(ccaZero.getTotalRounds() > ccaSampled.getTotalRounds());
         assertTrue(durationZero > durationSampled);
     }
 
