@@ -3,7 +3,7 @@
 
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats</artifactId>
-    <version>0.6.3</version>
+    <version>0.6.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -146,7 +146,7 @@
         <connection>scm:git:git://github.com/spectrumauctions/sats.git</connection>
         <developerConnection>scm:git:git@github.com:spectrumauctions/sats.git</developerConnection>
         <url>https://github.com/spectrumauctions/sats/tree/master/</url>
-        <tag>v0.6.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
