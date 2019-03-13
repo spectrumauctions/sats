@@ -74,6 +74,7 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
         throw new UnsupportedOperationException("Not supported"); // FIXME: Clean up interfaces
     }
 
+
     @Override
     public void adjustPayoffs(Map<Bidder<T>, Double> payoffs) {
         throw new UnsupportedOperationException("Not supported"); // FIXME: Clean up interfaces
@@ -100,6 +101,16 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
      * @param seed                  The seed used for drawing the values
      */
     public abstract void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed);
+
+    /**
+     * To make experiments on supplementary rounds with the exact same clock phase bids, this method returns a copy
+     * of the CCA instance that has two fields cleared: The bids after the supplementary round and the list
+     * of supplementary rounds.
+     *
+     * @return  A clone of this instance, with cleared bids after the supplementary round and cleared list of
+     *          supplementary rounds
+     */
+    public abstract CCAMechanism<T> cloneWithoutSupplementaryBids();
 
     public void setMaxRounds(int maxRounds) {
         this.maxRounds = maxRounds;

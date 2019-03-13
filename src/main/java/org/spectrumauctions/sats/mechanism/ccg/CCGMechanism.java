@@ -21,11 +21,6 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
 
     private WinnerDeterminator<T> baseWD;
     private MechanismResult<T> result;
-    private BigDecimal scale = BigDecimal.ONE;
-
-    public void setScale(BigDecimal scale) {
-        this.scale = scale;
-    }
 
     public CCGMechanism(WinnerDeterminator<T> wdp) {
         this.baseWD = wdp;
@@ -62,6 +57,11 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
     @Override
     public void adjustPayoffs(Map<Bidder<T>, Double> payoffs) {
         baseWD.adjustPayoffs(payoffs);
+    }
+
+    @Override
+    public double getScale() {
+        return baseWD.getScale();
     }
 
     private MechanismResult<T> calculateCCGPayments() {
@@ -102,15 +102,10 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
             double payments = payment.getTotalPayments();
             if (caughtInLoopDueToRoundingErrors ||
                     z_p <= payments + 1e-6) {
-                Map<Bidder<T>, BidderPayment> unscaledPaymentMap = new HashMap<>();
-                for (Map.Entry<Bidder<T>, BidderPayment> entry : payment.getPaymentMap().entrySet()) {
-                    unscaledPaymentMap.put(entry.getKey(), new BidderPayment(entry.getValue().getAmount() / scale.doubleValue()));
-                }
-                Payment<T> unscaledPayment = new Payment<>(unscaledPaymentMap);
-                return new MechanismResult<>(unscaledPayment, originalAllocation);
+                return new MechanismResult<>(payment, originalAllocation);
             } else {
                 double coalitionValue = z_p - traitorPayments;
-                Constraint constraint = new Constraint(CompareType.GEQ, coalitionValue);
+                Constraint constraint = new Constraint(CompareType.GEQ, coalitionValue * getScale());
 
                 for (Bidder<T> nonTraitor : originalAllocation.getWinners()) {
                     if (!blockingCoalition.getWinners().contains(nonTraitor)) {
@@ -140,15 +135,15 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
                 for (Map.Entry<Bidder<T>, Variable> entry : paymentVariables.entrySet()) {
                     Variable winnerVariable = entry.getValue();
                     l2Mip.addObjectiveTerm(1, winnerVariable, winnerVariable);
-                    l2Mip.addObjectiveTerm(-2 * vcgResult.getPayment().paymentOf(entry.getKey()).getAmount(), winnerVariable);
+                    l2Mip.addObjectiveTerm(-2 * vcgResult.getPayment().paymentOf(entry.getKey()).getAmount() * getScale(), winnerVariable);
                 }
 
                 IMIPResult l2Result = solverClient.solve(l2Mip);
 
                 Map<Bidder<T>, BidderPayment> paymentMap = new HashMap<>(originalAllocation.getWinners().size());
-                for (Bidder<T> company : originalAllocation.getWinners()) {
-                    double doublePayment = l2Result.getValue(paymentVariables.get(company));
-                    paymentMap.put(company, new BidderPayment(doublePayment));
+                for (Bidder<T> bidder : originalAllocation.getWinners()) {
+                    double scaledPayment = l2Result.getValue(paymentVariables.get(bidder));
+                    paymentMap.put(bidder, new BidderPayment(scaledPayment / getScale()));
                 }
                 payment = new Payment<>(paymentMap);
             }
@@ -168,11 +163,11 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
         Map<Bidder<T>, Variable> winnerVariables = new HashMap<>(originalAllocation.getWinners().size());
         for (Bidder<T> winner : originalAllocation.getWinners()) {
 
-            double winnerPayment = payment.paymentOf(winner).getAmount();
-            double winnerValue = originalAllocation.getTradeValue(winner).doubleValue();
+            double winnerPayment = payment.paymentOf(winner).getAmount() * getScale();
+            double winnerValue = originalAllocation.getTradeValue(winner).doubleValue() * getScale();
             Variable winnerVariable = new Variable(String.valueOf(winner.getId()),
                     VarType.DOUBLE,
-                    0 /* FIXME: For MRVM, the payment sometimes is > 0 even if the value is 0. Bug or normal? */,
+                    winnerPayment,
                     winnerValue);
 
             winnerVariables.put(winner, winnerVariable);

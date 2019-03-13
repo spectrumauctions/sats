@@ -1,7 +1,6 @@
 package org.spectrumauctions.sats.opt.xorq;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.math.DoubleMath;
 import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
@@ -11,17 +10,12 @@ import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 
-import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +28,6 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
     private Set<GenericBid<G, T>> bids;
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
-    private GenericWorld<T> world;
     private double scalingFactor = 1;
 
 
@@ -42,19 +35,20 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(bids.size() > 0);
         this.bids = bids;
-        double maxValue = -1;
+        double sumOfMaxValues = 0;
         for (GenericBid<G, T> bid : bids) {
+            double maxValue = -1;
             for (GenericValue<G, T> value : bid.getValues()) {
                 if (value.getValue().doubleValue() > maxValue) {
                     maxValue = value.getValue().doubleValue();
                 }
             }
+            sumOfMaxValues += maxValue;
         }
-        if (maxValue > MIP.MAX_VALUE * 0.9) {
-            this.scalingFactor = 0.9 / maxValue * MIP.MAX_VALUE;
+        if (sumOfMaxValues > MIP.MAX_VALUE * 0.9) {
+            this.scalingFactor = 0.9 / sumOfMaxValues * MIP.MAX_VALUE * 0.9;
         }
 
-        this.world = (GenericWorld<T>) bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
     }
 
@@ -130,7 +124,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         for (GenericBid<G, T> bidPerBidder : bids) {
             Variable x = new Variable("x_" + bidPerBidder.getBidder().getId(), VarType.BOOLEAN, 0, 1);
             winnerDeterminationProgram.add(x);
-            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0), x);
+            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0) * scalingFactor, x);
 
             Constraint x1 = new Constraint(CompareType.GEQ, 0);
             Constraint x2 = new Constraint(CompareType.LEQ, 0);
@@ -141,6 +135,11 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
             winnerDeterminationProgram.add(x1);
             winnerDeterminationProgram.add(x2);
         }
+    }
+
+    @Override
+    public double getScale() {
+        return scalingFactor;
     }
 
     private Variable getBidVariable(GenericValue<G, T> bundleBid) {

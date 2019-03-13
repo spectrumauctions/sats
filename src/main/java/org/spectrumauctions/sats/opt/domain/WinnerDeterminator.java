@@ -24,4 +24,6 @@ public interface WinnerDeterminator<T extends Good> {
 
     void adjustPayoffs(Map<Bidder<T>, Double> payoffs);
 
+    double getScale();
+
 }

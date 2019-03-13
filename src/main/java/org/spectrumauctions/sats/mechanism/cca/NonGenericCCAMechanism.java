@@ -136,6 +136,26 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         }
     }
 
+    @Override
+    public CCAMechanism<T> cloneWithoutSupplementaryBids() {
+        NonGenericCCAMechanism<T> clone = new NonGenericCCAMechanism<>(bidders, demandQueryMIPBuilder);
+        clone.priceUpdater = priceUpdater;
+        clone.absoluteResultPoolTolerance = absoluteResultPoolTolerance;
+        clone.relativeResultPoolTolerance = relativeResultPoolTolerance;
+        clone.clockPhaseNumberOfBundles = clockPhaseNumberOfBundles;
+        clone.epsilon = epsilon;
+        clone.fallbackStartingPrice = fallbackStartingPrice;
+        clone.maxRounds = maxRounds;
+        clone.paymentRule = paymentRule;
+        clone.timeLimit = timeLimit;
+        clone.bidsAfterClockPhase = bidsAfterClockPhase;
+        clone.finalPrices = finalPrices;
+        clone.finalDemand = finalDemand;
+        clone.totalRounds = totalRounds;
+        clone.startingPrices = startingPrices;
+        return clone;
+    }
+
     public Allocation<T> calculateClockPhaseAllocation() {
         if (bidsAfterClockPhase == null) {
             logger.info("Starting clock phase for XOR bids...");
@@ -343,4 +363,8 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return null;
     }
 
+    @Override
+    public double getScale() {
+        return 1;
+    }
 }

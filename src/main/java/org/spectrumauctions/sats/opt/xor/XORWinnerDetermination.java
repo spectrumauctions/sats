@@ -45,16 +45,18 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(!bids.isEmpty());
         this.bids = bids;
-        double maxValue = -1;
+        double sumOfMaxValues = 0;
         for (XORBid<T> bid : bids) {
+            double maxValue = -1;
             for (XORValue<T> value : bid.getValues()) {
                 if (value.value().doubleValue() > maxValue) {
                     maxValue = value.value().doubleValue();
                 }
             }
+            sumOfMaxValues += maxValue;
         }
-        if (maxValue > MIP.MAX_VALUE * 0.9) {
-            this.scalingFactor = 0.9 / maxValue * MIP.MAX_VALUE;
+        if (sumOfMaxValues > MIP.MAX_VALUE * 0.9) {
+            this.scalingFactor = 0.9 / sumOfMaxValues * MIP.MAX_VALUE * 0.9;
         }
         this.world = bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
@@ -127,7 +129,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         for (XORBid<T> bidPerBidder : bids) {
             Variable x = new Variable("x_" + bidPerBidder.getBidder().getId(), VarType.BOOLEAN, 0, 1);
             winnerDeterminationProgram.add(x);
-            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0), x);
+            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0) * scalingFactor, x);
 
             Constraint x1 = new Constraint(CompareType.GEQ, 0);
             Constraint x2 = new Constraint(CompareType.LEQ, 0);
@@ -138,6 +140,11 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
             winnerDeterminationProgram.add(x1);
             winnerDeterminationProgram.add(x2);
         }
+    }
+
+    @Override
+    public double getScale() {
+        return scalingFactor;
     }
 
     private Allocation<T> solveWinnerDetermination() {

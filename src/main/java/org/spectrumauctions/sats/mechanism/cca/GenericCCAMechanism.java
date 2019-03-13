@@ -36,14 +36,13 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
     private Collection<GenericBid<G, T>> bidsAfterClockPhase;
     private Collection<GenericBid<G, T>> bidsAfterSupplementaryRound;
     private Map<G, BigDecimal> startingPrices = new HashMap<>();
+
     private Map<G, BigDecimal> finalPrices;
     private Map<G, Integer> finalDemand;
-
 
     private GenericDemandQueryMIPBuilder<G, T> genericDemandQueryMIPBuilder;
     private GenericPriceUpdater<G, T> priceUpdater = new SimpleRelativeGenericPriceUpdate<>();
     private List<GenericSupplementaryRound<G, T>> supplementaryRounds = new ArrayList<>();
-
 
     public GenericCCAMechanism(List<Bidder<T>> bidders, GenericDemandQueryMIPBuilder<G, T> genericDemandQueryMIPBuilder) {
         super(bidders);
@@ -134,6 +133,26 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
             logger.error("Tried to calculate sampled starting prices, but {} doesn't support the " +
                     "SizeBasedUniqueRandomXOR bidding language. Not setting any starting prices.", world);
         }
+    }
+
+    @Override
+    public CCAMechanism<T> cloneWithoutSupplementaryBids() {
+        GenericCCAMechanism<G, T> clone = new GenericCCAMechanism<>(bidders, genericDemandQueryMIPBuilder);
+        clone.priceUpdater = priceUpdater;
+        clone.absoluteResultPoolTolerance = absoluteResultPoolTolerance;
+        clone.relativeResultPoolTolerance = relativeResultPoolTolerance;
+        clone.clockPhaseNumberOfBundles = clockPhaseNumberOfBundles;
+        clone.epsilon = epsilon;
+        clone.fallbackStartingPrice = fallbackStartingPrice;
+        clone.maxRounds = maxRounds;
+        clone.paymentRule = paymentRule;
+        clone.timeLimit = timeLimit;
+        clone.bidsAfterClockPhase = bidsAfterClockPhase;
+        clone.finalPrices = finalPrices;
+        clone.finalDemand = finalDemand;
+        clone.totalRounds = totalRounds;
+        clone.startingPrices = startingPrices;
+        return clone;
     }
 
     public Allocation<T> calculateClockPhaseAllocation() {
@@ -343,5 +362,10 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         }
         logger.warn("Couldn't find a bid for bidder {} after supplementary round.", bidder);
         return null;
+    }
+
+    @Override
+    public double getScale() {
+        return 1;
     }
 }
