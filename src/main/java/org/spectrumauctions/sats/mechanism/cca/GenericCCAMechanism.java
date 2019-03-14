@@ -35,6 +35,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
 
     private Collection<GenericBid<G, T>> bidsAfterClockPhase;
     private Collection<GenericBid<G, T>> bidsAfterSupplementaryRound;
+
     private Map<G, BigDecimal> startingPrices = new HashMap<>();
 
     private Map<G, BigDecimal> finalPrices;
@@ -118,9 +119,12 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
 
             regression.newSampleData(yArray, xArrays);
             double[] betas = regression.estimateRegressionParameters();
+            double min = Arrays.stream(betas).filter(beta -> beta > 0).min().orElseThrow(NoSuchElementException::new);
 
             for (int i = 0; i < genericDefinitions.size(); i++) {
-                double prediction = Math.max(betas[i], 0.0);
+                // In case the prediction is negative, set the prediction to 10% of
+                // the lowest strictly positive prediction of the other goods
+                double prediction = Math.max(betas[i], 0.1 * min);
                 double price = prediction * fraction;
                 logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
                         genericDefinitions.get(i), prediction, price);
@@ -362,6 +366,10 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         }
         logger.warn("Couldn't find a bid for bidder {} after supplementary round.", bidder);
         return null;
+    }
+
+    public BigDecimal getStartingPrice(G definition) {
+        return startingPrices.getOrDefault(definition, fallbackStartingPrice);
     }
 
     @Override

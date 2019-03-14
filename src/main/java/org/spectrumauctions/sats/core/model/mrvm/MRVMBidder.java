@@ -262,7 +262,7 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
             return clazz.cast(
                     SizeOrderedGenericPowersetFactory.getSizeOrderedGenericLang(false, this));
         } else if (clazz.isAssignableFrom(XORQRandomOrderSimple.class)) {
-            return clazz.cast(RandomOrderXORQFactory.getXORQRandomOrderSimpleLang(this));
+            return clazz.cast(RandomOrderXORQFactory.getXORQRandomOrderSimpleLang(this, rngSupplier));
         } else {
             throw new UnsupportedBiddingLanguageException();
         }

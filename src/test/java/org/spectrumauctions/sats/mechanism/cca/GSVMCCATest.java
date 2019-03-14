@@ -185,6 +185,22 @@ public class GSVMCCATest {
     }
 
     @Test
+    public void testDeterministicSampledStartingPrices() {
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123123);
+
+        NonGenericCCAMechanism<GSVMLicense> ccaSampled = getMechanism(rawBidders);
+        ccaSampled.calculateSampledStartingPrices(10, 100, 0.1, 987987);
+
+        NonGenericCCAMechanism<GSVMLicense> ccaSampled2 = getMechanism(rawBidders);
+        ccaSampled2.calculateSampledStartingPrices(10, 100, 0.1, 987987);
+
+        for (GSVMLicense license : rawBidders.iterator().next().getWorld().getLicenses()) {
+            assertEquals(ccaSampled.getStartingPrice(license), ccaSampled2.getStartingPrice(license));
+        }
+
+    }
+
+    @Test
     public void testLastBidsSupplementaryRound() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()

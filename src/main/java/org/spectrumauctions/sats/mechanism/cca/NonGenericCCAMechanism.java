@@ -34,6 +34,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private NonGenericDemandQueryMIPBuilder<T> demandQueryMIPBuilder;
     private Map<Good, BigDecimal> startingPrices = new HashMap<>();
+
     private NonGenericPriceUpdater<T> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
     private List<NonGenericSupplementaryRound<T>> supplementaryRounds = new ArrayList<>();
 
@@ -82,7 +83,6 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                 List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
                 for (Bidder<T> bidder : alternateBidders) {
                     SizeBasedUniqueRandomXOR valueFunction;
-
                     valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
                     valueFunction.setIterations(bidsPerBidder);
 
@@ -119,10 +119,12 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
             regression.newSampleData(yArray, xArrays);
             double[] betas = regression.estimateRegressionParameters();
+            double min = Arrays.stream(betas).filter(beta -> beta > 0).min().orElseThrow(NoSuchElementException::new);
 
             for (int i = 0; i < licenseList.size(); i++) {
-                double prediction = Math.max(betas[i], 0.0);
-                double price = prediction * fraction;
+                // In case the prediction is negative, set the prediction to 10% of
+                // the lowest strictly positive prediction of the other goods
+                double prediction = Math.max(betas[i], 0.1 * min);                double price = prediction * fraction;
                 logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
                         licenseList.get(i), prediction, price);
                 setStartingPrice(licenseList.get(i), BigDecimal.valueOf(price));
@@ -361,6 +363,10 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         }
         logger.warn("Couldn't find a bid for bidder {} after supplementary round.", bidder);
         return null;
+    }
+
+    public BigDecimal getStartingPrice(T license) {
+        return startingPrices.getOrDefault(license, fallbackStartingPrice);
     }
 
     @Override
