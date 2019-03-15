@@ -1,7 +1,7 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
@@ -28,6 +28,8 @@ import org.spectrumauctions.sats.opt.xorq.XORQWinnerDetermination;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static jdk.nashorn.internal.objects.Global.Infinity;
 
 public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good> extends CCAMechanism<T> {
 
@@ -76,11 +78,13 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
         GenericWorld<T> world = (GenericWorld<T>) bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
-        // We need a fixed order -> List
-        List<GenericDefinition<T>> genericDefinitions = new ArrayList<>(world.getAllGenericDefinitions());
         try {
-            ArrayList<Double> yVector = new ArrayList<>();
-            ArrayList<ArrayList<Double>> xVectors = new ArrayList<>();
+            Map<G, SimpleRegression> regressions = new HashMap<>();
+            for (GenericDefinition<T> genericDefinition : world.getAllGenericDefinitions()) {
+                SimpleRegression regression = new SimpleRegression(false);
+                regression.addData(0.0, 0.0);
+                regressions.put((G) genericDefinition, regression);
+            }
 
             RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
             for (int i = 0; i < numberOfWorldSamples; i++) {
@@ -93,42 +97,29 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
                     Iterator<? extends GenericValue<G, T>> bidIterator = valueFunction.iterator();
                     while (bidIterator.hasNext()) {
                         GenericValue<G, T> bid = bidIterator.next();
-                        yVector.add(bid.getValue().doubleValue());
-                        ArrayList<Double> xVector = new ArrayList<>();
-                        for (GenericDefinition<T> definition : genericDefinitions) {
-                            xVector.add((double) bid.getQuantities().getOrDefault(definition, 0));
+                        for (Map.Entry<G, Integer> entry : bid.getQuantities().entrySet()) {
+                            double y = bid.getValue().doubleValue() * entry.getValue() / bid.getTotalQuantity();
+                            regressions.get(entry.getKey()).addData(entry.getValue().doubleValue(), y);
                         }
-                        xVectors.add(xVector);
                     }
                 }
             }
-
-
-            OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
-            regression.setNoIntercept(true);
-            double[] yArray = new double[yVector.size()];
-            for (int i = 0; i < yVector.size(); i++) {
-                yArray[i] = yVector.get(i);
-            }
-            double[][] xArrays = new double[xVectors.size()][xVectors.get(0).size()];
-            for (int i = 0; i < xVectors.size(); i++) {
-                for (int j = 0; j < xVectors.get(i).size(); j++) {
-                    xArrays[i][j] = xVectors.get(i).get(j);
-                }
-            }
-
-            regression.newSampleData(yArray, xArrays);
-            double[] betas = regression.estimateRegressionParameters();
-            double min = Arrays.stream(betas).filter(beta -> beta > 0).min().orElseThrow(NoSuchElementException::new);
-
-            for (int i = 0; i < genericDefinitions.size(); i++) {
-                // In case the prediction is negative, set the prediction to 10% of
-                // the lowest strictly positive prediction of the other goods
-                double prediction = Math.max(betas[i], 0.1 * min);
-                double price = prediction * fraction;
+            double min = Infinity;
+            for (Map.Entry<G, SimpleRegression> entry : regressions.entrySet()) {
+                double y = entry.getValue().predict(1);
+                double price = y * fraction;
                 logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
-                        genericDefinitions.get(i), prediction, price);
-                setStartingPrice((G) genericDefinitions.get(i), BigDecimal.valueOf(price));
+                        entry.getKey(), y, price);
+                setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+                if (price > 0 && price < min) min = price;
+            }
+
+            // If ever a prediction turns out to be zero or negative (which should almost never be the case)
+            // it is set to the smallest prediction of the other goods to avoid getting stuck in CCA
+            for (G def : regressions.keySet()) {
+                if (startingPrices.get(def).compareTo(BigDecimal.ZERO) < 1) {
+                    setStartingPrice(def, BigDecimal.valueOf(min));
+                }
             }
 
         } catch (UnsupportedBiddingLanguageException e) {

@@ -1,7 +1,7 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
@@ -27,6 +27,8 @@ import org.spectrumauctions.sats.opt.xor.XORWinnerDetermination;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static jdk.nashorn.internal.objects.Global.Infinity;
 
 public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
@@ -72,11 +74,13 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
         World world = bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
-        // We need a fixed order -> List
-        List<Good> licenseList = new ArrayList<>(world.getLicenses());
         try {
-            ArrayList<Double> yVector = new ArrayList<>();
-            ArrayList<ArrayList<Double>> xVectors = new ArrayList<>();
+            Map<Good, SimpleRegression> regressions = new HashMap<>();
+            for (Good good : world.getLicenses()) {
+                SimpleRegression regression = new SimpleRegression(false);
+                regression.addData(0.0, 0.0);
+                regressions.put(good, regression);
+            }
 
             RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
             for (int i = 0; i < numberOfWorldSamples; i++) {
@@ -89,45 +93,33 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                     Iterator<XORValue<T>> bidIterator = valueFunction.iterator();
                     while (bidIterator.hasNext()) {
                         XORValue<T> bid = bidIterator.next();
-                        yVector.add(bid.value().doubleValue());
-                        ArrayList<Double> xVector = new ArrayList<>();
-                        for (Good license : licenseList) {
-                            double value = 0;
-                            if (bid.getLicenses().contains(license)) {
-                                value = 1;
-                            }
-                            xVector.add(value);
+                        Bundle<T> bundle = bid.getLicenses();
+                        BigDecimal value = bid.value();
+                        for (Good good : bundle) {
+                            double y = value.doubleValue() / bundle.size();
+                            regressions.get(good).addData(1.0, y);
                         }
-                        xVectors.add(xVector);
                     }
                 }
             }
 
+            double min = Infinity;
 
-            OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
-            regression.setNoIntercept(true);
-            double[] yArray = new double[yVector.size()];
-            for (int i = 0; i < yVector.size(); i++) {
-                yArray[i] = yVector.get(i);
-            }
-            double[][] xArrays = new double[xVectors.size()][xVectors.get(0).size()];
-            for (int i = 0; i < xVectors.size(); i++) {
-                for (int j = 0; j < xVectors.get(i).size(); j++) {
-                    xArrays[i][j] = xVectors.get(i).get(j);
-                }
-            }
-
-            regression.newSampleData(yArray, xArrays);
-            double[] betas = regression.estimateRegressionParameters();
-            double min = Arrays.stream(betas).filter(beta -> beta > 0).min().orElseThrow(NoSuchElementException::new);
-
-            for (int i = 0; i < licenseList.size(); i++) {
-                // In case the prediction is negative, set the prediction to 10% of
-                // the lowest strictly positive prediction of the other goods
-                double prediction = Math.max(betas[i], 0.1 * min);                double price = prediction * fraction;
+            for (Map.Entry<Good, SimpleRegression> entry : regressions.entrySet()) {
+                double y = entry.getValue().predict(1);
+                double price = y * fraction;
                 logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
-                        licenseList.get(i), prediction, price);
-                setStartingPrice(licenseList.get(i), BigDecimal.valueOf(price));
+                        entry.getKey(), y, price);
+                setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+                if (price > 0 && price < min) min = price;
+            }
+
+            // If ever a prediction turns out to be zero or negative (which should almost never be the case)
+            // it is set to the smallest prediction of the other goods to avoid getting stuck in CCA
+            for (Good license : regressions.keySet()) {
+                if (startingPrices.get(license).compareTo(BigDecimal.ZERO) < 1) {
+                    setStartingPrice(license, BigDecimal.valueOf(min));
+                }
             }
 
         } catch (UnsupportedBiddingLanguageException e) {
