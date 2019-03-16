@@ -46,7 +46,7 @@ public class GSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<GSVMLicense
         Preconditions.checkNotNull(prices);
         this.world = bidder.getWorld();
         Preconditions.checkArgument(prices.size() == world.getLicenses().size());
-        gsvmMip = new GSVMStandardMIP(world, Lists.newArrayList(bidder));
+        gsvmMip = new GSVMStandardMIP(world, Lists.newArrayList(bidder), true);
 
         gsvmMip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
         priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
