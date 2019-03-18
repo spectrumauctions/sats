@@ -10,8 +10,8 @@ import org.spectrumauctions.sats.core.model.Good;
 
 /**
  * Bidding languages represent a mean for the bidder to express a value for a certain set of goods.
- * Most bidding languages in SATS differ by the iterator they implement. These iterators define by what logic
- * a bidder provides bids when he is asked for a new bid.
+ * Typically, bidding languages in SATS contain an iterator that defines by what logic a bidder provides bids when he
+ * is asked for a new bid.
  * For example, we can ask a bidder to provide XOR bids, starting at the smallest bundle and increasing the size the
  * more bids we ask for (see {@link org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR}).
  * Another example is to get (parametrized) random bids with the {@link org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR}
