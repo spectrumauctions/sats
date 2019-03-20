@@ -37,7 +37,7 @@ public abstract class Bidder<G extends Good> implements Serializable {
 
 
     /**
-     * @return the name of the configuration ({@link BidderSetup}) with which the bidder was created.
+     * @return the name of the configuration ({@link BidderSetup}) (i.e., the 'bidder type') with which the bidder was created.
      */
     public String getSetupType() {
         return setupType;
