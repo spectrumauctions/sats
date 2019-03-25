@@ -3,6 +3,8 @@ package org.spectrumauctions.sats.mechanism.ccg;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.mechanism.domain.BidderPayment;
@@ -13,11 +15,13 @@ import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
+
+    private static final Logger logger = LogManager.getLogger(CCGMechanism.class);
+
 
     private WinnerDeterminator<T> baseWD;
     private MechanismResult<T> result;
@@ -165,6 +169,13 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
 
             double winnerPayment = payment.paymentOf(winner).getAmount() * getScale();
             double winnerValue = originalAllocation.getTradeValue(winner).doubleValue() * getScale();
+            if (winnerPayment >= winnerValue) {
+                logger.warn("Scaled VCG payment is not smaller than the trade value of this bidder. Payment: {}, Trade value: {}");
+                logger.warn("Assuming that VCG chose a payment equal to the trade value, and thus setting the upper " +
+                        "bound of the payment variable to value + 1e-10. If the variable creation still fails, the " +
+                        "VCG payment was greater than the trade value, so something went wrong with the VCG payment calculation.");
+                winnerValue += 1e-10;
+            }
             Variable winnerVariable = new Variable(String.valueOf(winner.getId()),
                     VarType.DOUBLE,
                     winnerPayment,
