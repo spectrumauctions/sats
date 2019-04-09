@@ -107,7 +107,11 @@ public abstract class ModelCreator {
             if (oneFile) {
                 Collection<GenericLang<GenericDefinition<? extends Good>, ?>> languages = new ArrayList<>();
                 for (Bidder<? extends Good> bidder : bidders) {
-                    languages.add(bidder.getValueFunction(langClass));
+                    if (seedType == SeedType.SUPERSEED) {
+                        languages.add(bidder.getValueFunction(langClass, superSeed));
+                    } else {
+                        languages.add(bidder.getValueFunction(langClass));
+                    }
                 }
                 File valueFile = writer.writeMultiBidderXORQ(languages, bidsPerBidder, "satsvalue");
                 result = new PathResult(storeWorldSerialization, instanceFolder);
@@ -119,7 +123,12 @@ public abstract class ModelCreator {
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();
                 for (Bidder<? extends Good> bidder : bidders) {
-                    GenericLang<GenericDefinition<? extends Good>, ?> valueFunction = bidder.getValueFunction(langClass);
+                    GenericLang<GenericDefinition<? extends Good>, ?> valueFunction;
+                    if (seedType == SeedType.SUPERSEED) {
+                        valueFunction = bidder.getValueFunction(langClass, superSeed);
+                    } else {
+                        valueFunction = bidder.getValueFunction(langClass);
+                    }
                     writer.writeSingleBidderXORQ(valueFunction, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
                 }
                 result = new PathResult(storeWorldSerialization, instanceFolder);
@@ -132,8 +141,11 @@ public abstract class ModelCreator {
             if (oneFile) {
                 Collection<XORLanguage<? extends Good>> languages = new ArrayList<>();
                 for (Bidder<? extends Good> bidder : bidders) {
-                    XORLanguage<Good> language = bidder.getValueFunction(langClass);
-                    languages.add(language);
+                    if (seedType == SeedType.SUPERSEED) {
+                        languages.add(bidder.getValueFunction(langClass, superSeed));
+                    } else {
+                        languages.add(bidder.getValueFunction(langClass));
+                    }
                 }
                 File valueFile = writer.writeMultiBidderXOR(languages, bidsPerBidder, "satsvalue");
                 result = new PathResult(storeWorldSerialization, instanceFolder);
@@ -144,7 +156,12 @@ public abstract class ModelCreator {
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();
                 for (Bidder<? extends Good> bidder : bidders) {
-                    XORLanguage<Good> language = bidder.getValueFunction(langClass);
+                    XORLanguage<Good> language;
+                    if (seedType == SeedType.SUPERSEED) {
+                        language = bidder.getValueFunction(langClass, superSeed);
+                    } else {
+                        language = bidder.getValueFunction(langClass);
+                    }
                     writer.writeSingleBidderXOR(language, bidsPerBidder, zipId.concat(File.separator).concat("satsvalue"));
                 }
                 result = new PathResult(storeWorldSerialization, instanceFolder);

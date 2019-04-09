@@ -12,10 +12,10 @@ import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.bvm.BMLicense;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,7 +68,7 @@ public class JsonExporter extends FileWriter {
                 licenses.add(license.getId());
             }
             bid.add("licenses", licenses);
-            bid.addProperty("value", roundedValue(xorValue.value().doubleValue()));
+            bid.addProperty("value", xorValue.value().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
             result.add(bid);
         }
         return result;
@@ -126,7 +126,7 @@ public class JsonExporter extends FileWriter {
                 }
             }
             bid.add("quantities", quantities);
-            bid.addProperty("value", roundedValue(val.getValue().doubleValue()));
+            bid.addProperty("value", val.getValue().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
             result.add(bid);
         }
         return result;
