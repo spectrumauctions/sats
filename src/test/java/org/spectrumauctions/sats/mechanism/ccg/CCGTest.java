@@ -85,9 +85,9 @@ public class CCGTest {
 
     @Test
     public void testScalingOfSimpleCCG() {
-        bidder(1).addBid(new Bundle<>(A), MIP.MAX_VALUE);
-        bidder(2).addBid(new Bundle<>(B), MIP.MAX_VALUE);
-        bidder(3).addBid(new Bundle<>(A, B), MIP.MAX_VALUE);
+        bidder(1).addBid(new Bundle<>(A), MIP.MAX_VALUE * 2);
+        bidder(2).addBid(new Bundle<>(B), MIP.MAX_VALUE * 2);
+        bidder(3).addBid(new Bundle<>(A, B), MIP.MAX_VALUE * 2);
 
         Set<XORBid<MockWorld.MockGood>> xorBids = new HashSet<>();
         xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
@@ -97,9 +97,9 @@ public class CCGTest {
         WinnerDeterminator<MockWorld.MockGood> wdp = new XORWinnerDetermination<>(xorBids);
         AuctionMechanism<MockWorld.MockGood> am = new CCGMechanism<>(wdp);
         Payment<MockWorld.MockGood> payment = am.getPayment();
-        assertEquals(am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), MIP.MAX_VALUE * 2, 1e-1);
-        assertEquals(payment.paymentOf(bidder(1)).getAmount(), MIP.MAX_VALUE / 2.0, 1e-1);
-        assertEquals(payment.paymentOf(bidder(2)).getAmount(), MIP.MAX_VALUE / 2.0, 1e-1);
+        assertEquals(am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), MIP.MAX_VALUE * 4, 1e-1);
+        assertEquals(payment.paymentOf(bidder(1)).getAmount(), MIP.MAX_VALUE, 1e-1);
+        assertEquals(payment.paymentOf(bidder(2)).getAmount(), MIP.MAX_VALUE, 1e-1);
         assertEquals(payment.paymentOf(bidder(3)).getAmount(), 0, 1e-1);
     }
 
@@ -156,6 +156,38 @@ public class CCGTest {
         assertEquals(payment.paymentOf(bidder(5)).getAmount(), 0, 0.00001);
         assertEquals(payment.paymentOf(bidder(6)).getAmount(), 0, 0.00001);
         assertEquals(payment.paymentOf(bidder(7)).getAmount(), 0, 0.00001);
+    }
+
+    @Test
+    public void testScalingOfCCGWithTraitor() {
+        bidder(1).addBid(new Bundle<>(A), MIP.MAX_VALUE * 0.5);
+        bidder(2).addBid(new Bundle<>(B), MIP.MAX_VALUE * 0.5);
+        bidder(3).addBid(new Bundle<>(C), MIP.MAX_VALUE * 0.5);
+        bidder(4).addBid(new Bundle<>(D), MIP.MAX_VALUE * 0.5);
+        bidder(5).addBid(new Bundle<>(A, B, C, D, E), MIP.MAX_VALUE * 0.6);
+        bidder(6).addBid(new Bundle<>(A, B, E), MIP.MAX_VALUE * 0.4);
+        bidder(7).addBid(new Bundle<>(C, D, E), MIP.MAX_VALUE * 0.4);
+
+        Set<XORBid<MockWorld.MockGood>> xorBids = new HashSet<>();
+        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(5), bidder(5).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(6), bidder(6).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(7), bidder(7).getBids()).build());
+
+        WinnerDeterminator<MockWorld.MockGood> wdp = new XORWinnerDetermination<>(xorBids);
+        AuctionMechanism<MockWorld.MockGood> am = new CCGMechanism<>(wdp);
+        Payment<MockWorld.MockGood> payment = am.getPayment();
+        assertEquals(am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), MIP.MAX_VALUE * 2, 1e-1);
+        assertEquals(payment.paymentOf(bidder(1)).getAmount(), MIP.MAX_VALUE * 0.2, 1e-1);
+        assertEquals(payment.paymentOf(bidder(2)).getAmount(), MIP.MAX_VALUE * 0.2, 1e-1);
+        assertEquals(payment.paymentOf(bidder(3)).getAmount(), MIP.MAX_VALUE * 0.2, 1e-1);
+        assertEquals(payment.paymentOf(bidder(4)).getAmount(), MIP.MAX_VALUE * 0.2, 1e-1);
+        assertEquals(payment.paymentOf(bidder(5)).getAmount(), 0, 1e-1);
+        assertEquals(payment.paymentOf(bidder(6)).getAmount(), 0, 1e-1);
+        assertEquals(payment.paymentOf(bidder(7)).getAmount(), 0, 1e-1);
     }
 
     @Test

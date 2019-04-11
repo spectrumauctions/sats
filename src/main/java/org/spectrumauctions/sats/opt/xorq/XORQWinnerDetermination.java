@@ -35,18 +35,16 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(bids.size() > 0);
         this.bids = bids;
-        double sumOfMaxValues = 0;
+        double maxValue = 0;
         for (GenericBid<G, T> bid : bids) {
-            double maxValue = -1;
             for (GenericValue<G, T> value : bid.getValues()) {
                 if (value.getValue().doubleValue() > maxValue) {
                     maxValue = value.getValue().doubleValue();
                 }
             }
-            sumOfMaxValues += maxValue;
         }
-        if (sumOfMaxValues > MIP.MAX_VALUE * 0.9) {
-            this.scalingFactor = 0.9 / sumOfMaxValues * MIP.MAX_VALUE * 0.9;
+        if (maxValue > MIP.MAX_VALUE * 0.9) {
+            this.scalingFactor = (MIP.MAX_VALUE * 0.9) / maxValue;
         }
 
         winnerDeterminationProgram = createWinnerDeterminationMIP();

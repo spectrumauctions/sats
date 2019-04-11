@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
-
 /**
  * Wraps an OR or OR* winner determination
  *
@@ -45,18 +43,16 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(!bids.isEmpty());
         this.bids = bids;
-        double sumOfMaxValues = 0;
+        double maxValue = -1;
         for (XORBid<T> bid : bids) {
-            double maxValue = -1;
             for (XORValue<T> value : bid.getValues()) {
                 if (value.value().doubleValue() > maxValue) {
                     maxValue = value.value().doubleValue();
                 }
             }
-            sumOfMaxValues += maxValue;
         }
-        if (sumOfMaxValues > MIP.MAX_VALUE * 0.9) {
-            this.scalingFactor = 0.9 / sumOfMaxValues * MIP.MAX_VALUE * 0.9;
+        if (maxValue > MIP.MAX_VALUE * 0.9) {
+            this.scalingFactor = (MIP.MAX_VALUE * 0.9) / maxValue;
         }
         this.world = bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
@@ -134,7 +130,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
             Constraint x1 = new Constraint(CompareType.GEQ, 0);
             Constraint x2 = new Constraint(CompareType.LEQ, 0);
             x1.addTerm(-1, x);
-            x2.addTerm(-MAX_VALUE, x);
+            x2.addTerm(-MIP.MAX_VALUE, x);
             bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(b)));
             bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(b)));
             winnerDeterminationProgram.add(x1);
