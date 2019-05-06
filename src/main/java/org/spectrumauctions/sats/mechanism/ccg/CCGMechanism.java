@@ -170,7 +170,7 @@ public class CCGMechanism<T extends Good> implements AuctionMechanism<T> {
             double winnerPayment = payment.paymentOf(winner).getAmount() * getScale();
             double winnerValue = originalAllocation.getTradeValue(winner).doubleValue() * getScale();
             if (winnerPayment >= winnerValue) {
-                logger.warn("Scaled VCG payment is not smaller than the trade value of this bidder. Payment: {}, Trade value: {}");
+                logger.warn("Scaled VCG payment is not smaller than the trade value of this bidder. Payment: {}, Trade value: {}", winnerPayment, winnerValue);
                 logger.warn("Assuming that VCG chose a payment equal to the trade value, and thus setting the upper " +
                         "bound of the payment variable to value + 1e-10. If the variable creation still fails, the " +
                         "VCG payment was greater than the trade value, so something went wrong with the VCG payment calculation.");
