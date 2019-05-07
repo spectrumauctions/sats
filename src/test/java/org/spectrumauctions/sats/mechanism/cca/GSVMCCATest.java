@@ -9,12 +9,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
-import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
+import org.spectrumauctions.sats.core.model.*;
+import org.spectrumauctions.sats.core.model.gsvm.*;
 import org.spectrumauctions.sats.mechanism.PaymentRuleEnum;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.SimpleRelativeNonGenericPriceUpdate;
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.LastBidsTrueValueNonGenericSupplementaryRound;
@@ -105,11 +101,11 @@ public class GSVMCCATest {
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
-        cca.setEpsilon(1e-5);
+        cca.setEpsilon(1e-2);
         cca.setPaymentRule(PaymentRuleEnum.CCG);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
-        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.1));
+        priceUpdater.setPriceUpdate(BigDecimal.valueOf(0.05));
         priceUpdater.setInitialUpdate(BigDecimal.valueOf(0.5));
         cca.setPriceUpdater(priceUpdater);
 

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @author Benedikt Buenz
  */
 public class XORWinnerDetermination<T extends Good> implements WinnerDeterminator<T> {
-    private Map<XORValue<T>, Variable> bidVariables = new HashMap<>();
+    private Map<Bidder<T>, Map<XORValue<T>, Variable>> bidVariables = new HashMap<>();
     private Collection<XORBid<T>> bids;
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
@@ -45,6 +45,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         this.bids = bids;
         double maxValue = -1;
         for (XORBid<T> bid : bids) {
+            bidVariables.put(bid.getBidder(), new HashMap<>());
             for (XORValue<T> value : bid.getValues()) {
                 if (value.value().doubleValue() > maxValue) {
                     maxValue = value.value().doubleValue();
@@ -64,10 +65,13 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         // Add decision variables and objective terms:
         for (XORBid<T> xorBid : bids) {
             for (XORValue<T> bundleBid : xorBid.getValues()) {
-                Variable bidI = new Variable("Bid " + bundleBid.getId(), VarType.BOOLEAN, 0, 1);
+                Variable bidI = new Variable("Bid_" + xorBid.getBidder().getId() + "_" + bundleBid.getId(), VarType.BOOLEAN, 0, 1);
                 wdp.add(bidI);
                 wdp.addObjectiveTerm(bundleBid.value().doubleValue() * scalingFactor, bidI);
-                bidVariables.put(bundleBid, bidI);
+                Variable replaced = bidVariables.get(xorBid.getBidder()).put(bundleBid, bidI);
+                if (replaced != null) {
+                    System.out.println("Replaced: " + replaced);
+                }
             }
         }
         Map<Good, Constraint> goods = new HashMap<>();
@@ -75,14 +79,14 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         for (XORBid<T> xorBid : bids) {
             Constraint exclusiveBids = new Constraint(CompareType.LEQ, 1);
             for (XORValue<T> bundleBid : xorBid.getValues()) {
-                exclusiveBids.addTerm(1, bidVariables.get(bundleBid));
+                exclusiveBids.addTerm(1, bidVariables.get(xorBid.getBidder()).get(bundleBid));
                 for (Good good : bundleBid.getLicenses()) {
                     Constraint noDoubleAssignment = goods.get(good);
                     if (noDoubleAssignment == null) {
                         noDoubleAssignment = new Constraint(CompareType.LEQ, 1);
                         goods.put(good, noDoubleAssignment);
                     }
-                    noDoubleAssignment.addTerm(1.0, bidVariables.get(bundleBid));
+                    noDoubleAssignment.addTerm(1.0, bidVariables.get(xorBid.getBidder()).get(bundleBid));
                 }
             }
             wdp.add(exclusiveBids);
@@ -98,8 +102,8 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         return winnerDeterminationProgram;
     }
 
-    private Variable getBidVariable(XORValue<T> bundleBid) {
-        return bidVariables.get(bundleBid);
+    private Variable getBidVariable(Bidder<T> bidder, XORValue<T> bundleBid) {
+        return bidVariables.get(bidder).get(bundleBid);
     }
 
     @Override
@@ -131,8 +135,8 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
             Constraint x2 = new Constraint(CompareType.LEQ, 0);
             x1.addTerm(-1, x);
             x2.addTerm(-MIP.MAX_VALUE, x);
-            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(b)));
-            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(b)));
+            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b)));
+            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b)));
             winnerDeterminationProgram.add(x1);
             winnerDeterminationProgram.add(x2);
         }
@@ -158,7 +162,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
             double bidValue = 0;
             ImmutableSet.Builder<T> goodsBuilder = ImmutableSet.builder();
             for (XORValue<T> bundleBid : xorBid.getValues()) {
-                if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(bundleBid)), 1, 1e-3)) {
+                if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(xorBid.getBidder(), bundleBid)), 1, 1e-3)) {
                     goodsBuilder.addAll(bundleBid.getLicenses());
                     totalValue += bundleBid.value().doubleValue();
                     bidValue += bundleBid.value().doubleValue();
