@@ -16,6 +16,7 @@ import org.spectrumauctions.sats.mechanism.cca.supplementaryround.NonGenericSupp
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.ccg.CCGMechanism;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
+import org.spectrumauctions.sats.mechanism.domain.Payment;
 import org.spectrumauctions.sats.mechanism.domain.mechanisms.AuctionMechanism;
 import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
@@ -66,6 +67,12 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         result = calculatePayments();
         return result;
     }
+
+    @Override
+    public Payment<T> recomputePayments() {
+        return calculatePayments().getPayment();
+    }
+
 
     public void setStartingPrice(Good good, BigDecimal price) {
         startingPrices.put(good, price);
@@ -226,6 +233,16 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                 finalPrices = prices;
             } else {
                 prices = updatedPrices;
+                if (logger.isInfoEnabled()) {
+                    int aggregateDemand = 0;
+                    int supply = 0;
+                    for (Map.Entry<T, BigDecimal> priceEntry : prices.entrySet()) {
+                        T def = priceEntry.getKey();
+                        aggregateDemand += demand.getOrDefault(def, 0);
+                        supply += 1;
+                    }
+                    logger.info("Round: {} - Demand: {} - Supply: {}", totalRounds, aggregateDemand, supply);
+                }
                 totalRounds++;
             }
         }

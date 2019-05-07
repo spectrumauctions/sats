@@ -50,6 +50,8 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
     @Override
     public abstract MechanismResult<T> getMechanismResult();
 
+    public abstract Payment<T> recomputePayments();
+
     public void setEpsilon(double epsilon) {
         this.epsilon = epsilon;
     }

@@ -17,6 +17,7 @@ import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizi
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.GenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.ccg.CCGMechanism;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
+import org.spectrumauctions.sats.mechanism.domain.Payment;
 import org.spectrumauctions.sats.mechanism.domain.mechanisms.AuctionMechanism;
 import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
@@ -73,6 +74,11 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         logger.info("Starting to calculate payments with all collected bids...");
         result = calculatePayments();
         return result;
+    }
+
+    @Override
+    public Payment<T> recomputePayments() {
+        return calculatePayments().getPayment();
     }
 
     @Override
@@ -251,6 +257,16 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
                 finalPrices = prices;
             } else {
                 prices = updatedPrices;
+                if (logger.isInfoEnabled()) {
+                    int aggregateDemand = 0;
+                    int supply = 0;
+                    for (Map.Entry<G, BigDecimal> priceEntry : prices.entrySet()) {
+                        G def = priceEntry.getKey();
+                        aggregateDemand += demand.getOrDefault(def, 0);
+                        supply += def.numberOfLicenses();
+                    }
+                    logger.info("Round: {} - Demand: {} - Supply: {}", totalRounds, aggregateDemand, supply);
+                }
                 totalRounds++;
             }
         }
