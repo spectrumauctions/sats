@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
 
 public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends Good> implements WinnerDeterminator<T> {
-    private Map<Bidder<T>, Map<GenericValue<G, T>, Variable>> bidVariables = new HashMap<>();
+    private Map<Bidder<T>, Map<Integer, Variable>> bidVariables = new HashMap<>();
     private Set<GenericBid<G, T>> bids;
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
@@ -61,7 +61,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
                 Variable bidI = new Variable("Bid " + value.getId(), VarType.BOOLEAN, 0, 1);
                 winnerDeterminationProgram.add(bidI);
                 winnerDeterminationProgram.addObjectiveTerm(value.getValue().doubleValue() * scalingFactor, bidI);
-                bidVariables.get(bid.getBidder()).put(value, bidI);
+                bidVariables.get(bid.getBidder()).put(value.getId(), bidI);
             }
         }
 
@@ -70,7 +70,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         for (GenericBid<G, T> bid : bids) {
             Constraint exclusiveBids = new Constraint(CompareType.LEQ, 1);
             for (GenericValue<G, T> value : bid.getValues()) {
-                exclusiveBids.addTerm(1, bidVariables.get(bid.getBidder()).get(value));
+                exclusiveBids.addTerm(1, bidVariables.get(bid.getBidder()).get(value.getId()));
                 for (Map.Entry<G, Integer> entry : value.getQuantities().entrySet()) {
                     GenericDefinition<T> def = entry.getKey();
                     int quantity = entry.getValue();
@@ -79,7 +79,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
                         numberOfLotsConstraint = new Constraint(CompareType.LEQ, def.numberOfLicenses());
                         numberOfLotsConstraints.put(def, numberOfLotsConstraint);
                     }
-                    numberOfLotsConstraint.addTerm(quantity, bidVariables.get(bid.getBidder()).get(value));
+                    numberOfLotsConstraint.addTerm(quantity, bidVariables.get(bid.getBidder()).get(value.getId()));
                 }
             }
             winnerDeterminationProgram.add(exclusiveBids);
@@ -129,8 +129,8 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
             Constraint x2 = new Constraint(CompareType.LEQ, 0);
             x1.addTerm(-1, x);
             x2.addTerm(-MAX_VALUE, x);
-            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b)));
-            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b)));
+            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b.getId())));
+            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b.getId())));
             winnerDeterminationProgram.add(x1);
             winnerDeterminationProgram.add(x2);
         }
@@ -142,7 +142,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
     }
 
     private Variable getBidVariable(Bidder<T> bidder, GenericValue<G, T> bundleBid) {
-        return bidVariables.get(bidder).get(bundleBid);
+        return bidVariables.get(bidder).get(bundleBid.getId());
     }
 
     private Allocation<T> adaptMIPResult(IMIPResult mipResult) {

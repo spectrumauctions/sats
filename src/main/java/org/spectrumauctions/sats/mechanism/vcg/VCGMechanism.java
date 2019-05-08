@@ -79,6 +79,11 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
 
         }
         Payment<T> payment = new Payment<>(payments);
+        for (Bidder<T> bidder : baseAllocation.getWinners()) {
+            if (payment.paymentOf(bidder).getAmount() > baseAllocation.getTradeValue(bidder).doubleValue()) {
+                System.err.println("Payment bigger than trade value!");
+            }
+        }
         return new MechanismResult<>(payment, baseAllocation);
     }
 

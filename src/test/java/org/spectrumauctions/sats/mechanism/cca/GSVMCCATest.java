@@ -88,12 +88,16 @@ public class GSVMCCATest {
 
     @Test
     public void testCCAWithCCG() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
-        NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);
-        cca.calculateSampledStartingPrices(10, 50, 0.1);
-        cca.setTimeLimit(20);
-        Payment<GSVMLicense> payment = cca.getPayment();
-        logger.info("Done.");
+        long seed = 10000L;
+        while (true) {
+            List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(seed++);
+            logger.info("Starting with seed {}.", seed);
+            NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);
+            cca.calculateSampledStartingPrices(10, 50, 0.1, seed);
+            cca.setTimeLimit(20);
+            Payment<GSVMLicense> payment = cca.getPayment();
+            logger.info("Done.");
+        }
     }
 
     private NonGenericCCAMechanism<GSVMLicense> getMechanism(List<GSVMBidder> rawBidders) {

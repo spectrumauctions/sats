@@ -37,23 +37,26 @@ public class VCGWithGSVMTest {
     public void testVCGWithXORBidsFromGSVM() {
         long seed = 5000L;
 
-        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(seed++);
-        System.out.println("Using seed " + seed);
-        Collection<XORBid<GSVMLicense>> bids = new HashSet<>();
-        for (GSVMBidder bidder : bidders) {
-            SizeBasedUniqueRandomXOR<GSVMLicense> lang = new SizeBasedUniqueRandomXOR<>(bidder.getWorld().getLicenses(), new JavaUtilRNGSupplier(seed), bidder);
-            lang.setDistribution(4, 1.);
-            lang.setIterations(250);
-            Iterator<XORValue<GSVMLicense>> iterator = lang.iterator();
-            XORBid.Builder<GSVMLicense> builder = new XORBid.Builder<>(bidder);
-            while (iterator.hasNext()) {
-                builder.add(iterator.next());
+        while (true) {
+            List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(seed++);
+            System.out.println("Using seed " + seed);
+            Collection<XORBid<GSVMLicense>> bids = new HashSet<>();
+            for (GSVMBidder bidder : bidders) {
+                SizeBasedUniqueRandomXOR<GSVMLicense> lang = new SizeBasedUniqueRandomXOR<>(bidder.getWorld().getLicenses(), new JavaUtilRNGSupplier(seed), bidder);
+                lang.setDistribution(4, 1.);
+                lang.setIterations(250);
+                Iterator<XORValue<GSVMLicense>> iterator = lang.iterator();
+                XORBid.Builder<GSVMLicense> builder = new XORBid.Builder<>(bidder);
+                while (iterator.hasNext()) {
+                    builder.add(iterator.next());
+                }
+                bids.add(builder.build());
             }
-            bids.add(builder.build());
+            XORWinnerDetermination<GSVMLicense> wdp = new XORWinnerDetermination<>(bids);
+            AuctionMechanism<GSVMLicense> am = new VCGMechanism<>(wdp);
+            Payment<GSVMLicense> payment = am.getPayment();
+            System.out.println("Done");
         }
-        XORWinnerDetermination<GSVMLicense> wdp = new XORWinnerDetermination<>(bids);
-        AuctionMechanism<GSVMLicense> am = new VCGMechanism<>(wdp);
-        Payment<GSVMLicense> payment = am.getPayment();
-        System.out.println("Done");
+
     }
 }
