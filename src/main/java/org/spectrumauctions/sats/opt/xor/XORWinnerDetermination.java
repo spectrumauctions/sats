@@ -41,7 +41,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
 
 
     public XORWinnerDetermination(Collection<XORBid<T>> bids) {
-        this(bids, 1e-6);
+        this(bids, 1e-8);
     }
 
     public XORWinnerDetermination(Collection<XORBid<T>> bids, double epsilon) {

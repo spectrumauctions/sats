@@ -273,7 +273,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private MechanismResult<T> calculatePayments() {
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, epsilon);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
         AuctionMechanism<T> mechanism;
         switch (paymentRule) {
             case CCG:

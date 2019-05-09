@@ -32,7 +32,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
     private double scalingFactor = 1;
 
     public XORQWinnerDetermination(Set<GenericBid<G, T>> bids) {
-        this(bids, 1e-6);
+        this(bids, 1e-8);
     }
 
     public XORQWinnerDetermination(Set<GenericBid<G, T>> bids, double epsilon) {
