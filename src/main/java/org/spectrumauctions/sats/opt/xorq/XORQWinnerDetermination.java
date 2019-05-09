@@ -5,6 +5,7 @@ import com.google.common.math.DoubleMath;
 import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.IMIPSolver;
+import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
@@ -30,8 +31,11 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
     private Allocation<T> result = null;
     private double scalingFactor = 1;
 
-
     public XORQWinnerDetermination(Set<GenericBid<G, T>> bids) {
+        this(bids, 1e-6);
+    }
+
+    public XORQWinnerDetermination(Set<GenericBid<G, T>> bids, double epsilon) {
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(bids.size() > 0);
         this.bids = bids;
@@ -49,6 +53,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         }
 
         winnerDeterminationProgram = createWinnerDeterminationMIP();
+        winnerDeterminationProgram.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
     }
 
     private IMIP createWinnerDeterminationMIP() {

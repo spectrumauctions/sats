@@ -212,7 +212,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                         Bundle<T> bundle = demandQueryResult.getResultingBundle().getLicenses();
 
                         XORBid.Builder<T> xorBidBuilder = new XORBid.Builder<>(bidder, bids.get(bidder).getValues());
-                        BigDecimal bid = BigDecimal.valueOf(bundle.stream().mapToDouble(l -> currentPrices.get(l).doubleValue()).sum());
+                        BigDecimal bid = bundle.stream().map(currentPrices::get).reduce(BigDecimal.ZERO, BigDecimal::add);
                         XORValue<T> existing = xorBidBuilder.containsBundle(bundle);
                         if (existing != null && existing.value().compareTo(bid) < 1) {
                             xorBidBuilder.removeFromBid(existing);
@@ -273,7 +273,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private MechanismResult<T> calculatePayments() {
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, epsilon);
         AuctionMechanism<T> mechanism;
         switch (paymentRule) {
             case CCG:

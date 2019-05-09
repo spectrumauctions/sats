@@ -6,6 +6,7 @@ import com.google.common.math.DoubleMath;
 import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.IMIPSolver;
+import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
@@ -40,6 +41,10 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
 
 
     public XORWinnerDetermination(Collection<XORBid<T>> bids) {
+        this(bids, 1e-6);
+    }
+
+    public XORWinnerDetermination(Collection<XORBid<T>> bids, double epsilon) {
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(!bids.isEmpty());
         this.bids = bids;
@@ -57,6 +62,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         }
         this.world = bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
+        winnerDeterminationProgram.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
     }
 
     private IMIP createWinnerDeterminationMIP() {
@@ -68,15 +74,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
                 Variable bidI = new Variable("Bid_" + xorBid.getBidder().getId() + "_" + bundleBid.getId(), VarType.BOOLEAN, 0, 1);
                 wdp.add(bidI);
                 wdp.addObjectiveTerm(bundleBid.value().doubleValue() * scalingFactor, bidI);
-                Integer previous = bidVariables.get(xorBid.getBidder()).keySet().stream().filter(v -> v == bundleBid.getId()).findFirst().orElse(null);
-                if (previous != null) {
-                    System.out.println("Bundle bid already present: " + previous);
-                    System.out.println("Bidder: " + xorBid.getBidder().getId());
-                }
-                Variable replaced = bidVariables.get(xorBid.getBidder()).put(bundleBid.getId(), bidI);
-                if (replaced != null) {
-                    System.out.println("Replaced: " + replaced);
-                }
+                bidVariables.get(xorBid.getBidder()).put(bundleBid.getId(), bidI);
             }
         }
         Map<Good, Constraint> goods = new HashMap<>();
@@ -162,30 +160,38 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
 
         Map<Bidder<T>, Bundle<T>> trades = new HashMap<>();
         Map<Bidder<T>, BigDecimal> declaredValues = new HashMap<>();
-        double totalValue = 0;
+        BigDecimal totalValue = BigDecimal.ZERO;
         for (XORBid<T> xorBid : bids) {
-            double bidValue = 0;
+            BigDecimal bidValue = BigDecimal.ZERO;
             ImmutableSet.Builder<T> goodsBuilder = ImmutableSet.builder();
             for (XORValue<T> bundleBid : xorBid.getValues()) {
                 if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(xorBid.getBidder(), bundleBid)), 1, 1e-3)) {
                     goodsBuilder.addAll(bundleBid.getLicenses());
-                    totalValue += bundleBid.value().doubleValue();
-                    bidValue += bundleBid.value().doubleValue();
+                    totalValue = totalValue.add(bundleBid.value());
+                    bidValue = bidValue.add(bundleBid.value());
                 }
             }
             Set<T> goods = goodsBuilder.build();
             if (!goods.isEmpty()) {
                 trades.put(xorBid.getBidder(), new Bundle<>(goods));
-                declaredValues.put(xorBid.getBidder(), BigDecimal.valueOf(bidValue));
+                declaredValues.put(xorBid.getBidder(), bidValue);
             }
         }
 
         ItemAllocation.ItemAllocationBuilder<T> builder = new ItemAllocation.ItemAllocationBuilder<>();
         return builder
                 .withAllocation(trades)
-                .withTotalValue(BigDecimal.valueOf(totalValue))
+                .withTotalValue(totalValue)
                 .withDeclaredValues(declaredValues)
                 .withWorld(world).build();
+    }
+
+    @Override
+    public String toString() {
+        return "XORWinnerDetermination{" +
+                "scalingFactor=" + scalingFactor +
+                ", winnerDeterminationProgram=" + winnerDeterminationProgram +
+                '}';
     }
 
 }

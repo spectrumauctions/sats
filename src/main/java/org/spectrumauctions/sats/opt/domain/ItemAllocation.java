@@ -32,7 +32,7 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
             this.declaredValues = builder.declaredValues;
         }
         if (builder.totalValue == null) {
-            this.totalValue = BigDecimal.valueOf(this.declaredValues.values().stream().mapToDouble(BigDecimal::doubleValue).sum());
+            this.totalValue = this.declaredValues.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         } else {
             this.totalValue = builder.totalValue;
         }

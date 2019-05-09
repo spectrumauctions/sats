@@ -88,7 +88,7 @@ public class GSVMCCATest {
 
     @Test
     public void testCCAWithCCG() {
-        long seed = 10000L;
+        long seed = 10059L;
         while (true) {
             List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(seed++);
             logger.info("Starting with seed {}.", seed);

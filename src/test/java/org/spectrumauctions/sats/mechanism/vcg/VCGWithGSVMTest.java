@@ -35,7 +35,7 @@ public class VCGWithGSVMTest {
 
     @Test
     public void testVCGWithXORBidsFromGSVM() {
-        long seed = 5000L;
+        long seed = 20408L;
 
         while (true) {
             List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(seed++);
@@ -48,7 +48,11 @@ public class VCGWithGSVMTest {
                 Iterator<XORValue<GSVMLicense>> iterator = lang.iterator();
                 XORBid.Builder<GSVMLicense> builder = new XORBid.Builder<>(bidder);
                 while (iterator.hasNext()) {
-                    builder.add(iterator.next());
+                    XORValue<GSVMLicense> licenseXORBid = iterator.next();
+                    builder.add(licenseXORBid);
+                    for (int i = 0; i < 4; i++) { // Add some clones
+                        builder.add(new XORValue<>(licenseXORBid.getLicenses(), licenseXORBid.value()));
+                    }
                 }
                 bids.add(builder.build());
             }

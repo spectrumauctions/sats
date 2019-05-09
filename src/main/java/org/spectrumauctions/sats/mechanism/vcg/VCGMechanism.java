@@ -87,7 +87,7 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
                 logger.error("Bidder's value: {}", baseAllocation.getTradeValue(bidder));
                 logger.error("Payment: {}", paymentAmount);
                 logger.error("Base allocation:\n{}", baseAllocation);
-                logger.error("Allocation w/o bidder:\n{}", baseAllocation);
+                logger.error("Allocation w/o bidder:\n{}", allocationWithoutBidder);
                 logger.error("Base WDP -> scale:\n{}", baseWD.getScale());
                 logger.error("WDP w/o bidder -> scale:\n{}", wdWithoutBidder.getScale());
                 logger.error("Base WDP:\n{}", baseWD.toString());
