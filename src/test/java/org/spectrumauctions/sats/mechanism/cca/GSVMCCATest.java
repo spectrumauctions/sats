@@ -106,6 +106,7 @@ public class GSVMCCATest {
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-2);
+        cca.setEpsilonWdp(1e-10);
         cca.setPaymentRule(PaymentRuleEnum.CCG);
 
         SimpleRelativeNonGenericPriceUpdate<GSVMLicense> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();

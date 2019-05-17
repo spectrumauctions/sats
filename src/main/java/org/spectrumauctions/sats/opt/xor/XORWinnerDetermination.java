@@ -38,6 +38,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
     private Allocation<T> result = null;
     private World world;
     private double scalingFactor = 1;
+    private double epsilon;
 
 
     public XORWinnerDetermination(Collection<XORBid<T>> bids) {
@@ -62,6 +63,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
         }
         this.world = bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
+        this.epsilon = epsilon;
         winnerDeterminationProgram.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
     }
 
@@ -111,7 +113,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
 
     @Override
     public WinnerDeterminator<T> getWdWithoutBidder(Bidder bidder) {
-        return new XORWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()));
+        return new XORWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()), epsilon);
     }
 
     @Override
@@ -124,7 +126,7 @@ public class XORWinnerDetermination<T extends Good> implements WinnerDeterminato
 
     @Override
     public WinnerDeterminator<T> copyOf() {
-        return new XORWinnerDetermination<>(bids);
+        return new XORWinnerDetermination<>(bids, epsilon);
     }
 
     @Override

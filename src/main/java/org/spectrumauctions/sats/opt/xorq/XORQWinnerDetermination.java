@@ -30,6 +30,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
     private double scalingFactor = 1;
+    private double epsilon;
 
     public XORQWinnerDetermination(Set<GenericBid<G, T>> bids) {
         this(bids, 1e-8);
@@ -53,6 +54,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         }
 
         winnerDeterminationProgram = createWinnerDeterminationMIP();
+        this.epsilon = epsilon;
         winnerDeterminationProgram.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
     }
 
@@ -107,7 +109,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
 
     @Override
     public WinnerDeterminator<T> getWdWithoutBidder(Bidder<T> bidder) {
-        return new XORQWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()));
+        return new XORQWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()), epsilon);
     }
 
     @Override
@@ -120,7 +122,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
 
     @Override
     public WinnerDeterminator<T> copyOf() {
-        return new XORQWinnerDetermination<>(bids);
+        return new XORQWinnerDetermination<>(bids, epsilon);
     }
 
     @Override

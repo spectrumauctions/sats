@@ -25,11 +25,13 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
     private static final int DEFAULT_REL_RESULT_POOL_TOLERANCE = 0;
     private static final int DEFAULT_ABS_RESULT_POOL_TOLERANCE = 0;
     private static final int DEFAULT_CLOCKPHASE_NUMBER_OF_BUNDLES = 1;
+    private static final double DEFAULT_EPSILON_WDP = 1e-8;
 
     protected List<Bidder<T>> bidders;
     protected int totalRounds = 1;
     protected BigDecimal fallbackStartingPrice = DEFAULT_STARTING_PRICE;
     protected double epsilon = DEFAULT_EPSILON;
+    protected double epsilonWdp = DEFAULT_EPSILON_WDP;
     protected int maxRounds = DEFAULT_MAX_ROUNDS;
     protected double timeLimit = DEFAULT_TIME_LIMIT;
 
@@ -54,6 +56,10 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
 
     public void setEpsilon(double epsilon) {
         this.epsilon = epsilon;
+    }
+
+    public void setEpsilonWdp(double epsilon) {
+        this.epsilonWdp = epsilon;
     }
 
     @Override
@@ -175,5 +181,9 @@ public abstract class CCAMechanism<T extends Good> implements AuctionMechanism<T
 
     public double getEpsilon() {
         return epsilon;
+    }
+
+    public double getEpsilonWdp() {
+        return epsilonWdp;
     }
 }

@@ -163,7 +163,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         }
         Set<GenericBid<G, T>> bids = new HashSet<>(bidsAfterClockPhase);
 
-        XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids);
+        XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids, getEpsilonWdp());
         return wdp.calculateAllocation();
     }
 
@@ -178,7 +178,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
         }
         Set<GenericBid<G, T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
 
-        XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids);
+        XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids, getEpsilonWdp());
         return wdp.calculateAllocation();
     }
 
@@ -296,7 +296,7 @@ public class GenericCCAMechanism<G extends GenericDefinition<T>, T extends Good>
 
     private MechanismResult<T> calculatePayments() {
         Set<GenericBid<G, T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
-        XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids);
+        XORQWinnerDetermination<G, T> wdp = new XORQWinnerDetermination<>(bids, getEpsilonWdp());
         AuctionMechanism<T> mechanism;
         switch (paymentRule) {
             case CCG:

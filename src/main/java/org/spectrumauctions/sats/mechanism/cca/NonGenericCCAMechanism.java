@@ -164,7 +164,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         }
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterClockPhase);
 
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, getEpsilonWdp());
         return wdp.calculateAllocation();
     }
 
@@ -179,7 +179,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         }
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
 
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, getEpsilonWdp());
         return wdp.calculateAllocation();
     }
 
@@ -273,7 +273,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private MechanismResult<T> calculatePayments() {
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, getEpsilonWdp());
         AuctionMechanism<T> mechanism;
         switch (paymentRule) {
             case CCG:
