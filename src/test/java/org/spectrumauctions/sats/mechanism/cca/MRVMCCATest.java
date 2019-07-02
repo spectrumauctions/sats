@@ -7,7 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.mechanism.PaymentRuleEnum;
 import org.spectrumauctions.sats.mechanism.cca.priceupdate.DemandDependentGenericPriceUpdate;
@@ -81,7 +81,7 @@ public class MRVMCCATest {
     }
 
     private GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> getMechanism(List<MRVMBidder> rawBidders) {
-        List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
@@ -101,7 +101,7 @@ public class MRVMCCATest {
 
     // This method simply shows what settings can be changed
     private GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> getCustomMechanism(List<MRVMBidder> rawBidders) {
-        List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
@@ -181,7 +181,7 @@ public class MRVMCCATest {
     @Test
     public void testLastBidsSupplementaryRound() {
         List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
-        List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);

@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
@@ -19,13 +19,13 @@ import java.util.List;
  */
 public class GSVMBidderTest {
 
-    private static Bundle<GSVMLicense> completeBundle;
+    private static LicenseBundle<GSVMLicense> completeBundle;
 
     @BeforeClass
     public static void setUpBeforeClass() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld(983742L);
-        completeBundle = new Bundle<>();
+        completeBundle = new LicenseBundle<>();
         completeBundle.addAll(world.getLicenses());
     }
 
@@ -118,8 +118,8 @@ public class GSVMBidderTest {
         List<GSVMBidder> customPopulation = customPopulation(world, 3, 1);
         Assert.assertEquals(customPopulation.size(), 4);
 
-        Bundle<GSVMLicense> regionalBundle = new Bundle<>(Arrays.asList(world.getRegionalCircle().getLicenses()));
-        Bundle<GSVMLicense> complete = new Bundle<>(world.getLicenses());
+        LicenseBundle<GSVMLicense> regionalBundle = new LicenseBundle<>(Arrays.asList(world.getRegionalCircle().getLicenses()));
+        LicenseBundle<GSVMLicense> complete = new LicenseBundle<>(world.getLicenses());
 
         for (int i = 0; i < 3; i++)
             checkBidder(customPopulation.get(i), "Test Regional Bidder");
@@ -168,8 +168,8 @@ public class GSVMBidderTest {
             checkBidder(customPopulation.get(i), "Test Regional Bidder");
         for (int i = 3; i < 4; i++) checkBidder(customPopulation.get(i), "Test National Bidder");
 
-        Bundle<GSVMLicense> regionalBundle = new Bundle<>(Arrays.asList(world.getRegionalCircle().getLicenses()));
-        Bundle<GSVMLicense> complete = new Bundle<>(world.getLicenses());
+        LicenseBundle<GSVMLicense> regionalBundle = new LicenseBundle<>(Arrays.asList(world.getRegionalCircle().getLicenses()));
+        LicenseBundle<GSVMLicense> complete = new LicenseBundle<>(world.getLicenses());
 
         // Assert that national bidder has zero value for the whole regional bundle
         Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);

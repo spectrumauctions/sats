@@ -5,9 +5,11 @@
  */
 package org.spectrumauctions.sats.core.bidlang.xor;
 
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
+import org.spectrumauctions.sats.core.model.SATSBidder;
+import org.spectrumauctions.sats.core.model.License;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -17,19 +19,18 @@ import java.util.Iterator;
  * @author Michael Weiss
  *
  */
-public class DecreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> {
+public class DecreasingSizeOrderedXOR extends SizeOrderedXOR {
 
-    public DecreasingSizeOrderedXOR(Collection<T> goods, Bidder<T> bidder) {
+    public DecreasingSizeOrderedXOR(Collection<? extends License> goods, SATSBidder bidder) {
         super(goods, bidder);
     }
 
-
     @Override
-    public Iterator<XORValue<T>> iterator() {
+    public Iterator<BundleValue> iterator() {
         return new DecreasingIterator();
     }
 
-    private class DecreasingIterator implements Iterator<XORValue<T>> {
+    private class DecreasingIterator implements Iterator<BundleValue> {
 
         BigInteger minIndex = BigInteger.ZERO;
         BigInteger index = BigInteger.valueOf(2).pow(DecreasingSizeOrderedXOR.this.goods.size()).subtract(BigInteger.ONE);
@@ -40,10 +41,10 @@ public class DecreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> 
         }
 
         @Override
-        public XORValue<T> next() {
-            Bundle<T> bundle = DecreasingSizeOrderedXOR.this.getBundle(index);
+        public BundleValue next() {
+            Bundle bundle = DecreasingSizeOrderedXOR.this.getBundle(index);
             index = index.subtract(BigInteger.ONE);
-            return new XORValue<>(bundle, DecreasingSizeOrderedXOR.this.getValue(bundle));
+            return new BundleValue(getBidder().calculateValue(bundle), bundle);
         }
 
     }

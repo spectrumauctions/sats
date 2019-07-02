@@ -6,9 +6,11 @@
 package org.spectrumauctions.sats.core.model.srvm;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.model.Good;
+import lombok.EqualsAndHashCode;
+import org.spectrumauctions.sats.core.model.License;
 
-public final class SRVMLicense extends Good {
+@EqualsAndHashCode(callSuper = true)
+public final class SRVMLicense extends License {
 
     private static final long serialVersionUID = 7672703280459172931L;
 
@@ -18,7 +20,7 @@ public final class SRVMLicense extends Good {
     SRVMLicense(long id, SRVMBand band) {
         super(id, band.getWorld().getId());
         this.band = band;
-        this.bandName = band.getName();
+        this.bandName = band.getId();
     }
 
     public SRVMBand getBand() {
@@ -27,43 +29,18 @@ public final class SRVMLicense extends Good {
 
 
     /**
-     * @see Good#getWorld()
+     * @see License#getWorld()
      */
     @Override
     public SRVMWorld getWorld() {
         return band.getWorld();
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((bandName == null) ? 0 : bandName.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        SRVMLicense other = (SRVMLicense) obj;
-        if (bandName == null) {
-            if (other.bandName != null)
-                return false;
-        } else if (!bandName.equals(other.bandName))
-            return false;
-        return true;
-    }
-
     /**
      * @see SRVMWorld#refreshFieldBackReferences() for purpose of this method
      */
     void refreshFieldBackReferences(SRVMBand band) {
-        Preconditions.checkArgument(band.getName().equals(this.bandName));
+        Preconditions.checkArgument(band.getId().equals(this.bandName));
         this.band = band;
     }
 

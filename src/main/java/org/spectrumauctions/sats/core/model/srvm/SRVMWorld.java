@@ -5,8 +5,12 @@
  */
 package org.spectrumauctions.sats.core.model.srvm;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.spectrumauctions.sats.core.model.Bidder;
+import com.google.common.collect.Lists;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.GenericWorld;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
@@ -16,17 +20,17 @@ import java.util.*;
  * @author Michael Weiss
  *
  */
-public final class SRVMWorld extends World {
+public final class SRVMWorld extends World implements GenericWorld {
 
     private static final long serialVersionUID = 1766287015715986936L;
-    private final HashSet<SRVMBand> bands;
+    private final ImmutableList<SRVMBand> bands;
 
     private transient Integer numberOfGoods = null;
-    private transient ImmutableSet<SRVMLicense> licenses = null;
+    private transient ImmutableList<SRVMLicense> licenses = null;
 
     public SRVMWorld(SRVMWorldSetup setup, RNGSupplier rngSupplier) {
         super("Single-Region Value Model");
-        this.bands = new HashSet<>(SRVMBand.createBands(this, setup, rngSupplier));
+        this.bands = ImmutableList.copyOf(SRVMBand.createBands(this, setup, rngSupplier));
         store();
     }
 
@@ -51,9 +55,9 @@ public final class SRVMWorld extends World {
      * @return An immutable set containing all licenses.
      */
     @Override
-    public ImmutableSet<SRVMLicense> getLicenses() {
+    public List<SRVMLicense> getLicenses() {
         if (licenses == null) {
-            ImmutableSet.Builder<SRVMLicense> builder = ImmutableSet.builder();
+            ImmutableList.Builder<SRVMLicense> builder = ImmutableList.builder();
             for (SRVMBand band : bands) {
                 builder.addAll(band.getLicenses());
             }
@@ -62,8 +66,8 @@ public final class SRVMWorld extends World {
         return licenses;
     }
 
-    public Set<SRVMBand> getBands() {
-        return Collections.unmodifiableSet(bands);
+    public List<SRVMBand> getBands() {
+        return ImmutableList.copyOf(bands);
     }
 
     public List<SRVMBidder> createPopulation(Collection<SRVMBidderSetup> bidderSetups, RNGSupplier rngSupplier) {
@@ -83,7 +87,7 @@ public final class SRVMWorld extends World {
      * @see World#restorePopulation(long)
      */
     @Override
-    public Collection<? extends Bidder<SRVMLicense>> restorePopulation(long populationId) {
+    public Collection<SRVMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(SRVMBidder.class, populationId);
     }
 
@@ -98,4 +102,8 @@ public final class SRVMWorld extends World {
     }
 
 
+    @Override
+    public List<SRVMBand> getAllGenericDefinitions() {
+        return Collections.unmodifiableList(bands);
+    }
 }

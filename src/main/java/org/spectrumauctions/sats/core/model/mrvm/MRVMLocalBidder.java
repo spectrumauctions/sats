@@ -5,9 +5,12 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
+import org.apache.commons.lang3.NotImplementedException;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -49,7 +52,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
     }
 
     /**
-     * Transforms a bidders {@link MRVMLocalBidder#regionsOfInterest} into a format suitable for {@link #gammaFactor(MRVMRegionsMap.Region, Bundle)}
+     * Transforms a bidders {@link MRVMLocalBidder#regionsOfInterest} into a format suitable for {@link #gammaFactor(MRVMRegionsMap.Region, LicenseBundle)}
      */
     private static Map<MRVMRegionsMap.Region, BigDecimal> mapGammaFactors(MRVMWorld world, Set<Integer> regionsOfInterest) {
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();
@@ -70,7 +73,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
      * @param bundle Is not required for calculation of local bidders gamma factors and will be ignored.
      */
     @Override
-    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle) {
+    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, LicenseBundle<MRVMLicense> bundle) {
         return gammaFactors(bundle).get(r);
     }
 
@@ -79,7 +82,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
      * @param bundle Is not required for calculation of local bidders gamma factors and will be ignored.
      */
     @Override
-    public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle) {
+    public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Set<MRVMLicense> bundle) {
         if (gammaFactorCache == null) {
             gammaFactorCache = mapGammaFactors(getWorld(), regionsOfInterest);
         }
@@ -93,8 +96,8 @@ public final class MRVMLocalBidder extends MRVMBidder {
     }
 
     @Override
-    public Bidder<MRVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new MRVMLocalBidder(getId(), getPopulation(), getWorld(), (MRVMLocalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+    public MRVMLocalBidder drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new MRVMLocalBidder(getLongId(), getPopulation(), getWorld(), (MRVMLocalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
     }
 
     @Override
@@ -121,6 +124,4 @@ public final class MRVMLocalBidder extends MRVMBidder {
             return false;
         return true;
     }
-
-
 }

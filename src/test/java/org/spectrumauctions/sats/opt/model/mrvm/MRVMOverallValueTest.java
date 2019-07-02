@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 
@@ -272,9 +271,9 @@ public class MRVMOverallValueTest {
             );
         } catch (AssertionError e) {
             hasFailed = true;
-            return ("     " + logName + " FAILED for " + bidder.getSetupType() + " " + bidder.getId() + ". Expected:" + expected.toString() + " actual " + actual.toString());
+            return ("     " + logName + " FAILED for " + bidder.getSetupType() + " " + bidder.getLongId() + ". Expected:" + expected.toString() + " actual " + actual.toString());
         }
-        return ("     " + logName + " PASSED for " + bidder.getSetupType() + " " + bidder.getId() + ". Value:" + expected);
+        return ("     " + logName + " PASSED for " + bidder.getSetupType() + " " + bidder.getLongId() + ". Value:" + expected);
     }
 
     private String assertEqualsAndGiveResult(double expected, double actual, MRVMBidder bidder, String logName) {
@@ -286,8 +285,8 @@ public class MRVMOverallValueTest {
             Assert.assertEquals(expected, actual, allowedMargin);
         } catch (AssertionError e) {
             hasFailed = true;
-            return ("     " + logName + " FAILED for " + bidder.getSetupType() + " " + bidder.getId() + ". Cause:" + e.getMessage());
+            return ("     " + logName + " FAILED for " + bidder.getSetupType() + " " + bidder.getLongId() + ". Cause:" + e.getMessage());
         }
-        return ("     " + logName + " PASSED for " + bidder.getSetupType() + " " + bidder.getId() + ". Value:" + expected);
+        return ("     " + logName + " PASSED for " + bidder.getSetupType() + " " + bidder.getLongId() + ". Value:" + expected);
     }
 }

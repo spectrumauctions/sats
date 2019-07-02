@@ -1,8 +1,8 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -22,7 +22,7 @@ public final class GSVMWorld extends World {
 
     private final GSVMCircle nationalCircle;
     private final GSVMCircle regionalCircle;
-    private transient ImmutableSet<GSVMLicense> licenseSet;
+    private transient ImmutableList<GSVMLicense> licenseList;
 
     public GSVMWorld(GSVMWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
@@ -46,7 +46,7 @@ public final class GSVMWorld extends World {
     }
 
     @Override
-    public Collection<? extends Bidder<GSVMLicense>> restorePopulation(long populationId) {
+    public Collection<GSVMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(GSVMBidder.class, populationId);
     }
 
@@ -56,14 +56,14 @@ public final class GSVMWorld extends World {
      * @return An immutable set containing all licenses.
      */
     @Override
-    public ImmutableSet<GSVMLicense> getLicenses() {
-        if (licenseSet == null) {
-            ImmutableSet.Builder<GSVMLicense> builder = ImmutableSet.builder();
+    public ImmutableList<GSVMLicense> getLicenses() {
+        if (licenseList == null) {
+            ImmutableList.Builder<GSVMLicense> builder = ImmutableList.builder();
             builder.add(nationalCircle.getLicenses());
             builder.add(regionalCircle.getLicenses());
-            licenseSet = builder.build();
+            licenseList = builder.build();
         }
-        return licenseSet;
+        return licenseList;
     }
 
     /* (non-Javadoc)

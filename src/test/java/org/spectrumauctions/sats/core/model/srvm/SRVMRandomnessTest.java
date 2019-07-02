@@ -7,7 +7,7 @@ package org.spectrumauctions.sats.core.model.srvm;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 
 import java.util.List;
 
@@ -26,10 +26,10 @@ public class SRVMRandomnessTest {
         SRVMWorld world1 = model.createWorld(seed);
         SRVMWorld world2 = model.createWorld(seed);
         Assert.assertEquals(world1, world2);
-        List<? extends Bidder<?>> bidders1 = model.createPopulation(world1, seed2);
-        List<? extends Bidder<?>> bidders2 = model.createPopulation(world1, seed2);
-        List<? extends Bidder<?>> bidders3 = model.createPopulation(world2, seed2);
-        List<? extends Bidder<?>> bidders4 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder<?>> bidders1 = model.createPopulation(world1, seed2);
+        List<? extends SATSBidder<?>> bidders2 = model.createPopulation(world1, seed2);
+        List<? extends SATSBidder<?>> bidders3 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder<?>> bidders4 = model.createPopulation(world2, seed2);
         Assert.assertEquals(bidders1, bidders2);
         Assert.assertEquals(bidders2, bidders3);
         Assert.assertEquals(bidders3, bidders4);

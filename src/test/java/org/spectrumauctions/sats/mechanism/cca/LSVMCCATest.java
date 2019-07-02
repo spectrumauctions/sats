@@ -8,7 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
@@ -83,7 +83,7 @@ public class LSVMCCATest {
     }
 
     private NonGenericCCAMechanism<LSVMLicense> getMechanism(List<LSVMBidder> rawBidders) {
-        List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
         cca.calculateSampledStartingPrices(50, 100, 0.1);
@@ -167,7 +167,7 @@ public class LSVMCCATest {
     @Test
     public void testLastBidsSupplementaryRound() {
         List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
-        List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
@@ -202,7 +202,7 @@ public class LSVMCCATest {
         List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation(123456);
         assertEquals(rawBidders, new LocalSynergyValueModel().createNewPopulation());
         List<Collection<XORBid<LSVMLicense>>> resultingBids = new ArrayList<>();
-        List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         resultingBids.add(runStandardCCA(bidders));
         //for (int i = 0; i < 3; i++) {
@@ -237,7 +237,7 @@ public class LSVMCCATest {
             logger.info("Total True Value:     {}", allocationTrueValues.getTotalValue());
             // Check for allocation equality
             assertEquals(firstAllocationTrueValues, allocationTrueValues);
-            for (Bidder<LSVMLicense> bidder : bidders) {
+            for (SATSBidder<LSVMLicense> bidder : bidders) {
                 assertEquals(firstAllocationTrueValues.getAllocation(bidder), allocationTrueValues.getAllocation(bidder));
                 assertEquals(firstAllocationTrueValues.getTradeValue(bidder), allocationTrueValues.getTradeValue(bidder));
             }
@@ -246,7 +246,7 @@ public class LSVMCCATest {
         }
     }
 
-    private Collection<XORBid<LSVMLicense>> runStandardCCA(List<Bidder<LSVMLicense>> bidders) {
+    private Collection<XORBid<LSVMLicense>> runStandardCCA(List<SATSBidder<LSVMLicense>> bidders) {
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);

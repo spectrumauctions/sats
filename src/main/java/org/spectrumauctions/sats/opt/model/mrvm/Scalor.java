@@ -1,9 +1,11 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
+import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMLicense;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
@@ -12,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.NoSuchElementException;
 
 /**
  * Created by Michael Weiss on 06.05.2017.
@@ -35,12 +38,12 @@ public class Scalor {
 
 
     private static double calculateSVScalingFactor(Collection<MRVMBidder> bidders) {
-        MRVMBidder biggestAlphaBidder = bidders.stream().max(Comparator.comparing(b -> b.getAlpha())).get();
-        MRVMRegionsMap.Region biggestRegion = bidders.stream().findAny().get().getWorld().getRegionsMap().getRegions().stream()
-                .max(Comparator.comparing(r -> r.getPopulation())).get();
+        MRVMBidder biggestAlphaBidder = bidders.stream().max(Comparator.comparing(MRVMBidder::getAlpha)).orElseThrow(NoSuchElementException::new);
+        MRVMRegionsMap.Region biggestRegion = bidders.stream().findAny().orElseThrow(NoSuchElementException::new).getWorld().getRegionsMap().getRegions().stream()
+                .max(Comparator.comparing(MRVMRegionsMap.Region::getPopulation)).orElseThrow(NoSuchElementException::new);
         BigDecimal biggestAlpha = biggestAlphaBidder.getAlpha();
         BigDecimal biggestPopulation = BigDecimal.valueOf(biggestRegion.getPopulation());
-        BigDecimal biggestC = bidders.stream().findAny().get().getWorld().getMaximumRegionalCapacity();
+        BigDecimal biggestC = bidders.stream().findAny().orElseThrow(NoSuchElementException::new).getWorld().getMaximumRegionalCapacity();
         BigDecimal securityBuffer = BigDecimal.valueOf(100000);
         BigDecimal biggestSv = biggestAlpha.multiply(biggestPopulation).multiply(biggestC).add(securityBuffer);
         BigDecimal MIP_MAX_VALUE = BigDecimal.valueOf(MIP.MAX_VALUE);
@@ -69,7 +72,7 @@ public class Scalor {
     public static BigDecimal biggestUnscaledPossibleValue(Collection<MRVMBidder> bidders) {
         BigDecimal biggestValue = BigDecimal.ZERO;
         for (MRVMBidder bidder : bidders) {
-            BigDecimal val = bidder.calculateValue(new Bundle<MRVMLicense>(bidder.getWorld().getLicenses()));
+            BigDecimal val = bidder.calculateValue(Bundle.singleGoods(Sets.newHashSet(bidder.getWorld().getLicenses())));
             if (val.compareTo(biggestValue) > 0) {
                 biggestValue = val;
             }

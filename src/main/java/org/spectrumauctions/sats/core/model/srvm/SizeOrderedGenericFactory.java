@@ -8,14 +8,14 @@ package org.spectrumauctions.sats.core.model.srvm;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeOrdered;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author Michael Weiss
@@ -25,8 +25,8 @@ public class SizeOrderedGenericFactory {
 
     static BandComparator comparator = new BandComparator();
 
-    public static GenericSizeOrdered<SRVMBand, SRVMLicense> getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
-        Set<SRVMBand> bands = bidder.getWorld().getBands();
+    public static GenericSizeOrdered getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+        List<SRVMBand> bands = bidder.getWorld().getBands();
         if (increasing) {
             return new Increasing(bands, bidder);
         } else {
@@ -35,27 +35,19 @@ public class SizeOrderedGenericFactory {
     }
 
 
-    private static final class Increasing extends GenericSizeIncreasing<SRVMBand, SRVMLicense> {
+    private static final class Increasing extends GenericSizeIncreasing {
 
 
         private final SRVMBidder bidder;
 
-        protected Increasing(Collection<SRVMBand> allPossibleGenericDefintions, SRVMBidder bidder)
+        protected Increasing(List<SRVMBand> allPossibleGenericDefintions, SRVMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);
             this.bidder = bidder;
         }
 
         @Override
-        public Bidder<SRVMLicense> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericSizeOrdered#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<SRVMBand> getGenericBidder() {
+        public SATSBidder getBidder() {
             return bidder;
         }
 
@@ -63,12 +55,12 @@ public class SizeOrderedGenericFactory {
          * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<SRVMBand> getDefComparator() {
+        protected Comparator<GenericGood> getDefComparator() {
             return comparator;
         }
     }
 
-    private static final class Decreasing extends GenericSizeDecreasing<SRVMBand, SRVMLicense> {
+    private static final class Decreasing extends GenericSizeDecreasing {
 
 
         private final SRVMBidder bidder;
@@ -85,24 +77,16 @@ public class SizeOrderedGenericFactory {
         }
 
         /**
-         * @see GenericSizeOrdered#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<SRVMBand> getGenericBidder() {
-            return bidder;
-        }
-
-        /**
          * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<SRVMBand> getDefComparator() {
+        protected Comparator<GenericGood> getDefComparator() {
             return comparator;
         }
     }
 
 
-    private static class BandComparator implements Comparator<SRVMBand>, Serializable {
+    private static class BandComparator implements Comparator<GenericGood>, Serializable {
 
         private static final long serialVersionUID = -7929466674087601381L;
 
@@ -110,8 +94,8 @@ public class SizeOrderedGenericFactory {
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
         @Override
-        public int compare(SRVMBand o1, SRVMBand o2) {
-            return o1.toString().compareTo(o2.toString());
+        public int compare(GenericGood o1, GenericGood o2) {
+            return o1.getId().compareTo(o2.getId());
         }
 
     }

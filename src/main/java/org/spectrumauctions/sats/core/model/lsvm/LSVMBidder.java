@@ -2,29 +2,38 @@ package org.spectrumauctions.sats.core.model.lsvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import edu.harvard.econcs.jopt.solver.mip.*;
+import org.apache.commons.lang3.NotImplementedException;
+import org.marketdesignresearch.mechlib.domain.Allocation;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.World;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+import org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Fabio Isler
  */
-public final class LSVMBidder extends Bidder<LSVMLicense> {
+public final class LSVMBidder extends SATSBidder {
 
     private static final long serialVersionUID = -1774118565772856391L;
     private final int LSVM_A;
     private final int LSVM_B;
-    private final Set<LSVMLicense> proximity;
+    private final List<LSVMLicense> proximity;
     private final HashMap<Long, BigDecimal> values;
     private transient LSVMWorld world;
 
@@ -48,21 +57,22 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
     }
 
     @Override
-    public BigDecimal calculateValue(Bundle<LSVMLicense> bundle) {
+    public BigDecimal calculateValue(Bundle bundle) {
         double value = 0;
-        Set<Set<LSVMLicense>> subpackages = world.getGrid().getMaximallyConnectedSubpackages(bundle);
+        Set<LSVMLicense> licences = bundle.getBundleEntries().stream().map(be -> (LSVMLicense) be.getGood()).collect(Collectors.toSet());
+        Set<Set<LSVMLicense>> subpackages = world.getGrid().getMaximallyConnectedSubpackages(licences);
         for (Set<LSVMLicense> subset : subpackages) {
             double factor = calculateFactor(subset.size());
             value += factor * sumOfItemValues(subset);
         }
-        return new BigDecimal(value);
+        return BigDecimal.valueOf(value);
     }
 
     private double sumOfItemValues(Set<LSVMLicense> subset) {
         double value = 0;
         for (LSVMLicense license : subset) {
-            if (this.values.containsKey(license.getId())) {
-                value += this.values.get(license.getId()).doubleValue();
+            if (this.values.containsKey(license.getLongId())) {
+                value += this.values.get(license.getLongId()).doubleValue();
             }
         }
         return value;
@@ -72,20 +82,20 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
     public <T extends BiddingLanguage> T getValueFunction(Class<T> clazz, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
+                    new SizeBasedUniqueRandomXOR(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new IncreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(DecreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new DecreasingSizeOrderedXOR(world.getLicenses(), this));
         } else {
             throw new UnsupportedBiddingLanguageException();
         }
     }
 
     /**
-     * @see Bidder#getWorld()
+     * @see SATSBidder#getWorld()
      */
     @Override
     public LSVMWorld getWorld() {
@@ -103,8 +113,8 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
     }
 
     @Override
-    public Bidder<LSVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new LSVMBidder((LSVMBidderSetup) getSetup(), getWorld(), getId(), getPopulation(), rngSupplier);
+    public LSVMBidder drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new LSVMBidder((LSVMBidderSetup) getSetup(), getWorld(), getLongId(), getPopulation(), rngSupplier);
     }
 
     public Map<Long, BigDecimal> getBaseValues() {
@@ -123,4 +133,31 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
     public double calculateFactor(int size){
     	return 1 + (LSVM_A / (100 * (1 + Math.exp(LSVM_B - size))));
     }
+
+    @Override
+    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+        LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this));
+        Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
+        mip.getMIP().add(priceVar);
+        mip.getMIP().addObjectiveTerm(-1, priceVar);
+        Constraint price = new Constraint(CompareType.EQ, 0);
+        price.addTerm(-1, priceVar);
+        for (LSVMLicense license : world.getLicenses()) {
+            Map<Integer, Variable> xVariables = mip.getXVariables(this, license);
+            for (Variable xVariable : xVariables.values()) {
+                price.addTerm(prices.getPrice(Bundle.singleGoods(Sets.newHashSet(license))).getAmount().doubleValue(), xVariable);
+            }
+        }
+        mip.getMIP().add(price);
+        List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles);
+
+        List<Bundle> result = optimalAllocations.stream()
+                .peek(alloc -> Preconditions.checkArgument(
+                        getUtility(alloc.allocationOf(this).getBundle(), prices).equals(alloc.getTotalAllocationValue())
+                ))
+                .map(allocation -> allocation.allocationOf(this).getBundle())
+                .filter(bundle -> allowNegative || getUtility(bundle, prices).signum() > -1)
+                .collect(Collectors.toList());
+        if (result.isEmpty()) result.add(Bundle.EMPTY);
+        return result;    }
 }

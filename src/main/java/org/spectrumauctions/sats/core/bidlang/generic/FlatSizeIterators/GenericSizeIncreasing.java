@@ -6,9 +6,10 @@
 package org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators;
 
 import com.google.common.collect.Sets;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.*;
@@ -16,23 +17,23 @@ import java.util.*;
 /**
  * @author Michael Weiss
  */
-public abstract class GenericSizeIncreasing<T extends GenericDefinition<S>, S extends Good> extends GenericSizeOrdered<T, S> {
+public abstract class GenericSizeIncreasing extends GenericSizeOrdered {
 
-    protected GenericSizeIncreasing(Collection<T> allPossibleGenericDefintions)
+    protected GenericSizeIncreasing(Collection<? extends GenericGood> allPossibleGenericDefintions)
             throws UnsupportedBiddingLanguageException {
         super(allPossibleGenericDefintions);
     }
 
     @Override
-    public Iterator<GenericValue<T, S>> iterator() {
+    public Iterator<BundleValue> iterator() {
         return new IncreasingIterator();
     }
 
-    private class IncreasingIterator implements Iterator<GenericValue<T, S>> {
+    private class IncreasingIterator implements Iterator<BundleValue> {
 
         int round = 0;
-        private Iterator<Set<T>> definitionPowersetIterator;
-        private Map<T, Integer> roundSize;
+        private Iterator<Set<GenericGood>> definitionPowersetIterator;
+        private Map<GenericGood, Integer> roundSize;
 
         private boolean hasNext;
 
@@ -42,12 +43,12 @@ public abstract class GenericSizeIncreasing<T extends GenericDefinition<S>, S ex
 
         private void initNextRound() {
             roundSize = new HashMap<>();
-            for (T def : allDefintions) {
+            for (GenericGood good : allGoods) {
                 int quantity = round;
-                if (quantity > def.numberOfLicenses()) {
-                    quantity = def.numberOfLicenses();
+                if (quantity > good.available()) {
+                    quantity = good.available();
                 }
-                roundSize.put(def, quantity);
+                roundSize.put(good, quantity);
             }
             round++;
             initPowersetIterator();
@@ -55,10 +56,10 @@ public abstract class GenericSizeIncreasing<T extends GenericDefinition<S>, S ex
 
         private void initPowersetIterator() {
             // Create set of definition with leftover quantities
-            Set<T> leftOverQuantities = new HashSet<>();
-            for (T def : allDefintions) {
-                if (roundSize.get(def) < def.numberOfLicenses()) {
-                    leftOverQuantities.add(def);
+            Set<GenericGood> leftOverQuantities = new HashSet<>();
+            for (GenericGood good : allGoods) {
+                if (roundSize.get(good) < good.available()) {
+                    leftOverQuantities.add(good);
                 }
             }
             if (leftOverQuantities.size() == 0) {
@@ -66,8 +67,8 @@ public abstract class GenericSizeIncreasing<T extends GenericDefinition<S>, S ex
                 return;
             } else {
                 hasNext = true;
-                Set<Set<T>> definitionPowerset = Sets.powerSet(leftOverQuantities);
-                List<Set<T>> sorted = new ArrayList<>(definitionPowerset);
+                Set<Set<GenericGood>> definitionPowerset = Sets.powerSet(leftOverQuantities);
+                List<Set<GenericGood>> sorted = new ArrayList<>(definitionPowerset);
                 sorted.sort(getIncreasingSizeComparator());
                 definitionPowersetIterator = sorted.iterator();
             }
@@ -87,23 +88,24 @@ public abstract class GenericSizeIncreasing<T extends GenericDefinition<S>, S ex
          * @see java.util.Iterator#next()
          */
         @Override
-        public GenericValue<T, S> next() {
+        public BundleValue next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            GenericValue.Builder<T, S> val = new GenericValue.Builder<>(getGenericBidder());
-            Set<T> toAdd = definitionPowersetIterator.next();
-            for (T def : allDefintions) {
-                int quantity = roundSize.get(def);
-                if (toAdd.contains(def)) {
+            HashSet<BundleEntry> bundleEntries = new HashSet<>();
+            Set<GenericGood> toAdd = definitionPowersetIterator.next();
+            for (GenericGood good : allGoods) {
+                int quantity = roundSize.get(good);
+                if (toAdd.contains(good)) {
                     quantity++;
                 }
-                val.putQuantity(def, quantity);
+                bundleEntries.add(new BundleEntry(good, quantity));
             }
             if (!definitionPowersetIterator.hasNext()) {
                 initNextRound();
             }
-            return val.build();
+            Bundle bundle = new Bundle(bundleEntries);
+            return new BundleValue(getBidder().calculateValue(bundle), bundle);
         }
 
     }

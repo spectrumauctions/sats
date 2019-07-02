@@ -5,6 +5,8 @@
  */
 package org.spectrumauctions.sats.core.model;
 
+import lombok.EqualsAndHashCode;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
@@ -18,7 +20,8 @@ import java.util.TreeSet;
  *
  * @param <T>
  */
-public class Bundle<T extends Good> extends TreeSet<T> {
+@EqualsAndHashCode(callSuper = true)
+public class LicenseBundle<T extends License> extends TreeSet<T> {
 
     private static final long serialVersionUID = -821067248569898586L;
 
@@ -26,18 +29,18 @@ public class Bundle<T extends Good> extends TreeSet<T> {
     protected World world;
 
 
-    public Bundle(Collection<T> allGoods) {
+    public LicenseBundle(Collection<T> allGoods) {
         this();
         addAll(allGoods);
     }
 
     @SafeVarargs
-    public Bundle(T... goods) {
+    public LicenseBundle(T... goods) {
         this(Arrays.asList(goods));
     }
 
-    public Bundle() {
-        super(new Good.IdComparator());
+    public LicenseBundle() {
+        super(new License.IdComparator());
     }
 
     public String itemIds(String deliminator) {
@@ -51,15 +54,6 @@ public class Bundle<T extends Good> extends TreeSet<T> {
             ids.append(String.valueOf(good.getId()));
         }
         return ids.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        int hashCode = 0;
-        for (Good good : this) {
-            hashCode = hashCode * 32 + good.hashCode();
-        }
-        return hashCode;
     }
 
     @Override
@@ -88,18 +82,4 @@ public class Bundle<T extends Good> extends TreeSet<T> {
         return world;
     }
 
-    /**
-     * Returns true if the object to which it is compared to is a Bundle, contains the equals number
-     * of goods, and all goods are equal to a good in this bundle
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Bundle<?>))
-            return false;
-        Bundle<?> otherBundle = (Bundle<?>) o;
-        // TODO: Next lines could be done faster, as bundles are sorted...
-        return otherBundle.size() == size() && containsAll(otherBundle);
-    }
 }

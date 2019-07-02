@@ -5,7 +5,7 @@
  */
 package org.spectrumauctions.sats.core.util.instancehandling;
 
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.UniformJavaUtilRandomWrapper;
@@ -54,10 +54,10 @@ public class InMemoryInstanceHandler extends InstanceHandler {
     }
 
     /* (non-Javadoc)
-     * @see InstanceHandler#writeBidder(Bidder)
+     * @see InstanceHandler#writeBidder(SATSBidder)
      */
     @Override
-    public void writeBidder(Bidder<?> bidder) {
+    public void writeBidder(SATSBidder bidder) {
         // Empty mock - this handler does not write files but method may still be called
     }
 
@@ -73,7 +73,7 @@ public class InMemoryInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readBidder(java.lang.Class, int, int, int)
      */
     @Override
-    public <T extends Bidder<?>> T readBidder(Class<T> type, World world, long populationId, long bidderId) {
+    public <T extends SATSBidder> T readBidder(Class<T> type, World world, long populationId, long bidderId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
 
@@ -81,7 +81,7 @@ public class InMemoryInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readPopulation(java.lang.Class, int, int)
      */
     @Override
-    public <T extends Bidder<?>> Collection<T> readPopulation(Class<T> type, World world, long populationId) {
+    public <T extends SATSBidder> Collection<T> readPopulation(Class<T> type, World world, long populationId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
 
@@ -89,8 +89,8 @@ public class InMemoryInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readBidder(java.util.Map, long, long, long)
      */
     @Override
-    public <T extends Bidder<?>> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId,
-                                                             long bidderId) {
+    public <T extends SATSBidder> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId,
+                                                                 long bidderId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
 
@@ -98,8 +98,8 @@ public class InMemoryInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readPopulation(java.util.Map, long, long)
      */
     @Override
-    public <T extends Bidder<?>> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
-                                                                              long populationId) {
+    public <T extends SATSBidder> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
+                                                                                  long populationId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
 

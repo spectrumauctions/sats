@@ -1,15 +1,14 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import org.spectrumauctions.sats.core.model.Bundle;
+import com.google.common.collect.ImmutableList;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Fabio Isler
@@ -22,7 +21,7 @@ public class LSVMGrid implements Serializable {
     private final int numberOfRows;
     private final int numberOfColumns;
     private transient LSVMWorld world;
-    private transient ImmutableSet<LSVMLicense> licenseSet = null;
+    private transient ImmutableList<LSVMLicense> licenseList = null;
 
     public LSVMGrid(LSVMWorld world, LSVMWorldSetup worldSetup, UniformDistributionRNG rng) {
         this.world = world;
@@ -42,17 +41,17 @@ public class LSVMGrid implements Serializable {
         }
     }
 
-    public ImmutableSet<LSVMLicense> getLicenses() {
-        if (licenseSet == null) {
-            ImmutableSet.Builder<LSVMLicense> builder = ImmutableSet.builder();
+    public ImmutableList<LSVMLicense> getLicenses() {
+        if (licenseList == null) {
+            ImmutableList.Builder<LSVMLicense> builder = ImmutableList.builder();
             for (int i = 0; i < this.numberOfRows; i++) {
                 for (int j = 0; j < this.numberOfColumns; j++) {
                     builder.add(licenses[i][j]);
                 }
             }
-            licenseSet = builder.build();
+            licenseList = builder.build();
         }
-        return licenseSet;
+        return licenseList;
     }
 
     /**
@@ -88,14 +87,14 @@ public class LSVMGrid implements Serializable {
         return licenses[row][column];
     }
 
-    HashSet<LSVMLicense> getProximity(LSVMLicense center, int proximitySize) {
-        HashSet<LSVMLicense> proximity = new HashSet<>();
+    List<LSVMLicense> getProximity(LSVMLicense center, int proximitySize) {
+        List<LSVMLicense> proximity = new LinkedList<>();
         proximity.add(center);
-        Set<LSVMLicense> tmp = expand(proximity, center);
+        List<LSVMLicense> tmp = expand(proximity, center);
         // Expand step by step
         for (int i = 0; i < proximitySize; i++) {
             proximity.addAll(tmp);
-            Set<LSVMLicense> tmp2 = new HashSet<>();
+            List<LSVMLicense> tmp2 = new LinkedList<>();
             for (LSVMLicense license : tmp) {
                 tmp2.addAll(expand(proximity, license));
             }
@@ -104,9 +103,9 @@ public class LSVMGrid implements Serializable {
         return proximity;
     }
 
-    private Set<LSVMLicense> expand(Set<LSVMLicense> proximity, LSVMLicense license) {
+    private List<LSVMLicense> expand(List<LSVMLicense> proximity, LSVMLicense license) {
 
-        Set<LSVMLicense> newLicenses = new HashSet<>();
+        List<LSVMLicense> newLicenses = new LinkedList<>();
         // Add top neighbor if not in first row
         if (license.getRowPosition() > 0) {
             // Only add if not added yet
@@ -156,11 +155,10 @@ public class LSVMGrid implements Serializable {
         return false;
     }
 
-    Set<Set<LSVMLicense>> getMaximallyConnectedSubpackages(Bundle<LSVMLicense> bundle) {
+    Set<Set<LSVMLicense>> getMaximallyConnectedSubpackages(Set<LSVMLicense> bundle) {
 
         Set<Set<LSVMLicense>> subpackages = new HashSet<>();
-        Bundle<LSVMLicense> copyOfBundle = new Bundle<>();
-        copyOfBundle.addAll(bundle);
+        Set<LSVMLicense> copyOfBundle = new HashSet<>(bundle);
         while (!copyOfBundle.isEmpty()) {
             // Each iteration returns one subpackage
             LSVMLicense next = copyOfBundle.iterator().next();
@@ -173,12 +171,11 @@ public class LSVMGrid implements Serializable {
         return subpackages;
     }
 
-    private Set<LSVMLicense> addNeighbors(Set<LSVMLicense> currentSet, Bundle<LSVMLicense> possibleNeighbors) {
+    private Set<LSVMLicense> addNeighbors(Set<LSVMLicense> currentSet, Set<LSVMLicense> possibleNeighbors) {
         if (currentSet.size() == possibleNeighbors.size()) return currentSet;
         else {
-            Set<LSVMLicense> linkedLicenses = new HashSet<>();
-            linkedLicenses.addAll(currentSet);
-            Bundle<LSVMLicense> unassigned = new Bundle<>(possibleNeighbors);
+            Set<LSVMLicense> linkedLicenses = new HashSet<>(currentSet);
+            LicenseBundle<LSVMLicense> unassigned = new LicenseBundle<>(possibleNeighbors);
             unassigned.removeAll(currentSet);
 
             for (LSVMLicense license : unassigned) {

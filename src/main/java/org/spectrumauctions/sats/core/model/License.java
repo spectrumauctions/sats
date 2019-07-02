@@ -5,65 +5,69 @@
  */
 package org.spectrumauctions.sats.core.model;
 
+import lombok.EqualsAndHashCode;
+import org.marketdesignresearch.mechlib.domain.Good;
+
 import java.io.Serializable;
 import java.util.Comparator;
 
-public abstract class Good implements Serializable {
+@EqualsAndHashCode
+public abstract class License implements SATSGood, Serializable {
 
     private final long id;
+    private final String name;
 
     protected final long worldId;
 
-    protected Good(long id, long worldId) {
+    protected License(long id, long worldId) {
         this.id = id;
+        this.name = toAlphabetic(id);
         this.worldId = worldId;
     }
 
+    @Override
     public abstract World getWorld();
 
     private static final long serialVersionUID = 1L;
 
-    public long getId() {
+    public long getLongId() {
         return id;
     }
 
+    @Override
+    public String getId() {
+        return name;
+    }
 
     public long getWorldId() {
         return worldId;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Good other = (Good) obj;
-        if (id != other.id)
-            return false;
-        return true;
-    }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (id ^ (id >>> 32));
-        return result;
-    }
-
-
-    public static class IdComparator implements Comparator<Good>, Serializable {
+    public static class IdComparator implements Comparator<License>, Serializable {
 
         private static final long serialVersionUID = -251782333802510799L;
 
-        private static Comparator<Good> comparator = Comparator.comparingLong(Good::getId);
+        private static Comparator<License> comparator = Comparator.comparingLong(License::getLongId);
 
         @Override
-        public int compare(Good arg0, Good arg1) {
+        public int compare(License arg0, License arg1) {
             return comparator.compare(arg0, arg1);
+        }
+    }
+
+    private static String toAlphabetic(long i) {
+        if (i < 0) {
+            return "-" + toAlphabetic(-i - 1);
+        }
+
+        long quot = i / 26L;
+        long rem = i % 26;
+        char letter = (char) ((int) 'A' + rem);
+        if (quot == 0) {
+            return "" + letter;
+        } else {
+            return toAlphabetic(quot - 1) + letter;
         }
     }
 

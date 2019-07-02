@@ -5,20 +5,17 @@
  */
 package org.spectrumauctions.sats.core.bidfile;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.xor.CatsXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.cats.CATSBidder;
-import org.spectrumauctions.sats.core.model.cats.CATSLicense;
 import org.spectrumauctions.sats.core.model.cats.CATSRegionModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -46,7 +43,7 @@ public class CatsWriterTest extends BidFileWriter {
         CATSRegionModel model = new CATSRegionModel();
         model.setNumberOfBidders(25);
         Collection<CATSBidder> bidders = model.createNewPopulation(21321468L);
-        Collection<XORLanguage<? extends Good>> langs = bidders.stream().map(b -> {
+        Collection<XORLanguage<? extends License>> langs = bidders.stream().map(b -> {
             try {
                 return b.getValueFunction(CatsXOR.class, 0L);
             } catch (UnsupportedBiddingLanguageException e) {

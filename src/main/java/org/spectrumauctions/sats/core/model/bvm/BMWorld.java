@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
@@ -19,7 +21,7 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public final class BMWorld extends World {
+public final class BMWorld extends World implements GenericWorld {
 
     public static final String MODEL_NAME = "Base and MultiBand Value Model";
     private static final long serialVersionUID = 8418773596929829197L;
@@ -51,7 +53,7 @@ public final class BMWorld extends World {
      */
     public BMBand getBand(String bandName) {
         for (BMBand band : bands) {
-            if (band.getName().equals(bandName))
+            if (band.getId().equals(bandName))
                 return band;
         }
         return null;
@@ -185,4 +187,8 @@ public final class BMWorld extends World {
     }
 
 
+    @Override
+    public List<? extends GenericGood> getAllGenericDefinitions() {
+        return bands;
+    }
 }

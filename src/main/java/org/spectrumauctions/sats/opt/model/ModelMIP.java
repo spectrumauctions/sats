@@ -1,14 +1,38 @@
 package org.spectrumauctions.sats.opt.model;
 
+import com.google.common.collect.Lists;
+import edu.harvard.econcs.jopt.solver.IMIP;
+import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
+import org.marketdesignresearch.mechlib.domain.Allocation;
+import org.marketdesignresearch.mechlib.domain.BundleBid;
+import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
+import org.marketdesignresearch.mechlib.winnerdetermination.WinnerDetermination;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Fabio Isler
  */
-public abstract class ModelMIP {
+public abstract class ModelMIP extends WinnerDetermination {
 
-    private MIP mip = new MIP();
+    @Override
+    protected abstract Allocation adaptMIPResult(ISolution mipResult); // Subclasses must implement this
+
+    @Deprecated
+    public Allocation calculateAllocation() {
+        return getAllocation();
+    }
+
+    public abstract ModelMIP getMIPWithout(Bidder bidder);
+    public abstract ModelMIP copyOf();
+
+    private IMIP mip = new MIP();
 
     /**
      * This is mainly used for testing or if you need to access special SolveParams.
@@ -16,7 +40,7 @@ public abstract class ModelMIP {
      *
      * @return reference to the JOpt mip
      */
-    public MIP getMip() {
+    public IMIP getMIP() {
         return mip;
     }
 
@@ -47,6 +71,23 @@ public abstract class ModelMIP {
      */
     public void setTimeLimit(double timeLimit) {
         mip.setSolveParam(SolveParam.TIME_LIMIT, timeLimit);
+    }
+
+    protected abstract Collection<Collection<Variable>> getVariablesOfInterest();
+
+    protected int getSolutionPoolMode() {
+        return 4;
+    }
+
+    @Override
+    public List<Allocation> getBestAllocations(int k) {
+        if (k == 1) return Lists.newArrayList(getAllocation());
+        getMIP().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, k);
+        getMIP().setSolveParam(SolveParam.SOLUTION_POOL_MODE, getSolutionPoolMode());
+        getMIP().setAdvancedVariablesOfInterest(getVariablesOfInterest());
+        List<Allocation> allocations = getIntermediateSolutions();
+        getMIP().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 0);
+        return allocations;
     }
 
 }

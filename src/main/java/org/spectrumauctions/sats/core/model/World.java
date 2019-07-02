@@ -10,6 +10,7 @@ import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public abstract class World implements Serializable {
@@ -32,11 +33,9 @@ public abstract class World implements Serializable {
         return id;
     }
 
-    ;
-
     public abstract int getNumberOfGoods();
 
-    public abstract Set<? extends Good> getLicenses();
+    public abstract List<? extends License> getLicenses();
 
     protected void store() {
         InstanceHandler.getDefaultHandler().writeWorld(this);
@@ -47,14 +46,14 @@ public abstract class World implements Serializable {
     }
 
     /**
-     * Restore serialized {@link Bidder} instances via population id
+     * Restore serialized {@link SATSBidder} instances via population id
      * @param populationId the population id
      * @return the deserialized bidders
      */
-    public abstract Collection<? extends Bidder<?>> restorePopulation(long populationId);
+    public abstract Collection<? extends SATSBidder> restorePopulation(long populationId);
 
     /**
-     * Advanced way to restore serialized {@link Bidder} instances, allowing to specify a custom {@link InstanceHandler} <br>
+     * Advanced way to restore serialized {@link SATSBidder} instances, allowing to specify a custom {@link InstanceHandler} <br>
      * For most use cases, it's recommended to use {@link BMWorld#restorePopulation(long)}. <br><br>
      *
      * Note: Bidders and World must have been serialized before, either during construction (by having set {@link InstanceHandler#setDefaultHandler(InstanceHandler)}
@@ -65,11 +64,11 @@ public abstract class World implements Serializable {
      * @param storageHandler the instance handler
      * @return the deserialized bidders
      */
-    public <T extends Bidder<?>> Collection<T> restorePopulation(Class<T> type, long populationId, InstanceHandler storageHandler) {
+    public <T extends SATSBidder> Collection<T> restorePopulation(Class<T> type, long populationId, InstanceHandler storageHandler) {
         return storageHandler.readPopulationWithUnknownTypes(type, this, populationId);
     }
 
-    protected <T extends Bidder<?>> Collection<T> restorePopulation(Class<T> type, long populationId) {
+    protected <T extends SATSBidder> Collection<T> restorePopulation(Class<T> type, long populationId) {
         return restorePopulation(type, populationId, InstanceHandler.getDefaultHandler());
     }
 

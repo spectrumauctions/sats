@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.spectrumauctions.sats.core.TestSuite;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.DefaultModel;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
@@ -60,7 +60,7 @@ public class SerializerTest {
         }
     }
 
-    public <W extends World, B extends Bidder<?>> void testWorldSerializability(DefaultModel<W, B> model) {
+    public <W extends World, B extends SATSBidder<?>> void testWorldSerializability(DefaultModel<W, B> model) {
         World original = model.createWorld(rng.nextLong());
         World deserialized = InstanceHandler.getDefaultHandler().readWorld(original.getClass(), original.getId());
         Assert.assertEquals("Model " + model.getClass().getSimpleName() + " changed after deserialization", original, deserialized);
@@ -76,11 +76,11 @@ public class SerializerTest {
         }
     }
 
-    public <W extends World, B extends Bidder<?>> void testBidderSerializability(DefaultModel<W, B> model) {
+    public <W extends World, B extends SATSBidder<?>> void testBidderSerializability(DefaultModel<W, B> model) {
         W world = model.createWorld(rng.nextLong());
-        Set<Bidder<?>> originalPopulation = new HashSet<>(model.createPopulation(world, rng.nextLong()));
+        Set<SATSBidder<?>> originalPopulation = new HashSet<>(model.createPopulation(world, rng.nextLong()));
         long populationId = originalPopulation.iterator().next().getPopulation();
-        Set<? extends Bidder<?>> deserializedPopulation = new HashSet<>(world.restorePopulation(populationId));
+        Set<? extends SATSBidder<?>> deserializedPopulation = new HashSet<>(world.restorePopulation(populationId));
         Assert.assertEquals(originalPopulation, deserializedPopulation);
     }
 

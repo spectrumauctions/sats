@@ -5,12 +5,9 @@
  */
 package org.spectrumauctions.sats.core.bidfile;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
-import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
-import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.bvm.BMLicense;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.License;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,18 +25,17 @@ public class CatsExporter extends FileWriter {
     }
 
     @Override
-    public File writeSingleBidderXOR(XORLanguage<? extends Good> valueFunction, int numberOfBids, String filePrefix) throws IOException {
-        Iterator iter = valueFunction.iterator();
-        Set<XORValue<?>> selectedValues = new HashSet<>();
+    public File writeSingleBidderXOR(BiddingLanguage valueFunction, int numberOfBids, String filePrefix) throws IOException {
+        Iterator<BundleValue> iter = valueFunction.iterator();
+        Set<BundleValue> selectedValues = new HashSet<>();
         List<String> bidLines = fileInit(valueFunction);
         for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
-            XORValue<?> value = (XORValue) iter.next();
+            BundleValue value = iter.next();
             selectedValues.add(value);
-            String line = String.valueOf(i).concat("\t");
-            line = line.concat(value.value().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
-            line = line.concat("\t");
-            line = line.concat(value.getLicenses().itemIds("\t")).concat("#");
-            bidLines.add(line);
+            String sb = i + "\t" +
+                    value.getAmount().setScale(4, BigDecimal.ROUND_HALF_UP).toString() + "\t" +
+                    value.getBundle().toString().replace(",", "\t") + "#";
+            bidLines.add(sb);
         }
         List<String> lines = new ArrayList<>();
         lines.add("goods " + valueFunction.getBidder().getWorld().getNumberOfGoods());
@@ -52,7 +48,7 @@ public class CatsExporter extends FileWriter {
 
     }
 
-    private List<String> fileInit(XORLanguage<? extends Good> lang) {
+    private List<String> fileInit(BiddingLanguage lang) {
         List<String> lines = new ArrayList<>();
 
         String satsversion = null;
@@ -72,7 +68,7 @@ public class CatsExporter extends FileWriter {
     }
 
     @Override
-    public File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix) throws IOException {
+    public File writeMultiBidderXOR(Collection<BiddingLanguage> valueFunctions, int numberOfBids, String filePrefix) throws IOException {
         List<String> lines = fileInit(valueFunctions.iterator().next());
         lines.add("%% This file may contain bids from multiple bidders.");
         lines.add("% Bids from different bidders are separated using dummy items with negative IDs");
@@ -82,14 +78,14 @@ public class CatsExporter extends FileWriter {
         //Dummy items are negative integers, for easier distinction
         int dummyItem = -1;
         int countBids = 0;
-        for (XORLanguage<? extends Good> valueFunction : valueFunctions) {
-            Iterator iter = valueFunction.iterator();
+        for (BiddingLanguage valueFunction : valueFunctions) {
+            Iterator<BundleValue> iter = valueFunction.iterator();
             for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
-                XORValue<?> value = (XORValue) iter.next();
+                BundleValue value = iter.next();
                 StringBuilder line = new StringBuilder(String.valueOf(countBids++)).append("\t");
-                line.append(value.value().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
+                line.append(value.getAmount().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
                 line.append("\t");
-                line.append(value.getLicenses().itemIds("\t"));
+                line.append(value.getBundle().toString().replace(",", "\t"));
                 line.append("\t");
                 line.append(dummyItem);
                 line.append("\t#");
@@ -117,7 +113,7 @@ public class CatsExporter extends FileWriter {
      * @see FileWriter#writeMultiBidderXORQ(java.util.Collection, int, java.lang.String)
      */
     @Override
-    public File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition<? extends Good>, ?>> valueFunctions, int numberOfBids,
+    public File writeMultiBidderXORQ(Collection<BiddingLanguage> valueFunctions, int numberOfBids,
                                      String filePrefix) throws IOException {
         throw new UnsupportedOperationException("XOR-Q is not compatible with the CATS file format");
     }
@@ -126,7 +122,7 @@ public class CatsExporter extends FileWriter {
      * @see FileWriter#writeSingleBidderXORQ(GenericLang, int, java.lang.String)
      */
     @Override
-    public File writeSingleBidderXORQ(GenericLang<GenericDefinition<? extends Good>, ?> lang, int numberOfBids, String filePrefix)
+    public File writeSingleBidderXORQ(BiddingLanguage lang, int numberOfBids, String filePrefix)
             throws IOException {
         throw new UnsupportedOperationException("XOR-Q is not compatible with the CATS file format");
     }

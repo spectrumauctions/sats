@@ -212,7 +212,7 @@ public class SRVMBidderPartialMIPTest {
             // Fix values for v_i_b
             int count = 0;
             for (SRVMBand band : bidder.getWorld().getBands()) {
-                Constraint c = new Constraint(CompareType.EQ, bidder.getId() * 100 + count++);
+                Constraint c = new Constraint(CompareType.EQ, bidder.getLongId() * 100 + count++);
                 c.addTerm(1, bidderPartialMIP.getValueVariable(band));
                 mip.add(c);
             }
@@ -230,7 +230,7 @@ public class SRVMBidderPartialMIPTest {
             Variable wVar = partialMip.getValue().getwVariable();
             int count = 0;
             for (SRVMBand band : bidder.getWorld().getBands()) {
-                double expected = bidder.getId() * 100 + count;
+                double expected = bidder.getLongId() * 100 + count;
                 Variable vmVar = worldPartialMip.getVmVariable(bidder, band);
                 Variable voVar = worldPartialMip.getVoVariable(bidder, band);
                 double vmResult = result.getValue(vmVar);

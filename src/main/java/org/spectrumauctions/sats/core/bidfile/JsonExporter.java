@@ -6,12 +6,12 @@
 package org.spectrumauctions.sats.core.bidfile;
 
 import com.google.gson.*;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
-import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.License;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 /**
  * @author Michael Weiss
@@ -44,12 +43,12 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeMultiBidderXOR(java.util.Collection, int, java.lang.String)
      */
     @Override
-    public File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix)
+    public File writeMultiBidderXOR(Collection<BiddingLanguage> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException {
         JsonArray json = new JsonArray();
-        for (XORLanguage<? extends Good> lang : valueFunctions) {
+        for (BiddingLanguage lang : valueFunctions) {
             JsonObject thisBidder = new JsonObject();
-            thisBidder.addProperty("bidder", lang.getBidder().getId());
+            thisBidder.addProperty("bidder", lang.getBidder().getLongId());
             thisBidder.add("bids", singleBidderXOR(lang, numberOfBids, filePrefix));
             json.add(thisBidder);
         }
@@ -57,18 +56,19 @@ public class JsonExporter extends FileWriter {
     }
 
 
-    private JsonElement singleBidderXOR(XORLanguage<? extends Good> lang, int numberOfBids, String filePrefix) {
+    private JsonElement singleBidderXOR(BiddingLanguage lang, int numberOfBids, String filePrefix) {
         JsonArray result = new JsonArray();
-        Iterator iter = lang.iterator();
+        Iterator<BundleValue> iter = lang.iterator();
         for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
             JsonObject bid = new JsonObject();
-            XORValue<Good> xorValue = (XORValue) iter.next();
+            BundleValue xorValue = iter.next();
             JsonArray licenses = new JsonArray();
-            for (Good license : xorValue.getLicenses()) {
-                licenses.add(license.getId());
+            for (Good license : xorValue.getBundle().getSingleAvailabilityGoods()) {
+                License l = (License) license;
+                licenses.add(l.getLongId());
             }
             bid.add("licenses", licenses);
-            bid.addProperty("value", xorValue.value().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
+            bid.addProperty("value", xorValue.getAmount().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
             result.add(bid);
         }
         return result;
@@ -78,7 +78,7 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeSingleBidderXOR(XORLanguage, int, java.lang.String)
      */
     @Override
-    public File writeSingleBidderXOR(XORLanguage<? extends Good> valueFunction, int numberOfBids, String filePrefix)
+    public File writeSingleBidderXOR(BiddingLanguage valueFunction, int numberOfBids, String filePrefix)
             throws IOException {
         JsonElement singleBidder = singleBidderXOR(valueFunction, numberOfBids, filePrefix);
         return write(singleBidder, filePrefix);
@@ -88,12 +88,12 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeMultiBidderXORQ(java.util.Collection, int, java.lang.String)
      */
     @Override
-    public File writeMultiBidderXORQ(Collection<GenericLang<GenericDefinition<? extends Good>, ?>> valueFunctions, int numberOfBids,
+    public File writeMultiBidderXORQ(Collection<BiddingLanguage> valueFunctions, int numberOfBids,
                                      String filePrefix) throws IOException {
         JsonArray json = new JsonArray();
-        for (GenericLang<GenericDefinition<? extends Good>, ?> lang : valueFunctions) {
+        for (BiddingLanguage lang : valueFunctions) {
             JsonObject thisBidder = new JsonObject();
-            thisBidder.addProperty("bidder", lang.getBidder().getId());
+            thisBidder.addProperty("bidder", lang.getBidder().getLongId());
             thisBidder.add("bids", singleBidderXORQ(lang, numberOfBids, filePrefix));
             json.add(thisBidder);
         }
@@ -104,29 +104,30 @@ public class JsonExporter extends FileWriter {
      * @see FileWriter#writeSingleBidderXORQ(GenericLang, int, java.lang.String)
      */
     @Override
-    public File writeSingleBidderXORQ(GenericLang<GenericDefinition<? extends Good>, ?> lang, int numberOfBids, String filePrefix)
+    public File writeSingleBidderXORQ(BiddingLanguage lang, int numberOfBids, String filePrefix)
             throws IOException {
         JsonElement singleBidder = singleBidderXORQ(lang, numberOfBids, filePrefix);
         return write(singleBidder, filePrefix);
     }
 
-    private JsonElement singleBidderXORQ(GenericLang<GenericDefinition<? extends Good>, ?> lang, int numberOfBids, String filePrefix) {
+    private JsonElement singleBidderXORQ(BiddingLanguage lang, int numberOfBids, String filePrefix) {
         JsonArray result = new JsonArray();
-        Iterator<? extends GenericValue<GenericDefinition<? extends Good>, ?>> iter = lang.iterator();
+        Iterator<BundleValue> iter = lang.iterator();
         for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
             JsonObject bid = new JsonObject();
-            GenericValue<GenericDefinition<? extends Good>, ?> val = iter.next();
+            BundleValue val = iter.next();
             JsonArray quantities = new JsonArray();
-            for (Entry<GenericDefinition<? extends Good>, Integer> quant : val.getQuantities().entrySet()) {
-                if (quant.getValue() != 0 || !ONLY_NONZERO_QUANTITIES) {
+            for (BundleEntry quant : val.getBundle().getBundleEntries()) {
+                if (quant.getAmount() != 0 || !ONLY_NONZERO_QUANTITIES) {
+                    GenericGood good = (GenericGood) quant.getGood();
                     JsonObject object = new JsonObject();
-                    object.add("generic definition", quant.getKey().shortJson());
-                    object.addProperty("quantity", quant.getValue());
+                    object.add("generic definition", good.shortJson());
+                    object.addProperty("quantity", quant.getAmount());
                     quantities.add(object);
                 }
             }
             bid.add("quantities", quantities);
-            bid.addProperty("value", val.getValue().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
+            bid.addProperty("value", val.getAmount().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
             result.add(bid);
         }
         return result;

@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.*;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
@@ -46,7 +46,7 @@ public class BiddingLanguagesExample {
      */
     @Test
     public void generateRandomOrderXORBids() {
-        Bidder bidder = createAnyBidder();
+        SATSBidder bidder = createAnyBidder();
         SizeBasedUniqueRandomXOR<?> valueFunction;
         try {
             // Get a SizeBaseUniqueRandom XOR Iterator from your bidder

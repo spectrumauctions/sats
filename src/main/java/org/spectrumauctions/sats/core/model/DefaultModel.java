@@ -15,7 +15,7 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public abstract class DefaultModel<W extends World, B extends Bidder<? extends Good>> {
+public abstract class DefaultModel<W extends World, B extends SATSBidder<? extends License>> {
 
     /**
      * Creates a new {@link World}
@@ -43,7 +43,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
 
 
     /**
-     * Creates a new set of {@link Bidder} instances
+     * Creates a new set of {@link SATSBidder} instances
      * @param world the {@link World} for which the bidders are created
      * @param populationRNG a rng supplier for the creation of random bidder parameters
      * @return a new set of bidders
@@ -51,7 +51,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
     public abstract List<B> createPopulation(W world, RNGSupplier populationRNG);
 
     /**
-     * Creates a new set of {@link Bidder} instances
+     * Creates a new set of {@link SATSBidder} instances
      * @return a new set of bidders
      */
     public List<B> createNewPopulation() {
@@ -59,7 +59,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
     }
 
     /**
-     * Creates a new set of {@link Bidder} instances
+     * Creates a new set of {@link SATSBidder} instances
      * @param seed the seed for the RNG
      * @return a new set of bidders
      */
@@ -68,7 +68,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
     }
 
     /**
-     * Creates a new set of {@link Bidder} instances for a newly generated {@link World} instance
+     * Creates a new set of {@link SATSBidder} instances for a newly generated {@link World} instance
      * @param rngSupplier A rng supplier for random creation of both world parameters and bidder paramters
      * @return a new set of bidders
      */
@@ -80,7 +80,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
     }
 
     /**
-     * Creates a new set of {@link Bidder} instances for a newly generated {@link World} instance
+     * Creates a new set of {@link SATSBidder} instances for a newly generated {@link World} instance
      * @param worldSeed A seed for random creation of world parameters
      * @param populationSeed A seed for randmon creation of bidder parameters
      * @return a new set of bidders
@@ -90,7 +90,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
     }
 
     /**
-     * Creates a new set of {@link Bidder} instances for a newly generated {@link World} instance
+     * Creates a new set of {@link SATSBidder} instances for a newly generated {@link World} instance
      * @param worldRNG A rng supplier for random creation of world parameters
      * @param populationRNG A rng supplier for randmon creation of bidder parameters
      * @return a new set of bidders
@@ -101,7 +101,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
     }
 
     /**
-     * Creates a new set of {@link Bidder} instances
+     * Creates a new set of {@link SATSBidder} instances
      * @param world The world for which the bidders are created
      * @param populationSeed A seed for random creation of bidder parameters
      * @return a new set of bidders
@@ -111,7 +111,7 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
     }
 
     /**
-     * Creates a new set of {@link Bidder} instances
+     * Creates a new set of {@link SATSBidder} instances
      * @param world The world for which the bidders are created
      * @return a new set of bidders
      */

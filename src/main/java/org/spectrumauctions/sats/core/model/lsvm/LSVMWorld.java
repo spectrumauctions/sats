@@ -1,7 +1,8 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -32,7 +33,7 @@ public final class LSVMWorld extends World {
     }
 
     @Override
-    public Collection<? extends Bidder<LSVMLicense>> restorePopulation(long populationId) {
+    public Collection<LSVMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(LSVMBidder.class, populationId);
     }
 
@@ -42,7 +43,7 @@ public final class LSVMWorld extends World {
      * @return An immutable set containing all licenses.
      */
     @Override
-    public ImmutableSet<LSVMLicense> getLicenses() {
+    public ImmutableList<LSVMLicense> getLicenses() {
         return grid.getLicenses();
     }
 

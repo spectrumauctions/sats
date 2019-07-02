@@ -7,7 +7,7 @@ package org.spectrumauctions.sats.core.model.bvm;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
 
@@ -28,10 +28,10 @@ public class BMRandomnessTest {
         BMWorld world1 = model.createWorld(seed);
         BMWorld world2 = model.createWorld(seed);
         Assert.assertEquals(world1, world2);
-        List<? extends Bidder<?>> bidders1 = model.createPopulation(world1, seed2);
-        List<? extends Bidder<?>> bidders2 = model.createPopulation(world1, seed2);
-        List<? extends Bidder<?>> bidders3 = model.createPopulation(world2, seed2);
-        List<? extends Bidder<?>> bidders4 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder<?>> bidders1 = model.createPopulation(world1, seed2);
+        List<? extends SATSBidder<?>> bidders2 = model.createPopulation(world1, seed2);
+        List<? extends SATSBidder<?>> bidders3 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder<?>> bidders4 = model.createPopulation(world2, seed2);
         Assert.assertEquals(bidders1, bidders2);
         Assert.assertEquals(bidders2, bidders3);
         Assert.assertEquals(bidders3, bidders4);
@@ -47,10 +47,10 @@ public class BMRandomnessTest {
         BMWorld world1 = model.createWorld(seed);
         BMWorld world2 = model.createWorld(seed);
         Assert.assertEquals(world1, world2);
-        List<? extends Bidder<?>> bidders1 = model.createPopulation(world1, seed2);
-        List<? extends Bidder<?>> bidders2 = model.createPopulation(world1, seed2);
-        List<? extends Bidder<?>> bidders3 = model.createPopulation(world2, seed2);
-        List<? extends Bidder<?>> bidders4 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder<?>> bidders1 = model.createPopulation(world1, seed2);
+        List<? extends SATSBidder<?>> bidders2 = model.createPopulation(world1, seed2);
+        List<? extends SATSBidder<?>> bidders3 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder<?>> bidders4 = model.createPopulation(world2, seed2);
         Assert.assertEquals(bidders1, bidders2);
         Assert.assertEquals(bidders2, bidders3);
         Assert.assertEquals(bidders3, bidders4);

@@ -4,10 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
@@ -58,12 +57,12 @@ public class BasicExamples {
         List<GSVMBidder> bidders = (new GlobalSynergyValueModel()).createNewPopulation();   // Create bidders
         GSVMStandardMIP mip = new GSVMStandardMIP(bidders);                                 // Create the MIP
         ItemAllocation<GSVMLicense> result = mip.calculateAllocation();                     // Solve the MIP
-        for (Bidder<GSVMLicense> bidder : result.getWinners()) {
+        for (SATSBidder<GSVMLicense> bidder : result.getWinners()) {
             StringBuilder sb = new StringBuilder();                                         // Show the allocation
-            sb.append(bidder.getId());
+            sb.append(bidder.getLongId());
             sb.append(":\t[ ");
             for (GSVMLicense license : result.getAllocation(bidder)) {
-                sb.append(license.getId());
+                sb.append(license.getLongId());
                 sb.append(", ");
             }
             sb.append("]");

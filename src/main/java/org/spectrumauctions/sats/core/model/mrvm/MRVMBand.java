@@ -6,12 +6,12 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.collect.ImmutableMap;
-import org.spectrumauctions.sats.core.bidlang.generic.Band;
+import lombok.EqualsAndHashCode;
+import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -19,7 +19,8 @@ import java.util.*;
  * @author Michael Weiss
  *
  */
-public final class MRVMBand extends Band implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public final class MRVMBand extends GenericGood {
 
     private static final long serialVersionUID = -4482949789084377013L;
     private final long worldId;
@@ -37,7 +38,7 @@ public final class MRVMBand extends Band implements Serializable {
         int currentLicenseId = 0;
         for (MRVMWorldSetup.BandSetup bandSetup : bandSetups) {
             MRVMBand band = new MRVMBand(bandSetup, world, currentLicenseId, rng);
-            currentLicenseId += band.getNumberOfLicenses();
+            currentLicenseId += band.available();
             bands.add(band);
         }
         return bands;
@@ -45,7 +46,7 @@ public final class MRVMBand extends Band implements Serializable {
 
 
     private MRVMBand(MRVMWorldSetup.BandSetup bandSetup, MRVMWorld world, int licenseStartId, UniformDistributionRNG rng) {
-        super(bandSetup.getName());
+        super(bandSetup.getName(), world.getId());
         this.world = world;
 
         this.numberOfLots = bandSetup.drawNumberOfLots(rng);
@@ -92,8 +93,9 @@ public final class MRVMBand extends Band implements Serializable {
     }
 
 
-    public Collection<MRVMLicense> getLicenses() {
-        return Collections.unmodifiableCollection(licenses);
+    @Override
+    public List<MRVMLicense> containedGoods() {
+        return Collections.unmodifiableList(licenses);
     }
 
     public int getNumberOfLots() {
@@ -101,7 +103,7 @@ public final class MRVMBand extends Band implements Serializable {
     }
 
     @Override
-    public int getNumberOfLicenses() {
+    public int available() {
         return licenses.size();
     }
 
@@ -132,48 +134,4 @@ public final class MRVMBand extends Band implements Serializable {
             license.refreshFieldBackReferences(this);
         }
     }
-
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((baseCapacity == null) ? 0 : baseCapacity.hashCode());
-        result = prime * result + ((licenses == null) ? 0 : licenses.hashCode());
-        result = prime * result + numberOfLots;
-        result = prime * result + ((synergies == null) ? 0 : synergies.hashCode());
-        return result;
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        MRVMBand other = (MRVMBand) obj;
-        if (baseCapacity == null) {
-            if (other.baseCapacity != null)
-                return false;
-        } else if (!baseCapacity.equals(other.baseCapacity))
-            return false;
-        if (licenses == null) {
-            if (other.licenses != null)
-                return false;
-        } else if (!licenses.equals(other.licenses))
-            return false;
-        if (numberOfLots != other.numberOfLots)
-            return false;
-        if (synergies == null) {
-            if (other.synergies != null)
-                return false;
-        } else if (!synergies.equals(other.synergies))
-            return false;
-        return true;
-    }
-
-
 }

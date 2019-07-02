@@ -9,7 +9,6 @@ import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.model.*;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
@@ -18,7 +17,7 @@ import java.util.HashMap;
 /**
  * @author Fabio Isler
  */
-public final class CATSBidder extends Bidder<CATSLicense> {
+public final class CATSBidder extends SATSBidder<CATSLicense> {
 
     private static final long serialVersionUID = -6762037404466323951L;
     private final HashMap<Long, BigDecimal> privateValues;
@@ -34,12 +33,12 @@ public final class CATSBidder extends Bidder<CATSLicense> {
     }
 
     @Override
-    public BigDecimal calculateValue(Bundle<CATSLicense> bundle) {
+    public BigDecimal calculateValue(LicenseBundle<CATSLicense> bundle) {
         double value = 0;
         for (CATSLicense license : bundle) {
-            if (this.privateValues.containsKey(license.getId())) {
+            if (this.privateValues.containsKey(license.getLongId())) {
                 value += license.getCommonValue();
-                value += this.privateValues.get(license.getId()).doubleValue();
+                value += this.privateValues.get(license.getLongId()).doubleValue();
                 /*
                  * This quadratic pricing option doesn't seem to be implemented in CATS, just mentioned in the paper.
                  * This is how we assume it would have been implemented, according to the author's remarks.
@@ -99,8 +98,8 @@ public final class CATSBidder extends Bidder<CATSLicense> {
     }
 
     @Override
-    public Bidder<CATSLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new CATSBidder((CATSBidderSetup) getSetup(), getWorld(), getId(), getPopulation(), rngSupplier);
+    public SATSBidder<CATSLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new CATSBidder((CATSBidderSetup) getSetup(), getWorld(), getLongId(), getPopulation(), rngSupplier);
     }
 
 }

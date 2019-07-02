@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
@@ -22,7 +22,7 @@ public class SimpleRandomOrderTest {
 
     private static final Logger logger = LogManager.getLogger(SimpleRandomOrderTest.class);
 
-    private static Map<Bidder, Integer> bidders;
+    private static Map<SATSBidder, Integer> bidders;
 
     @BeforeClass
     public static void setUpBeforeClass() {
@@ -35,14 +35,14 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testAllModelsSimpleRandom() {
-        for (Map.Entry<Bidder, Integer> entry : bidders.entrySet()) {
+        for (Map.Entry<SATSBidder, Integer> entry : bidders.entrySet()) {
             testSimple(entry.getKey(), entry.getValue());
         }
     }
 
     @Test
     public void testSRMSimpleRandomReduceBidAmount() {
-        Bidder bidder = new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
+        SATSBidder bidder = new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
         XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
@@ -59,7 +59,7 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testMRMSimpleRandomLarge() {
-        Bidder bidder = new MultiRegionModel().createNewPopulation().stream().findAny().orElse(null);
+        SATSBidder bidder = new MultiRegionModel().createNewPopulation().stream().findAny().orElse(null);
         XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
@@ -75,7 +75,7 @@ public class SimpleRandomOrderTest {
 
     // ------- Helpers ------- //
 
-    private void testSimple(Bidder bidder, Integer assumedBidSize) {
+    private void testSimple(SATSBidder bidder, Integer assumedBidSize) {
         XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);

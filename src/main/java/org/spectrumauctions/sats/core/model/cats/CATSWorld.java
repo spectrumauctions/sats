@@ -1,7 +1,8 @@
 package org.spectrumauctions.sats.core.model.cats;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Graph;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Mesh2D;
@@ -27,7 +28,7 @@ public final class CATSWorld extends World {
     private final int size;
     private final HashSet<CATSLicense> licenses;
 
-    private transient ImmutableSet<CATSLicense> licenseSet;
+    private transient ImmutableList<CATSLicense> licenseList;
     private int maxSubstitutableBids;
 
 
@@ -60,7 +61,7 @@ public final class CATSWorld extends World {
     }
 
     @Override
-    public Collection<? extends Bidder<CATSLicense>> restorePopulation(long populationId) {
+    public Collection<CATSBidder> restorePopulation(long populationId) {
         return super.restorePopulation(CATSBidder.class, populationId);
     }
 
@@ -70,11 +71,11 @@ public final class CATSWorld extends World {
      * @return An immutable set containing all licenses.
      */
     @Override
-    public ImmutableSet<CATSLicense> getLicenses() {
-        if (licenseSet == null) {
-            licenseSet = ImmutableSet.copyOf(licenses);
+    public ImmutableList<CATSLicense> getLicenses() {
+        if (licenseList == null) {
+            licenseList = ImmutableList.copyOf(licenses);
         }
-        return licenseSet;
+        return licenseList;
     }
 
     /**

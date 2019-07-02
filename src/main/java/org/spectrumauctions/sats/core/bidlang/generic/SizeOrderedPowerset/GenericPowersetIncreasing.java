@@ -5,9 +5,8 @@
  */
 package org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.Iterator;
@@ -20,26 +19,26 @@ import java.util.Map;
  *
  * @author Michael Weiss
  */
-public abstract class GenericPowersetIncreasing<T extends GenericDefinition<S>, S extends Good> extends GenericPowerset<T, S> {
+public abstract class GenericPowersetIncreasing extends GenericPowerset {
 
-    protected GenericPowersetIncreasing(List<T> genericDefinitions) throws UnsupportedBiddingLanguageException {
+    protected GenericPowersetIncreasing(List<? extends GenericGood> genericDefinitions) throws UnsupportedBiddingLanguageException {
         super(genericDefinitions);
     }
 
-    GenericPowersetIncreasing(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
+    GenericPowersetIncreasing(Map<? extends GenericGood, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
         super(maxQuantities, maxBundleSize);
     }
 
-    protected void isFeasibleSize(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
+    protected void isFeasibleSize(Map<? extends GenericGood, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
         //Increasing iterator will eventually get very slow, but only after a huge amount of bids were returned
     }
 
     @Override
-    public Iterator<GenericValue<T, S>> iterator() {
+    public Iterator<BundleValue> iterator() {
         return new IncreasingIterator();
     }
 
-    private class IncreasingIterator extends GenericPowerset<T, S>.PowersetIterator {
+    private class IncreasingIterator extends GenericPowerset.PowersetIterator {
 
         public IncreasingIterator() {
             bundleSize = 1;

@@ -5,14 +5,18 @@
  */
 package org.spectrumauctions.sats.core.bidlang;
 
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.model.SATSBidder;
+
+import java.util.Iterator;
 
 public interface BiddingLanguage {
 
     /**
-     * References back to the Bidder instance from whom this
+     * References back to the SATSBidder instance from whom this
      * Bidding language instance was created.
      */
-    Bidder<? extends Good> getBidder();
+    SATSBidder getBidder();
+
+    Iterator<BundleValue> iterator();
 }

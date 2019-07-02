@@ -7,8 +7,8 @@ package org.spectrumauctions.sats.opt.model.srvm;
 
 import com.google.common.base.Preconditions;
 import edu.harvard.econcs.jopt.solver.mip.*;
-import org.spectrumauctions.sats.core.bidlang.generic.Band;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
+import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.opt.domain.PartialMIP;
@@ -29,12 +29,12 @@ public class SRVMBidderPartialMIP extends PartialMIP {
     private static final String wVariablePrefix = "W";
     private static final String valueVariablePrefix = "v";
 
-    private Map<Band, Variable> zVariables;
+    private Map<SRVMBand, Variable> zVariables;
     private Variable wVariable;
-    private Map<Band, Variable> valueVariables;
-    private Map<Band, Variable> alphaVariables;
-    private Map<Band, Variable> betaVariables;
-    private Map<Band, Variable> gammaVariables;
+    private Map<SRVMBand, Variable> valueVariables;
+    private Map<SRVMBand, Variable> alphaVariables;
+    private Map<SRVMBand, Variable> betaVariables;
+    private Map<SRVMBand, Variable> gammaVariables;
     protected final SRVMWorldPartialMip worldPartialMip;
     private final SRVMBidder bidder;
 
@@ -46,16 +46,16 @@ public class SRVMBidderPartialMIP extends PartialMIP {
 
     private void initVariables() {
         this.zVariables = createZVariables();
-        this.wVariable = new Variable(wVariablePrefix + "_" + bidder.getId(), VarType.BOOLEAN, 0, 1);
+        this.wVariable = new Variable(wVariablePrefix + "_" + bidder.getLongId(), VarType.BOOLEAN, 0, 1);
         this.valueVariables = createValueVariables();
         this.alphaVariables = createHelperVariables("alpha");
         this.betaVariables = createHelperVariables("beta");
         this.gammaVariables = createHelperVariables("gamma");
     }
 
-    private Map<Band, Variable> createZVariables() {
-        Map<Band, Variable> result = new HashMap<>();
-        for (Band band : bidder.getWorld().getBands()) {
+    private Map<SRVMBand, Variable> createZVariables() {
+        Map<SRVMBand, Variable> result = new HashMap<>();
+        for (SRVMBand band : bidder.getWorld().getBands()) {
             String varName = zVariablePrefix.concat(createIndex(bidder, band));
             Variable var = new Variable(varName, VarType.BOOLEAN, 0, 1);
             result.put(band, var);
@@ -63,9 +63,9 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         return result;
     }
 
-    private Map<Band, Variable> createHelperVariables(String prefix) {
-        Map<Band, Variable> result = new HashMap<>();
-        for (Band band : bidder.getWorld().getBands()) {
+    private Map<SRVMBand, Variable> createHelperVariables(String prefix) {
+        Map<SRVMBand, Variable> result = new HashMap<>();
+        for (SRVMBand band : bidder.getWorld().getBands()) {
             String varName = prefix.concat(createIndex(bidder, band));
             Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
             result.put(band, var);
@@ -73,9 +73,9 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         return result;
     }
 
-    private Map<Band, Variable> createValueVariables() {
-        Map<Band, Variable> result = new HashMap<>();
-        for (Band band : bidder.getWorld().getBands()) {
+    private Map<SRVMBand, Variable> createValueVariables() {
+        Map<SRVMBand, Variable> result = new HashMap<>();
+        for (SRVMBand band : bidder.getWorld().getBands()) {
             String varName = valueVariablePrefix.concat(createIndex(bidder, band));
             Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
             result.put(band, var);
@@ -87,7 +87,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
      * @return
      * @throws NullPointerException if no variable is defined for this region
      */
-    Variable getzVariable(Band band) {
+    Variable getzVariable(SRVMBand band) {
         Variable var = zVariables.get(band);
         Preconditions.checkNotNull(var);
         return var;
@@ -101,35 +101,35 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         return wVariable;
     }
 
-    Variable getValueVariable(Band band) {
+    Variable getValueVariable(SRVMBand band) {
         Variable var = valueVariables.get(band);
         Preconditions.checkNotNull(var);
         return var;
     }
 
-    Variable getAlphaVariable(Band band) {
+    Variable getAlphaVariable(SRVMBand band) {
         Variable var = alphaVariables.get(band);
         Preconditions.checkNotNull(var);
         return var;
     }
 
-    Variable getBetaVariable(Band band) {
+    Variable getBetaVariable(SRVMBand band) {
         Variable var = betaVariables.get(band);
         Preconditions.checkNotNull(var);
         return var;
     }
 
-    Variable getGammaVariable(Band band) {
+    Variable getGammaVariable(SRVMBand band) {
         Variable var = gammaVariables.get(band);
         Preconditions.checkNotNull(var);
         return var;
     }
 
-    static String createIndex(Bidder<?> bidder, Band band) {
+    static String createIndex(SATSBidder bidder, SRVMBand band) {
         StringBuilder builder = new StringBuilder("_b");
-        builder.append(bidder.getId());
+        builder.append(bidder.getLongId());
         builder.append(",band_");
-        builder.append(band.getName());
+        builder.append(band.getId());
         return builder.toString();
     }
 
@@ -138,12 +138,12 @@ public class SRVMBidderPartialMIP extends PartialMIP {
      */
     Set<Constraint> generatezConstraints() {
         Set<Constraint> result = new HashSet<>();
-        for (Band band : bidder.getWorld().getBands()) {
+        for (SRVMBand band : bidder.getWorld().getBands()) {
             Variable x = worldPartialMip.getXVariable(bidder, band);
             // Add Z_i_b >= 1/n_b * X_b constraint
             Constraint zgeq = new Constraint(CompareType.LEQ, 0);
             zgeq.addTerm(-1, getzVariable(band));
-            zgeq.addTerm(1.0 / band.getNumberOfLicenses(), x);
+            zgeq.addTerm(1.0 / band.available(), x);
             result.add(zgeq);
             // Add Z_i_b <= X_i_b constraint
             Constraint zleq = new Constraint(CompareType.GEQ, 0);
@@ -162,8 +162,8 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         Constraint wleq = new Constraint(CompareType.GEQ, 0);
         wleq.addTerm(-1, getwVariable());
 
-        for (Band band : bidder.getWorld().getBands()) {
-            wgeq.addTerm(1.0 / band.getNumberOfLicenses(), getzVariable(band));
+        for (SRVMBand band : bidder.getWorld().getBands()) {
+            wgeq.addTerm(1.0 / band.available(), getzVariable(band));
             wleq.addTerm(0.5, getzVariable(band));
         }
         result.add(wgeq);
@@ -177,7 +177,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
      */
     Set<Constraint> generateInterBandSynergyConstraints() {
         Set<Constraint> result = new HashSet<>();
-        for (Band band : bidder.getWorld().getBands()) {
+        for (SRVMBand band : bidder.getWorld().getBands()) {
             Variable vm = worldPartialMip.getVmVariable(bidder, band);
             // Add C.10
             Constraint c1 = new Constraint(CompareType.GEQ, -MIP.MAX_VALUE);
@@ -208,7 +208,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
 
     Set<Constraint> generateValueConstraints() {
         Set<Constraint> result = new HashSet<>();
-        for (Band band : bidder.getWorld().getBands()) {
+        for (SRVMBand band : bidder.getWorld().getBands()) {
             double baseValue = getBaseValue(bidder, band);
             // Add C.17
             Constraint c = new Constraint(CompareType.EQ, 0);
@@ -223,7 +223,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
 
     Set<PartialMIP> generatePiecewiseLinearFunctionConstraints() {
         Set<PartialMIP> result = new HashSet<>();
-        for (Band band : bidder.getWorld().getBands()) {
+        for (SRVMBand band : bidder.getWorld().getBands()) {
             // Add C.14
             ContinuousPiecewiseLinearFunction funcAlpha = alpha(band);
             Variable inputAlpha = worldPartialMip.getXVariable(bidder, band);
@@ -260,8 +260,8 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         return result;
     }
 
-    private ContinuousPiecewiseLinearFunction alpha(Band band) {
-        int threshold = bidder.getSynergyThreshold().get(band.getName());
+    private ContinuousPiecewiseLinearFunction alpha(SRVMBand band) {
+        int threshold = bidder.getSynergyThreshold().get(band.getId());
         // Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
@@ -270,20 +270,20 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         // Middle breakpoint
         breakpoints.put(new BigDecimal(threshold).setScale(scale), new BigDecimal(threshold));
         // Last breakpoint
-        BigDecimal key = new BigDecimal(band.getNumberOfLicenses()).setScale(scale);
+        BigDecimal key = new BigDecimal(band.available()).setScale(scale);
         breakpoints.put(key, new BigDecimal(threshold));
 
         ContinuousPiecewiseLinearFunction result = new ContinuousPiecewiseLinearFunction(breakpoints);
         return result;
     }
 
-    private ContinuousPiecewiseLinearFunction beta(Band band) {
-        int threshold = bidder.getSynergyThreshold().get(band.getName());
+    private ContinuousPiecewiseLinearFunction beta(SRVMBand band) {
+        int threshold = bidder.getSynergyThreshold().get(band.getId());
         // Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
         // Add breakpoints
-        for (int x = 0; x <= band.getNumberOfLicenses(); x++) {
+        for (int x = 0; x <= band.available(); x++) {
             double value = 0;
             if (x > 0) value = Math.min((threshold - 1.0) / threshold, (x - 1.0) / x);
             breakpoints.put(new BigDecimal(x).setScale(scale), new BigDecimal(value));
@@ -293,13 +293,13 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         return result;
     }
 
-    private ContinuousPiecewiseLinearFunction gamma(Band band) {
-        int threshold = bidder.getSynergyThreshold().get(band.getName());
+    private ContinuousPiecewiseLinearFunction gamma(SRVMBand band) {
+        int threshold = bidder.getSynergyThreshold().get(band.getId());
         // Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
         // Add breakpoints
-        for (int x = 0; x <= band.getNumberOfLicenses(); x++) {
+        for (int x = 0; x <= band.available(); x++) {
             double log = 0;
             if (x - threshold >= 0) log = Math.log(x - threshold + 1);
             double value = Math.max(0, log);
@@ -310,15 +310,15 @@ public class SRVMBidderPartialMIP extends PartialMIP {
     }
 
 
-    private double getBaseValue(SRVMBidder bidder, Band band) {
-        Preconditions.checkArgument(bidder.getBaseValues().containsKey(band.getName()));
-        BigDecimal value = bidder.getBaseValues().get(band.getName());
+    private double getBaseValue(SRVMBidder bidder, SRVMBand band) {
+        Preconditions.checkArgument(bidder.getBaseValues().containsKey(band.getId()));
+        BigDecimal value = bidder.getBaseValues().get(band.getId());
         return value.floatValue();
     }
 
-    private double getIntrabandSynergyFactor(SRVMBidder bidder, Band band) {
-        Preconditions.checkArgument(bidder.getIntrabandSynergyFactors().containsKey(band.getName()));
-        BigDecimal value = bidder.getIntrabandSynergyFactors().get(band.getName());
+    private double getIntrabandSynergyFactor(SRVMBidder bidder, SRVMBand band) {
+        Preconditions.checkArgument(bidder.getIntrabandSynergyFactors().containsKey(band.getId()));
+        BigDecimal value = bidder.getIntrabandSynergyFactors().get(band.getId());
         return value.floatValue();
     }
 

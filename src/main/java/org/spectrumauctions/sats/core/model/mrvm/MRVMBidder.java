@@ -6,10 +6,14 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.NotImplementedException;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
@@ -23,14 +27,18 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
  * @author Michael Weiss
  */
-public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericValueBidder<MRVMGenericDefinition> {
+@EqualsAndHashCode(callSuper = true)
+public abstract class MRVMBidder extends SATSBidder {
 
     private static final long serialVersionUID = 8394009700504454313L;
     private transient MRVMWorld world;
@@ -139,28 +147,46 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
      * @param r      The region for which the discount is requested
      * @param bundle The complete bundle (not only containing the licenses of r).
      */
-    public abstract BigDecimal gammaFactor(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle);
+    public abstract BigDecimal gammaFactor(MRVMRegionsMap.Region r, Set<MRVMLicense> bundle);
 
     /**
-     * Calculates the gamma factors for all regions. For explanations of the gamma factors, see {@link #gammaFactor(MRVMRegionsMap.Region, Bundle)}
+     * Calculates the gamma factors for all regions. For explanations of the gamma factors, see {@link #gammaFactor(MRVMRegionsMap.Region, Set)}
      *
      * @param bundle The bundle for which the discounts will be calculated.
      */
-    public abstract Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle);
+    public abstract Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Set<MRVMLicense> bundle);
 
     @Override
-    public BigDecimal calculateValue(Bundle<MRVMLicense> bundle) {
-        if (bundle.isEmpty()) {
+    public BigDecimal calculateValue(Bundle bundle) {
+        if (bundle.getBundleEntries().isEmpty()) {
             return BigDecimal.ZERO;
+        }
+        //TODO: Change this very naive approach to a faster one, where generics don't have to be transformed into bundles
+        Set<MRVMLicense> licenses = bundle.getBundleEntries().stream().filter(be -> be.getGood() instanceof MRVMLicense && be.getAmount() == 1).map(be -> (MRVMLicense) be.getGood()).collect(Collectors.toSet());
+        Set<BundleEntry> genericBundleEntries = bundle.getBundleEntries().stream().filter(be -> be.getGood() instanceof MRVMGenericDefinition).collect(Collectors.toSet());
+        Preconditions.checkArgument(licenses.size() + genericBundleEntries.size() == bundle.getBundleEntries().size(), "Bundle contains other goods than MRVMLicenses or MRVMGenericDefinitions");
+        for (BundleEntry entry : genericBundleEntries) {
+            MRVMGenericDefinition def = (MRVMGenericDefinition) entry.getGood();
+            List<MRVMLicense> containedLicenses = def.containedGoods();
+            int required = entry.getAmount();
+            int alreadyThere = (int) licenses.stream().filter(containedLicenses::contains).count();
+            int index = 0;
+            while (alreadyThere < required && index < def.available()) {
+                if (licenses.contains(containedLicenses.get(index))) {
+                    licenses.add(containedLicenses.get(index));
+                    alreadyThere++;
+                }
+                index++;
+            }
         }
         //Pre filters the map such that for regional calculations, only licenses for the according region are in the passed (sub-)bundles.
         //This is for speedup of the calculation, but has no effect on the outcome of the value.
         BigDecimal totalValue = BigDecimal.ZERO;
-        Map<MRVMRegionsMap.Region, Bundle<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerRegion(bundle);
+        Map<MRVMRegionsMap.Region, Set<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerRegion(licenses);
         //For speedup of calculation of national bidders, pre-compute gamma Factors for all requions in advance
-        Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors = gammaFactors(bundle);
+        Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors = gammaFactors(licenses);
         //Calculate Regional Discounted Values and add them to total value
-        for (Entry<MRVMRegionsMap.Region, Bundle<MRVMLicense>> regionalBundleEntry : regionalBundles.entrySet()) {
+        for (Entry<MRVMRegionsMap.Region, Set<MRVMLicense>> regionalBundleEntry : regionalBundles.entrySet()) {
             BigDecimal c = MRVMWorld.c(regionalBundleEntry.getKey(), regionalBundleEntry.getValue());
             BigDecimal sv = svFunction(regionalBundleEntry.getKey(), c);
             BigDecimal regionalValue = omegaFactor(regionalBundleEntry.getKey(), sv);
@@ -170,31 +196,6 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
             totalValue = totalValue.add(discountedRegionalValue);
         }
         return totalValue;
-    }
-
-    /**
-     * @see GenericValueBidder#calculateValue(java.util.Map)
-     */
-    @Override
-    public BigDecimal calculateValue(Map<MRVMGenericDefinition, Integer> genericQuantities) {
-        //TODO: Change this very naive approach to a faster one, where generics don't have to be transformed into bundles
-        Bundle<MRVMLicense> bundle = new Bundle<>();
-        Map<MRVMGenericDefinition, Integer> addedQuantities = new HashMap<>();
-        for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
-            for (MRVMBand band : getWorld().getBands()) {
-                addedQuantities.put(new MRVMGenericDefinition(band, region), 0);
-            }
-        }
-        for (MRVMLicense license : getWorld().getLicenses()) {
-            MRVMGenericDefinition def = new MRVMGenericDefinition(license.getBand(), license.getRegion());
-            Integer requiredQuantity = genericQuantities.get(def);
-            Integer addedQuantity = addedQuantities.get(def);
-            if (requiredQuantity != null && requiredQuantity > addedQuantity) {
-                bundle.add(license);
-                addedQuantities.put(def, addedQuantity + 1);
-            }
-        }
-        return calculateValue(bundle);
     }
 
 
@@ -223,8 +224,13 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
         return beta.get(region.getId());
     }
 
+    @Override
+    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+        throw new NotImplementedException("Not yet implemented"); // TODO
+    }
+
     /**
-     * @see Bidder#refreshReference(World)
+     * @see SATSBidder#refreshReference(World)
      */
     @Override
     public void refreshReference(World world) {
@@ -242,13 +248,13 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
             throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
+                    new SizeBasedUniqueRandomXOR(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new IncreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(DecreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new DecreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(GenericSizeIncreasing.class)) {
             return clazz.cast(
                     SizeOrderedGenericFactory.getSizeOrderedGenericLang(true, this));
@@ -267,37 +273,4 @@ public abstract class MRVMBidder extends Bidder<MRVMLicense> implements GenericV
             throw new UnsupportedBiddingLanguageException();
         }
     }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((alpha == null) ? 0 : alpha.hashCode());
-        result = prime * result + ((beta == null) ? 0 : beta.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        MRVMBidder other = (MRVMBidder) obj;
-        if (alpha == null) {
-            if (other.alpha != null)
-                return false;
-        } else if (!alpha.equals(other.alpha))
-            return false;
-        if (beta == null) {
-            if (other.beta != null)
-                return false;
-        } else if (!beta.equals(other.beta))
-            return false;
-        return true;
-    }
-
-
 }

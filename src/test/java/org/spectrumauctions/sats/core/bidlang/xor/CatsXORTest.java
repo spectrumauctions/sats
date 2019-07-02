@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.cats.*;
 
@@ -52,7 +52,7 @@ public class CatsXORTest {
 
         Assert.assertTrue(directBids.size() > 0);
         Assert.assertTrue(iteratorBids.size() > 0);
-        Collection<Bundle<CATSLicense>> iteratorBundles = iteratorBids.stream().map(XORValue::getLicenses).collect(Collectors.toList());
+        Collection<LicenseBundle<CATSLicense>> iteratorBundles = iteratorBids.stream().map(XORValue::getLicenses).collect(Collectors.toList());
         for (XORValue<CATSLicense> directBid : directBids) {
             Assert.assertTrue(iteratorBundles.contains(directBid.getLicenses()));
         }

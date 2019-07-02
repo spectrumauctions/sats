@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.model.srvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
@@ -17,18 +17,18 @@ import java.util.Map;
  */
 public class SRVMBidderTest {
 
-    private static Bundle<SRVMLicense> completeBundle;
+    private static LicenseBundle<SRVMLicense> completeBundle;
     private static SRVMLicense singleLicense;
-    private static Bundle<SRVMLicense> singleLicenseBundle;
+    private static LicenseBundle<SRVMLicense> singleLicenseBundle;
 
     @BeforeClass
     public static void setUpBeforeClass() {
         SingleRegionModel model = new SingleRegionModel();
         SRVMWorld world = model.createWorld(983742L);
-        completeBundle = new Bundle<>();
+        completeBundle = new LicenseBundle<>();
         completeBundle.addAll(world.getLicenses());
         singleLicense = world.getLicenses().iterator().next();
-        singleLicenseBundle = new Bundle<>();
+        singleLicenseBundle = new LicenseBundle<>();
         singleLicenseBundle.add(singleLicense);
     }
 

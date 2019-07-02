@@ -6,12 +6,17 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import com.google.common.base.Preconditions;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
@@ -25,13 +30,14 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * @author Michael Weiss
  */
-public final class BMBidder extends Bidder<BMLicense> implements GenericValueBidder<BMBand> {
+@EqualsAndHashCode
+public final class BMBidder extends SATSBidder {
 
     private static final Logger logger = LogManager.getLogger(BMBidder.class);
 
@@ -65,9 +71,9 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
         HashMap<String, BigDecimal> baseValues = new HashMap<>();
         HashMap<String, Integer> positiveValueThreshold = new HashMap<>();
         for (BMBand band : world.getBands()) {
-            synergyFactors.put(band.getName(), setup.drawSynergyFactors(band, rng));
-            baseValues.put(band.getName(), setup.drawBaseValue(band, rng));
-            positiveValueThreshold.put(band.getName(), setup.drawPositiveValueThreshold(band, rng));
+            synergyFactors.put(band.getId(), setup.drawSynergyFactors(band, rng));
+            baseValues.put(band.getId(), setup.drawBaseValue(band, rng));
+            positiveValueThreshold.put(band.getId(), setup.drawPositiveValueThreshold(band, rng));
         }
         this.synergyFactors = synergyFactors;
         this.baseValues = baseValues;
@@ -76,30 +82,30 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
     }
 
 
-    /**
-     * @see Bidder#getValue(Bundle)
-     */
-    @Override
-    public BigDecimal calculateValue(Bundle<BMLicense> bundle) {
-        if (bundle.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        Preconditions.checkArgument(bundle.getWorld().equals(this.getWorld()), "Bundle not from same world as this bidder");
-        // Count the number of licenses per band
-        Map<BMBand, Integer> quantities = new HashMap<>();
-        for (BMBand band : getWorld().getBands()) {
-            quantities.put(band, 0);
-        }
-        for (BMLicense license : bundle) {
-            Integer currentValue = quantities.get(license.getBand());
-            if (currentValue == null) {
-                logger.error("ITEM WITH OUTSIDE-WORLD BAND!");
-            } else if (currentValue < positiveValueThreshold.get(license.getBand().getName())) { // Free disposal otherwise
-                quantities.put(license.getBand(), currentValue + 1);
-            }
-        }
-        return calculateValue(quantities);
-    }
+//    /**
+//     * @see SATSBidder#getValue(LicenseBundle)
+//     */
+//    @Override
+//    public BigDecimal calculateValue(Bundle bundle) {
+//        if (bundle.getBundleEntries().isEmpty()) {
+//            return BigDecimal.ZERO;
+//        }
+//        Preconditions.checkArgument(bundle.getWorld().equals(this.getWorld()), "Bundle not from same world as this bidder");
+//        // Count the number of licenses per band
+//        Map<BMBand, Integer> quantities = new HashMap<>();
+//        for (BMBand band : getWorld().getBands()) {
+//            quantities.put(band, 0);
+//        }
+//        for (BMLicense license : bundle) {
+//            Integer currentValue = quantities.get(license.getBand());
+//            if (currentValue == null) {
+//                logger.error("ITEM WITH OUTSIDE-WORLD BAND!");
+//            } else if (currentValue < positiveValueThreshold.get(license.getBand().getId())) { // Free disposal otherwise
+//                quantities.put(license.getBand(), currentValue + 1);
+//            }
+//        }
+//        return calculateValue(quantities);
+//    }
 
     /**
      * Returns the synergy factor for a given band and quantity. Special Cases
@@ -118,7 +124,7 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
             return BigDecimal.ONE;
         if (quantity == 0)
             return BigDecimal.ZERO;
-        BigDecimal synFactor = synergyFactors.get(band.getName()).get(quantity);
+        BigDecimal synFactor = synergyFactors.get(band.getId()).get(quantity);
         if (synFactor != null) {
             return synFactor;
         } else {
@@ -127,7 +133,7 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
     }
 
     public BigDecimal getBaseValue(BMBand band) {
-        return baseValues.get(band.getName());
+        return baseValues.get(band.getId());
     }
 
     /**
@@ -136,12 +142,12 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
      * (without synergies) is added to the total value, if they are not excluded by the {@link #positiveValueThreshold}.
      */
     public int highestSynergyQuantity(BMBand band) {
-        if (synergyFactors.get(band.getName()) == null)
+        if (synergyFactors.get(band.getId()) == null)
             return 1;
-        if (synergyFactors.get(band.getName()) == null || synergyFactors.get(band.getName()).isEmpty()) {
+        if (synergyFactors.get(band.getId()) == null || synergyFactors.get(band.getId()).isEmpty()) {
             return 1;
         }
-        Integer result = Collections.max(synergyFactors.get(band.getName()).keySet());
+        Integer result = Collections.max(synergyFactors.get(band.getId()).keySet());
         if (result == null || result < 1) {
             return 1;
         }
@@ -149,13 +155,13 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
     }
 
     @Override
-    public Bidder<BMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new BMBidder(getPopulation(), (int) getId(), getWorld(), (BMBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+    public SATSBidder drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new BMBidder(getPopulation(), (int) getLongId(), getWorld(), (BMBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
     }
 
 
     /**
-     * @see Bidder#getWorld()
+     * @see SATSBidder#getWorld()
      */
     @Override
     public BMWorld getWorld() {
@@ -179,13 +185,13 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
 
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
+                    new SizeBasedUniqueRandomXOR(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new IncreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(DecreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new DecreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(GenericSizeIncreasing.class)) {
             return clazz.cast(
                     SizeOrderedGenericFactory.getSizeOrderedGenericLang(true, this));
@@ -208,7 +214,7 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
 
 
     /**
-     * @see Bidder#refreshReference(World)
+     * @see SATSBidder#refreshReference(World)
      */
     @Override
     public void refreshReference(World world) {
@@ -220,77 +226,63 @@ public final class BMBidder extends Bidder<BMLicense> implements GenericValueBid
 
     }
 
-
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((baseValues == null) ? 0 : baseValues.hashCode());
-        result = prime * result + ((positiveValueThreshold == null) ? 0 : positiveValueThreshold.hashCode());
-        result = prime * result + ((synergyFactors == null) ? 0 : synergyFactors.hashCode());
-        return result;
-    }
+    public BigDecimal calculateValue(Bundle bundle) {
+        if (bundle.getBundleEntries().isEmpty()) return BigDecimal.ZERO;
+        // First, if there are only single licenses, construct the generic map
+        Map<Good, Integer> combined = new HashMap<>();
+        for (BundleEntry bundleEntry : bundle.getBundleEntries()) {
+            if (bundleEntry.getGood() instanceof BMLicense) {
+                Good band = getWorld().getGenericDefinitionOf((License) bundleEntry.getGood());
+                int currentValue = combined.getOrDefault(band, 0);
+                if (currentValue < positiveValueThreshold.get(band.getId())) { // Free disposal otherwise
+                    combined.put(band, currentValue + 1);
+                }
+            } else if (bundleEntry.getGood() instanceof BMBand) {
+                Good band = bundleEntry.getGood();
+                int currentValue = combined.getOrDefault(band, 0);
+                if (currentValue < positiveValueThreshold.get(band.getId())) { // Free disposal otherwise
+                    combined.put(band, currentValue + bundleEntry.getAmount());
+                }
+            } else {
+                throw new WrongConfigException("A good specified in a bundle is neither a BMLicense nor a BMBand!");
+            }
+        }
 
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        BMBidder other = (BMBidder) obj;
-        if (baseValues == null) {
-            if (other.baseValues != null)
-                return false;
-        } else if (!baseValues.equals(other.baseValues))
-            return false;
-        if (positiveValueThreshold == null) {
-            if (other.positiveValueThreshold != null)
-                return false;
-        } else if (!positiveValueThreshold.equals(other.positiveValueThreshold))
-            return false;
-        if (synergyFactors == null) {
-            if (other.synergyFactors != null)
-                return false;
-        } else if (!synergyFactors.equals(other.synergyFactors))
-            return false;
-        return true;
-    }
-
-
-    /* (non-Javadoc)
-     * @see GenericValueBidder#calculateValue(java.util.Map)
-     */
-    @Override
-    public BigDecimal calculateValue(Map<BMBand, Integer> genericQuantities) {
+        bundle = new Bundle(combined);
         //Check input
-        for (Entry<BMBand, Integer> entry : genericQuantities.entrySet()) {
-            Preconditions.checkArgument(entry.getKey().getWorld().equals(this.getWorld()), "Band is not from this world" + entry.getKey().getName());
-            Preconditions.checkArgument(entry.getValue() >= 0, "Quantity must not be negative. Band:" + entry.getKey().getName() + "\t Licenses:" + entry.getValue());
-            Preconditions.checkArgument(entry.getValue() <= entry.getKey().getNumberOfLicenses(), "Specified too many licenses for this band" + entry.getKey().getName() + "\t Licenses:" + entry.getValue());
+        for (BundleEntry entry : bundle.getBundleEntries()) {
+            Preconditions.checkArgument(entry.getGood() instanceof BMBand);
+            BMBand band = (BMBand) entry.getGood();
+            Preconditions.checkArgument(band.getWorld().equals(this.getWorld()), "Band is not from this world" + band.getId());
+            Preconditions.checkArgument(entry.getAmount() >= 0, "Quantity must not be negative. Band:" + band.getId() + "\t Licenses:" + entry.getAmount());
+            Preconditions.checkArgument(entry.getAmount() <= band.available(), "Specified too many licenses for this band" + band.getId() + "\t Licenses:" + entry.getAmount());
         }
         //Calculate Value
         BigDecimal value = BigDecimal.ZERO;
-        for (Entry<BMBand, Integer> entry : genericQuantities.entrySet()) {
-            int synergyQuantitiyLimit = highestSynergyQuantity(entry.getKey());
-            BigDecimal baseValue = getBaseValue(entry.getKey());
-            if (entry.getValue() > synergyQuantitiyLimit) {
+        for (BundleEntry entry : bundle.getBundleEntries()) {
+            BMBand band = (BMBand) entry.getGood();
+            int synergyQuantitiyLimit = highestSynergyQuantity(band);
+            BigDecimal baseValue = getBaseValue(band);
+            if (entry.getAmount() > synergyQuantitiyLimit) {
                 // More items than synergy limit
                 // items with synergy
-                BigDecimal synergyFactor = synergyFactor(entry.getKey(), synergyQuantitiyLimit);
+                BigDecimal synergyFactor = synergyFactor(band, synergyQuantitiyLimit);
                 value = value.add(new BigDecimal(synergyQuantitiyLimit).multiply(synergyFactor).multiply(baseValue));
                 // items without synergy
-                value = value.add(baseValue.multiply(new BigDecimal(entry.getValue() - synergyQuantitiyLimit)));
+                value = value.add(baseValue.multiply(new BigDecimal(entry.getAmount() - synergyQuantitiyLimit)));
             } else {
                 // Synergy amongst all items
-                BigDecimal synergyFactor = synergyFactor(entry.getKey(), entry.getValue());
-                value = value.add(new BigDecimal(entry.getValue()).multiply(synergyFactor).multiply(baseValue));
+                BigDecimal synergyFactor = synergyFactor(band, entry.getAmount());
+                value = value.add(new BigDecimal(entry.getAmount()).multiply(synergyFactor).multiply(baseValue));
             }
         }
         return value;
     }
 
 
+    @Override
+    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+        throw new NotImplementedException("Demand Query to be implemented");
+    }
 }

@@ -2,7 +2,7 @@ package org.spectrumauctions.sats.opt.model.gsvm;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.gsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
@@ -60,7 +60,7 @@ public class GSVMStandardMIPTest {
 		Map<GSVMLicense, GSVMBidder> invertedAllocation = new HashMap<>();
 
 		for (GSVMBidder bidder : population) {
-			Bundle<GSVMLicense> bundle = allocation.getAllocation(bidder);
+			LicenseBundle<GSVMLicense> bundle = allocation.getAllocation(bidder);
 			for (GSVMLicense license : bundle) {
 				// Checks if same license is allocated multiple times
 				Assert.assertTrue("Invalid Allocation, same license allocated multiple times",
@@ -101,7 +101,7 @@ public class GSVMStandardMIPTest {
 		GSVMBidder nationalBidder = population.stream()
 				.filter(bidder -> bidder.getSetupType().equals("Test National Bidder")).findFirst().get();
 
-		Bundle<GSVMLicense> fullBundle = new Bundle<>(world.getLicenses());
+		LicenseBundle<GSVMLicense> fullBundle = new LicenseBundle<>(world.getLicenses());
 
 		// the efficient allocation is giving all licenses (including the
 		// licenses of the regional circle) to the one national bidder
@@ -125,7 +125,7 @@ public class GSVMStandardMIPTest {
 		GSVMBidder nationalBidder = population.stream()
 				.filter(bidder -> bidder.getSetupType().equals("Test National Bidder")).findFirst().get();
 
-		Bundle<GSVMLicense> fullBundle = new Bundle<>(world.getLicenses());
+		LicenseBundle<GSVMLicense> fullBundle = new LicenseBundle<>(world.getLicenses());
 
 		// the efficient allocation is not giving all licenses to the one national bidder
 		Assert.assertTrue(fullBundle.size() > allocation.getAllocation(nationalBidder).size());
@@ -137,7 +137,7 @@ public class GSVMStandardMIPTest {
 		BigDecimal totalValue = new BigDecimal(0);
 
 		for (GSVMBidder bidder : population) {
-			Bundle<GSVMLicense> bundle = allocation.getAllocation(bidder);
+			LicenseBundle<GSVMLicense> bundle = allocation.getAllocation(bidder);
 			totalValue = totalValue.add(bidder.calculateValue(bundle));
 		}
 

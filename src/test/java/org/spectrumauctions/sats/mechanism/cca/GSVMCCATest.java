@@ -1,7 +1,6 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -101,7 +100,7 @@ public class GSVMCCATest {
     }
 
     private NonGenericCCAMechanism<GSVMLicense> getMechanism(List<GSVMBidder> rawBidders) {
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
@@ -214,7 +213,7 @@ public class GSVMCCATest {
     @Test
     public void testLastBidsSupplementaryRound() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
@@ -247,7 +246,7 @@ public class GSVMCCATest {
     @Test
     public void testEfficiencyClockPhaseVsSupplementaryRound() {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
@@ -277,7 +276,7 @@ public class GSVMCCATest {
     }
 
 
-    private Collection<XORBid<GSVMLicense>> runStandardCCA(List<Bidder<GSVMLicense>> bidders) {
+    private Collection<XORBid<GSVMLicense>> runStandardCCA(List<SATSBidder<GSVMLicense>> bidders) {
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
@@ -299,9 +298,9 @@ public class GSVMCCATest {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
         // The following line used to make a difference in the solution pool and thus the allocation, but it does not anymore
         // new FindJoptTest().joptLibrarySimpleExample();
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-        Bidder<GSVMLicense> firstBidder = bidders.get(0);
+        SATSBidder<GSVMLicense> firstBidder = bidders.get(0);
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
         cca.setFallbackStartingPrice(BigDecimal.ZERO);
         cca.setEpsilon(1e-5);
@@ -357,12 +356,12 @@ public class GSVMCCATest {
         List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
         // The following line used to make a difference in the solution pool, but it does not anymore
         // new GlobalSynergyValueModel().createNewPopulation();
-        List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
+        List<SATSBidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
-        Bidder<GSVMLicense> firstBidder = bidders.get(0);
+        SATSBidder<GSVMLicense> firstBidder = bidders.get(0);
         Map<GSVMLicense, BigDecimal> prices = new HashMap<>();
-        for (Good good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
-            BigDecimal price = pricesPerId.get(good.getId());
+        for (License good : bidders.stream().findFirst().orElseThrow(IncompatibleWorldException::new).getWorld().getLicenses()) {
+            BigDecimal price = pricesPerId.get(good.getLongId());
             prices.put((GSVMLicense) good, price);
         }
         NonGenericDemandQueryMIP<GSVMLicense> demandQueryMIP = new GSVM_DemandQueryMIPBuilder().getDemandQueryMipFor(firstBidder, prices, 1e-8);

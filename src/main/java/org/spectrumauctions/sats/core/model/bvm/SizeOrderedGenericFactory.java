@@ -8,9 +8,8 @@ package org.spectrumauctions.sats.core.model.bvm;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeOrdered;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.io.Serializable;
@@ -27,7 +26,7 @@ public class SizeOrderedGenericFactory implements Serializable {
     private static final long serialVersionUID = -6233538112013604627L;
     static BandComparator comparator = new BandComparator();
 
-    public static GenericSizeOrdered<BMBand, BMLicense> getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericSizeOrdered getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         if (increasing) {
             return new Increasing(bands, bidder);
@@ -37,27 +36,19 @@ public class SizeOrderedGenericFactory implements Serializable {
     }
 
 
-    private static final class Increasing extends GenericSizeIncreasing<BMBand, BMLicense> {
+    private static final class Increasing extends GenericSizeIncreasing {
 
 
         private final BMBidder bidder;
 
-        protected Increasing(Collection<BMBand> allPossibleGenericDefintions, BMBidder bidder)
+        protected Increasing(List<BMBand> allPossibleGenericDefintions, BMBidder bidder)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefintions);
             this.bidder = bidder;
         }
 
         @Override
-        public Bidder<? extends Good> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericSizeOrdered#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<BMBand> getGenericBidder() {
+        public SATSBidder getBidder() {
             return bidder;
         }
 
@@ -65,12 +56,12 @@ public class SizeOrderedGenericFactory implements Serializable {
          * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<BMBand> getDefComparator() {
+        protected Comparator<GenericGood> getDefComparator() {
             return comparator;
         }
     }
 
-    private static final class Decreasing extends GenericSizeDecreasing<BMBand, BMLicense> {
+    private static final class Decreasing extends GenericSizeDecreasing {
 
 
         private final BMBidder bidder;
@@ -82,15 +73,7 @@ public class SizeOrderedGenericFactory implements Serializable {
         }
 
         @Override
-        public Bidder<? extends Good> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericSizeOrdered#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<BMBand> getGenericBidder() {
+        public SATSBidder getBidder() {
             return bidder;
         }
 
@@ -98,13 +81,13 @@ public class SizeOrderedGenericFactory implements Serializable {
          * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<BMBand> getDefComparator() {
+        protected Comparator<GenericGood> getDefComparator() {
             return comparator;
         }
     }
 
 
-    private static class BandComparator implements Comparator<BMBand>, Serializable {
+    private static class BandComparator implements Comparator<GenericGood>, Serializable {
 
         private static final long serialVersionUID = 5747471569466164302L;
 
@@ -112,8 +95,8 @@ public class SizeOrderedGenericFactory implements Serializable {
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
         @Override
-        public int compare(BMBand o1, BMBand o2) {
-            return o1.getName().compareTo(o2.getName());
+        public int compare(GenericGood o1, GenericGood o2) {
+            return o1.getId().compareTo(o2.getId());
         }
 
     }

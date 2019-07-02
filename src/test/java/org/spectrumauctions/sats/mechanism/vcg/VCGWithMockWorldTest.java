@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.mechanism.MockWorld;
 import org.spectrumauctions.sats.mechanism.MockWorld.MockGood;
 import org.spectrumauctions.sats.mechanism.MockWorld.MockBand;
@@ -55,7 +55,7 @@ public class VCGWithMockWorldTest {
         MockWorld.MockBidder fromMap = bidders.get(id);
         if (fromMap == null) {
             MockWorld.MockBidder bidder = MockWorld.getInstance().createNewBidder();
-            bidders.put((int) bidder.getId(), bidder);
+            bidders.put((int) bidder.getLongId(), bidder);
             return bidder(id);
         }
         return fromMap;
@@ -63,16 +63,16 @@ public class VCGWithMockWorldTest {
 
     @Test
     public void testXORVCG() {
-        bidder(1).addBid(new Bundle<>(A), 2);
-        bidder(2).addBid(new Bundle<>(A, B, D), 3);
-        bidder(3).addBid(new Bundle<>(B, C), 2);
-        bidder(4).addBid(new Bundle<>(C, D), 1);
+        bidder(1).addBid(new LicenseBundle<>(A), 2);
+        bidder(2).addBid(new LicenseBundle<>(A, B, D), 3);
+        bidder(3).addBid(new LicenseBundle<>(B, C), 2);
+        bidder(4).addBid(new LicenseBundle<>(C, D), 1);
 
         Set<XORBid<MockGood>> xorBids = new HashSet<>();
-        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getValues()).build());
 
         WinnerDeterminator<MockGood> wdp = new XORWinnerDetermination<>(xorBids);
         AuctionMechanism<MockGood> am = new VCGMechanism<>(wdp);

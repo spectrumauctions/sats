@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.opt.model.lsvm;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.lsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
@@ -80,7 +80,7 @@ public class LSVMStandardMIPTest {
 		BigDecimal totalValue = new BigDecimal(0);
 
 		for (LSVMBidder bidder : population) {
-			Bundle<LSVMLicense> bundle = allocation.getAllocation(bidder);
+			LicenseBundle<LSVMLicense> bundle = allocation.getAllocation(bidder);
 			totalValue = totalValue.add(bidder.calculateValue(bundle));
 		}
 

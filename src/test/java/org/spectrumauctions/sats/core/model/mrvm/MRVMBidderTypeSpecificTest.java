@@ -8,7 +8,7 @@ package org.spectrumauctions.sats.core.model.mrvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
@@ -27,7 +27,7 @@ public class MRVMBidderTypeSpecificTest {
     private static MRVMRegionalBidder regionalBidder;
     private static MRVMNationalBidder globalBidder;
 
-    private static Bundle<MRVMLicense> completeBundle;
+    private static LicenseBundle<MRVMLicense> completeBundle;
 
     @BeforeClass
     public static void beforeClass() {
@@ -35,7 +35,7 @@ public class MRVMBidderTypeSpecificTest {
         localBidder = (MRVMLocalBidder) world.createPopulation(MRMSimpleWorldGen.getSimpleLocalBidderSetup(), null, null, new JavaUtilRNGSupplier(234873L)).iterator().next();
         regionalBidder = (MRVMRegionalBidder) world.createPopulation(null, MRMSimpleWorldGen.getSimpleRegionalBidderSetup(), null, new JavaUtilRNGSupplier(3984274L)).iterator().next();
         globalBidder = (MRVMNationalBidder) world.createPopulation(null, null, MRMSimpleWorldGen.getSimpleGlobalBidderSetup(), new JavaUtilRNGSupplier(29842793L)).iterator().next();
-        completeBundle = new Bundle<>(world.getLicenses());
+        completeBundle = new LicenseBundle<>(world.getLicenses());
 
     }
 
@@ -83,7 +83,7 @@ public class MRVMBidderTypeSpecificTest {
 
     @Test
     public void emptyBundleTest() {
-        Bundle<MRVMLicense> emptyBundle = new Bundle<>();
+        LicenseBundle<MRVMLicense> emptyBundle = new LicenseBundle<>();
         Assert.assertEquals(BigDecimal.ZERO, localBidder.calculateValue(emptyBundle));
         Assert.assertEquals(BigDecimal.ZERO, globalBidder.calculateValue(emptyBundle));
         Assert.assertEquals(BigDecimal.ZERO, regionalBidder.calculateValue(emptyBundle));

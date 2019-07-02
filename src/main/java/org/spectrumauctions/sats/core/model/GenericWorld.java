@@ -1,11 +1,15 @@
 package org.spectrumauctions.sats.core.model;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-
+import java.util.List;
 import java.util.Set;
 
-public interface GenericWorld<T extends Good> {
-    Set<? extends GenericDefinition<T>> getAllGenericDefinitions();
+public interface GenericWorld {
+    List<? extends GenericGood> getAllGenericDefinitions();
 
-    GenericDefinition<T> getGenericDefinitionOf(T license);
+    default GenericGood getGenericDefinitionOf(License license) {
+        for (GenericGood generic : getAllGenericDefinitions()) {
+            if (generic.containedGoods().contains(license)) return generic;
+        }
+        throw new WrongConfigException();
+    }
 }

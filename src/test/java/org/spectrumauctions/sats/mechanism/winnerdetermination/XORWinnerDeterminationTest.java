@@ -1,10 +1,9 @@
 package org.spectrumauctions.sats.mechanism.winnerdetermination;
 
-import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.mechanism.MockWorld;
 import org.spectrumauctions.sats.mechanism.MockWorld.MockGood;
 
@@ -46,7 +45,7 @@ public class XORWinnerDeterminationTest {
         MockWorld.MockBidder fromMap = bidders.get(id);
         if (fromMap == null) {
             MockWorld.MockBidder bidder = MockWorld.getInstance().createNewBidder();
-            bidders.put((int) bidder.getId(), bidder);
+            bidders.put((int) bidder.getLongId(), bidder);
             return bidder(id);
         }
         return fromMap;
@@ -54,16 +53,16 @@ public class XORWinnerDeterminationTest {
 
     @Test
     public void testSimpleWinnerDetermination() {
-        bidder(1).addBid(new Bundle<>(A), 2);
-        bidder(2).addBid(new Bundle<>(A, B, D), 3);
-        bidder(3).addBid(new Bundle<>(B, C), 2);
-        bidder(4).addBid(new Bundle<>(C, D), 1);
+        bidder(1).addBid(new LicenseBundle<>(A), 2);
+        bidder(2).addBid(new LicenseBundle<>(A, B, D), 3);
+        bidder(3).addBid(new LicenseBundle<>(B, C), 2);
+        bidder(4).addBid(new LicenseBundle<>(C, D), 1);
 
         Set<XORBid<MockGood>> bids = new HashSet<>();
-        bids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
+        bids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(4), bidder(4).getValues()).build());
 
         WinnerDeterminator<MockGood> wd = new XORWinnerDetermination<>(bids);
         Allocation<MockGood> result = wd.calculateAllocation();
@@ -78,27 +77,27 @@ public class XORWinnerDeterminationTest {
 
     @Test
     public void testMediumWinnerDetermination() {
-        bidder(0).addBid(new Bundle<>(C, D), 1795.51);
-        bidder(1).addBid(new Bundle<>(D), 894.644);
-        bidder(2).addBid(new Bundle<>(A, B), 1633.62);
-        bidder(3).addBid(new Bundle<>(C), 997.064);
-        bidder(4).addBid(new Bundle<>(B, C), 1751.26);
-        bidder(5).addBid(new Bundle<>(A, E), 1779.42);
-        bidder(6).addBid(new Bundle<>(B), 843.716);
-        bidder(7).addBid(new Bundle<>(E), 762.093);
-        bidder(8).addBid(new Bundle<>(A), 893.983);
-        bidder(9).addBid(new Bundle<>(A, C), 1816.69);
+        bidder(0).addBid(new LicenseBundle<>(C, D), 1795.51);
+        bidder(1).addBid(new LicenseBundle<>(D), 894.644);
+        bidder(2).addBid(new LicenseBundle<>(A, B), 1633.62);
+        bidder(3).addBid(new LicenseBundle<>(C), 997.064);
+        bidder(4).addBid(new LicenseBundle<>(B, C), 1751.26);
+        bidder(5).addBid(new LicenseBundle<>(A, E), 1779.42);
+        bidder(6).addBid(new LicenseBundle<>(B), 843.716);
+        bidder(7).addBid(new LicenseBundle<>(E), 762.093);
+        bidder(8).addBid(new LicenseBundle<>(A), 893.983);
+        bidder(9).addBid(new LicenseBundle<>(A, C), 1816.69);
         Set<XORBid<MockGood>> bids = new HashSet<>();
-        bids.add(new XORBid.Builder<>(bidder(0), bidder(0).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(5), bidder(5).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(6), bidder(6).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(7), bidder(7).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(8), bidder(8).getBids()).build());
-        bids.add(new XORBid.Builder<>(bidder(9), bidder(9).getBids()).build());
+        bids.add(new XORBid.Builder<>(bidder(0), bidder(0).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(4), bidder(4).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(5), bidder(5).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(6), bidder(6).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(7), bidder(7).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(8), bidder(8).getValues()).build());
+        bids.add(new XORBid.Builder<>(bidder(9), bidder(9).getValues()).build());
 
         WinnerDeterminator<MockGood> wd = new XORWinnerDetermination<>(bids);
         Allocation<MockGood> result = wd.calculateAllocation();

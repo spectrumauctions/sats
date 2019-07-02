@@ -5,7 +5,7 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
 
@@ -16,7 +16,7 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public class MRVMLicense extends Good {
+public class MRVMLicense extends License {
 
     private static final long serialVersionUID = 2814831255330638720L;
 
@@ -43,7 +43,7 @@ public class MRVMLicense extends Good {
     private MRVMLicense(long id, MRVMBand band, MRVMRegionsMap.Region region) {
         super(id, band.getWorldId());
         this.band = band;
-        this.bandName = band.getName();
+        this.bandName = band.getId();
         this.world = band.getWorld();
         this.regionId = region.getId();
         this.region = region;
@@ -79,7 +79,7 @@ public class MRVMLicense extends Good {
     }
 
     /* (non-Javadoc)
-     * @see Good#getWorld()
+     * @see License#getWorld()
      */
     @Override
     public MRVMWorld getWorld() {
@@ -117,7 +117,7 @@ public class MRVMLicense extends Good {
      * Explicit definition of private setter to prevent from generating setter by accident.
      */
     private void setBand(MRVMBand band) {
-        if (!getBandName().equals(band.getName())) {
+        if (!getBandName().equals(band.getId())) {
             throw new IncompatibleWorldException("The stored worldId does not represent the passed world reference");
         }
         this.band = band;

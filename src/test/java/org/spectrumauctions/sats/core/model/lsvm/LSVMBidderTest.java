@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.model.lsvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class LSVMBidderTest {
 
-    private static Bundle<LSVMLicense> completeBundle;
+    private static LicenseBundle<LSVMLicense> completeBundle;
     private static List<LSVMBidder> standardPopulation;
 
     @BeforeClass
@@ -29,7 +29,7 @@ public class LSVMBidderTest {
         setups.add(regionalBidders);
         setups.add(nationalBidder);
         standardPopulation = world.createPopulation(setups, new JavaUtilRNGSupplier(983742L));
-        completeBundle = new Bundle<>();
+        completeBundle = new LicenseBundle<>();
         completeBundle.addAll(world.getLicenses());
     }
 
@@ -82,7 +82,7 @@ public class LSVMBidderTest {
 
         Assert.assertTrue(customPopulation.get(9).getSetupType().equals("Test National Bidder"));
 
-        Bundle<LSVMLicense> proximity = new Bundle<>();
+        LicenseBundle<LSVMLicense> proximity = new LicenseBundle<>();
         proximity.addAll(customPopulation.get(0).getProximity());
 
         BigDecimal valueRegionalBidderComplete = customPopulation.get(0).calculateValue(completeBundle);
@@ -109,7 +109,7 @@ public class LSVMBidderTest {
      */
     @Test
     public void testProximityBundleValues() {
-        Bundle<LSVMLicense> proximity = new Bundle<>();
+        LicenseBundle<LSVMLicense> proximity = new LicenseBundle<>();
         proximity.addAll(standardPopulation.get(0).getProximity());
         BigDecimal valueRegionalBidder = standardPopulation.get(0).calculateValue(proximity);
         BigDecimal valueNationalBidder = standardPopulation.get(5).calculateValue(proximity);
@@ -124,7 +124,7 @@ public class LSVMBidderTest {
      */
     @Test
     public void testZeroValueForNonProximityLicenses() {
-        Bundle<LSVMLicense> nonProximity = new Bundle<>(completeBundle);
+        LicenseBundle<LSVMLicense> nonProximity = new LicenseBundle<>(completeBundle);
         nonProximity.removeAll(standardPopulation.get(0).getProximity());
 
         BigDecimal valueNonProximity = standardPopulation.get(0).calculateValue(nonProximity);

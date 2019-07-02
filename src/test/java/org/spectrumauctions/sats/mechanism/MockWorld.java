@@ -1,24 +1,22 @@
 package org.spectrumauctions.sats.mechanism;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonElement;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.domain.bidder.value.XORValue;
+import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.mockito.Mockito;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.bidlang.generic.Band;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
 import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
-import java.awt.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("serial") //No Serialization
-public class MockWorld extends World implements GenericWorld<MockWorld.MockGood> {
+public class MockWorld extends World implements GenericWorld {
 
     private int numberOfGoods;
     private int numberOfBands;
@@ -56,7 +54,7 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
         return new MockGood(numberOfGoods++, this.getId());
     }
 
-    public MockBand createNewBand(Set<MockGood> goods) {
+    public MockBand createNewBand(List<MockGood> goods) {
         return new MockBand(numberOfBands++, goods);
     }
 
@@ -65,12 +63,12 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
     }
 
     @Override
-    public Set<? extends Good> getLicenses() {
+    public List<? extends License> getLicenses() {
         throw new UnsupportedOperationException("Not implemented for MockWorld");
     }
 
     @Override
-    public Collection<? extends Bidder<?>> restorePopulation(long populationId) {
+    public Collection<? extends SATSBidder> restorePopulation(long populationId) {
         throw new UnsupportedOperationException("Not implemented for MockWorld");
     }
 
@@ -79,16 +77,11 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
     }
 
     @Override
-    public Set<GenericDefinition<MockGood>> getAllGenericDefinitions() {
+    public List<GenericGood> getAllGenericDefinitions() {
         throw new UnsupportedOperationException("Not implemented for MockWorld");
     }
 
-    @Override
-    public GenericDefinition<MockGood> getGenericDefinitionOf(MockGood good) {
-        throw new UnsupportedOperationException("Not implemented for MockWorld");
-    }
-
-    public class MockGood extends Good {
+    public class MockGood extends License {
         protected MockGood(long id, long worldId) {
             super(id, worldId);
         }
@@ -99,62 +92,41 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
         }
     }
 
-    public class MockBand extends Band implements GenericDefinition<MockGood> {
-        private Set<MockGood> goods;
-        protected MockBand(int id, Set<MockGood> goods) {
-            super(Integer.toString(id));
+    public class MockBand extends GenericGood {
+        private List<MockGood> goods;
+
+        protected MockBand(int id, List<MockGood> goods) {
+            super(Integer.toString(id), goods.iterator().next().getWorldId());
             this.goods = goods;
         }
 
         @Override
-        public int getNumberOfLicenses() {
+        public int available() {
             return goods.size();
         }
 
         @Override
-        public boolean isPartOf(MockGood good) {
-            return goods.contains(good);
+        public World getWorld() {
+            return goods.iterator().next().getWorld();
         }
 
         @Override
-        public int numberOfLicenses() {
-            return goods.size();
-        }
-
-        @Override
-        public Set<MockGood> allLicenses() {
+        public List<MockGood> containedGoods() {
             return goods;
-        }
-
-        @Override
-        public JsonElement shortJson() {
-            throw new UnsupportedOperationException("Not supported in mock");
         }
     }
 
 
-    public class MockBidder extends Bidder<MockGood> implements GenericValueBidder<MockBand> {
+    public class MockBidder extends SATSBidder {
 
-        Set<XORValue<MockGood>> bids = new HashSet<>();
-        List<GenericValue<GenericDefinition<MockGood>, MockGood>> genericBids = new ArrayList<>();
+        XORValue values = new XORValue();
 
-        public void addBid(Bundle<MockGood> bundle, double value) {
-            bids.add(new XORValue<>(bundle, BigDecimal.valueOf(value)));
-        }
-        public void addGenericBid(Map<MockBand, Integer> quantities, double value) {
-            GenericValue.Builder<GenericDefinition<MockGood>, MockGood> builder = new GenericValue.Builder<>(BigDecimal.valueOf(value));
-            for (Map.Entry<MockBand, Integer> entry : quantities.entrySet()) {
-                builder.putQuantity(entry.getKey(), entry.getValue());
-            }
-            genericBids.add(builder.build());
+        public void addBid(Bundle bundle, double value) {
+            values.addBundleValue(new BundleValue(BigDecimal.valueOf(value), bundle));
         }
 
-        public Set<XORValue<MockGood>> getBids() {
-            return bids;
-        }
-
-        public List<GenericValue<GenericDefinition<MockGood>, MockGood>> getGenericBids() {
-            return genericBids;
+        public XORValue getValues() {
+            return values;
         }
 
         protected MockBidder(long population, long id, long worldId) {
@@ -162,10 +134,8 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
         }
 
         @Override
-        public BigDecimal calculateValue(Bundle<MockGood> bundle) {
-            Optional<XORValue<MockGood>> value = bids.stream().filter(bid -> bid.getLicenses().equals(bundle)).findFirst();
-            if (value.isPresent()) return value.get().value();
-            else return BigDecimal.ZERO;
+        public BigDecimal calculateValue(Bundle bundle) {
+            return values.getValueFor(bundle);
         }
 
         @Override
@@ -184,13 +154,13 @@ public class MockWorld extends World implements GenericWorld<MockWorld.MockGood>
         }
 
         @Override
-        public Bidder<MockGood> drawSimilarBidder(RNGSupplier rngSupplier) {
+        public SATSBidder drawSimilarBidder(RNGSupplier rngSupplier) {
             throw new UnsupportedOperationException("Not supported in mock");
         }
 
         @Override
-        public BigDecimal calculateValue(Map<MockBand, Integer> genericQuantities) {
-            throw new UnsupportedOperationException("Not supported in mock");
+        public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+            return values.getOptimalBundleValueAt(prices, maxNumberOfBundles).stream().map(BundleValue::getBundle).collect(Collectors.toList());
         }
     }
 

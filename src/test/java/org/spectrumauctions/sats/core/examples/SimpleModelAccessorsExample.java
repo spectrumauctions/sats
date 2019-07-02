@@ -3,8 +3,8 @@ package org.spectrumauctions.sats.core.examples;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.DefaultModel;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
@@ -100,21 +100,21 @@ public class SimpleModelAccessorsExample {
                 anyModel = new SingleRegionModel();
         }
         World world = anyModel.createWorld();
-        List<Bidder> bidders = anyModel.createPopulation(world);
+        List<SATSBidder> bidders = anyModel.createPopulation(world);
         treatBidders(bidders);
     }
 
     /**
      * Writes, for every passed bidder, his value for getting all licenses to the console.
      */
-    public static void treatBidders(Collection<? extends Bidder> bidders) {
-        Optional<? extends Bidder> anyBidder = bidders.stream().findAny();
+    public static void treatBidders(Collection<? extends SATSBidder> bidders) {
+        Optional<? extends SATSBidder> anyBidder = bidders.stream().findAny();
         if (anyBidder.isPresent()) {
             World world = anyBidder.get().getWorld();
-            Bundle fullBundle = new Bundle<>(world.getLicenses());
-            for (Bidder bidder : bidders) {
+            LicenseBundle fullBundle = new LicenseBundle<>(world.getLicenses());
+            for (SATSBidder bidder : bidders) {
                 BigDecimal val = bidder.calculateValue(fullBundle);
-                logger.info("bidder " + bidder.getId() + "has the following value for getting all licenses: " + val.toString());
+                logger.info("bidder " + bidder.getLongId() + "has the following value for getting all licenses: " + val.toString());
             }
         } else {
             logger.info("No bidder created");

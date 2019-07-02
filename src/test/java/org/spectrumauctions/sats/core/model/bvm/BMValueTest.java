@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMBidderSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMWorldSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
@@ -110,17 +110,17 @@ public class BMValueTest {
 
     @Test
     public void valueOfCompleteBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>(bidder.getWorld().getLicenses());
+        LicenseBundle<BMLicense> bundle = new LicenseBundle<>(bidder.getWorld().getLicenses());
         BigDecimal value = bidder.calculateValue(bundle);
         Assert.assertTrue(bidder.getSetupType() + " value was " + value + " should be " + expextedValuedCompleteBundle, value.compareTo(expextedValuedCompleteBundle) == 0);
     }
 
     @Test
     public void valueOfHalfBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>();
+        LicenseBundle<BMLicense> bundle = new LicenseBundle<>();
         for (BMBand band : bidder.getWorld().getBands()) {
             Iterator<BMLicense> licenseIter = band.getLicenses().iterator();
-            for (int i = 0; i < band.getNumberOfLicenses() / 2; i++) {
+            for (int i = 0; i < band.available() / 2; i++) {
                 bundle.add(licenseIter.next());
             }
         }
@@ -130,7 +130,7 @@ public class BMValueTest {
 
     @Test
     public void valueOfSmallBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>();
+        LicenseBundle<BMLicense> bundle = new LicenseBundle<>();
         for (BMBand band : bidder.getWorld().getBands()) {
             Iterator<BMLicense> licenseIter = band.getLicenses().iterator();
             bundle.add(licenseIter.next());
@@ -146,7 +146,7 @@ public class BMValueTest {
 
     @Test
     public void valueOfEmptyBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>();
+        LicenseBundle<BMLicense> bundle = new LicenseBundle<>();
         BigDecimal value = bidder.calculateValue(bundle);
         Assert.assertTrue(bidder.getSetupType() + " value was " + value + " should be " + expectedValueEmptyBundle, value.compareTo(expectedValueEmptyBundle) == 0);
     }

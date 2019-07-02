@@ -32,7 +32,7 @@ public class SRVMMipTest {
             GenericValue<SRVMBand, SRVMLicense> genVal = result.getGenericAllocation(bidder);
             for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
-                logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
+                logger.info(new StringBuilder("bidder ").append(bidder.getLongId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }
         }
         logger.info("Total value:" + result.getTotalValue());
@@ -60,7 +60,7 @@ public class SRVMMipTest {
             GenericValue<SRVMBand, SRVMLicense> genVal = result.getGenericAllocation(bidder);
             for (SRVMBand band : bidder.getWorld().getBands()) {
                 Integer quantity = genVal.getQuantity(band);
-                logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
+                logger.info(new StringBuilder("bidder ").append(bidder.getLongId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }
         }
         logger.info("Total value:" + result.getTotalValue());

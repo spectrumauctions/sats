@@ -52,7 +52,7 @@ public class XORQWinnerDeterminationTest {
         MockWorld.MockBidder fromMap = bidders.get(id);
         if (fromMap == null) {
             MockWorld.MockBidder bidder = MockWorld.getInstance().createNewBidder();
-            bidders.put((int) bidder.getId(), bidder);
+            bidders.put((int) bidder.getLongId(), bidder);
             return bidder(id);
         }
         return fromMap;

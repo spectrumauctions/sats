@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.model.cats;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
@@ -15,13 +15,13 @@ import java.util.List;
  */
 public class CATSBidderTest {
 
-    private static Bundle<CATSLicense> completeBundle;
+    private static LicenseBundle<CATSLicense> completeBundle;
 
     @BeforeClass
     public static void setUpBeforeClass() {
         CATSRegionModel model = new CATSRegionModel();
         CATSWorld world = model.createWorld(983742L);
-        completeBundle = new Bundle<>();
+        completeBundle = new LicenseBundle<>();
         completeBundle.addAll(world.getLicenses());
     }
 
@@ -67,7 +67,7 @@ public class CATSBidderTest {
         float expectedValue = 0;
         for (CATSLicense license : completeBundle) {
             expectedValue += license.getCommonValue();
-            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getId()).floatValue();
+            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();
         }
         expectedValue += Math.pow(completeBundle.size(), 1.2);
 
@@ -89,7 +89,7 @@ public class CATSBidderTest {
         for (CATSLicense license : completeBundle) {
             expectedValue += license.getCommonValue();
             expectedValue += Math.pow(license.getCommonValue(), 2);
-            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getId()).floatValue();
+            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();
         }
 
         Assert.assertEquals(value.floatValue(), expectedValue, 0.1);

@@ -5,7 +5,8 @@
  */
 package org.spectrumauctions.sats.core.model.bvm;
 
-import org.spectrumauctions.sats.core.model.Good;
+import lombok.EqualsAndHashCode;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -14,7 +15,8 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
  * @author Michael Weiss
  *
  */
-public class BMLicense extends Good {
+@EqualsAndHashCode
+public class BMLicense extends License {
 
     private static final long serialVersionUID = -597579273878128574L;
 
@@ -31,7 +33,7 @@ public class BMLicense extends Good {
     BMLicense(int id, BMBand band, RNGSupplier rngSupplier) {
         super(id, band.getWorldId());
         this.band = band;
-        this.bandName = band.getName();
+        this.bandName = band.getId();
         this.world = band.getWorld();
     }
 
@@ -49,7 +51,7 @@ public class BMLicense extends Good {
     }
 
     private void setBand(BMBand band) {
-        if (!bandName.equals(band.getName()) || band.getWorldId() != getWorldId()) {
+        if (!bandName.equals(band.getId()) || band.getWorldId() != getWorldId()) {
             throw new IncompatibleWorldException("The stored worldId / bandName do not represent the passed band reference");
         }
         this.band = band;
@@ -68,38 +70,11 @@ public class BMLicense extends Good {
 
 
     /* (non-Javadoc)
-     * @see Good#getWorld()
+     * @see License#getWorld()
      */
     @Override
     public BMWorld getWorld() {
         return world;
-    }
-
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((bandName == null) ? 0 : bandName.hashCode());
-        return result;
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        BMLicense other = (BMLicense) obj;
-        if (bandName == null) {
-            if (other.bandName != null)
-                return false;
-        } else if (!bandName.equals(other.bandName))
-            return false;
-        return true;
     }
 
 

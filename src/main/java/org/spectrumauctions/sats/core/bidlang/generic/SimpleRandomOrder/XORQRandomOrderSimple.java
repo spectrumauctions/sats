@@ -1,10 +1,11 @@
 package org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
@@ -14,47 +15,42 @@ import java.util.Map.Entry;
 /**
  * @author Fabio Isler
  */
-public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S extends Good> implements GenericLang<T, S> {
+public abstract class XORQRandomOrderSimple implements BiddingLanguage {
 
     private static final double MAX_POSSIBLE_BIDS_FACTOR = 0.8;
     private static final int ABSOLUTE_MAX_BIDS = 1000000;
     private static final int DEFAULT_ITERATIONS = 500;
-    private final Map<T, Integer> maxQuantities;
     private final int maxBundleSize;
     private final RNGSupplier rngSupplier;
+    private final List<? extends GenericGood> genericGoods;
 
 
     private final transient int totalSize;
-    private final transient Set<GenericValue> cache;
+    private final transient Set<BundleValue> cache;
     private final transient int maxBids;
     private transient int iterations;
 
 
     /**
-     * @param genericDefinitions A set of generic definitions
+     * @param genericGoods A set of generic goods
      */
-    protected XORQRandomOrderSimple(Collection<T> genericDefinitions, RNGSupplier rngSupplier) {
+    protected XORQRandomOrderSimple(List<? extends GenericGood> genericGoods, RNGSupplier rngSupplier) {
         super();
+        this.genericGoods = genericGoods;
         this.rngSupplier = rngSupplier;
-        Map<T, Integer> orderedMap = new LinkedHashMap<>();
-        int quantitySum = 0;
-        for (T def : genericDefinitions) {
-            quantitySum += def.numberOfLicenses();
-            orderedMap.put(def, def.numberOfLicenses());
-        }
-        this.maxQuantities = Collections.unmodifiableMap(orderedMap);
+        int quantitySum = genericGoods.stream().mapToInt(GenericGood::available).sum();
         this.maxBundleSize = quantitySum;
         this.totalSize = quantitySum;
         this.iterations = DEFAULT_ITERATIONS;
-        this.maxBids = setMaxBid(maxQuantities);
+        this.maxBids = setMaxBid();
         this.cache = new HashSet<>();
     }
 
-    private int setMaxBid(Map<T, Integer> maxQuantities) {
+    private int setMaxBid() {
         int maxBids = 1;
-        for (int i : maxQuantities.values()) {
+        for (GenericGood good : genericGoods) {
             if (Math.abs(maxBids) > ABSOLUTE_MAX_BIDS) break;
-            maxBids *= i;
+            maxBids *= good.available();
         }
         return maxBids;
     }
@@ -74,15 +70,11 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S ex
      * @see GenericLang#iterator()
      */
     @Override
-    public Iterator<GenericValue<T, S>> iterator() {
+    public Iterator<BundleValue> iterator() {
         return new SimpleRandomOrderIterator(iterations, rngSupplier.getUniformDistributionRNG());
     }
 
-    protected abstract GenericValueBidder<T> getGenericBidder();
-
-    protected abstract Comparator<T> getDefComparator();
-
-    class SimpleRandomOrderIterator implements Iterator<GenericValue<T, S>> {
+    class SimpleRandomOrderIterator implements Iterator<BundleValue> {
 
         private final UniformDistributionRNG uniRng;
         private int remainingIterations;
@@ -105,16 +97,17 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S ex
          * @see java.util.Iterator#next()
          */
         @Override
-        public GenericValue<T, S> next() {
+        public BundleValue next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            Map<T, Integer> quantities = getRandomQuantities();
-            GenericValue.Builder<T, S> genValBuilder = new GenericValue.Builder<>(getGenericBidder());
-            for (Entry<T, Integer> entry : quantities.entrySet()) {
-                genValBuilder.putQuantity(entry.getKey(), entry.getValue());
+            Map<GenericGood, Integer> quantities = getRandomQuantities();
+            HashSet<BundleEntry> bundleEntries = new HashSet<>();
+            for (Entry<GenericGood, Integer> entry : quantities.entrySet()) {
+                bundleEntries.add(new BundleEntry(entry.getKey(), entry.getValue()));
             }
-            GenericValue<T, S> result = genValBuilder.build();
+            Bundle bundle = new Bundle(bundleEntries);
+            BundleValue result = new BundleValue(getBidder().calculateValue(bundle), bundle);
 
             if (!cache.contains(result)) {
                 cache.add(result);
@@ -130,12 +123,12 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S ex
          *
          * @return A map of random quantities of a randomly defined number of goods
          */
-        private Map<T, Integer> getRandomQuantities() {
-            Map<T, Integer> quantities = new HashMap<>();
-            for (Entry<T, Integer> good : maxQuantities.entrySet()) {
-                if (includeGood(good.getValue(), totalSize, maxQuantities.size())) {
-                    int quantity = uniRng.nextInt(1, good.getValue());
-                    quantities.put(good.getKey(), quantity);
+        private Map<GenericGood, Integer> getRandomQuantities() {
+            Map<GenericGood, Integer> quantities = new HashMap<>();
+            for (GenericGood good : genericGoods) {
+                if (includeGood(good.available(), totalSize, genericGoods.size())) {
+                    int quantity = uniRng.nextInt(1, good.available());
+                    quantities.put(good, quantity);
                 }
             }
             return quantities;

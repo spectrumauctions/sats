@@ -5,6 +5,12 @@
  */
 package org.spectrumauctions.sats.core.model;
 
+import com.google.common.base.Preconditions;
+import lombok.EqualsAndHashCode;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
@@ -13,17 +19,23 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-public abstract class Bidder<G extends Good> implements Serializable {
+@EqualsAndHashCode
+public abstract class SATSBidder implements Bidder, Serializable {
 
     private static final long serialVersionUID = 3424512863538320455L;
     private final String setupType;
+    private final UUID uuid;
     private final long population;
     private final long id;
     private final long worldId;
     private final BidderSetup setup;
 
-    protected Bidder(BidderSetup setup, long population, long id, long worldId) {
+    protected SATSBidder(BidderSetup setup, long population, long id, long worldId) {
+        this.uuid = UUID.randomUUID();
         this.setup = setup;
         this.setupType = setup.getSetupName();
         this.id = id;
@@ -31,10 +43,14 @@ public abstract class Bidder<G extends Good> implements Serializable {
         this.worldId = worldId;
     }
 
-    public long getId() {
+    public long getLongId() {
         return id;
     }
 
+    @Override
+    public UUID getId() {
+        return uuid;
+    }
 
     /**
      * @return the name of the configuration ({@link BidderSetup}) with which the bidder was created.
@@ -44,20 +60,20 @@ public abstract class Bidder<G extends Good> implements Serializable {
     }
 
 
-    /**
-     * Returns the value this bidder has for a specific bundle.
-     * Attention: May throw RuntimeExceptions if the items in the bundle are not of the correct world.
-     *
-     * @param bundle the bundle for which the value is asked
-     * @return bidder specific value for this bundle
-     */
-    @Deprecated
-    public double getValue(Bundle<G> bundle) {
-        if (bundle.getWorld().equals(this.getWorld())) {
-            throw new IncompatibleWorldException("Bundle not from the same world as the bidder");
-        }
-        return calculateValue(bundle).doubleValue();
-    }
+//    /**
+//     * Returns the value this bidder has for a specific bundle.
+//     * Attention: May throw RuntimeExceptions if the items in the bundle are not of the correct world.
+//     *
+//     * @param bundle the bundle for which the value is asked
+//     * @return bidder specific value for this bundle
+//     */
+//    @Deprecated
+//    public double getValue(LicenseBundle<?> bundle) {
+//        if (bundle.getWorld().equals(this.getWorld())) {
+//            throw new IncompatibleWorldException("Bundle not from the same world as the bidder");
+//        }
+//        return calculateValue(bundle).doubleValue();
+//    }
 
     /**
      * Returns the value this bidder has for a specific bundle.
@@ -65,7 +81,12 @@ public abstract class Bidder<G extends Good> implements Serializable {
      * @param bundle the bundle for which the value is asked
      * @return bidder specific value for this bundle
      */
-    public abstract BigDecimal calculateValue(Bundle<G> bundle);
+    public abstract BigDecimal calculateValue(Bundle bundle);
+
+    @Override
+    public BigDecimal getValue(Bundle bundle) {
+        return calculateValue(bundle);
+    }
 
     /**
      * Use this method to get a desired value function representation (bidding language)
@@ -142,35 +163,7 @@ public abstract class Bidder<G extends Good> implements Serializable {
         return worldId;
     }
 
-    public abstract Bidder<G> drawSimilarBidder(RNGSupplier rngSupplier);
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (id ^ (id >>> 32));
-        result = prime * result + ((setupType == null) ? 0 : setupType.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Bidder<?> other = (Bidder<?>) obj;
-        if (id != other.id)
-            return false;
-        if (setupType == null) {
-            if (other.setupType != null)
-                return false;
-        } else if (!setupType.equals(other.setupType))
-            return false;
-        return true;
-    }
+    public abstract SATSBidder drawSimilarBidder(RNGSupplier rngSupplier);
 
 
     protected BidderSetup getSetup() {

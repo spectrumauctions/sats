@@ -249,6 +249,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- MechLib -->
+        <dependency>
+            <groupId>org.marketdesignresearch</groupId>
+            <artifactId>mechlib</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <distributionManagement>

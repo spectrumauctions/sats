@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.XORValue;
-import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.bvm.BMBand;
 import org.spectrumauctions.sats.core.model.bvm.BMBidder;

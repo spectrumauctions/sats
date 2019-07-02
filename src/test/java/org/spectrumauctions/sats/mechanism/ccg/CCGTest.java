@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.xor.XORBid;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMLicense;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
@@ -57,7 +57,7 @@ public class CCGTest {
         MockWorld.MockBidder fromMap = bidders.get(id);
         if (fromMap == null) {
             MockWorld.MockBidder bidder = MockWorld.getInstance().createNewBidder();
-            bidders.put((int) bidder.getId(), bidder);
+            bidders.put((int) bidder.getLongId(), bidder);
             return bidder(id);
         }
         return fromMap;
@@ -65,14 +65,14 @@ public class CCGTest {
 
     @Test
     public void testSimpleCCG() {
-        bidder(1).addBid(new Bundle<>(A), 2);
-        bidder(2).addBid(new Bundle<>(B), 2);
-        bidder(3).addBid(new Bundle<>(A, B), 2);
+        bidder(1).addBid(new LicenseBundle<>(A), 2);
+        bidder(2).addBid(new LicenseBundle<>(B), 2);
+        bidder(3).addBid(new LicenseBundle<>(A, B), 2);
 
         Set<XORBid<MockWorld.MockGood>> xorBids = new HashSet<>();
-        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
 
         WinnerDeterminator<MockWorld.MockGood> wdp = new XORWinnerDetermination<>(xorBids);
         AuctionMechanism<MockWorld.MockGood> am = new CCGMechanism<>(wdp);
@@ -85,14 +85,14 @@ public class CCGTest {
 
     @Test
     public void testScalingOfSimpleCCG() {
-        bidder(1).addBid(new Bundle<>(A), MIP.MAX_VALUE * 2);
-        bidder(2).addBid(new Bundle<>(B), MIP.MAX_VALUE * 2);
-        bidder(3).addBid(new Bundle<>(A, B), MIP.MAX_VALUE * 2);
+        bidder(1).addBid(new LicenseBundle<>(A), MIP.MAX_VALUE * 2);
+        bidder(2).addBid(new LicenseBundle<>(B), MIP.MAX_VALUE * 2);
+        bidder(3).addBid(new LicenseBundle<>(A, B), MIP.MAX_VALUE * 2);
 
         Set<XORBid<MockWorld.MockGood>> xorBids = new HashSet<>();
-        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
 
         WinnerDeterminator<MockWorld.MockGood> wdp = new XORWinnerDetermination<>(xorBids);
         AuctionMechanism<MockWorld.MockGood> am = new CCGMechanism<>(wdp);
@@ -105,16 +105,16 @@ public class CCGTest {
 
     @Test
     public void testSimpleCCGWithTraitor() {
-        bidder(1).addBid(new Bundle<>(A), 10);
-        bidder(2).addBid(new Bundle<>(B), 10);
-        bidder(3).addBid(new Bundle<>(C), 10);
-        bidder(4).addBid(new Bundle<>(A, B), 6);
+        bidder(1).addBid(new LicenseBundle<>(A), 10);
+        bidder(2).addBid(new LicenseBundle<>(B), 10);
+        bidder(3).addBid(new LicenseBundle<>(C), 10);
+        bidder(4).addBid(new LicenseBundle<>(A, B), 6);
 
         Set<XORBid<MockWorld.MockGood>> xorBids = new HashSet<>();
-        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getValues()).build());
 
         WinnerDeterminator<MockWorld.MockGood> wdp = new XORWinnerDetermination<>(xorBids);
         AuctionMechanism<MockWorld.MockGood> am = new CCGMechanism<>(wdp);
@@ -128,22 +128,22 @@ public class CCGTest {
 
     @Test
     public void testCCGWithTraitor() {
-        bidder(1).addBid(new Bundle<>(A), 10);
-        bidder(2).addBid(new Bundle<>(B), 10);
-        bidder(3).addBid(new Bundle<>(C), 10);
-        bidder(4).addBid(new Bundle<>(D), 10);
-        bidder(5).addBid(new Bundle<>(A, B, C, D, E), 12);
-        bidder(6).addBid(new Bundle<>(A, B, E), 8);
-        bidder(7).addBid(new Bundle<>(C, D, E), 8);
+        bidder(1).addBid(new LicenseBundle<>(A), 10);
+        bidder(2).addBid(new LicenseBundle<>(B), 10);
+        bidder(3).addBid(new LicenseBundle<>(C), 10);
+        bidder(4).addBid(new LicenseBundle<>(D), 10);
+        bidder(5).addBid(new LicenseBundle<>(A, B, C, D, E), 12);
+        bidder(6).addBid(new LicenseBundle<>(A, B, E), 8);
+        bidder(7).addBid(new LicenseBundle<>(C, D, E), 8);
 
         Set<XORBid<MockWorld.MockGood>> xorBids = new HashSet<>();
-        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(5), bidder(5).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(6), bidder(6).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(7), bidder(7).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(5), bidder(5).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(6), bidder(6).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(7), bidder(7).getValues()).build());
 
         WinnerDeterminator<MockWorld.MockGood> wdp = new XORWinnerDetermination<>(xorBids);
         AuctionMechanism<MockWorld.MockGood> am = new CCGMechanism<>(wdp);
@@ -160,22 +160,22 @@ public class CCGTest {
 
     @Test
     public void testScalingOfCCGWithTraitor() {
-        bidder(1).addBid(new Bundle<>(A), MIP.MAX_VALUE * 0.5);
-        bidder(2).addBid(new Bundle<>(B), MIP.MAX_VALUE * 0.5);
-        bidder(3).addBid(new Bundle<>(C), MIP.MAX_VALUE * 0.5);
-        bidder(4).addBid(new Bundle<>(D), MIP.MAX_VALUE * 0.5);
-        bidder(5).addBid(new Bundle<>(A, B, C, D, E), MIP.MAX_VALUE * 0.6);
-        bidder(6).addBid(new Bundle<>(A, B, E), MIP.MAX_VALUE * 0.4);
-        bidder(7).addBid(new Bundle<>(C, D, E), MIP.MAX_VALUE * 0.4);
+        bidder(1).addBid(new LicenseBundle<>(A), MIP.MAX_VALUE * 0.5);
+        bidder(2).addBid(new LicenseBundle<>(B), MIP.MAX_VALUE * 0.5);
+        bidder(3).addBid(new LicenseBundle<>(C), MIP.MAX_VALUE * 0.5);
+        bidder(4).addBid(new LicenseBundle<>(D), MIP.MAX_VALUE * 0.5);
+        bidder(5).addBid(new LicenseBundle<>(A, B, C, D, E), MIP.MAX_VALUE * 0.6);
+        bidder(6).addBid(new LicenseBundle<>(A, B, E), MIP.MAX_VALUE * 0.4);
+        bidder(7).addBid(new LicenseBundle<>(C, D, E), MIP.MAX_VALUE * 0.4);
 
         Set<XORBid<MockWorld.MockGood>> xorBids = new HashSet<>();
-        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(5), bidder(5).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(6), bidder(6).getBids()).build());
-        xorBids.add(new XORBid.Builder<>(bidder(7), bidder(7).getBids()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(1), bidder(1).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(2), bidder(2).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(3), bidder(3).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(4), bidder(4).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(5), bidder(5).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(6), bidder(6).getValues()).build());
+        xorBids.add(new XORBid.Builder<>(bidder(7), bidder(7).getValues()).build());
 
         WinnerDeterminator<MockWorld.MockGood> wdp = new XORWinnerDetermination<>(xorBids);
         AuctionMechanism<MockWorld.MockGood> am = new CCGMechanism<>(wdp);
