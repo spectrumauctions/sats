@@ -5,12 +5,8 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import org.apache.commons.lang3.NotImplementedException;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.LicenseBundle;
-import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -73,7 +69,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
      * @param bundle Is not required for calculation of local bidders gamma factors and will be ignored.
      */
     @Override
-    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, LicenseBundle<MRVMLicense> bundle) {
+    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, Set<MRVMLicense> bundle) {
         return gammaFactors(bundle).get(r);
     }
 

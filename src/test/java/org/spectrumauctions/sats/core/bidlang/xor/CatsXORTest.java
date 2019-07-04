@@ -3,6 +3,8 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
 import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.cats.*;
@@ -22,13 +24,13 @@ public class CatsXORTest {
         CATSRegionModel model = new CATSRegionModel();
         List<CATSBidder> bidders = model.createNewPopulation(seed - 1);
 
-        List<XORValue<CATSLicense>> directBids = Lists.newArrayList();
-        List<XORValue<CATSLicense>> iteratorBids = Lists.newArrayList();
+        List<BundleValue> directBids = Lists.newArrayList();
+        List<BundleValue> iteratorBids = Lists.newArrayList();
 
         for (int i = 0; i < bidders.size(); i++) {
             CatsXOR valueFunction = bidders.get(i).getValueFunction(CatsXOR.class, seed + i);
 
-            List<XORValue<CATSLicense>> bid = Lists.newArrayList(valueFunction.getCATSXORBids());
+            List<BundleValue> bid = Lists.newArrayList(valueFunction.getCATSXORBids());
 
             if (bid.size() > 6) Assert.fail("No bid should have more than 6 bundles!");
 
@@ -37,9 +39,9 @@ public class CatsXORTest {
 
         for (int i = 0; i < bidders.size(); i++) {
             CatsXOR valueFunction = bidders.get(i).getValueFunction(CatsXOR.class, seed + i);
-            Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
+            Iterator<BundleValue> catsIterator = valueFunction.iterator();
 
-            List<XORValue<CATSLicense>> bid = Lists.newArrayList();
+            List<BundleValue> bid = Lists.newArrayList();
 
             while (catsIterator.hasNext()) {
                 bid.add(catsIterator.next());
@@ -52,9 +54,9 @@ public class CatsXORTest {
 
         Assert.assertTrue(directBids.size() > 0);
         Assert.assertTrue(iteratorBids.size() > 0);
-        Collection<LicenseBundle<CATSLicense>> iteratorBundles = iteratorBids.stream().map(XORValue::getLicenses).collect(Collectors.toList());
-        for (XORValue<CATSLicense> directBid : directBids) {
-            Assert.assertTrue(iteratorBundles.contains(directBid.getLicenses()));
+        List<List<? extends Good>> iteratorBundles = iteratorBids.stream().map(bv -> bv.getBundle().getSingleAvailabilityGoods()).collect(Collectors.toList());
+        for (BundleValue directBid : directBids) {
+            Assert.assertTrue(iteratorBundles.contains(directBid.getBundle().getSingleAvailabilityGoods()));
         }
     }
 
@@ -67,7 +69,7 @@ public class CatsXORTest {
         CATSBidder bidder = model.createNewPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
 
         CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1).noCapForSubstitutableGoods();
-        Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
+        Iterator<BundleValue> catsIterator = valueFunction.iterator();
 
         catsIterator.next(); // Get original bundle already to test that there's no other valid bundle
         Assert.assertFalse(catsIterator.hasNext());
@@ -83,14 +85,14 @@ public class CatsXORTest {
     private void testNoCap(long seed) throws UnsupportedBiddingLanguageException {
 
         CATSRegionModel model = new CATSRegionModel();
-        CATSBidder bidder = model.createNewPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
+        CATSBidder bidder = model.createNewPopulation(seed).stream().findFirst().orElseThrow(IllegalArgumentException::new);
 
         CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1).noCapForSubstitutableGoods();
-        Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
+        Iterator<BundleValue> catsIterator = valueFunction.iterator();
 
         while (catsIterator.hasNext()) {
-                XORValue<CATSLicense> xor = catsIterator.next();
-                Assert.assertNotNull("Null returned at seed " + seed, xor);
+            BundleValue xor = catsIterator.next();
+            Assert.assertNotNull("Null returned at seed " + seed, xor);
         }
     }
 
@@ -150,11 +152,11 @@ public class CatsXORTest {
 
                 for (CATSBidder bidder : bidders) {
                     CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed++);
-                    Set<XORValue<CATSLicense>> bids = valueFunction.getCATSXORBids();
+                    Set<BundleValue> bids = valueFunction.getCATSXORBids();
                     numberOfBidsSats += bids.size();
-                    for (XORValue<CATSLicense> bid : bids) {
-                        numberOfGoodsSats += bid.getLicenses().size();
-                        valueOfGoodsSats += bid.value().doubleValue();
+                    for (BundleValue bid : bids) {
+                        numberOfGoodsSats += bid.getBundle().getSingleAvailabilityGoods().size();
+                        valueOfGoodsSats += bid.getAmount().doubleValue();
                     }
                 }
             }

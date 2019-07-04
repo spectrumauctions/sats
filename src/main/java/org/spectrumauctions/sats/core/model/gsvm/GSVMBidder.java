@@ -19,6 +19,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -133,9 +134,10 @@ public final class GSVMBidder extends SATSBidder {
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles);
 
         List<Bundle> result = optimalAllocations.stream()
-                .peek(alloc -> Preconditions.checkArgument(
-                        getUtility(alloc.allocationOf(this).getBundle(), prices).equals(alloc.getTotalAllocationValue())
-                ))
+                .peek(alloc -> {
+                    BigDecimal utility = getUtility(alloc.allocationOf(this).getBundle(), prices).setScale(5, RoundingMode.HALF_UP);
+                    Preconditions.checkState(utility.compareTo(alloc.getTotalAllocationValue().setScale(5, RoundingMode.HALF_UP)) == 0);
+                })
                 .map(allocation -> allocation.allocationOf(this).getBundle())
                 .filter(bundle -> allowNegative || getUtility(bundle, prices).signum() > -1)
                 .collect(Collectors.toList());

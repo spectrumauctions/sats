@@ -3,6 +3,7 @@ package org.spectrumauctions.sats.core.examples;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.*;
@@ -11,6 +12,7 @@ import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 
+import java.math.RoundingMode;
 import java.util.Iterator;
 
 /**
@@ -47,7 +49,7 @@ public class BiddingLanguagesExample {
     @Test
     public void generateRandomOrderXORBids() {
         SATSBidder bidder = createAnyBidder();
-        SizeBasedUniqueRandomXOR<?> valueFunction;
+        SizeBasedUniqueRandomXOR valueFunction;
         try {
             // Get a SizeBaseUniqueRandom XOR Iterator from your bidder
             valueFunction = (SizeBasedUniqueRandomXOR) bidder.getValueFunction(SizeBasedUniqueRandomXOR.class);
@@ -58,10 +60,10 @@ public class BiddingLanguagesExample {
             int numberOfBids = 30; // More bids than specified here must not be requested.
             valueFunction.setIterations(numberOfBids);
             // Do something with the generated bids
-            Iterator<? extends XORValue<?>> xorBidIterator = valueFunction.iterator();
+            Iterator<BundleValue> xorBidIterator = valueFunction.iterator();
             while (xorBidIterator.hasNext()) {
-                XORValue bid = xorBidIterator.next();
-                logger.info(bid.getLicenses().toString() + "   " + bid.value().toString());
+                BundleValue bid = xorBidIterator.next();
+                logger.info(bid.getBundle().toString() + "   " + bid.getAmount().setScale(2, RoundingMode.HALF_UP));
             }
         } catch (UnsupportedBiddingLanguageException e) {
             // If the model does not support the specified value function, this exception is thrown.

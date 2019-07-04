@@ -27,7 +27,6 @@ public final class SRVMBand extends GenericGood {
 
     private static final long serialVersionUID = 8297467604786037769L;
     private final ImmutableList<SRVMLicense> licenses;
-    private final long worldId;
 
     private transient SRVMWorld world;
 
@@ -46,7 +45,6 @@ public final class SRVMBand extends GenericGood {
     private SRVMBand(String name, SRVMWorld world, int numberOfLicenses, int startId) {
         super(name, world.getId());
         this.world = world;
-        this.worldId = world.getId();
         List<SRVMLicense> builder = new ArrayList<>();
         for (int i = 0; i < numberOfLicenses; i++) {
             builder.add(new SRVMLicense(startId++, this));

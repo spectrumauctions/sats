@@ -3,6 +3,8 @@ package org.spectrumauctions.sats.core.model.cats;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.Good;
 import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
@@ -15,14 +17,13 @@ import java.util.List;
  */
 public class CATSBidderTest {
 
-    private static LicenseBundle<CATSLicense> completeBundle;
+    private static Bundle completeBundle;
 
     @BeforeClass
     public static void setUpBeforeClass() {
         CATSRegionModel model = new CATSRegionModel();
         CATSWorld world = model.createWorld(983742L);
-        completeBundle = new LicenseBundle<>();
-        completeBundle.addAll(world.getLicenses());
+        completeBundle = Bundle.singleGoods(world.getLicenses());
     }
 
     /**
@@ -65,11 +66,12 @@ public class CATSBidderTest {
         BigDecimal value = customPopulation.get(0).calculateValue(completeBundle);
 
         float expectedValue = 0;
-        for (CATSLicense license : completeBundle) {
+        for (Good good : completeBundle.getSingleAvailabilityGoods()) {
+            CATSLicense license = (CATSLicense) good;
             expectedValue += license.getCommonValue();
             expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();
         }
-        expectedValue += Math.pow(completeBundle.size(), 1.2);
+        expectedValue += Math.pow(completeBundle.getSingleAvailabilityGoods().size(), 1.2);
 
         Assert.assertEquals(value.floatValue(), expectedValue, 0.01f);
     }
@@ -86,7 +88,8 @@ public class CATSBidderTest {
         BigDecimal value = customPopulation.get(0).calculateValue(completeBundle);
 
         float expectedValue = 0;
-        for (CATSLicense license : completeBundle) {
+        for (Good good : completeBundle.getSingleAvailabilityGoods()) {
+            CATSLicense license = (CATSLicense) good;
             expectedValue += license.getCommonValue();
             expectedValue += Math.pow(license.getCommonValue(), 2);
             expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();

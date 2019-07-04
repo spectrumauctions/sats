@@ -26,7 +26,7 @@ public final class CATSWorld extends World {
     private final boolean useQuadraticPricingOption;
     private final Mesh2D grid;
     private final int size;
-    private final HashSet<CATSLicense> licenses;
+    private final List<CATSLicense> licenses;
 
     private transient ImmutableList<CATSLicense> licenseList;
     private int maxSubstitutableBids;
@@ -44,7 +44,7 @@ public final class CATSWorld extends World {
             numberOfColumns = worldSetup.drawNumberOfColumns(rngSupplier);
         }
         this.grid = worldSetup.buildProximityGraph(numberOfRows, numberOfColumns, rngSupplier);
-        this.licenses = new HashSet<>();
+        this.licenses = new ArrayList<>();
         for (Vertex vertex : this.grid.getVertices()) {
             licenses.add(new CATSLicense(vertex, worldSetup.drawCommonValue(rngSupplier), this));
         }

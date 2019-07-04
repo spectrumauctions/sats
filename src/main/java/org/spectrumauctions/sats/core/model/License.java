@@ -11,9 +11,10 @@ import org.marketdesignresearch.mechlib.domain.Good;
 import java.io.Serializable;
 import java.util.Comparator;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class License implements SATSGood, Serializable {
 
+    @EqualsAndHashCode.Include
     private final long id;
     private final String name;
 

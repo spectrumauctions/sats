@@ -67,10 +67,10 @@ public final class BMWorld extends World implements GenericWorld {
     }
 
     @Override
-    public Set<BMLicense> getLicenses() {
-        Set<BMLicense> licenses = new HashSet<>();
+    public List<BMLicense> getLicenses() {
+        List<BMLicense> licenses = new LinkedList<>();
         for (BMBand band : bands) {
-            licenses.addAll(band.getLicenses());
+            licenses.addAll(band.containedGoods());
         }
         return licenses;
     }

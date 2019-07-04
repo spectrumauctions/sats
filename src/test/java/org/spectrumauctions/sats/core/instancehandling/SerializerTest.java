@@ -60,7 +60,7 @@ public class SerializerTest {
         }
     }
 
-    public <W extends World, B extends SATSBidder<?>> void testWorldSerializability(DefaultModel<W, B> model) {
+    public <W extends World, B extends SATSBidder> void testWorldSerializability(DefaultModel<W, B> model) {
         World original = model.createWorld(rng.nextLong());
         World deserialized = InstanceHandler.getDefaultHandler().readWorld(original.getClass(), original.getId());
         Assert.assertEquals("Model " + model.getClass().getSimpleName() + " changed after deserialization", original, deserialized);
@@ -76,11 +76,11 @@ public class SerializerTest {
         }
     }
 
-    public <W extends World, B extends SATSBidder<?>> void testBidderSerializability(DefaultModel<W, B> model) {
+    public <W extends World, B extends SATSBidder> void testBidderSerializability(DefaultModel<W, B> model) {
         W world = model.createWorld(rng.nextLong());
-        Set<SATSBidder<?>> originalPopulation = new HashSet<>(model.createPopulation(world, rng.nextLong()));
+        Set<SATSBidder> originalPopulation = new HashSet<>(model.createPopulation(world, rng.nextLong()));
         long populationId = originalPopulation.iterator().next().getPopulation();
-        Set<? extends SATSBidder<?>> deserializedPopulation = new HashSet<>(world.restorePopulation(populationId));
+        Set<? extends SATSBidder> deserializedPopulation = new HashSet<>(world.restorePopulation(populationId));
         Assert.assertEquals(originalPopulation, deserializedPopulation);
     }
 

@@ -5,11 +5,8 @@
  */
 package org.spectrumauctions.sats.core.model;
 
-import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.Good;
 import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
@@ -19,17 +16,17 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(doNotUseGetters = true, onlyExplicitlyIncluded = true)
 public abstract class SATSBidder implements Bidder, Serializable {
 
     private static final long serialVersionUID = 3424512863538320455L;
+    @EqualsAndHashCode.Include
     private final String setupType;
     private final UUID uuid;
     private final long population;
+    @EqualsAndHashCode.Include
     private final long id;
     private final long worldId;
     private final BidderSetup setup;
@@ -50,6 +47,11 @@ public abstract class SATSBidder implements Bidder, Serializable {
     @Override
     public UUID getId() {
         return uuid;
+    }
+
+    @Override
+    public String getName() {
+        return id + " (" + setupType + ")";
     }
 
     /**

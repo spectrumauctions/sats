@@ -292,9 +292,9 @@ public class MRVMBidderPartialMIPTest {
     public void testPerBandCapacitiesWithoutPreconstrainedInput() {
         for (MRVMBand band : bidders.iterator().next().getWorld().getBands()) {
             double maxCap = capacityOfOneBandWithoutPreconstrainedInput(band);
-            if (band.getName().equals(MRVMWorldGen.BAND_A_NAME)) {
+            if (band.getId().equals(MRVMWorldGen.BAND_A_NAME)) {
                 Assert.assertEquals(80.0, maxCap, 0.00001);
-            } else if (band.getName().equals(MRVMWorldGen.BAND_B_NAME)) {
+            } else if (band.getId().equals(MRVMWorldGen.BAND_B_NAME)) {
                 Assert.assertEquals(60.0, maxCap, 0.00001);
             } else {
                 fail("unknown band");
@@ -319,7 +319,7 @@ public class MRVMBidderPartialMIPTest {
             Variable output = bidderPartialMIP.getCapVariable(region, band);
             String auxiliaryVariableName = new StringBuilder("aux_cap_helper_")
                     .append("twoBandTest_")
-                    .append(band.getName())
+                    .append(band.getId())
                     .toString();
             PiecewiseLinearPartialMIP partialMip =
                     new PiecewiseLinearPartialMIP(fct,

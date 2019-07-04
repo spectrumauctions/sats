@@ -7,7 +7,7 @@ package org.spectrumauctions.sats.core.model.bvm;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
@@ -27,15 +27,15 @@ public class SizeOrderedPowersetTest {
         MultiBandValueModel model = new MultiBandValueModel();
         BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
-        GenericPowersetDecreasing<BMBand, BMLicense> lang = bidder.getValueFunction(GenericPowersetDecreasing.class, 351354);
+        GenericPowersetDecreasing lang = bidder.getValueFunction(GenericPowersetDecreasing.class, 351354);
         int currentSize = Integer.MAX_VALUE;
         int iteration = 0;
-        Iterator<GenericValue<BMBand, BMLicense>> iter = lang.iterator();
+        Iterator<BundleValue> iter = lang.iterator();
         while (iter.hasNext()) {
             int quantity = 0;
-            GenericValue<BMBand, BMLicense> val = iter.next();
+            BundleValue val = iter.next();
             for (BMBand band : bidder.getWorld().getBands()) {
-                quantity += val.getQuantity(band);
+                quantity += val.getBundle().countGood(band);
             }
             Assert.assertTrue("non-decreasing in iteration " + iteration, quantity <= currentSize);
             currentSize = quantity;
@@ -50,15 +50,15 @@ public class SizeOrderedPowersetTest {
         BaseValueModel model = new BaseValueModel();
         BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
-        GenericPowersetIncreasing<BMBand, BMLicense> lang = bidder.getValueFunction(GenericPowersetIncreasing.class, 351354);
+        GenericPowersetIncreasing lang = bidder.getValueFunction(GenericPowersetIncreasing.class, 351354);
         int currentSize = 0;
         int iteration = 0;
-        Iterator<GenericValue<BMBand, BMLicense>> iter = lang.iterator();
+        Iterator<BundleValue> iter = lang.iterator();
         while (iter.hasNext()) {
             int quantity = 0;
-            GenericValue<BMBand, BMLicense> val = iter.next();
+            BundleValue val = iter.next();
             for (BMBand band : bidder.getWorld().getBands()) {
-                quantity += val.getQuantity(band);
+                quantity += val.getBundle().countGood(band);
             }
             Assert.assertTrue("non-decreasing in iteration " + iteration, quantity >= currentSize);
             currentSize = quantity;

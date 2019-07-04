@@ -23,7 +23,6 @@ import java.util.*;
 public final class MRVMBand extends GenericGood {
 
     private static final long serialVersionUID = -4482949789084377013L;
-    private final long worldId;
     private final BigDecimal baseCapacity;
     private final int numberOfLots;
 
@@ -48,9 +47,7 @@ public final class MRVMBand extends GenericGood {
     private MRVMBand(MRVMWorldSetup.BandSetup bandSetup, MRVMWorld world, int licenseStartId, UniformDistributionRNG rng) {
         super(bandSetup.getName(), world.getId());
         this.world = world;
-
         this.numberOfLots = bandSetup.drawNumberOfLots(rng);
-        this.worldId = world.getId();
         this.baseCapacity = bandSetup.drawBaseCapacity(rng);
         this.synergies = ImmutableMap.copyOf(bandSetup.getSynergies());
         this.licenses = MRVMLicense.createLicenses(this, licenseStartId, world.getRegionsMap());

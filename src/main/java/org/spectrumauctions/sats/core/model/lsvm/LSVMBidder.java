@@ -22,6 +22,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -123,15 +124,15 @@ public final class LSVMBidder extends SATSBidder {
 
     /**
      * This factor is used to calculate the bonus for having adjacent items.
-     *
+     * <p>
      * Note: To our knowledge, Scheffel et al. (2010) do not specify the behavior in case a license is added which the
      * bidder does not have any interest in. This one license could connect two subsets of items which the
      * bidder is interested in, creating one larger subset, thus increasing the bonus for adjacent items.
      * A possible extension of the model is to adjust the bonus accordingly in this situation.
      * Currently, SATS doesn't prevent this behavior, sticking to the original model.
      */
-    public double calculateFactor(int size){
-    	return 1 + (LSVM_A / (100 * (1 + Math.exp(LSVM_B - size))));
+    public double calculateFactor(int size) {
+        return 1 + (LSVM_A / (100 * (1 + Math.exp(LSVM_B - size))));
     }
 
     @Override
@@ -152,12 +153,14 @@ public final class LSVMBidder extends SATSBidder {
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles);
 
         List<Bundle> result = optimalAllocations.stream()
-                .peek(alloc -> Preconditions.checkArgument(
-                        getUtility(alloc.allocationOf(this).getBundle(), prices).equals(alloc.getTotalAllocationValue())
-                ))
+                .peek(alloc -> {
+                    BigDecimal utility = getUtility(alloc.allocationOf(this).getBundle(), prices).setScale(5, RoundingMode.HALF_UP);
+                    Preconditions.checkState(utility.compareTo(alloc.getTotalAllocationValue().setScale(5, RoundingMode.HALF_UP)) == 0);
+                })
                 .map(allocation -> allocation.allocationOf(this).getBundle())
                 .filter(bundle -> allowNegative || getUtility(bundle, prices).signum() > -1)
                 .collect(Collectors.toList());
         if (result.isEmpty()) result.add(Bundle.EMPTY);
-        return result;    }
+        return result;
+    }
 }

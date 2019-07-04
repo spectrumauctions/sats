@@ -65,8 +65,8 @@ public class GSVMStandardMIP extends ModelMIP {
 	}
 
 	@Override
-	public int getSolutionPoolMode() {
-		return 3;
+	public PoolMode getSolutionPoolMode() {
+		return PoolMode.MODE_3;
 	}
 
 	@Override

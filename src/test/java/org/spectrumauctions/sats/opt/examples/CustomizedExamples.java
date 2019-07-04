@@ -5,11 +5,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.Allocation;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.model.mrvm.MRVMMipResult;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
@@ -40,7 +40,7 @@ public class CustomizedExamples {
 
         Collection<MRVMBidder> bidders = model.createNewPopulation();   // Create bidders
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
-        MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
+        Allocation result = mip.getAllocation();                        // Solve the MIP
         logger.info("Result:\n" + result);                           // Show the allocation
     }
 
@@ -85,8 +85,8 @@ public class CustomizedExamples {
                 new JavaUtilRNGSupplier()
         );
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
-        MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
-        logger.info("Result:\n" + result);                                            // Show the allocation
+        Allocation result = mip.getAllocation();                        // Solve the MIP
+        logger.info("Result:\n" + result);                           // Show the allocation
     }
 
     /**
@@ -117,8 +117,8 @@ public class CustomizedExamples {
         );
 
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
-        MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
-        logger.info("Result:\n" + result);                                            // Show the allocation
+        Allocation result = mip.getAllocation();                        // Solve the MIP
+        logger.info("Result:\n" + result);                           // Show the allocation
     }
 
 }

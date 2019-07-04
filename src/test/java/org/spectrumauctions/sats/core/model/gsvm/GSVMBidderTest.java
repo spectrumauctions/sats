@@ -3,6 +3,7 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
@@ -19,14 +20,13 @@ import java.util.List;
  */
 public class GSVMBidderTest {
 
-    private static LicenseBundle<GSVMLicense> completeBundle;
+    private static Bundle completeBundle;
 
     @BeforeClass
     public static void setUpBeforeClass() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld(983742L);
-        completeBundle = new LicenseBundle<>();
-        completeBundle.addAll(world.getLicenses());
+        completeBundle = Bundle.singleGoods(world.getLicenses());
     }
 
     /**
@@ -83,7 +83,7 @@ public class GSVMBidderTest {
         float nationalValueZeroHighs = 4 * 25;
         float nationalValueTwoHighs = 2 * 25 + 2 * 35;
         float nationalValueFourHighs = 4 * 35;
-        float factor = (completeBundle.size() - 1) * 0.2f;
+        float factor = (completeBundle.getSingleAvailabilityGoods().size() - 1) * 0.2f;
 
         float[] expectedValues = new float[6];
         expectedValues[0] = (nationalValueZeroHighs + regionalValue) + (nationalValueZeroHighs + regionalValue) * factor;
@@ -118,8 +118,7 @@ public class GSVMBidderTest {
         List<GSVMBidder> customPopulation = customPopulation(world, 3, 1);
         Assert.assertEquals(customPopulation.size(), 4);
 
-        LicenseBundle<GSVMLicense> regionalBundle = new LicenseBundle<>(Arrays.asList(world.getRegionalCircle().getLicenses()));
-        LicenseBundle<GSVMLicense> complete = new LicenseBundle<>(world.getLicenses());
+        Bundle regionalBundle = Bundle.singleGoods(Arrays.asList(world.getRegionalCircle().getLicenses()));
 
         for (int i = 0; i < 3; i++)
             checkBidder(customPopulation.get(i), "Test Regional Bidder");
@@ -128,23 +127,23 @@ public class GSVMBidderTest {
         // Assert that national bidder has zero value for the whole regional bundle
         Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
 
-        float factor = (complete.size() - 1) * 0.2f;
+        float factor = (completeBundle.getSingleAvailabilityGoods().size() - 1) * 0.2f;
 
         // Check if national bidder has expected value
         float expectedValue = 12 * 16 + 4 * 26 + (12 * 16 + 4 * 26) * factor;
-        Assert.assertEquals(customPopulation.get(3).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(3).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in low region has expected value
         expectedValue = 4 * 25 + 2 * 15 + (4 * 25 + 2 * 15) * factor;
-        Assert.assertEquals(customPopulation.get(0).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(0).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in high region has expected value
         expectedValue = 4 * 35 + 2 * 15 + (4 * 35 + 2 * 15) * factor;
-        Assert.assertEquals(customPopulation.get(2).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(2).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in mixed region has expected value
         expectedValue = 2 * 25 + 2 * 35 + 2 * 15 + (2 * 25 + 2 * 35 + 2 * 15) * factor;
-        Assert.assertEquals(customPopulation.get(1).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(1).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
     }
 
     /**
@@ -168,23 +167,22 @@ public class GSVMBidderTest {
             checkBidder(customPopulation.get(i), "Test Regional Bidder");
         for (int i = 3; i < 4; i++) checkBidder(customPopulation.get(i), "Test National Bidder");
 
-        LicenseBundle<GSVMLicense> regionalBundle = new LicenseBundle<>(Arrays.asList(world.getRegionalCircle().getLicenses()));
-        LicenseBundle<GSVMLicense> complete = new LicenseBundle<>(world.getLicenses());
+        Bundle regionalBundle = Bundle.singleGoods(Arrays.asList(world.getRegionalCircle().getLicenses()));
 
         // Assert that national bidder has zero value for the whole regional bundle
         Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
 
-        float factor = (complete.size() - 1) * 0.2f;
+        float factor = (completeBundle.getSingleAvailabilityGoods().size() - 1) * 0.2f;
 
         // Check if national bidder has expected value
         float expectedValue = 2 * 16 + (2 * 16) * factor;
-        Assert.assertEquals(customPopulation.get(3).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(3).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidders all have expected value
         expectedValue = 2 * 25 + 15 + (2 * 25 + 15) * factor;
-        Assert.assertEquals(customPopulation.get(0).calculateValue(complete).floatValue(), expectedValue, 0.001f);
-        Assert.assertEquals(customPopulation.get(1).calculateValue(complete).floatValue(), expectedValue, 0.001f);
-        Assert.assertEquals(customPopulation.get(2).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(0).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(1).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(2).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
     }
 
 

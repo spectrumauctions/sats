@@ -3,12 +3,12 @@ package org.spectrumauctions.sats.opt.model.lsvm;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
+import org.marketdesignresearch.mechlib.domain.Allocation;
+import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.spectrumauctions.sats.core.model.lsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.domain.ItemAllocation;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class LSVMStandardMIPTest {
 		List<LSVMBidder> population = customPopulation(world, 2, 1);
 
 		LSVMStandardMIP lsvmMIP = new LSVMStandardMIP(world, population);
-		ItemAllocation<LSVMLicense> allocation = lsvmMIP.calculateAllocation();
+		Allocation allocation = lsvmMIP.getAllocation();
 
 		testTotalValue(population, allocation);
 	}
@@ -69,24 +69,24 @@ public class LSVMStandardMIPTest {
 		List<LSVMBidder> population = model.createPopulation(world, seed);
 
 		LSVMStandardMIP lsvmMIP = new LSVMStandardMIP(world, population);
-		ItemAllocation<LSVMLicense> allocation = lsvmMIP.calculateAllocation();
+		Allocation allocation = lsvmMIP.getAllocation();
 
 		Assert.assertEquals("Error Objective Value not matching Test Data Seed: " + seed, seedMap.get(seed),
-				allocation.getTotalValue().doubleValue(), 0.0000001);
+				allocation.getTotalAllocationValue().doubleValue(), 0.0000001);
 		testTotalValue(population, allocation);
 	}
 
-	private void testTotalValue(List<LSVMBidder> population, ItemAllocation<LSVMLicense> allocation) {
+	private void testTotalValue(List<LSVMBidder> population, Allocation allocation) {
 		BigDecimal totalValue = new BigDecimal(0);
 
 		for (LSVMBidder bidder : population) {
-			LicenseBundle<LSVMLicense> bundle = allocation.getAllocation(bidder);
+			Bundle bundle = allocation.allocationOf(bidder).getBundle();
 			totalValue = totalValue.add(bidder.calculateValue(bundle));
 		}
 
 		double delta = 0.0000001;
 		Assert.assertEquals("Values of allocated bundles don't match with objectie value of MIP ",
-				allocation.getTotalValue().doubleValue(), totalValue.doubleValue(), delta);
+				allocation.getTotalAllocationValue().doubleValue(), totalValue.doubleValue(), delta);
 	}
 
 	private List<LSVMBidder> customPopulation(LSVMWorld world, int numberOfRegionalBidders,

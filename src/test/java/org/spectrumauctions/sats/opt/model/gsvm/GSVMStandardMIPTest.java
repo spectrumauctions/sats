@@ -2,12 +2,14 @@ package org.spectrumauctions.sats.opt.model.gsvm;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.Allocation;
+import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.domain.Good;
 import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.gsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.domain.ItemAllocation;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -21,12 +23,12 @@ public class GSVMStandardMIPTest {
         List<GSVMBidder> population = model.createPopulation(world);
 
         GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-        ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+        Allocation allocation = gsvmMIP.getAllocation();
 
         GSVMStandardMIP secondGsvmMIP = new GSVMStandardMIP(world, population);
-        ItemAllocation<GSVMLicense> secondAllocation = secondGsvmMIP.calculateAllocation();
+        Allocation secondAllocation = secondGsvmMIP.getAllocation();
 
-        population.forEach(bidder -> Assert.assertEquals(allocation.getAllocation(bidder), secondAllocation.getAllocation(bidder)));
+        population.forEach(bidder -> Assert.assertEquals(allocation.allocationOf(bidder), secondAllocation.allocationOf(bidder)));
     }
 
 	@Test
@@ -40,12 +42,12 @@ public class GSVMStandardMIPTest {
         Assert.assertEquals(population.get(0), invertedPopulation.get(invertedPopulation.size() - 1));
 
         GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-        ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+		Allocation allocation = gsvmMIP.getAllocation();
 
         GSVMStandardMIP invertedGsvmMIP = new GSVMStandardMIP(world, invertedPopulation);
-        ItemAllocation<GSVMLicense> invertedAllocation = invertedGsvmMIP.calculateAllocation();
+		Allocation invertedAllocation = invertedGsvmMIP.getAllocation();
 
-        population.forEach(bidder -> Assert.assertEquals(allocation.getAllocation(bidder), invertedAllocation.getAllocation(bidder)));
+        population.forEach(bidder -> Assert.assertEquals(allocation.allocationOf(bidder), invertedAllocation.allocationOf(bidder)));
     }
 
 	@Test
@@ -55,16 +57,15 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = model.createPopulation(world);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+		Allocation allocation = gsvmMIP.getAllocation();
 
-		Map<GSVMLicense, GSVMBidder> invertedAllocation = new HashMap<>();
+		Map<Good, GSVMBidder> invertedAllocation = new HashMap<>();
 
 		for (GSVMBidder bidder : population) {
-			LicenseBundle<GSVMLicense> bundle = allocation.getAllocation(bidder);
-			for (GSVMLicense license : bundle) {
+			Bundle bundle = allocation.allocationOf(bidder).getBundle();
+			for (Good license : bundle.getSingleAvailabilityGoods()) {
 				// Checks if same license is allocated multiple times
-				Assert.assertTrue("Invalid Allocation, same license allocated multiple times",
-						!invertedAllocation.containsKey(license));
+				Assert.assertFalse("Invalid Allocation, same license allocated multiple times", invertedAllocation.containsKey(license));
 				invertedAllocation.put(license, bidder);
 			}
 		}
@@ -80,10 +81,10 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = customPopulation(world, 2, 1);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
-		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+		Allocation allocation = gsvmMIP.getAllocation();
 
 		// Efficient Allocation should be 91.0
-		Assert.assertEquals(0, BigDecimal.valueOf(91.0).compareTo(allocation.getTotalValue()));
+		Assert.assertEquals(0, BigDecimal.valueOf(91.0).compareTo(allocation.getTotalAllocationValue()));
 		testTotalValue(population, allocation);
 	}
 
@@ -96,16 +97,16 @@ public class GSVMStandardMIPTest {
 		List<GSVMBidder> population = buildSpecialPopulation(world);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, true);
-		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+		Allocation allocation = gsvmMIP.getAllocation();
 
 		GSVMBidder nationalBidder = population.stream()
 				.filter(bidder -> bidder.getSetupType().equals("Test National Bidder")).findFirst().get();
 
-		LicenseBundle<GSVMLicense> fullBundle = new LicenseBundle<>(world.getLicenses());
+		Bundle fullBundle = Bundle.singleGoods(world.getLicenses());
 
 		// the efficient allocation is giving all licenses (including the
 		// licenses of the regional circle) to the one national bidder
-		Assert.assertEquals(fullBundle, allocation.getAllocation(nationalBidder));
+		Assert.assertEquals(fullBundle, allocation.allocationOf(nationalBidder).getBundle());
 
 		testTotalValue(population, allocation);
 	}
@@ -120,7 +121,7 @@ public class GSVMStandardMIPTest {
 
 		// use only licenses with positive values
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, false);
-		ItemAllocation<GSVMLicense> allocation = gsvmMIP.calculateAllocation();
+		Allocation allocation = gsvmMIP.getAllocation();
 
 		GSVMBidder nationalBidder = population.stream()
 				.filter(bidder -> bidder.getSetupType().equals("Test National Bidder")).findFirst().get();
@@ -128,22 +129,22 @@ public class GSVMStandardMIPTest {
 		LicenseBundle<GSVMLicense> fullBundle = new LicenseBundle<>(world.getLicenses());
 
 		// the efficient allocation is not giving all licenses to the one national bidder
-		Assert.assertTrue(fullBundle.size() > allocation.getAllocation(nationalBidder).size());
+		Assert.assertTrue(fullBundle.size() > allocation.allocationOf(nationalBidder).getBundle().getSingleAvailabilityGoods().size());
 
 		testTotalValue(population, allocation);
 	}
 
-	private void testTotalValue(List<GSVMBidder> population, ItemAllocation<GSVMLicense> allocation) {
+	private void testTotalValue(List<GSVMBidder> population, Allocation allocation) {
 		BigDecimal totalValue = new BigDecimal(0);
 
 		for (GSVMBidder bidder : population) {
-			LicenseBundle<GSVMLicense> bundle = allocation.getAllocation(bidder);
+			Bundle bundle = allocation.allocationOf(bidder).getBundle();
 			totalValue = totalValue.add(bidder.calculateValue(bundle));
 		}
 
 		double delta = 0.00000001;
 		Assert.assertEquals("Values of allocated bundles don't match with objective value of MIP ",
-				allocation.getTotalValue().doubleValue(), totalValue.doubleValue(), delta);
+				allocation.getTotalAllocationValue().doubleValue(), totalValue.doubleValue(), delta);
 	}
 
 	private List<GSVMBidder> customPopulation(GSVMWorld world, int numberOfRegionalBidders,

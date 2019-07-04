@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import org.marketdesignresearch.mechlib.domain.Good;
 import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
@@ -26,7 +27,6 @@ public class BMBand extends GenericGood {
 
     private static final long serialVersionUID = 1156082993361102068L;
     private final List<BMLicense> licenses;
-    private final String name;
 
     private transient BMWorld world;
 
@@ -37,7 +37,6 @@ public class BMBand extends GenericGood {
      */
     public BMBand(BMWorld world, String name, int numberOfLicenses, int licenseCounter, RNGSupplier rngSupplier) {
         super(name, world.getId());
-        this.name = name;
         this.world = world;
         this.licenses = new ArrayList<>();
         for (int i = 0; i < numberOfLicenses; i++) {
@@ -50,23 +49,13 @@ public class BMBand extends GenericGood {
     }
 
     @Override
-    public List<? extends Good> containedGoods() {
+    public List<BMLicense> containedGoods() {
         return licenses;
-    }
-
-    public Collection<BMLicense> getLicenses() {
-        return Collections.unmodifiableCollection(licenses);
     }
 
     @Override
     public int available() {
         return licenses.size();
-    }
-
-
-    @Override
-    public String getId() {
-        return name;
     }
 
     /**

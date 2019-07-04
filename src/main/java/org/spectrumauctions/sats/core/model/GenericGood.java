@@ -15,9 +15,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class GenericGood implements SATSGood, Serializable {
 
+    @EqualsAndHashCode.Include
     private final String name;
 
     protected final long worldId;
@@ -29,7 +30,7 @@ public abstract class GenericGood implements SATSGood, Serializable {
 
     @Override
     public abstract World getWorld();
-    public abstract List<? extends Good> containedGoods();
+    public abstract List<? extends License> containedGoods();
 
     @Override
     public int available() {

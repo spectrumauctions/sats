@@ -304,8 +304,8 @@ public class SRVMBidderPartialMIPTest {
                 Assert.assertEquals("Alpha should be 2, it's " + alphaResult, alphaResult, 2, 0);
                 Assert.assertEquals("Beta should be 3, it's " + betaResult, betaResult, 3, 0);
                 Assert.assertEquals("Gamma should be 4, it's " + gammaResult, gammaResult, 4, 0);
-                double baseValue = bidder.getBaseValues().get(band.getName()).doubleValue();
-                double syn_i_b = bidder.getIntrabandSynergyFactors().get(band.getName()).doubleValue();
+                double baseValue = bidder.getBaseValues().get(band.getId()).doubleValue();
+                double syn_i_b = bidder.getIntrabandSynergyFactors().get(band.getId()).doubleValue();
                 double expected = baseValue * alphaResult + baseValue * syn_i_b * betaResult + baseValue * gammaResult;
                 Assert.assertEquals(valueResult, expected, 0.001);
                 noAssertions = false;
@@ -350,9 +350,9 @@ public class SRVMBidderPartialMIPTest {
                 double betaResult = result.getValue(beta);
                 double gammaResult = result.getValue(gamma);
                 int xResult = (int) result.getValue(x);
-                double alphaExpected = getAlpha(bidder.getSynergyThreshold().get(band.getName()), xResult);
-                double betaExpected = getBeta(bidder.getSynergyThreshold().get(band.getName()), xResult);
-                double gammaExpected = getGamma(bidder.getSynergyThreshold().get(band.getName()), xResult);
+                double alphaExpected = getAlpha(bidder.getSynergyThreshold().get(band.getId()), xResult);
+                double betaExpected = getBeta(bidder.getSynergyThreshold().get(band.getId()), xResult);
+                double gammaExpected = getGamma(bidder.getSynergyThreshold().get(band.getId()), xResult);
                 Assert.assertEquals("Alpha should be " + alphaExpected + ", it's " + alphaResult, alphaExpected, alphaResult, 0.00000001);
                 Assert.assertEquals("Beta should be " + betaExpected + ", it's " + betaResult, betaExpected, betaResult, 0.0000001);
                 Assert.assertEquals("Gamma should be " + gammaExpected + ", it's " + gammaResult, gammaExpected, gammaResult, 0.0000001);

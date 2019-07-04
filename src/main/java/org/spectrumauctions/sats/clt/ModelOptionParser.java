@@ -40,7 +40,7 @@ public abstract class ModelOptionParser extends OptionParser {
         this.accepts(KEY_MULTIPLEFILES, "Define if a separate file should be created for every bidder");
         this.accepts(KEY_ITERATOR,
                 "Define an order in which the atomic bids should be returned. Options are: SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC, CATS_SPECIFIC")
-                .withRequiredArg().ofType(BiddingLanguage.class);
+                .withRequiredArg().ofType(BiddingLanguageEnum.class);
         this.accepts(KEY_XORQ, "If flag is set, the returned bids are XOR-Q (And file format JSON)");
         this.accepts(CommandLineTool.KEY_HELP,
                 "Gives a list of all possible Options. " + "If used with the --model tag, the options for the specified model are also printed.");
@@ -75,9 +75,9 @@ public abstract class ModelOptionParser extends OptionParser {
             builder.setOneFile(true);
         }
         if (options.has(KEY_ITERATOR)) {
-            builder.setLang((BiddingLanguage) options.valueOf(KEY_ITERATOR));
+            builder.setLang((BiddingLanguageEnum) options.valueOf(KEY_ITERATOR));
         } else if (options.valueOf("model").equals(Model.CATS)) { // Default option for CATS
-            builder.setLang(BiddingLanguage.CATS_SPECIFIC);
+            builder.setLang(BiddingLanguageEnum.CATS_SPECIFIC);
         }
 
         if (options.has(KEY_SEED)) {

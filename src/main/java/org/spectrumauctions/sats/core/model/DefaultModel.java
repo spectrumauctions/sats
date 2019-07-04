@@ -15,7 +15,7 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public abstract class DefaultModel<W extends World, B extends SATSBidder<? extends License>> {
+public abstract class DefaultModel<W extends World, B extends SATSBidder> {
 
     /**
      * Creates a new {@link World}

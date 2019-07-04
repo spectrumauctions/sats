@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
@@ -42,15 +42,15 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testSRMSimpleRandomReduceBidAmount() {
-        SATSBidder bidder = new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
-        XORQRandomOrderSimple<?, ?> valueFunction;
+        SATSBidder bidder = new SingleRegionModel().createNewPopulation().stream().findAny().orElseThrow(NoSuchElementException::new);
+        XORQRandomOrderSimple valueFunction;
         try {
-            valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
+            valueFunction = bidder.getValueFunction(XORQRandomOrderSimple.class);
             valueFunction.setIterations(5000);
-            Iterator<? extends GenericValue<?, ?>> xorqBidIterator = valueFunction.iterator();
-            Set<GenericValue> bids = createBids(xorqBidIterator);
+            Iterator<BundleValue> xorqBidIterator = valueFunction.iterator();
+            Set<BundleValue> bids = createBids(xorqBidIterator);
             int assumedSize = (int) (0.8 * (6 * 9 * 14 + 1));
-            Assert.assertTrue(bids.size() == assumedSize);
+            Assert.assertEquals(bids.size(), assumedSize);
         } catch (UnsupportedBiddingLanguageException e) {
             logger.error("Unsupported bidding language!");
             Assert.fail();
@@ -59,14 +59,14 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testMRMSimpleRandomLarge() {
-        SATSBidder bidder = new MultiRegionModel().createNewPopulation().stream().findAny().orElse(null);
-        XORQRandomOrderSimple<?, ?> valueFunction;
+        SATSBidder bidder = new MultiRegionModel().createNewPopulation().stream().findAny().orElseThrow(NoSuchElementException::new);
+        XORQRandomOrderSimple valueFunction;
         try {
-            valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
+            valueFunction = bidder.getValueFunction(XORQRandomOrderSimple.class);
             valueFunction.setIterations(5000);
-            Iterator<? extends GenericValue<?, ?>> xorqBidIterator = valueFunction.iterator();
-            Set<GenericValue> bids = createBids(xorqBidIterator);
-            Assert.assertTrue(bids.size() == 5000);
+            Iterator<BundleValue> xorqBidIterator = valueFunction.iterator();
+            Set<BundleValue> bids = createBids(xorqBidIterator);
+            Assert.assertEquals(5000, bids.size());
         } catch (UnsupportedBiddingLanguageException e) {
             logger.error("Unsupported bidding language!");
             Assert.fail();
@@ -76,11 +76,11 @@ public class SimpleRandomOrderTest {
     // ------- Helpers ------- //
 
     private void testSimple(SATSBidder bidder, Integer assumedBidSize) {
-        XORQRandomOrderSimple<?, ?> valueFunction;
+        XORQRandomOrderSimple valueFunction;
         try {
-            valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
-            Iterator<? extends GenericValue<?, ?>> xorqBidIterator = valueFunction.iterator();
-            Set<GenericValue> bids = createBids(xorqBidIterator);
+            valueFunction = bidder.getValueFunction(XORQRandomOrderSimple.class);
+            Iterator<BundleValue> xorqBidIterator = valueFunction.iterator();
+            Set<BundleValue> bids = createBids(xorqBidIterator);
 
             Assert.assertTrue(bids.size() == assumedBidSize);
         } catch (UnsupportedBiddingLanguageException e) {
@@ -89,18 +89,18 @@ public class SimpleRandomOrderTest {
         }
     }
 
-    private Set<GenericValue> createBids(Iterator<? extends GenericValue<?, ?>> xorqBidIterator) {
-        Set<GenericValue> cache = new HashSet<>();
+    private Set<BundleValue> createBids(Iterator<BundleValue> xorqBidIterator) {
+        Set<BundleValue> cache = new HashSet<>();
         while (xorqBidIterator.hasNext()) {
-            GenericValue bid = xorqBidIterator.next();
-            Assert.assertTrue("Should be a new bid", !exists(bid, cache));
+            BundleValue bid = xorqBidIterator.next();
+            Assert.assertFalse(exists(bid, cache));
             cache.add(bid);
         }
         return cache;
     }
 
-    private boolean exists(GenericValue bid, Set<GenericValue> cache) {
-        for (GenericValue val : cache) {
+    private boolean exists(BundleValue bid, Set<BundleValue> cache) {
+        for (BundleValue val : cache) {
             if (val.equals(bid)) {
                 return true;
             }

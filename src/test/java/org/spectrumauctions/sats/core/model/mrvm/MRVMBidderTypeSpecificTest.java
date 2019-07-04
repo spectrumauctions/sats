@@ -8,6 +8,7 @@ package org.spectrumauctions.sats.core.model.mrvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
@@ -47,7 +48,7 @@ public class MRVMBidderTypeSpecificTest {
         for (Entry<MRVMRegionsMap.Region, BigDecimal> gammaEntry : gammaValues.entrySet()) {
             if (localBidder.regionsOfInterest.contains(gammaEntry.getKey().getId())) {
                 interestRegionsCount++;
-                Assert.assertTrue(BigDecimal.ONE.compareTo(gammaEntry.getValue()) == 0);
+                Assert.assertEquals(0, BigDecimal.ONE.compareTo(gammaEntry.getValue()));
             }
         }
         Assert.assertEquals(3, interestRegionsCount);
@@ -62,7 +63,7 @@ public class MRVMBidderTypeSpecificTest {
         Map<MRVMRegionsMap.Region, BigDecimal> calculatedGammas = regionalBidder.gammaFactors(null);
         for (Entry<MRVMRegionsMap.Region, BigDecimal> regionEntry : calculatedGammas.entrySet()) {
             if (regionEntry.getKey().equals(regionalBidder.home)) {
-                Assert.assertTrue(regionEntry.getValue().compareTo(BigDecimal.ONE) == 0);
+                Assert.assertEquals(0, regionEntry.getValue().compareTo(BigDecimal.ONE));
             } else {
                 Assert.assertTrue(regionEntry.getValue().compareTo(BigDecimal.ONE) < 0);
                 Assert.assertTrue(regionEntry.getValue().compareTo(BigDecimal.ZERO) > 0);
@@ -75,18 +76,17 @@ public class MRVMBidderTypeSpecificTest {
     public void globalGammaValuesTestOnCompleteBundle() {
         //Gamma Value for the complete bundle should be 1, i.e., there is no discount if global bidder has all licenses
         BigDecimal returnedGammaValue = globalBidder.gammaFactor(null, completeBundle);
-        Assert.assertTrue(BigDecimal.ONE.compareTo(returnedGammaValue) == 0);
+        Assert.assertEquals(0, BigDecimal.ONE.compareTo(returnedGammaValue));
         for (BigDecimal gammaFromMap : globalBidder.gammaFactors(completeBundle).values()) {
-            Assert.assertTrue(BigDecimal.ONE.compareTo(gammaFromMap) == 0);
+            Assert.assertEquals(0, BigDecimal.ONE.compareTo(gammaFromMap));
         }
     }
 
     @Test
     public void emptyBundleTest() {
-        LicenseBundle<MRVMLicense> emptyBundle = new LicenseBundle<>();
-        Assert.assertEquals(BigDecimal.ZERO, localBidder.calculateValue(emptyBundle));
-        Assert.assertEquals(BigDecimal.ZERO, globalBidder.calculateValue(emptyBundle));
-        Assert.assertEquals(BigDecimal.ZERO, regionalBidder.calculateValue(emptyBundle));
+        Assert.assertEquals(BigDecimal.ZERO, localBidder.calculateValue(Bundle.EMPTY));
+        Assert.assertEquals(BigDecimal.ZERO, globalBidder.calculateValue(Bundle.EMPTY));
+        Assert.assertEquals(BigDecimal.ZERO, regionalBidder.calculateValue(Bundle.EMPTY));
     }
 
 

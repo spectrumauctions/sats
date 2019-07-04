@@ -158,11 +158,12 @@ public class CatsXOR implements BiddingLanguage {
                 });
                 CATSLicense first = weightedGoods.next();
                 licenses.add(first);
-                while (uniRng.nextDouble() <= world.getAdditionalLocation()) {
-                    licenses.add(selectLicenseToAdd(licenses));
+                while (licenses.size() < goods.size() && uniRng.nextDouble() <= world.getAdditionalLocation()) {
+                    CATSLicense next = selectLicenseToAdd(licenses);
+                    licenses.add(next);
                 }
 
-                HashSet<BundleEntry> bundleEntries = (HashSet<BundleEntry>) licenses.stream().map(l -> new BundleEntry(l, 1)).collect(Collectors.toSet());
+                Set<BundleEntry> bundleEntries = licenses.stream().map(l -> new BundleEntry(l, 1)).collect(Collectors.toSet());
                 Bundle bundle = new Bundle(bundleEntries);
                 BigDecimal value = bidder.calculateValue(bundle);
                 if (value.compareTo(BigDecimal.ZERO) < 0) return next(); // Restart bundle generation for this bidder
@@ -250,9 +251,9 @@ public class CatsXOR implements BiddingLanguage {
                 super("After " + retries + " retries, no other bundle was found " +
                         "that was not identical to the original bundle bid and is valid in terms of budget and " +
                         "min_resale_value constraints. \n" +
-                        "Most likely, there are either almost no licenses to choose from or the original bundle is very" +
-                        "small and highly valued, so that it's difficult to create another bundle that satisfies the" +
-                        "constraints. Try again (maybe with a higher number of goods) or use the the iterator that handles" +
+                        "Most likely, there are either almost no licenses to choose from or the original bundle is very " +
+                        "small and highly valued, so that it's difficult to create another bundle that satisfies the " +
+                        "constraints. Try again (maybe with a higher number of goods) or use the the iterator that handles " +
                         "this situation with null-values.");
             }
         }

@@ -6,9 +6,9 @@
 package org.spectrumauctions.sats.core.model.srvm;
 
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.Iterator;
@@ -25,8 +25,8 @@ public class SRVMTest {
     public void testNoRunimeException() throws UnsupportedBiddingLanguageException {
         SingleRegionModel model = new SingleRegionModel();
         SRVMBidder bidder = model.createNewPopulation(238472).iterator().next();
-        GenericLang<SRVMBand, SRVMLicense> lang = bidder.getValueFunction(GenericSizeDecreasing.class);
-        Iterator<GenericValue<SRVMBand, SRVMLicense>> iter = lang.iterator();
+        BiddingLanguage lang = bidder.getValueFunction(GenericSizeDecreasing.class);
+        Iterator<BundleValue> iter = lang.iterator();
         for (int i = 0; i < 50 && iter.hasNext(); i++) {
             iter.next();
         }

@@ -7,13 +7,10 @@ package org.spectrumauctions.sats.core.bidfile;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
-import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.bvm.BMBidder;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
@@ -37,12 +34,12 @@ public abstract class BidFileWriter {
     protected void testMultiBidderXOR(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
         Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
-        Collection<XORLanguage<? extends License>> languages = new ArrayList<>();
+        Collection<BiddingLanguage> languages = new ArrayList<>();
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {
                 @SuppressWarnings("unchecked")
-                SizeBasedUniqueRandomXOR<License> lang = bidder
+                SizeBasedUniqueRandomXOR lang = bidder
                         .getValueFunction(SizeBasedUniqueRandomXOR.class);
                 lang.setDistribution(3, 2);
                 lang.setIterations(bidsPerBidder);
@@ -66,7 +63,7 @@ public abstract class BidFileWriter {
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {
-                SizeBasedUniqueRandomXOR<License> lang = bidder
+                SizeBasedUniqueRandomXOR lang = bidder
                         .getValueFunction(SizeBasedUniqueRandomXOR.class);
                 lang.setDistribution(3, 2);
                 lang.setIterations(bidsPerBidder);
@@ -85,12 +82,12 @@ public abstract class BidFileWriter {
     protected void testMultiBidderXORQ(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
         Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
-        Collection<GenericLang<GenericDefinition<? extends License>, ?>> languages = new ArrayList<>();
+        Collection<BiddingLanguage> languages = new ArrayList<>();
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {
                 @SuppressWarnings("unchecked")
-                GenericSizeDecreasing<GenericDefinition<? extends License>, ?> lang = bidder
+                GenericSizeDecreasing lang = bidder
                         .getValueFunction(GenericSizeDecreasing.class);
                 languages.add(lang);
             } catch (UnsupportedBiddingLanguageException e) {
@@ -112,7 +109,7 @@ public abstract class BidFileWriter {
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {
-                GenericSizeIncreasing<GenericDefinition<? extends License>, ?> lang = bidder
+                GenericSizeIncreasing lang = bidder
                         .getValueFunction(GenericSizeIncreasing.class);
                 File file = exporter.writeSingleBidderXORQ(lang, bidsPerBidder, "TestSingleXORQ_" + new Random().nextInt());
                 logger.info(file.toPath().toString());

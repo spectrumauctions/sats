@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -55,11 +56,11 @@ public class MRVMBidderTest {
     @Test
     public void testCorrectlyInitialized() {
         bidder = new MRVMLocalBidder(0, 0, world, setup, null);
-        assertTrue(bidder.getAlpha().compareTo(BigDecimal.valueOf(0.1)) == 0); //alpha == 0.1
-        assertTrue(bidder.getBeta(region1).compareTo(BigDecimal.valueOf(0.2)) == 0); //beta1 == 0.2
-        assertTrue(bidder.getBeta(region2).compareTo(BigDecimal.valueOf(0.2)) == 0); //beta2 == 0.2
-        assertTrue(bidder.getzLow(region1).compareTo(BigDecimal.valueOf(0.3)) == 0); //zlow == 0.3
-        assertTrue(bidder.getzHigh(region1).compareTo(BigDecimal.valueOf(0.4)) == 0); //zHigh == 0.4
+        assertEquals(0, bidder.getAlpha().compareTo(BigDecimal.valueOf(0.1))); //alpha == 0.1
+        assertEquals(0, bidder.getBeta(region1).compareTo(BigDecimal.valueOf(0.2))); //beta1 == 0.2
+        assertEquals(0, bidder.getBeta(region2).compareTo(BigDecimal.valueOf(0.2))); //beta2 == 0.2
+        assertEquals(0, bidder.getzLow(region1).compareTo(BigDecimal.valueOf(0.3))); //zlow == 0.3
+        assertEquals(0, bidder.getzHigh(region1).compareTo(BigDecimal.valueOf(0.4))); //zHigh == 0.4
     }
 
 
@@ -94,10 +95,9 @@ public class MRVMBidderTest {
 
 
     private void assertEqualsWithDelta(BigDecimal actual, BigDecimal expected) {
-        assertTrue("actual: " + actual.toString() + " expected " + expected.toString(),
-                actual.setScale(5, RoundingMode.HALF_DOWN)
-                        .compareTo(
-                                expected.setScale(5, RoundingMode.HALF_DOWN)) == 0);
+        assertEquals("actual: " + actual.toString() + " expected " + expected.toString(),
+                0,
+                actual.setScale(5, RoundingMode.HALF_DOWN).compareTo(expected.setScale(5, RoundingMode.HALF_DOWN)));
     }
 
 }

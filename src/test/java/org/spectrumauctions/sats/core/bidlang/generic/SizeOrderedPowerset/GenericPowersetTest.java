@@ -6,9 +6,8 @@
 package org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
@@ -24,7 +23,7 @@ public class GenericPowersetTest {
         MultiRegionModel model = new MultiRegionModel();
         MRVMBidder bidder = model.createNewPopulation(89127349).iterator().next();
         try {
-            GenericLang<?, ?> lang = bidder.getValueFunction(GenericPowersetDecreasing.class);
+            BiddingLanguage lang = bidder.getValueFunction(GenericPowersetDecreasing.class);
             Assert.fail();
         } catch (UnsupportedBiddingLanguageException e) {
             //Passed

@@ -6,8 +6,13 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+import edu.harvard.econcs.jopt.solver.IMIP;
+import edu.harvard.econcs.jopt.solver.SolveParam;
+import edu.harvard.econcs.jopt.solver.mip.*;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.NotImplementedException;
+import org.marketdesignresearch.mechlib.domain.Allocation;
 import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.BundleEntry;
 import org.marketdesignresearch.mechlib.domain.price.Prices;
@@ -24,6 +29,7 @@ import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -172,7 +178,7 @@ public abstract class MRVMBidder extends SATSBidder {
             int alreadyThere = (int) licenses.stream().filter(containedLicenses::contains).count();
             int index = 0;
             while (alreadyThere < required && index < def.available()) {
-                if (licenses.contains(containedLicenses.get(index))) {
+                if (!licenses.contains(containedLicenses.get(index))) {
                     licenses.add(containedLicenses.get(index));
                     alreadyThere++;
                 }
@@ -226,7 +232,30 @@ public abstract class MRVMBidder extends SATSBidder {
 
     @Override
     public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
-        throw new NotImplementedException("Not yet implemented"); // TODO
+        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
+
+        double scalingFactor = mip.getBidderPartialMips().get(this).getScalingFactor();
+        Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
+        mip.addVariable(priceVar);
+        mip.addObjectiveTerm(-1, priceVar);
+        Constraint price = new Constraint(CompareType.EQ, 0);
+        price.addTerm(-1, priceVar);
+        for (MRVMGenericDefinition bandInRegion : getWorld().getAllGenericDefinitions()) {
+            Variable xVariable = mip.getWorldPartialMip().getXVariable(this, bandInRegion.getRegion(), bandInRegion.getBand());
+            price.addTerm(prices.getPrice(Bundle.singleGoods(Sets.newHashSet(bandInRegion))).getAmount().doubleValue() / scalingFactor, xVariable);
+        }
+        mip.addConstraint(price);
+
+        List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
+
+        List<Bundle> result = optimalAllocations.stream()
+                .peek(alloc -> Preconditions.checkArgument(
+                        getUtility(alloc.allocationOf(this).getBundle(), prices).equals(alloc.getTotalAllocationValue())
+                ))
+                .map(allocation -> allocation.allocationOf(this).getBundle())
+                .collect(Collectors.toList());
+        if (result.isEmpty()) result.add(Bundle.EMPTY);
+        return result;
     }
 
     /**

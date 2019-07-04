@@ -5,6 +5,7 @@
  */
 package org.spectrumauctions.sats.core.api;
 
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.BidderSpecificGeneric;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
@@ -15,12 +16,12 @@ import org.spectrumauctions.sats.core.bidlang.xor.*;
  * @author Michael Weiss
  *
  */
-public enum BiddingLanguage {
+public enum BiddingLanguageEnum {
 
     SIZE_INCREASING, SIZE_DECREASING, RANDOM, BIDDER_SPECIFIC, CATS_SPECIFIC;
 
     @SuppressWarnings("rawtypes")
-    public static Class<? extends org.spectrumauctions.sats.core.bidlang.BiddingLanguage> getXORLanguage(BiddingLanguage type) throws IllegalConfigException {
+    public static Class<? extends BiddingLanguage> getXORLanguage(BiddingLanguageEnum type) throws IllegalConfigException {
         if (type == SIZE_INCREASING) {
             return IncreasingSizeOrderedXOR.class;
         } else if (type == SIZE_DECREASING) {
@@ -40,7 +41,7 @@ public enum BiddingLanguage {
     }
 
     @SuppressWarnings("rawtypes")
-    public static Class<? extends org.spectrumauctions.sats.core.bidlang.BiddingLanguage> getXORQLanguage(BiddingLanguage type) throws IllegalConfigException {
+    public static Class<? extends BiddingLanguage> getXORQLanguage(BiddingLanguageEnum type) throws IllegalConfigException {
         if (type == SIZE_INCREASING) {
             return GenericPowersetIncreasing.class;
         } else if (type == SIZE_DECREASING) {

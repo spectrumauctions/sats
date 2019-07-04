@@ -1,20 +1,15 @@
 package org.spectrumauctions.sats.opt.model;
 
-import com.google.common.collect.Lists;
 import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.BundleBid;
 import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
 import org.marketdesignresearch.mechlib.winnerdetermination.WinnerDetermination;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Fabio Isler
@@ -45,16 +40,6 @@ public abstract class ModelMIP extends WinnerDetermination {
     }
 
     /**
-     * Defines whether or not the solver output should be displayed.
-     * Default is false.
-     *
-     * @param displayOutput If the output of the solver should be displayed, set this to true.
-     */
-    public void setDisplayOutput(boolean displayOutput) {
-        mip.setSolveParam(SolveParam.DISPLAY_OUTPUT, displayOutput);
-    }
-
-    /**
      * Defines the behaviour in case the solver hits the defined timeout.
      *
      * @param acceptSuboptimal true: accept a suboptimal solution at timeout; false: throw an exception at timeout
@@ -73,21 +58,11 @@ public abstract class ModelMIP extends WinnerDetermination {
         mip.setSolveParam(SolveParam.TIME_LIMIT, timeLimit);
     }
 
+    /**
+     * ModelMIPs have to explicitly set variables of interest
+     */
+    @Override
     protected abstract Collection<Collection<Variable>> getVariablesOfInterest();
 
-    protected int getSolutionPoolMode() {
-        return 4;
-    }
-
-    @Override
-    public List<Allocation> getBestAllocations(int k) {
-        if (k == 1) return Lists.newArrayList(getAllocation());
-        getMIP().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, k);
-        getMIP().setSolveParam(SolveParam.SOLUTION_POOL_MODE, getSolutionPoolMode());
-        getMIP().setAdvancedVariablesOfInterest(getVariablesOfInterest());
-        List<Allocation> allocations = getIntermediateSolutions();
-        getMIP().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 0);
-        return allocations;
-    }
 
 }

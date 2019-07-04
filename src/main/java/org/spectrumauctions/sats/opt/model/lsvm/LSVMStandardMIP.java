@@ -126,6 +126,12 @@ public class LSVMStandardMIP extends ModelMIP {
 		return variableSetsOfInterest;
 	}
 
+	@Override
+	public PoolMode getSolutionPoolMode() {
+		return PoolMode.MODE_3;
+	}
+
+
 	private void buildObjectiveTerm() {
 		for (LSVMBidder bidder : population) {
             for (LSVMLicense license : world.getLicenses()) {

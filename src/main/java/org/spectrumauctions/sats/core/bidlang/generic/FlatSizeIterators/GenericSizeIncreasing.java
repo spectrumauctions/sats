@@ -58,7 +58,9 @@ public abstract class GenericSizeIncreasing extends GenericSizeOrdered {
             // Create set of definition with leftover quantities
             Set<GenericGood> leftOverQuantities = new HashSet<>();
             for (GenericGood good : allGoods) {
-                if (roundSize.get(good) < good.available()) {
+                int a = roundSize.get(good);
+                int b = good.available();
+                if (a < b) {
                     leftOverQuantities.add(good);
                 }
             }

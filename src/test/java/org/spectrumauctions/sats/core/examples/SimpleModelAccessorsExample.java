@@ -3,9 +3,9 @@ package org.spectrumauctions.sats.core.examples;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
-import org.spectrumauctions.sats.core.model.SATSBidder;
+import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.spectrumauctions.sats.core.model.DefaultModel;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
@@ -17,6 +17,7 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -111,10 +112,10 @@ public class SimpleModelAccessorsExample {
         Optional<? extends SATSBidder> anyBidder = bidders.stream().findAny();
         if (anyBidder.isPresent()) {
             World world = anyBidder.get().getWorld();
-            LicenseBundle fullBundle = new LicenseBundle<>(world.getLicenses());
+            Bundle fullBundle = Bundle.singleGoods(world.getLicenses());
             for (SATSBidder bidder : bidders) {
                 BigDecimal val = bidder.calculateValue(fullBundle);
-                logger.info("bidder " + bidder.getLongId() + "has the following value for getting all licenses: " + val.toString());
+                logger.info("bidder " + bidder.getLongId() + "has the following value for getting all licenses: " + val.setScale(2, RoundingMode.HALF_UP));
             }
         } else {
             logger.info("No bidder created");

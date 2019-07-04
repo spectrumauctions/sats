@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * @author Michael Weiss
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public final class BMBidder extends SATSBidder {
 
     private static final Logger logger = LogManager.getLogger(BMBidder.class);

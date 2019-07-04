@@ -15,7 +15,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
  * @author Michael Weiss
  *
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class BMLicense extends License {
 
     private static final long serialVersionUID = -597579273878128574L;

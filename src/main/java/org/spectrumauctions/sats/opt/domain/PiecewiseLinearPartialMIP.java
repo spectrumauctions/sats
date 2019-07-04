@@ -5,7 +5,11 @@
  */
 package org.spectrumauctions.sats.opt.domain;
 
-import edu.harvard.econcs.jopt.solver.mip.*;
+import edu.harvard.econcs.jopt.solver.IMIP;
+import edu.harvard.econcs.jopt.solver.mip.CompareType;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.VarType;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.core.util.math.LinearFunction;
 import org.spectrumauctions.sats.core.util.math.NotDifferentiableException;
@@ -170,7 +174,7 @@ public final class PiecewiseLinearPartialMIP extends PartialMIP {
 
 
     @Override
-    public void appendVariablesToMip(MIP mip) {
+    public void appendVariablesToMip(IMIP mip) {
         for (Variable var : getVariables()) {
             mip.add(var);
         }
@@ -186,7 +190,7 @@ public final class PiecewiseLinearPartialMIP extends PartialMIP {
     }
 
     @Override
-    public void appendConstraintsToMip(MIP mip) {
+    public void appendConstraintsToMip(IMIP mip) {
         super.appendConstraintsToMip(mip);
         for (Constraint constraint : constrainAuxiliaryVariables()) {
             mip.add(constraint);
