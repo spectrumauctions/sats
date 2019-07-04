@@ -52,7 +52,9 @@ public abstract class GenericPowerset implements BiddingLanguage {
             Map<GenericGood, Integer> quantities = pickN.next();
             HashSet<BundleEntry> bundleEntries = new HashSet<>();
             for (Entry<GenericGood, Integer> entry : quantities.entrySet()) {
-                bundleEntries.add(new BundleEntry(entry.getKey(), entry.getValue()));
+                if (entry.getValue() > 0) {
+                    bundleEntries.add(new BundleEntry(entry.getKey(), entry.getValue()));
+                }
             }
             Bundle bundle = new Bundle(bundleEntries);
             return new BundleValue(getBidder().calculateValue(bundle), bundle);

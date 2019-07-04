@@ -101,7 +101,9 @@ public abstract class GenericSizeIncreasing extends GenericSizeOrdered {
                 if (toAdd.contains(good)) {
                     quantity++;
                 }
-                bundleEntries.add(new BundleEntry(good, quantity));
+                if (quantity > 0) {
+                    bundleEntries.add(new BundleEntry(good, quantity));
+                }
             }
             if (!definitionPowersetIterator.hasNext()) {
                 initNextRound();

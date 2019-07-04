@@ -95,7 +95,7 @@ public class CATSBidderTest {
             expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();
         }
 
-        Assert.assertEquals(value.floatValue(), expectedValue, 0.1);
+        Assert.assertEquals(value.floatValue(), expectedValue, 1);
     }
 
     // ------- Helpers ------- //

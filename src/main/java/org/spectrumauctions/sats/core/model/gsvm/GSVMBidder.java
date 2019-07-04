@@ -7,6 +7,7 @@ import edu.harvard.econcs.jopt.solver.mip.*;
 import org.marketdesignresearch.mechlib.domain.Allocation;
 import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.domain.Good;
 import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
@@ -45,8 +46,8 @@ public final class GSVMBidder extends SATSBidder {
     @Override
     public BigDecimal calculateValue(Bundle bundle) {
         double value = 0;
-        for (BundleEntry bundleEntry : bundle.getBundleEntries()) {
-            GSVMLicense license = (GSVMLicense) bundleEntry.getGood();
+        for (Good good : bundle.getSingleAvailabilityGoods()) {
+            GSVMLicense license = (GSVMLicense) good;
             if (this.values.containsKey(license.getLongId())) {
                 value += this.values.get(license.getLongId()).doubleValue();
             }

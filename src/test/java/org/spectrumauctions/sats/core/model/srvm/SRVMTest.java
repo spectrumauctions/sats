@@ -22,7 +22,7 @@ public class SRVMTest {
     //TODO RealTesting
 
     @Test
-    public void testNoRunimeException() throws UnsupportedBiddingLanguageException {
+    public void testNoRuntimeException() throws UnsupportedBiddingLanguageException {
         SingleRegionModel model = new SingleRegionModel();
         SRVMBidder bidder = model.createNewPopulation(238472).iterator().next();
         BiddingLanguage lang = bidder.getValueFunction(GenericSizeDecreasing.class);

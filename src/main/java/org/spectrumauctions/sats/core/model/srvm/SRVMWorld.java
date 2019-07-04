@@ -23,14 +23,14 @@ import java.util.*;
 public final class SRVMWorld extends World implements GenericWorld {
 
     private static final long serialVersionUID = 1766287015715986936L;
-    private final ImmutableList<SRVMBand> bands;
+    private final List<SRVMBand> bands;
 
     private transient Integer numberOfGoods = null;
-    private transient ImmutableList<SRVMLicense> licenses = null;
+    private transient List<SRVMLicense> licenses = null;
 
     public SRVMWorld(SRVMWorldSetup setup, RNGSupplier rngSupplier) {
         super("Single-Region Value Model");
-        this.bands = ImmutableList.copyOf(SRVMBand.createBands(this, setup, rngSupplier));
+        this.bands = Lists.newArrayList(SRVMBand.createBands(this, setup, rngSupplier));
         store();
     }
 
@@ -55,7 +55,7 @@ public final class SRVMWorld extends World implements GenericWorld {
      * @return An immutable set containing all licenses.
      */
     @Override
-    public List<SRVMLicense> getLicenses() {
+    public ImmutableList<SRVMLicense> getLicenses() {
         if (licenses == null) {
             ImmutableList.Builder<SRVMLicense> builder = ImmutableList.builder();
             for (SRVMBand band : bands) {
@@ -63,14 +63,14 @@ public final class SRVMWorld extends World implements GenericWorld {
             }
             this.licenses = builder.build();
         }
-        return licenses;
+        return ImmutableList.copyOf(licenses);
     }
 
-    public List<SRVMBand> getBands() {
+    public ImmutableList<SRVMBand> getBands() {
         return ImmutableList.copyOf(bands);
     }
 
-    public List<SRVMBidder> createPopulation(Collection<SRVMBidderSetup> bidderSetups, RNGSupplier rngSupplier) {
+    public ImmutableList<SRVMBidder> createPopulation(Collection<SRVMBidderSetup> bidderSetups, RNGSupplier rngSupplier) {
         long population = openNewPopulation();
         long currentId = 0;
         List<SRVMBidder> bidders = new ArrayList<>();
@@ -79,7 +79,7 @@ public final class SRVMWorld extends World implements GenericWorld {
                 bidders.add(new SRVMBidder(setup, this, currentId++, population, rngSupplier));
             }
         }
-        return bidders;
+        return ImmutableList.copyOf(bidders);
     }
 
 

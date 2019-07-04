@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 public final class SRVMBand extends GenericGood {
 
     private static final long serialVersionUID = 8297467604786037769L;
-    private final ImmutableList<SRVMLicense> licenses;
+    private final List<SRVMLicense> licenses;
 
     private transient SRVMWorld world;
 
@@ -57,8 +57,8 @@ public final class SRVMBand extends GenericGood {
     }
 
 
-    public List<SRVMLicense> getLicenses() {
-        return Collections.unmodifiableList(licenses);
+    public ImmutableList<SRVMLicense> getLicenses() {
+        return ImmutableList.copyOf(licenses);
     }
 
     /**

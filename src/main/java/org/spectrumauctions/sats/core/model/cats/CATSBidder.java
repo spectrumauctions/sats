@@ -63,7 +63,7 @@ public final class CATSBidder extends SATSBidder {
         if (!getWorld().getUseQuadraticPricingOption()) {
             value += Math.pow(bundle.getSingleAvailabilityGoods().size(), 1 + world.getAdditivity());
         }
-        return new BigDecimal(value);
+        return BigDecimal.valueOf(value);
     }
 
 

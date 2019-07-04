@@ -29,7 +29,7 @@ public abstract class SATSBidder implements Bidder, Serializable {
     @EqualsAndHashCode.Include
     private final long id;
     private final long worldId;
-    private final BidderSetup setup;
+    private transient final BidderSetup setup;
 
     protected SATSBidder(BidderSetup setup, long population, long id, long worldId) {
         this.uuid = UUID.randomUUID();

@@ -115,6 +115,7 @@ public class GSVMBidderTest {
         Assert.assertEquals(world.getNationalCircle().getLicenses().length, 8 * 2);
         Assert.assertEquals(world.getRegionalCircle().getLicenses().length, 8);
 
+        Bundle complete = Bundle.singleGoods(world.getLicenses());
         List<GSVMBidder> customPopulation = customPopulation(world, 3, 1);
         Assert.assertEquals(customPopulation.size(), 4);
 
@@ -127,23 +128,23 @@ public class GSVMBidderTest {
         // Assert that national bidder has zero value for the whole regional bundle
         Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
 
-        float factor = (completeBundle.getSingleAvailabilityGoods().size() - 1) * 0.2f;
+        float factor = (complete.getSingleAvailabilityGoods().size() - 1) * 0.2f;
 
         // Check if national bidder has expected value
         float expectedValue = 12 * 16 + 4 * 26 + (12 * 16 + 4 * 26) * factor;
-        Assert.assertEquals(customPopulation.get(3).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(3).calculateValue(complete).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in low region has expected value
         expectedValue = 4 * 25 + 2 * 15 + (4 * 25 + 2 * 15) * factor;
-        Assert.assertEquals(customPopulation.get(0).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(0).calculateValue(complete).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in high region has expected value
         expectedValue = 4 * 35 + 2 * 15 + (4 * 35 + 2 * 15) * factor;
-        Assert.assertEquals(customPopulation.get(2).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(2).calculateValue(complete).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in mixed region has expected value
         expectedValue = 2 * 25 + 2 * 35 + 2 * 15 + (2 * 25 + 2 * 35 + 2 * 15) * factor;
-        Assert.assertEquals(customPopulation.get(1).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(1).calculateValue(complete).floatValue(), expectedValue, 0.001f);
     }
 
     /**
