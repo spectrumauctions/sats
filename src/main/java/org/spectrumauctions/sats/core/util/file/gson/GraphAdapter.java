@@ -6,9 +6,9 @@
 package org.spectrumauctions.sats.core.util.file.gson;
 
 import com.google.gson.*;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.UnmodifiableUndirectedGraph;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
 
 import java.lang.reflect.Type;
@@ -18,13 +18,13 @@ import java.util.*;
  * @author Michael Weiss
  *
  */
-public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndirectedGraph<MRVMRegionsMap.Region, DefaultEdge>>, JsonDeserializer<UnmodifiableUndirectedGraph<MRVMRegionsMap.Region, DefaultEdge>> {
+public class GraphAdapter implements JsonSerializer<Graph<MRVMRegionsMap.Region, DefaultEdge>>, JsonDeserializer<Graph<MRVMRegionsMap.Region, DefaultEdge>> {
 
     /* (non-Javadoc)
      * @see com.google.gson.JsonSerializer#serialize(java.lang.Object, java.lang.reflect.Type, com.google.gson.JsonSerializationContext)
      */
     @Override
-    public JsonElement serialize(UnmodifiableUndirectedGraph<MRVMRegionsMap.Region, DefaultEdge> src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(Graph<MRVMRegionsMap.Region, DefaultEdge> src, Type typeOfSrc, JsonSerializationContext context) {
         JsonArray result = new JsonArray();
         for (MRVMRegionsMap.Region region : src.vertexSet()) {
             SerializedRegion r = new SerializedRegion(region);
@@ -43,7 +43,7 @@ public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndire
      * @see com.google.gson.JsonDeserializer#deserialize(com.google.gson.JsonElement, java.lang.reflect.Type, com.google.gson.JsonDeserializationContext)
      */
     @Override
-    public UnmodifiableUndirectedGraph<MRVMRegionsMap.Region, DefaultEdge> deserialize(JsonElement json, Type typeOfT,
+    public Graph<MRVMRegionsMap.Region, DefaultEdge> deserialize(JsonElement json, Type typeOfT,
                                                                                        JsonDeserializationContext context) throws JsonParseException {
 
         JsonArray jsonArray = json.getAsJsonArray();
@@ -65,7 +65,7 @@ public class UndirectedGraphAdapter implements JsonSerializer<UnmodifiableUndire
             }
         }
 
-        return new UnmodifiableUndirectedGraph<>(graph);
+        return graph;
     }
 
     public static class SerializedRegion {

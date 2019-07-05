@@ -7,9 +7,10 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.VertexFactory;
-import org.jgrapht.generate.RandomGraphGenerator;
+import org.apache.commons.lang3.NotImplementedException;
+import org.jgrapht.Graph;
+import org.jgrapht.generate.GraphGenerator;
+import org.jgrapht.generate.RandomRegularGraphGenerator;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * @author Michael Weiss
@@ -37,7 +39,7 @@ public final class MRVMWorldSetup {
     private final double populationPerRegionMean;
     private final double populationStandardDeviation;
     private final boolean usePredefinedGraph;
-    private final UndirectedGraph<RegionSetup, DefaultEdge> predefinedGraph;
+    private final Graph<RegionSetup, DefaultEdge> predefinedGraph;
     private int randomRegionCount = 0;
 
 
@@ -56,16 +58,17 @@ public final class MRVMWorldSetup {
         return ImmutableSet.copyOf(bandSetups.values());
     }
 
-    public UndirectedGraph<RegionSetup, DefaultEdge> drawGraphStructure(UniformDistributionRNG rng) {
+    public Graph<RegionSetup, DefaultEdge> drawGraphStructure(UniformDistributionRNG rng) {
         if (usePredefinedGraph) {
             return predefinedGraph;
         } else {
-            return nonPlanarRandomGraphStructure(
-                    populationPerRegionMean,
-                    populationStandardDeviation,
-                    rng,
-                    numberOfRegionsInterval,
-                    averageAdjacenciesPerRegionInterval);
+            throw new NotImplementedException("Creating a random graph in MRVM needs to be reworked due to JGrapht-API-changes.");
+            // return nonPlanarRandomGraphStructure(
+            //         populationPerRegionMean,
+            //         populationStandardDeviation,
+            //         rng,
+            //         numberOfRegionsInterval,
+            //         averageAdjacenciesPerRegionInterval);
         }
     }
 
@@ -162,7 +165,7 @@ public final class MRVMWorldSetup {
         public static final String HIGH_PAIRED_NAME = "HIGH_PAIRED";
         public static final String UNPAIRED_NAME = "UNPAIRED";
 
-        public UndirectedGraph<RegionSetup, DefaultEdge> predefinedGraph;
+        public Graph<RegionSetup, DefaultEdge> predefinedGraph;
         public boolean usePredefinedGraph;
         private double populationStandardDeviation;
         private double populationPerRegionMean;
@@ -211,7 +214,7 @@ public final class MRVMWorldSetup {
             this.numberOfRegionsInterval = numberOfRegions;
         }
 
-        public void createPredefinedGraph(UndirectedGraph<RegionSetup, DefaultEdge> predefinedGraph) {
+        public void createPredefinedGraph(Graph<RegionSetup, DefaultEdge> predefinedGraph) {
             this.predefinedGraph = predefinedGraph;
             usePredefinedGraph = true;
         }
@@ -273,27 +276,27 @@ public final class MRVMWorldSetup {
     }
 
 
-    /**
-     * Creates a naive, random, not necessarily planar graph
-     */
-    @Deprecated
-    public UndirectedGraph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(
-            final double populationPerRegionMean,
-            final double populationStandardDeviation,
-            UniformDistributionRNG rng,
-            IntegerInterval numberOfRegionsInterval,
-            IntegerInterval averageAdjacenciesPerRegionInterval
-    ) {
-        int numberOfRegions = rng.nextInt(numberOfRegionsInterval);
-        int numberOfAdjacencies = rng.nextInt(averageAdjacenciesPerRegionInterval) * numberOfRegions;
-        RandomGraphGenerator<RegionSetup, DefaultEdge> randomGraphGenerator = new RandomGraphGenerator<>(
-                numberOfRegions, numberOfAdjacencies, rng.nextLong());
-        SimpleGraph<RegionSetup, DefaultEdge> targetGraph = new SimpleGraph<>(DefaultEdge.class);
-        VertexFactory<RegionSetup> vertexFactory = () ->
-                new RegionSetup(populationPerRegionMean, populationStandardDeviation, randomRegionCount++ + ": randomly created");
-        randomGraphGenerator.generateGraph(targetGraph, vertexFactory, null);
-        return targetGraph;
-    }
+//    /**
+//     * Creates a naive, random, not necessarily planar graph
+//     */
+//    @Deprecated
+//    public Graph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(
+//            final double populationPerRegionMean,
+//            final double populationStandardDeviation,
+//            UniformDistributionRNG rng,
+//            IntegerInterval numberOfRegionsInterval,
+//            IntegerInterval averageAdjacenciesPerRegionInterval
+//    ) {
+//        int numberOfRegions = rng.nextInt(numberOfRegionsInterval);
+//        int numberOfAdjacencies = rng.nextInt(averageAdjacenciesPerRegionInterval) * numberOfRegions;
+//        GraphGenerator<RegionSetup, DefaultEdge> randomGraphGenerator = new RandomRegularGraphGenerator<>(
+//                numberOfRegions, numberOfAdjacencies, rng.nextLong());
+//        SimpleGraph<RegionSetup, DefaultEdge> targetGraph = new SimpleGraph<>(DefaultEdge.class);
+//        Supplier<RegionSetup> vertexFactory = () ->
+//                new RegionSetup(populationPerRegionMean, populationStandardDeviation, randomRegionCount++ + ": randomly created");
+//        randomGraphGenerator.generateGraph(targetGraph, vertexFactory, null);
+//        return targetGraph;
+//    }
 
 
 }

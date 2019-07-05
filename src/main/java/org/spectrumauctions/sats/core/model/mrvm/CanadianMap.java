@@ -5,10 +5,10 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import org.jgrapht.UndirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.builder.UndirectedGraphBuilder;
+import org.jgrapht.graph.builder.GraphBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,11 +51,11 @@ public class CanadianMap {
         regions.put(14, new MRVMWorldSetup.RegionSetup(104625, 0, "Yukon, Northwest Territories and Nunavut"));
     }
 
-    public UndirectedGraph<MRVMWorldSetup.RegionSetup, DefaultEdge> createCanadianMapGraph() {
+    public Graph<MRVMWorldSetup.RegionSetup, DefaultEdge> createCanadianMapGraph() {
 
-        UndirectedGraph<MRVMWorldSetup.RegionSetup, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
+        Graph<MRVMWorldSetup.RegionSetup, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
 
-        UndirectedGraphBuilder<MRVMWorldSetup.RegionSetup, DefaultEdge, UndirectedGraph<MRVMWorldSetup.RegionSetup, DefaultEdge>> builder = new UndirectedGraphBuilder<>(graph);
+        GraphBuilder<MRVMWorldSetup.RegionSetup, DefaultEdge, Graph<MRVMWorldSetup.RegionSetup, DefaultEdge>> builder = new GraphBuilder<>(graph);
         for (MRVMWorldSetup.RegionSetup r : regions.values()) {
             builder.addVertex(r);
         }
@@ -83,7 +83,7 @@ public class CanadianMap {
         return builder.build();
     }
 
-    private void addAdjacency(UndirectedGraphBuilder<MRVMWorldSetup.RegionSetup, DefaultEdge, UndirectedGraph<MRVMWorldSetup.RegionSetup, DefaultEdge>> builder, int r1, int r2) {
+    private void addAdjacency(GraphBuilder<MRVMWorldSetup.RegionSetup, DefaultEdge, Graph<MRVMWorldSetup.RegionSetup, DefaultEdge>> builder, int r1, int r2) {
         builder.addEdge(regions.get(r1), regions.get(r2));
     }
 

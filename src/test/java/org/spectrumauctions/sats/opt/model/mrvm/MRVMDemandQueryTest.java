@@ -66,13 +66,14 @@ public class MRVMDemandQueryTest {
         List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
         MRVMBidder bidder = bidders.get(bidders.size() - 1);
         MRVMWorld world = bidders.iterator().next().getWorld();
-        Map<Good, Price> prices = new HashMap<>();
-        world.getAllGenericDefinitions().forEach(def -> prices.put(def, Price.of(1000000)));
+        Map<Good, Price> priceMap = new HashMap<>();
+        world.getAllGenericDefinitions().forEach(def -> priceMap.put(def, Price.of(1000000)));
+        Prices prices = new LinearPrices(priceMap);
 
-        List<Bundle> resultSet = bidder.getBestBundles(new LinearPrices(prices), 100);
+        List<Bundle> resultSet = bidder.getBestBundles(prices, 10);
         double firstValue = bidder.getValue(resultSet.get(0)).doubleValue();
         for (Bundle result : resultSet) {
-            double value = bidder.getValue(result).doubleValue();
+            double value = bidder.getUtility(result, prices).doubleValue();
             Assert.assertTrue(value > 0);
             Assert.assertTrue(value <= firstValue);
             Assert.assertTrue(value > firstValue / 2);
@@ -158,7 +159,6 @@ public class MRVMDemandQueryTest {
         MRVMNationalBidderSetup.Builder nationalBuilder = new MRVMNationalBidderSetup.Builder();
         nationalBuilder.setNumberOfBidders(1);
         nationalBidderSetups.add(nationalBuilder.build());
-
 
         MRVMWorld world = new MultiRegionModel().createWorld(new JavaUtilRNGSupplier(74563245));
         MRVMBidder bidder = world.createPopulation(new HashSet<>(), new HashSet<>(), nationalBidderSetups,  new JavaUtilRNGSupplier(654798)).iterator().next();

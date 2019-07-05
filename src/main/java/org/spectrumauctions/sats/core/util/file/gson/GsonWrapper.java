@@ -6,7 +6,7 @@
 package org.spectrumauctions.sats.core.util.file.gson;
 
 import com.google.gson.*;
-import org.jgrapht.graph.UnmodifiableUndirectedGraph;
+import org.jgrapht.Graph;
 import org.spectrumauctions.sats.core.util.file.FileException;
 
 /**
@@ -23,7 +23,7 @@ public class GsonWrapper {
 
     private GsonWrapper() {
         GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(UnmodifiableUndirectedGraph.class, new UndirectedGraphAdapter());
+        builder.registerTypeAdapter(Graph.class, new GraphAdapter());
         builder.disableHtmlEscaping();
         if (PRETTY_JSON) {
             builder.setPrettyPrinting();

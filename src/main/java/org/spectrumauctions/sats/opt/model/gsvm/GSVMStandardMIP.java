@@ -95,7 +95,7 @@ public class GSVMStandardMIP extends ModelMIP {
 		metaInfo.setNumberOfMIPs(1);
 		metaInfo.setMipSolveTime(solution.getSolveTime());
 
-		return new Allocation(BigDecimal.valueOf(solution.getObjectiveValue()), allocationMap, new Bids(), metaInfo);
+		return new Allocation(allocationMap, new Bids(), metaInfo);
 	}
 
 	public Map<Integer, Variable> getXVariables(GSVMBidder bidder, GSVMLicense license) {

@@ -73,7 +73,7 @@ public class CustomizedExamples {
         );
 
         // Create the world configured by the world setup
-        MRVMWorld world = new MRVMWorld(worldSetupBuilder.build(), new JavaUtilRNGSupplier());
+        MRVMWorld world = new MRVMWorld(worldSetupBuilder.build(), new JavaUtilRNGSupplier(123456789L));
 
         // Add standard bidders
         Collection<MRVMBidder> bidders = world.createPopulation(

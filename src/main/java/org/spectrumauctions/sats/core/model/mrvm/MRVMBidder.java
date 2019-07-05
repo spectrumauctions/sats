@@ -249,9 +249,6 @@ public abstract class MRVMBidder extends SATSBidder {
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
         List<Bundle> result = optimalAllocations.stream()
-                .peek(alloc -> Preconditions.checkArgument(
-                        getUtility(alloc.allocationOf(this).getBundle(), prices).equals(alloc.getTotalAllocationValue())
-                ))
                 .map(allocation -> allocation.allocationOf(this).getBundle())
                 .collect(Collectors.toList());
         if (result.isEmpty()) result.add(Bundle.EMPTY);

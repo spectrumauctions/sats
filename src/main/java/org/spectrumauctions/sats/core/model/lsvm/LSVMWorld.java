@@ -1,8 +1,6 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
