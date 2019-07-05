@@ -86,7 +86,9 @@ public class GSVMStandardMIP extends ModelMIP {
                 }
             }
             Bundle bundle = Bundle.singleGoods(licenseSet);
-            allocationMap.put(bidder, new BidderAllocation(bidder.calculateValue(bundle), bundle, new HashSet<>()));
+            if (!Bundle.EMPTY.equals(bundle)) {
+				allocationMap.put(bidder, new BidderAllocation(bidder.calculateValue(bundle), bundle, new HashSet<>()));
+			}
         }
 
 		MetaInfo metaInfo = new MetaInfo();

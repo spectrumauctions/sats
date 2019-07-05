@@ -7,6 +7,7 @@ package org.spectrumauctions.sats.opt.model.srvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import com.google.common.math.DoubleMath;
 import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
@@ -149,7 +150,13 @@ public class SRVM_MIP extends ModelMIP {
 
             Bundle bundle = new Bundle(bundleEntries);
             BigDecimal value = bidder.getValue(bundle);
-            Preconditions.checkState(unscaledValue > value.doubleValue() - 1e-3 && unscaledValue < value.doubleValue() + 1e-3, "Value did not match value from MIP");
+            if (!DoubleMath.fuzzyEquals(unscaledValue, value.doubleValue(), 1.0)) {
+                logger.warn("MIP value of bidder {}: {}; Actual value: {}. With very high numbers, a " +
+                                "deviation can happen. Make sure this is just a relatively small deviation, else check your MIP.",
+                        bidder.getName(),
+                        BigDecimal.valueOf(unscaledValue).setScale(4, RoundingMode.HALF_UP),
+                        value.setScale(4, RoundingMode.HALF_UP));
+            }
             if (!bundle.equals(Bundle.EMPTY)) {
                 bidderAllocationMap.put(bidder, new BidderAllocation(value, bundle, new HashSet<>()));
             }

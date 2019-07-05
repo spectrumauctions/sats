@@ -7,10 +7,12 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import com.google.common.math.DoubleMath;
 import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
+import edu.harvard.econcs.jopt.solver.mip.MIPResult;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,21 +28,18 @@ import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Michael Weiss
- *
  */
 public class MRVM_MIP extends ModelMIP {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
-    private static final double DEFAULT_EPSILON = 0.00001;
 
     public static boolean PRINT_SOLVER_RESULT = false;
-
-    private static SolverClient SOLVER = new SolverClient();
 
     /**
      * If the highest possible value any bidder can have is higher than {@link MIP#MAX_VALUE} - MAXVAL_SAFETYGAP}
@@ -50,7 +49,6 @@ public class MRVM_MIP extends ModelMIP {
     private Map<MRVMBidder, MRVMBidderPartialMIP> bidderPartialMips;
     private MRVMWorld world;
     private Collection<MRVMBidder> bidders;
-    private double epsilon = DEFAULT_EPSILON;
     private double scalingFactor;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
@@ -81,7 +79,6 @@ public class MRVM_MIP extends ModelMIP {
             bidderPartialMips.put(bidder, bidderPartialMIP);
         }
     }
-
 
 
     public void addConstraint(Constraint constraint) {
@@ -135,9 +132,15 @@ public class MRVM_MIP extends ModelMIP {
             }
             Bundle bundle = new Bundle(bundleEntries);
             BigDecimal value = bidder.getKey().getValue(bundle);
-            //Preconditions.checkState(unscaledValue > value.doubleValue() - 1e-3 && unscaledValue < value.doubleValue() + 1e-3, "Value did not match value from MIP");
+            if (!DoubleMath.fuzzyEquals(unscaledValue, value.doubleValue(), 1.0)) {
+                logger.warn("MIP value of bidder {}: {}; Actual value: {}. With very high numbers, a " +
+                                "deviation can happen. Make sure this is just a relatively small deviation, else check your MIP.",
+                        bidder.getKey().getName(),
+                        BigDecimal.valueOf(unscaledValue).setScale(4, RoundingMode.HALF_UP),
+                        value.setScale(4, RoundingMode.HALF_UP));
+            }
 
-            if (!bundle.equals(Bundle.EMPTY)) {
+            if (!Bundle.EMPTY.equals(bundle)) {
                 bidderAllocationMap.put(bidder.getKey(), new BidderAllocation(value, bundle, new HashSet<>()));
             }
         }
@@ -169,10 +172,6 @@ public class MRVM_MIP extends ModelMIP {
 
     public Map<MRVMBidder, MRVMBidderPartialMIP> getBidderPartialMips() {
         return bidderPartialMips;
-    }
-
-    public void setEpsilon(double epsilon) {
-        this.epsilon = epsilon;
     }
 
     public Collection<Variable> getXVariables() {

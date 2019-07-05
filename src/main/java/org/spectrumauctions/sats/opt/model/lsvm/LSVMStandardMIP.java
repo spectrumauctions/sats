@@ -8,6 +8,7 @@ import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
+import lombok.EqualsAndHashCode;
 import org.marketdesignresearch.mechlib.domain.Allocation;
 import org.marketdesignresearch.mechlib.domain.BidderAllocation;
 import org.marketdesignresearch.mechlib.domain.Bundle;
@@ -93,7 +94,9 @@ public class LSVMStandardMIP extends ModelMIP {
                 }
             }
 			Bundle bundle = Bundle.singleGoods(licenseSet);
-			allocationMap.put(bidder, new BidderAllocation(bidder.calculateValue(bundle), bundle, new HashSet<>()));
+            if (!Bundle.EMPTY.equals(bundle)) {
+				allocationMap.put(bidder, new BidderAllocation(bidder.calculateValue(bundle), bundle, new HashSet<>()));
+			}
 		}
 
 		MetaInfo metaInfo = new MetaInfo();
@@ -359,6 +362,7 @@ public class LSVMStandardMIP extends ModelMIP {
 		throw new IllegalStateException("Error: fInv edge not found");
 	}
 
+	@EqualsAndHashCode
 	public class Edge {
 		LSVMLicense l1;
 		LSVMLicense l2;
@@ -376,20 +380,6 @@ public class LSVMStandardMIP extends ModelMIP {
         @Override
         public String toString() {
             return "Edge(" + (int) l1.getLongId() + "," + (int) l2.getLongId() + ")";
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Edge edge = (Edge) o;
-            return Objects.equals(l1, edge.l1) &&
-                    Objects.equals(l2, edge.l2);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(l1, l2);
         }
     }
 

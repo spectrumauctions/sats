@@ -52,12 +52,4 @@ public class ModelMIPTest {
             }
         }
     }
-
-    @Test
-    public void setDisplayOutput() {
-        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation(5413646L));
-        Assert.assertFalse(mip.getMIP().getBooleanSolveParam(SolveParam.DISPLAY_OUTPUT));
-        mip.setDisplayOutput(true);
-        Assert.assertTrue(mip.getMIP().getBooleanSolveParam(SolveParam.DISPLAY_OUTPUT));
-    }
 }

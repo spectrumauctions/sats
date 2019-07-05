@@ -6,6 +6,7 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
@@ -284,7 +285,8 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
     }
 
 
-    public void appendVariablesToMip(MIP mip) {
+    @Override
+    public void appendVariablesToMip(IMIP mip) {
         super.appendVariablesToMip(mip);
         for (Variable var : psiVariables.values()) {
             mip.add(var);
@@ -298,7 +300,8 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
         mip.add(wIVariable);
     }
 
-    public void appendConstraintsToMip(MIP mip) {
+    @Override
+    public void appendConstraintsToMip(IMIP mip) {
         super.appendConstraintsToMip(mip);
         mip.add(valueConstraint());
         for (Constraint constraint : constrainWIR()) {

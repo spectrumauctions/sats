@@ -164,7 +164,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
             Variable svInput = getCVariable(region);
             Variable svOutput = getSVVariable(region);
             ContinuousPiecewiseLinearFunction sv = bidder.svFunction(region);
-            String helperVariablesPrefix = "sv_function" + "_helpervar" + createIndex(bidder, region) + "_";
+            String helperVariablesPrefix = "sv_function_helpervar" + createIndex(bidder, region) + "_";
 
             PiecewiseLinearPartialMIP piecewiseLinearPartialMIP = new PiecewiseLinearPartialMIP(
                     sv,

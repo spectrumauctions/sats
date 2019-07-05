@@ -83,10 +83,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
     private Map<MRVMBidder, Variable> initValueVariables() {
         Map<MRVMBidder, Variable> result = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
-            String varName = new StringBuilder(valueVariablePrefix)
-                    .append("_")
-                    .append(bidder.getLongId())
-                    .toString();
+            String varName = valueVariablePrefix + "_" + bidder.getLongId();
             Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
             result.put(bidder, var);
         }
