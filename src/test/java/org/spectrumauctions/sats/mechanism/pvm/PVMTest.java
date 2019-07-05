@@ -4,8 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.auction.cca.CCAuction;
-import org.marketdesignresearch.mechlib.auction.cca.bidcollection.supplementaryround.ProfitMaximizingSupplementaryRound;
 import org.marketdesignresearch.mechlib.auction.pvm.PVMAuction;
 import org.marketdesignresearch.mechlib.domain.Allocation;
 import org.marketdesignresearch.mechlib.domain.Domain;
@@ -16,7 +14,7 @@ import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import org.spectrumauctions.sats.mechanism.domains.GSVMDomain;
 import org.spectrumauctions.sats.mechanism.domains.LSVMDomain;
-import org.spectrumauctions.sats.mechanism.domains.MRVMGenericDomain;
+import org.spectrumauctions.sats.mechanism.domains.MRVMDomain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -39,7 +37,7 @@ public class PVMTest {
 
     @Test
     public void testMRVM() {
-        Domain domain = new MRVMGenericDomain(new MultiRegionModel().createNewPopulation());
+        Domain domain = new MRVMDomain(new MultiRegionModel().createNewPopulation());
         testPVM(domain);
     }
 

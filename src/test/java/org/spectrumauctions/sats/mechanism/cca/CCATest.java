@@ -15,7 +15,7 @@ import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import org.spectrumauctions.sats.mechanism.domains.GSVMDomain;
 import org.spectrumauctions.sats.mechanism.domains.LSVMDomain;
-import org.spectrumauctions.sats.mechanism.domains.MRVMGenericDomain;
+import org.spectrumauctions.sats.mechanism.domains.MRVMDomain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,7 +38,7 @@ public class CCATest {
 
     @Test
     public void testMRVM() {
-        Domain domain = new MRVMGenericDomain(new MultiRegionModel().createNewPopulation());
+        Domain domain = new MRVMDomain(new MultiRegionModel().createNewPopulation());
         testCCA(domain);
     }
 

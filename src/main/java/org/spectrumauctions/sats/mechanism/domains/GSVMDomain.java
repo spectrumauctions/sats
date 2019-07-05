@@ -1,36 +1,21 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
-import lombok.Getter;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Domain;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
+import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class GSVMDomain implements Domain {
-
-    @Getter
-    private List<GSVMBidder> bidders;
-
-    @Getter
-    private List<GSVMLicense> goods;
-
-    private transient Allocation efficientAllocation;
-
+public class GSVMDomain extends ModelDomain {
 
     public GSVMDomain(List<GSVMBidder> bidders) {
-        this.bidders = bidders;
-        this.goods = bidders.iterator().next().getWorld().getLicenses();
+        super(bidders);
     }
 
     @Override
-    public Allocation getEfficientAllocation() {
-        if (efficientAllocation == null) {
-            efficientAllocation = new GSVMStandardMIP(bidders).getAllocation();
-        }
-        return efficientAllocation;
+    protected ModelMIP getMIP() {
+        List<GSVMBidder> bidders = getBidders().stream().map(b -> (GSVMBidder) b).collect(Collectors.toList());
+        return new GSVMStandardMIP(bidders);
     }
-
 }

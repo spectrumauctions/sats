@@ -6,6 +6,7 @@
 package org.spectrumauctions.sats.core.model;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
@@ -51,6 +52,18 @@ public abstract class SATSBidder implements Bidder, Serializable {
 
     @Override
     public String getName() {
+        return String.valueOf(id);
+    }
+
+    @Override
+    public String toString() {
+        return "SATSBidder{" +
+                getDescription() +
+                '}';
+    }
+
+    @Override
+    public String getDescription() {
         return id + " (" + setupType + ")";
     }
 
