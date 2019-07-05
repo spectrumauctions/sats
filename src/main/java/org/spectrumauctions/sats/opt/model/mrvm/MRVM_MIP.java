@@ -135,7 +135,7 @@ public class MRVM_MIP extends ModelMIP {
             }
             Bundle bundle = new Bundle(bundleEntries);
             BigDecimal value = bidder.getKey().getValue(bundle);
-            Preconditions.checkState(unscaledValue > value.doubleValue() - 1e-3 && unscaledValue < value.doubleValue() + 1e-3, "Value did not match value from MIP");
+            //Preconditions.checkState(unscaledValue > value.doubleValue() - 1e-3 && unscaledValue < value.doubleValue() + 1e-3, "Value did not match value from MIP");
 
             if (!bundle.equals(Bundle.EMPTY)) {
                 bidderAllocationMap.put(bidder.getKey(), new BidderAllocation(value, bundle, new HashSet<>()));

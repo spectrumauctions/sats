@@ -93,7 +93,7 @@ public class SRVM_MIP extends ModelMIP {
     public static BigDecimal biggestUnscaledPossibleValue(Collection<SRVMBidder> bidders) {
         BigDecimal biggestValue = BigDecimal.ZERO;
         for (SRVMBidder bidder : bidders) {
-            BigDecimal val = bidder.calculateValue(Bundle.singleGoods(Sets.newHashSet(bidder.getWorld().getLicenses())));
+            BigDecimal val = bidder.calculateValue(Bundle.singleGoods(bidder.getWorld().getLicenses()));
             if (val.compareTo(biggestValue) > 0) {
                 biggestValue = val;
             }
@@ -134,7 +134,7 @@ public class SRVM_MIP extends ModelMIP {
                 Variable bidderVoVar = worldPartialMip.getVoVariable(bidder, band);
                 double mipVoUtilityResult = solution.getValue(bidderVoVar);
                 double value = bidder.getInterbandSynergyValue().floatValue() * mipVmUtilityResult + mipVoUtilityResult;
-                unscaledValue = value * worldPartialMip.getScalingFactor();
+                unscaledValue += value * worldPartialMip.getScalingFactor();
             }
 
             Set<BundleEntry> bundleEntries = new HashSet<>();
@@ -142,7 +142,9 @@ public class SRVM_MIP extends ModelMIP {
                 Variable xVar = worldPartialMip.getXVariable(bidder, band);
                 double doubleQuantity = solution.getValue(xVar);
                 int quantity = (int) Math.round(doubleQuantity);
-                bundleEntries.add(new BundleEntry(band, quantity));
+                if (quantity > 0) {
+                    bundleEntries.add(new BundleEntry(band, quantity));
+                }
             }
 
             Bundle bundle = new Bundle(bundleEntries);

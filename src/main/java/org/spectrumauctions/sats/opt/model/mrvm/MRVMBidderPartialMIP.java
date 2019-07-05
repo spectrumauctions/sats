@@ -293,7 +293,8 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         }
     }
 
-    public void appendConstraintsToMip(MIP mip) {
+    @Override
+    public void appendConstraintsToMip(IMIP mip) {
         super.appendConstraintsToMip(mip);
         for (Constraint constraint : generateOmegaConstraints()) {
             mip.add(constraint);

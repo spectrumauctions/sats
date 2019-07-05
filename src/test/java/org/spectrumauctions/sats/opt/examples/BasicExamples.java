@@ -31,34 +31,43 @@ public class BasicExamples {
     private static final Logger logger = LogManager.getLogger(BasicExamples.class);
 
     @Test
-    @Ignore
     public void basicMRVMExample() {
         Collection<MRVMBidder> bidders = (new MultiRegionModel()).createNewPopulation();    // Create bidders
         MRVM_MIP mip = new MRVM_MIP(bidders);                                               // Create the MIP
         Allocation result = mip.getAllocation();                                            // Solve the MIP
-        logger.info(result);                                                                // Show the allocation
+        for (Bidder bidder : result.getWinners()) {                                         // Show the allocation
+            String sb = bidder.getName() +
+                    ":\t[ " +
+                    result.allocationOf(bidder).getBundle() +
+                    " ]";
+            logger.info(sb);
+        }
     }
 
     @Test
-    @Ignore
     public void basicSRVMExample() {
         Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewPopulation();   // Create bidders
         SRVM_MIP mip = new SRVM_MIP(bidders);                                               // Create the MIP
         Allocation result = mip.getAllocation();                                            // Solve the MIP
-        logger.info(result);                                                                // Show the allocation
+        for (Bidder bidder : result.getWinners()) {                                         // Show the allocation
+            String sb = bidder.getName() +
+                    ":\t[ " +
+                    result.allocationOf(bidder).getBundle() +
+                    " ]";
+            logger.info(sb);
+        }
     }
 
     @Test
-    @Ignore
     public void basicGSVMExample() {
         List<GSVMBidder> bidders = (new GlobalSynergyValueModel()).createNewPopulation();   // Create bidders
         GSVMStandardMIP mip = new GSVMStandardMIP(bidders);                                 // Create the MIP
         Allocation result = mip.getAllocation();                                            // Solve the MIP
         for (Bidder bidder : result.getWinners()) {                                         // Show the allocation
-            String sb = bidder.getId() +
+            String sb = bidder.getName() +
                     ":\t[ " +
                     result.allocationOf(bidder).getBundle() +
-                    "]";
+                    " ]";
             logger.info(sb);
         }
 
