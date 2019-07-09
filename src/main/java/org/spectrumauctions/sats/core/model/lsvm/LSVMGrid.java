@@ -2,13 +2,15 @@ package org.spectrumauctions.sats.core.model.lsvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Fabio Isler
@@ -175,7 +177,7 @@ public class LSVMGrid implements Serializable {
         if (currentSet.size() == possibleNeighbors.size()) return currentSet;
         else {
             Set<LSVMLicense> linkedLicenses = new HashSet<>(currentSet);
-            LicenseBundle<LSVMLicense> unassigned = new LicenseBundle<>(possibleNeighbors);
+            Set<LSVMLicense> unassigned = new HashSet<>(possibleNeighbors);
             unassigned.removeAll(currentSet);
 
             for (LSVMLicense license : unassigned) {

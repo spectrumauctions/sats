@@ -146,7 +146,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
     static String createIndex(SATSBidder bidder, MRVMBand band) {
         return "_b" + bidder.getLongId() +
                 ",band_" +
-                band.getId();
+                band.getName();
     }
 
     static String createIndex(SATSBidder bidder, Region region, MRVMBand band) {
@@ -154,7 +154,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
                 ",r" +
                 region.getId() +
                 ",band_" +
-                band.getId();
+                band.getName();
     }
 
     Set<PartialMIP> generateSVConstraints() {

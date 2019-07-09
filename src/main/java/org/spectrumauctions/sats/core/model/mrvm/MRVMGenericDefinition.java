@@ -11,7 +11,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.EqualsAndHashCode;
 import org.spectrumauctions.sats.core.model.GenericGood;
-import org.spectrumauctions.sats.core.model.License;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public final class MRVMGenericDefinition extends GenericGood {
     private transient ImmutableList<MRVMLicense> licenses;
 
     public MRVMGenericDefinition(MRVMBand band, MRVMRegionsMap.Region region) {
-        super(band.getId(), band.getWorldId());
+        super(band.getName(), band.getWorldId());
         Preconditions.checkNotNull(band);
         Preconditions.checkNotNull(region);
         Preconditions.checkArgument(band.getWorld().getRegionsMap().getRegions().contains(region));
@@ -84,7 +83,7 @@ public final class MRVMGenericDefinition extends GenericGood {
     @Override
     public JsonElement shortJson() {
         JsonObject json = new JsonObject();
-        json.addProperty("band", band.getId());
+        json.addProperty("band", band.getName());
         json.addProperty("region", region.getId());
         return json;
     }

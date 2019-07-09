@@ -10,8 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMBidderSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMWorldSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
@@ -136,7 +134,7 @@ public class BMValueTest {
             Iterator<BMLicense> licenseIter = band.containedGoods().iterator();
             licenses.add(licenseIter.next());
             //Names for default A band is the same in both models, hence only compare to one of them
-            if (band.getId().equals(BVMWorldSetup.BVMWorldSetupBuilder.BICHLER_2014_BVM_DEFAULT_BAND_NAME_A)) {
+            if (band.getName().equals(BVMWorldSetup.BVMWorldSetupBuilder.BICHLER_2014_BVM_DEFAULT_BAND_NAME_A)) {
                 //Add a second license of band A
                 licenses.add(licenseIter.next());
             }

@@ -130,7 +130,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         StringBuilder builder = new StringBuilder("_b");
         builder.append(bidder.getLongId());
         builder.append(",band_");
-        builder.append(band.getId());
+        builder.append(band.getName());
         return builder.toString();
     }
 
@@ -262,7 +262,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
     }
 
     private ContinuousPiecewiseLinearFunction alpha(SRVMBand band) {
-        int threshold = bidder.getSynergyThreshold().get(band.getId());
+        int threshold = bidder.getSynergyThreshold().get(band.getName());
         // Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
@@ -279,7 +279,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
     }
 
     private ContinuousPiecewiseLinearFunction beta(SRVMBand band) {
-        int threshold = bidder.getSynergyThreshold().get(band.getId());
+        int threshold = bidder.getSynergyThreshold().get(band.getName());
         // Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
@@ -295,7 +295,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
     }
 
     private ContinuousPiecewiseLinearFunction gamma(SRVMBand band) {
-        int threshold = bidder.getSynergyThreshold().get(band.getId());
+        int threshold = bidder.getSynergyThreshold().get(band.getName());
         // Must ensure all BigDecimals have the same scale, as they are used as keys in a Map
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
@@ -312,14 +312,14 @@ public class SRVMBidderPartialMIP extends PartialMIP {
 
 
     private double getBaseValue(SRVMBidder bidder, SRVMBand band) {
-        Preconditions.checkArgument(bidder.getBaseValues().containsKey(band.getId()));
-        BigDecimal value = bidder.getBaseValues().get(band.getId());
+        Preconditions.checkArgument(bidder.getBaseValues().containsKey(band.getName()));
+        BigDecimal value = bidder.getBaseValues().get(band.getName());
         return value.floatValue();
     }
 
     private double getIntrabandSynergyFactor(SRVMBidder bidder, SRVMBand band) {
-        Preconditions.checkArgument(bidder.getIntrabandSynergyFactors().containsKey(band.getId()));
-        BigDecimal value = bidder.getIntrabandSynergyFactors().get(band.getId());
+        Preconditions.checkArgument(bidder.getIntrabandSynergyFactors().containsKey(band.getName()));
+        BigDecimal value = bidder.getIntrabandSynergyFactors().get(band.getName());
         return value.floatValue();
     }
 

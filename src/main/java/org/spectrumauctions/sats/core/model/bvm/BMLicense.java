@@ -33,7 +33,7 @@ public class BMLicense extends License {
     BMLicense(int id, BMBand band, RNGSupplier rngSupplier) {
         super(id, band.getWorldId());
         this.band = band;
-        this.bandName = band.getId();
+        this.bandName = band.getName();
         this.world = band.getWorld();
     }
 
@@ -51,7 +51,7 @@ public class BMLicense extends License {
     }
 
     private void setBand(BMBand band) {
-        if (!bandName.equals(band.getId()) || band.getWorldId() != getWorldId()) {
+        if (!bandName.equals(band.getName()) || band.getWorldId() != getWorldId()) {
             throw new IncompatibleWorldException("The stored worldId / bandName do not represent the passed band reference");
         }
         this.band = band;

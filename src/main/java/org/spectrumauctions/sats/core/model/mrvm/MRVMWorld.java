@@ -116,7 +116,7 @@ public final class MRVMWorld extends World implements GenericWorld {
     public static Map<MRVMBand, Set<MRVMLicense>> getLicensesPerBand(Set<MRVMLicense> bundle, MRVMWorld world) {
         Map<MRVMBand, Set<MRVMLicense>> licensesPerBand = new HashMap<>();
         for (MRVMBand band : world.getBands()) {
-            licensesPerBand.put(band, new LicenseBundle<>());
+            licensesPerBand.put(band, new HashSet<>());
         }
         for (MRVMLicense license : bundle) {
             licensesPerBand.get(license.getBand()).add(license);
@@ -129,9 +129,9 @@ public final class MRVMWorld extends World implements GenericWorld {
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      * @param bundle Must be nonempty
      */
-    public static Map<MRVMBand, Integer> quantitiesPerBand(LicenseBundle<MRVMLicense> bundle) {
-        Preconditions.checkArgument(bundle.isEmpty()); // Ensure world to be defined
-        return quantitiesPerBand(bundle, (MRVMWorld) bundle.getWorld());
+    public static Map<MRVMBand, Integer> quantitiesPerBand(Set<MRVMLicense> bundle) {
+        Preconditions.checkArgument(!bundle.isEmpty()); // Ensure world to be defined
+        return quantitiesPerBand(bundle, bundle.iterator().next().getWorld());
     }
 
     /**
@@ -178,7 +178,7 @@ public final class MRVMWorld extends World implements GenericWorld {
     public BigDecimal getMaximumRegionalCapacity() {
         if (maximalRegionalCapacity == null) {
             MRVMRegionsMap.Region anyRegion = regionsMap.getRegions().iterator().next();
-            maximalRegionalCapacity = c(anyRegion, new LicenseBundle<>(getLicenses()));
+            maximalRegionalCapacity = c(anyRegion, new HashSet<>(getLicenses()));
         }
         return maximalRegionalCapacity;
     }
@@ -210,7 +210,7 @@ public final class MRVMWorld extends World implements GenericWorld {
         MRVMWorld world = bundle.iterator().next().getWorld();
         Map<MRVMRegionsMap.Region, Set<MRVMLicense>> licensesPerRegion = new HashMap<>();
         for (MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()) {
-            licensesPerRegion.put(region, new LicenseBundle<>());
+            licensesPerRegion.put(region, new HashSet<>());
         }
         for (MRVMLicense license : bundle) {
             licensesPerRegion.get(license.getRegion()).add(license);

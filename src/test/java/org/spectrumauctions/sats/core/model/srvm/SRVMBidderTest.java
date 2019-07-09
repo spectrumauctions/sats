@@ -6,7 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
@@ -62,9 +61,9 @@ public class SRVMBidderTest {
         for (SRVMBand band : world2.getBands()) {
             int numberOfLicenses = band.available();
             quantities.add(new BundleEntry(band, numberOfLicenses));
-            double baseValue = bidder.getBaseValues().get(band.getId()).doubleValue();
-            double synergyThreshold = bidder.getSynergyThreshold().get(band.getId());
-            double synergyFactor = bidder.getIntrabandSynergyFactors().get(band.getId()).doubleValue();
+            double baseValue = bidder.getBaseValues().get(band.getName()).doubleValue();
+            double synergyThreshold = bidder.getSynergyThreshold().get(band.getName());
+            double synergyFactor = bidder.getIntrabandSynergyFactors().get(band.getName()).doubleValue();
 
             double firstSummand = Math.min(synergyThreshold, numberOfLicenses);
             double x = numberOfLicenses > 0 ? (numberOfLicenses - 1.0) / numberOfLicenses : 0;
@@ -104,9 +103,9 @@ public class SRVMBidderTest {
 
         double expectedValue = 0;
 
-        double baseValue = bidder.getBaseValues().get(band.getId()).doubleValue();
-        double synergyThreshold = bidder.getSynergyThreshold().get(band.getId());
-        double synergyFactor = bidder.getIntrabandSynergyFactors().get(band.getId()).doubleValue();
+        double baseValue = bidder.getBaseValues().get(band.getName()).doubleValue();
+        double synergyThreshold = bidder.getSynergyThreshold().get(band.getName());
+        double synergyFactor = bidder.getIntrabandSynergyFactors().get(band.getName()).doubleValue();
 
         expectedValue += Math.min(synergyThreshold, 1.0) * baseValue;
         expectedValue += Math.min((synergyThreshold - 1) / synergyThreshold, 0) * synergyFactor * baseValue;

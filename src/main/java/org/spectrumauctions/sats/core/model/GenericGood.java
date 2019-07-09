@@ -8,16 +8,22 @@ package org.spectrumauctions.sats.core.model;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.marketdesignresearch.mechlib.domain.Good;
 
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class GenericGood implements SATSGood, Serializable {
 
+    @Getter
+    private final UUID uuid = UUID.randomUUID();
+
+    @Getter
     @EqualsAndHashCode.Include
     private final String name;
 
@@ -39,18 +45,13 @@ public abstract class GenericGood implements SATSGood, Serializable {
 
     private static final long serialVersionUID = 1345L;
 
-    @Override
-    public String getId() {
-        return name;
-    }
-
     public long getWorldId() {
         return worldId;
     }
 
     public JsonElement shortJson() {
         JsonObject json = new JsonObject();
-        json.addProperty("good", getId());
+        json.addProperty("good", getName());
         return json;
     }
 

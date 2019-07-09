@@ -53,7 +53,7 @@ public final class BMWorld extends World implements GenericWorld {
      */
     public BMBand getBand(String bandName) {
         for (BMBand band : bands) {
-            if (band.getId().equals(bandName))
+            if (band.getName().equals(bandName))
                 return band;
         }
         return null;

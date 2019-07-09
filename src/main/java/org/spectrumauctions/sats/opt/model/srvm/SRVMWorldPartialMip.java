@@ -77,7 +77,7 @@ public class SRVMWorldPartialMip extends PartialMIP {
         for (SRVMBidder bidder : bidders) {
             Map<SRVMBand, Variable> temp = new HashMap<>();
             for (SRVMBand band : world.getBands()) {
-                String varName = prefix + "_" + bidder.getLongId() + "_" + band.getId();
+                String varName = prefix + "_" + bidder.getLongId() + "_" + band.getName();
                 Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
                 temp.put(band, var);
             }

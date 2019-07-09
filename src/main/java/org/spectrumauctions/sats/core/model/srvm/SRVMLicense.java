@@ -20,7 +20,7 @@ public final class SRVMLicense extends License {
     SRVMLicense(long id, SRVMBand band) {
         super(id, band.getWorld().getId());
         this.band = band;
-        this.bandName = band.getId();
+        this.bandName = band.getName();
     }
 
     public SRVMBand getBand() {
@@ -40,7 +40,7 @@ public final class SRVMLicense extends License {
      * @see SRVMWorld#refreshFieldBackReferences() for purpose of this method
      */
     void refreshFieldBackReferences(SRVMBand band) {
-        Preconditions.checkArgument(band.getId().equals(this.bandName));
+        Preconditions.checkArgument(band.getName().equals(this.bandName));
         this.band = band;
     }
 

@@ -9,12 +9,13 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author Michael Weiss
@@ -28,7 +29,7 @@ public class MRVMBidderTypeSpecificTest {
     private static MRVMRegionalBidder regionalBidder;
     private static MRVMNationalBidder globalBidder;
 
-    private static LicenseBundle<MRVMLicense> completeBundle;
+    private static Set<MRVMLicense> completeBundle;
 
     @BeforeClass
     public static void beforeClass() {
@@ -36,7 +37,7 @@ public class MRVMBidderTypeSpecificTest {
         localBidder = (MRVMLocalBidder) world.createPopulation(MRMSimpleWorldGen.getSimpleLocalBidderSetup(), null, null, new JavaUtilRNGSupplier(234873L)).iterator().next();
         regionalBidder = (MRVMRegionalBidder) world.createPopulation(null, MRMSimpleWorldGen.getSimpleRegionalBidderSetup(), null, new JavaUtilRNGSupplier(3984274L)).iterator().next();
         globalBidder = (MRVMNationalBidder) world.createPopulation(null, null, MRMSimpleWorldGen.getSimpleGlobalBidderSetup(), new JavaUtilRNGSupplier(29842793L)).iterator().next();
-        completeBundle = new LicenseBundle<>(world.getLicenses());
+        completeBundle = new HashSet<>(world.getLicenses());
 
     }
 

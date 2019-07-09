@@ -11,13 +11,14 @@ import org.apache.logging.log4j.Logger;
 import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.BundleEntry;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.SATSBidder;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.License;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public abstract class SizeOrderedXOR implements BiddingLanguage {
 

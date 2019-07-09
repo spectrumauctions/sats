@@ -12,8 +12,6 @@ import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.bid.Bids;
 import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
 import org.marketdesignresearch.mechlib.mechanisms.MetaInfo;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
-import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;

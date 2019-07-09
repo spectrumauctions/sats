@@ -89,7 +89,7 @@ public final class SRVMBand extends GenericGood {
     @Override
     public JsonElement shortJson() {
         JsonObject json = new JsonObject();
-        json.addProperty("band", getId());
+        json.addProperty("band", getName());
         return json;
     }
 

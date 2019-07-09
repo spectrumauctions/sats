@@ -75,7 +75,7 @@ public final class SRVMBidder extends SATSBidder {
         Preconditions.checkArgument(world.getBands().containsAll(inputMap.keySet()) && world.getBands().size() == inputMap.size(), "Map is not complete for this world");
         HashMap<String, T> result = new HashMap<>();
         for (Entry<SRVMBand, T> inputEntry : inputMap.entrySet()) {
-            result.put(inputEntry.getKey().getId(), inputEntry.getValue());
+            result.put(inputEntry.getKey().getName(), inputEntry.getValue());
         }
         return result;
     }
@@ -156,13 +156,13 @@ public final class SRVMBidder extends SATSBidder {
 
     private BigDecimal getBandValue(SRVMBand band, int quantity) {
         // The min{2,n} or min{4,n} part of the value function
-        int firstSummand = quantity > synergyThreshold.get(band.getId()) ? synergyThreshold.get(band.getId()) : quantity;
+        int firstSummand = quantity > synergyThreshold.get(band.getName()) ? synergyThreshold.get(band.getName()) : quantity;
         // The min{3/4, (n-1)/n} * syn_i(B)} or equivalent for other bands part
         BigDecimal minFraction = new BigDecimal(firstSummand - 1).divide(new BigDecimal(firstSummand), CALCSCALE, RoundingMode.CEILING);
-        BigDecimal synergyFactor = intrabandSynergyFactors.get(band.getId());
+        BigDecimal synergyFactor = intrabandSynergyFactors.get(band.getName());
         BigDecimal secondSummand = minFraction.multiply(synergyFactor);
         // The marginal decreasing third summand (max{0, ln{n-1)})
-        int toLog = quantity - (synergyThreshold.get(band.getId()) - 1);
+        int toLog = quantity - (synergyThreshold.get(band.getName()) - 1);
         BigDecimal thirdSummand;
         if (toLog <= 0) {
             thirdSummand = BigDecimal.ZERO;
@@ -178,7 +178,7 @@ public final class SRVMBidder extends SATSBidder {
 
         // Calculates product
         BigDecimal firstFactor = new BigDecimal(firstSummand).add(secondSummand).add(thirdSummand);
-        BigDecimal baseValue = baseValues.get(band.getId());
+        BigDecimal baseValue = baseValues.get(band.getName());
         // No need to take random influence and relative bidder strength into account. Is already included in baseValue;
         return firstFactor.multiply(baseValue);
     }

@@ -8,8 +8,6 @@ package org.spectrumauctions.sats.core.model.mrvm;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedMap;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
-import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.BigDecimalUtils;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;

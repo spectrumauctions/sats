@@ -43,7 +43,7 @@ public class MRVMLicense extends License {
     private MRVMLicense(long id, MRVMBand band, MRVMRegionsMap.Region region) {
         super(id, band.getWorldId());
         this.band = band;
-        this.bandName = band.getId();
+        this.bandName = band.getName();
         this.world = band.getWorld();
         this.regionId = region.getId();
         this.region = region;
@@ -117,7 +117,7 @@ public class MRVMLicense extends License {
      * Explicit definition of private setter to prevent from generating setter by accident.
      */
     private void setBand(MRVMBand band) {
-        if (!getBandName().equals(band.getId())) {
+        if (!getBandName().equals(band.getName())) {
             throw new IncompatibleWorldException("The stored worldId does not represent the passed world reference");
         }
         this.band = band;

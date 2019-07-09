@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.marketdesignresearch.mechlib.domain.Allocation;
 import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.Good;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.gsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
@@ -126,7 +125,7 @@ public class GSVMStandardMIPTest {
 		GSVMBidder nationalBidder = population.stream()
 				.filter(bidder -> bidder.getSetupType().equals("Test National Bidder")).findFirst().get();
 
-		LicenseBundle<GSVMLicense> fullBundle = new LicenseBundle<>(world.getLicenses());
+		Set<GSVMLicense> fullBundle = new HashSet<>(world.getLicenses());
 
 		// the efficient allocation is not giving all licenses to the one national bidder
 		Assert.assertTrue(fullBundle.size() > allocation.allocationOf(nationalBidder).getBundle().getSingleAvailabilityGoods().size());

@@ -6,7 +6,6 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -48,7 +47,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
     }
 
     /**
-     * Transforms a bidders {@link MRVMLocalBidder#regionsOfInterest} into a format suitable for {@link #gammaFactor(MRVMRegionsMap.Region, LicenseBundle)}
+     * Transforms a bidders {@link MRVMLocalBidder#regionsOfInterest} into a format suitable for {@link #gammaFactor(MRVMRegionsMap.Region, Set)}
      */
     private static Map<MRVMRegionsMap.Region, BigDecimal> mapGammaFactors(MRVMWorld world, Set<Integer> regionsOfInterest) {
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();

@@ -6,23 +6,28 @@
 package org.spectrumauctions.sats.core.model;
 
 import lombok.EqualsAndHashCode;
-import org.marketdesignresearch.mechlib.domain.Good;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.UUID;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class License implements SATSGood, Serializable {
 
+    @Getter
+    private final UUID uuid = UUID.randomUUID();
+
     @EqualsAndHashCode.Include
-    private final long id;
+    private final long longId;
+    @Getter
     private final String name;
 
     protected final long worldId;
 
-    protected License(long id, long worldId) {
-        this.id = id;
-        this.name = toAlphabetic(id);
+    protected License(long longId, long worldId) {
+        this.longId = longId;
+        this.name = toAlphabetic(longId);
         this.worldId = worldId;
     }
 
@@ -32,12 +37,7 @@ public abstract class License implements SATSGood, Serializable {
     private static final long serialVersionUID = 1L;
 
     public long getLongId() {
-        return id;
-    }
-
-    @Override
-    public String getId() {
-        return name;
+        return longId;
     }
 
     public long getWorldId() {

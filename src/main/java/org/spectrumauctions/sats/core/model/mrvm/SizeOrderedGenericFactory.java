@@ -102,7 +102,7 @@ public class SizeOrderedGenericFactory implements Serializable {
          */
         @Override
         public int compare(GenericGood o1, GenericGood o2) {
-            return o1.getId().compareTo(o2.getId());
+            return o1.getName().compareTo(o2.getName());
         }
 
     }

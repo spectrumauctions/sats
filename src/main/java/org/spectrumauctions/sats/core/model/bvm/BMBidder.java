@@ -71,9 +71,9 @@ public final class BMBidder extends SATSBidder {
         HashMap<String, BigDecimal> baseValues = new HashMap<>();
         HashMap<String, Integer> positiveValueThreshold = new HashMap<>();
         for (BMBand band : world.getBands()) {
-            synergyFactors.put(band.getId(), setup.drawSynergyFactors(band, rng));
-            baseValues.put(band.getId(), setup.drawBaseValue(band, rng));
-            positiveValueThreshold.put(band.getId(), setup.drawPositiveValueThreshold(band, rng));
+            synergyFactors.put(band.getName(), setup.drawSynergyFactors(band, rng));
+            baseValues.put(band.getName(), setup.drawBaseValue(band, rng));
+            positiveValueThreshold.put(band.getName(), setup.drawPositiveValueThreshold(band, rng));
         }
         this.synergyFactors = synergyFactors;
         this.baseValues = baseValues;
@@ -100,7 +100,7 @@ public final class BMBidder extends SATSBidder {
 //            Integer currentValue = quantities.get(license.getBand());
 //            if (currentValue == null) {
 //                logger.error("ITEM WITH OUTSIDE-WORLD BAND!");
-//            } else if (currentValue < positiveValueThreshold.get(license.getBand().getId())) { // Free disposal otherwise
+//            } else if (currentValue < positiveValueThreshold.get(license.getBand().getName())) { // Free disposal otherwise
 //                quantities.put(license.getBand(), currentValue + 1);
 //            }
 //        }
@@ -124,7 +124,7 @@ public final class BMBidder extends SATSBidder {
             return BigDecimal.ONE;
         if (quantity == 0)
             return BigDecimal.ZERO;
-        BigDecimal synFactor = synergyFactors.get(band.getId()).get(quantity);
+        BigDecimal synFactor = synergyFactors.get(band.getName()).get(quantity);
         if (synFactor != null) {
             return synFactor;
         } else {
@@ -133,7 +133,7 @@ public final class BMBidder extends SATSBidder {
     }
 
     public BigDecimal getBaseValue(BMBand band) {
-        return baseValues.get(band.getId());
+        return baseValues.get(band.getName());
     }
 
     /**
@@ -142,12 +142,12 @@ public final class BMBidder extends SATSBidder {
      * (without synergies) is added to the total value, if they are not excluded by the {@link #positiveValueThreshold}.
      */
     public int highestSynergyQuantity(BMBand band) {
-        if (synergyFactors.get(band.getId()) == null)
+        if (synergyFactors.get(band.getName()) == null)
             return 1;
-        if (synergyFactors.get(band.getId()) == null || synergyFactors.get(band.getId()).isEmpty()) {
+        if (synergyFactors.get(band.getName()) == null || synergyFactors.get(band.getName()).isEmpty()) {
             return 1;
         }
-        Integer result = Collections.max(synergyFactors.get(band.getId()).keySet());
+        Integer result = Collections.max(synergyFactors.get(band.getName()).keySet());
         if (result == null || result < 1) {
             return 1;
         }
@@ -235,13 +235,13 @@ public final class BMBidder extends SATSBidder {
             if (bundleEntry.getGood() instanceof BMLicense) {
                 Good band = getWorld().getGenericDefinitionOf((License) bundleEntry.getGood());
                 int currentValue = combined.getOrDefault(band, 0);
-                if (currentValue < positiveValueThreshold.get(band.getId())) { // Free disposal otherwise
+                if (currentValue < positiveValueThreshold.get(band.getName())) { // Free disposal otherwise
                     combined.put(band, currentValue + 1);
                 }
             } else if (bundleEntry.getGood() instanceof BMBand) {
                 Good band = bundleEntry.getGood();
                 int currentValue = combined.getOrDefault(band, 0);
-                if (currentValue < positiveValueThreshold.get(band.getId())) { // Free disposal otherwise
+                if (currentValue < positiveValueThreshold.get(band.getName())) { // Free disposal otherwise
                     combined.put(band, currentValue + bundleEntry.getAmount());
                 }
             } else {
@@ -254,9 +254,9 @@ public final class BMBidder extends SATSBidder {
         for (BundleEntry entry : bundle.getBundleEntries()) {
             Preconditions.checkArgument(entry.getGood() instanceof BMBand);
             BMBand band = (BMBand) entry.getGood();
-            Preconditions.checkArgument(band.getWorld().equals(this.getWorld()), "Band is not from this world" + band.getId());
-            Preconditions.checkArgument(entry.getAmount() >= 0, "Quantity must not be negative. Band:" + band.getId() + "\t Licenses:" + entry.getAmount());
-            Preconditions.checkArgument(entry.getAmount() <= band.available(), "Specified too many licenses for this band" + band.getId() + "\t Licenses:" + entry.getAmount());
+            Preconditions.checkArgument(band.getWorld().equals(this.getWorld()), "Band is not from this world" + band.getName());
+            Preconditions.checkArgument(entry.getAmount() >= 0, "Quantity must not be negative. Band:" + band.getName() + "\t Licenses:" + entry.getAmount());
+            Preconditions.checkArgument(entry.getAmount() <= band.available(), "Specified too many licenses for this band" + band.getName() + "\t Licenses:" + entry.getAmount());
         }
         //Calculate Value
         BigDecimal value = BigDecimal.ZERO;

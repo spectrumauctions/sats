@@ -42,9 +42,9 @@ public class SRVMBidderSetup extends BidderSetup {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
         HashMap<SRVMBand, Integer> result = new HashMap<>();
         for (SRVMBand band : world.getBands()) {
-            IntegerInterval interval = synergyThresholds.get(band.getId());
+            IntegerInterval interval = synergyThresholds.get(band.getName());
             if (interval == null) {
-                throw new IllegalArgumentException("No synergies defined for band " + band.getId());
+                throw new IllegalArgumentException("No synergies defined for band " + band.getName());
             } else if (!interval.isStrictlyPositive()) {
                 throw new IllegalArgumentException("Synergy theshold must be strictly positive");
             } else {
@@ -62,10 +62,10 @@ public class SRVMBidderSetup extends BidderSetup {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
         HashMap<SRVMBand, BigDecimal> result = new HashMap<>();
         for (SRVMBand band : world.getBands()) {
-            BigDecimal meanBaseValue = meanBaseValues.get(band.getId());
-            DoubleInterval randomInfluenceInterval = this.randomInfluence.get(band.getId());
+            BigDecimal meanBaseValue = meanBaseValues.get(band.getName());
+            DoubleInterval randomInfluenceInterval = this.randomInfluence.get(band.getName());
             if (meanBaseValue == null) {
-                throw new IllegalArgumentException("No mean base value defined for band " + band.getId());
+                throw new IllegalArgumentException("No mean base value defined for band " + band.getName());
             } else if (randomInfluenceInterval == null || !randomInfluenceInterval.isStrictlyPositive()) {
                 throw new IllegalArgumentException("Base Value must be defined and strictly positive");
             } else {
@@ -85,9 +85,9 @@ public class SRVMBidderSetup extends BidderSetup {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
         HashMap<SRVMBand, BigDecimal> result = new HashMap<>();
         for (SRVMBand band : world.getBands()) {
-            DoubleInterval interval = intraBandSynergyFactors.get(band.getId());
+            DoubleInterval interval = intraBandSynergyFactors.get(band.getName());
             if (interval == null) {
-                throw new IllegalArgumentException("No synergies defined for band " + band.getId());
+                throw new IllegalArgumentException("No synergies defined for band " + band.getName());
             } else if (interval.getMinValue() < 1) {
                 throw new IllegalArgumentException("Synergy factor must be at least one");
             } else {

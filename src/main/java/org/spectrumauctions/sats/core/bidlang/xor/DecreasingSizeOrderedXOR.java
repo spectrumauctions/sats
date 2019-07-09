@@ -7,9 +7,8 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 
 import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
-import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.License;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 
 import java.math.BigInteger;
 import java.util.Collection;

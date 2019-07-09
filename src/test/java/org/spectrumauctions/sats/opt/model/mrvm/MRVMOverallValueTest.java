@@ -140,7 +140,7 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 //                double svScalingFactor = mrvm_mip.getBidderPartialMips().get(bidder).getScalingFactor();
 //                double oWithSvUnscaled = svScalingFactor * omegaVal;
 //                // Unscaling of OmegaScaling is only done in next step
-//                assertionResults.add(assertEqualsAndGiveResult(expectedOmega.doubleValue(), oWithSvUnscaled, bidder, "omega in region " + region.getId()));
+//                assertionResults.add(assertEqualsAndGiveResult(expectedOmega.doubleValue(), oWithSvUnscaled, bidder, "omega in region " + region.getName()));
 //            }
 //        }
 //        return assertionResults;

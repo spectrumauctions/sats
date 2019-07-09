@@ -7,7 +7,6 @@ import org.marketdesignresearch.mechlib.domain.Bundle;
 import org.marketdesignresearch.mechlib.domain.BundleEntry;
 import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.LicenseBundle;
 import org.spectrumauctions.sats.core.model.cats.CATSBidder;
 import org.spectrumauctions.sats.core.model.cats.CATSLicense;
 import org.spectrumauctions.sats.core.model.cats.CATSWorld;

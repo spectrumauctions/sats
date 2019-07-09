@@ -51,7 +51,7 @@ public abstract class BMBidderSetup extends BidderSetup {
      * not have additional value (free disposal).
      */
     public Integer drawPositiveValueThreshold(BMBand band, UniformDistributionRNG rng) {
-        IntegerInterval interval = positiveValueThresholdIntervals.get(band.getId());
+        IntegerInterval interval = positiveValueThresholdIntervals.get(band.getName());
         if (interval == null) {
             throw new IncompatibleWorldException("Band name unknown to Bidder Setup");
         } else {
@@ -65,7 +65,7 @@ public abstract class BMBidderSetup extends BidderSetup {
      *
      */
     public BigDecimal drawBaseValue(BMBand band, UniformDistributionRNG rng) {
-        DoubleInterval interval = baseValueIntervals.get(band.getId());
+        DoubleInterval interval = baseValueIntervals.get(band.getName());
         if (interval == null) {
             throw new IncompatibleWorldException("Band name unknown to SATSBidder Setup");
         } else {
@@ -78,7 +78,7 @@ public abstract class BMBidderSetup extends BidderSetup {
      * multiple licenses in the same band.
      */
     public Map<Integer, BigDecimal> drawSynergyFactors(BMBand band, UniformDistributionRNG rng) {
-        Map<Integer, BigDecimal> bandSynergies = synFactors.get(band.getId());
+        Map<Integer, BigDecimal> bandSynergies = synFactors.get(band.getName());
         if (bandSynergies == null) {
             throw new IncompatibleWorldException("Band name unknown to Bidder Setup ");
         } else {
