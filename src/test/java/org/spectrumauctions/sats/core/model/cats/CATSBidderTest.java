@@ -22,7 +22,7 @@ public class CATSBidderTest {
     public static void setUpBeforeClass() {
         CATSRegionModel model = new CATSRegionModel();
         CATSWorld world = model.createWorld(983742L);
-        completeBundle = Bundle.singleGoods(world.getLicenses());
+        completeBundle = Bundle.of(world.getLicenses());
     }
 
     /**

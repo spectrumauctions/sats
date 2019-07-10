@@ -101,7 +101,7 @@ public class GSVMStandardMIPTest {
 		GSVMBidder nationalBidder = population.stream()
 				.filter(bidder -> bidder.getSetupType().equals("Test National Bidder")).findFirst().get();
 
-		Bundle fullBundle = Bundle.singleGoods(world.getLicenses());
+		Bundle fullBundle = Bundle.of(world.getLicenses());
 
 		// the efficient allocation is giving all licenses (including the
 		// licenses of the regional circle) to the one national bidder

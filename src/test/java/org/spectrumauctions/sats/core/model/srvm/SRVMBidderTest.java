@@ -24,9 +24,9 @@ public class SRVMBidderTest {
     public static void setUpBeforeClass() {
         SingleRegionModel model = new SingleRegionModel();
         SRVMWorld world = model.createWorld(983742L);
-        completeBundle = Bundle.singleGoods(world.getLicenses());
+        completeBundle = Bundle.of(world.getLicenses());
         singleLicense = world.getLicenses().iterator().next();
-        singleLicenseBundle = Bundle.singleGoods(Sets.newHashSet(singleLicense));
+        singleLicenseBundle = Bundle.of(singleLicense);
     }
 
     /**

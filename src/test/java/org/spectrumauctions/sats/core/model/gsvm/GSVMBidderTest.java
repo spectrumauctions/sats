@@ -25,7 +25,7 @@ public class GSVMBidderTest {
     public static void setUpBeforeClass() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld(983742L);
-        completeBundle = Bundle.singleGoods(world.getLicenses());
+        completeBundle = Bundle.of(world.getLicenses());
     }
 
     /**
@@ -114,11 +114,11 @@ public class GSVMBidderTest {
         Assert.assertEquals(world.getNationalCircle().getLicenses().length, 8 * 2);
         Assert.assertEquals(world.getRegionalCircle().getLicenses().length, 8);
 
-        Bundle complete = Bundle.singleGoods(world.getLicenses());
+        Bundle complete = Bundle.of(world.getLicenses());
         List<GSVMBidder> customPopulation = customPopulation(world, 3, 1);
         Assert.assertEquals(customPopulation.size(), 4);
 
-        Bundle regionalBundle = Bundle.singleGoods(Arrays.asList(world.getRegionalCircle().getLicenses()));
+        Bundle regionalBundle = Bundle.of(Arrays.asList(world.getRegionalCircle().getLicenses()));
 
         for (int i = 0; i < 3; i++)
             checkBidder(customPopulation.get(i), "Test Regional Bidder");
@@ -167,7 +167,7 @@ public class GSVMBidderTest {
             checkBidder(customPopulation.get(i), "Test Regional Bidder");
         for (int i = 3; i < 4; i++) checkBidder(customPopulation.get(i), "Test National Bidder");
 
-        Bundle regionalBundle = Bundle.singleGoods(Arrays.asList(world.getRegionalCircle().getLicenses()));
+        Bundle regionalBundle = Bundle.of(Arrays.asList(world.getRegionalCircle().getLicenses()));
 
         // Assert that national bidder has zero value for the whole regional bundle
         Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);

@@ -32,7 +32,7 @@ public class LSVMBidderTest {
         setups.add(regionalBidders);
         setups.add(nationalBidder);
         standardPopulation = world.createPopulation(setups, new JavaUtilRNGSupplier(983742L));
-        completeBundle = Bundle.singleGoods(world.getLicenses());
+        completeBundle = Bundle.of(world.getLicenses());
     }
 
     /**
@@ -84,7 +84,7 @@ public class LSVMBidderTest {
 
         Assert.assertEquals("Test National Bidder", customPopulation.get(9).getSetupType());
 
-        Bundle proximity = Bundle.singleGoods(customPopulation.get(0).getProximity());
+        Bundle proximity = Bundle.of(customPopulation.get(0).getProximity());
 
         BigDecimal valueRegionalBidderComplete = customPopulation.get(0).calculateValue(completeBundle);
         BigDecimal valueRegionalBidderProximity = customPopulation.get(0).calculateValue(proximity);
@@ -110,7 +110,7 @@ public class LSVMBidderTest {
      */
     @Test
     public void testProximityBundleValues() {
-        Bundle proximity = Bundle.singleGoods(standardPopulation.get(0).getProximity());
+        Bundle proximity = Bundle.of(standardPopulation.get(0).getProximity());
         BigDecimal valueRegionalBidder = standardPopulation.get(0).calculateValue(proximity);
         BigDecimal valueNationalBidder = standardPopulation.get(5).calculateValue(proximity);
 
@@ -126,7 +126,7 @@ public class LSVMBidderTest {
     public void testZeroValueForNonProximityLicenses() {
         Set<Good> licenses = new HashSet<>(completeBundle.getSingleAvailabilityGoods());
         licenses.removeAll(standardPopulation.get(0).getProximity());
-        Bundle nonProximity = Bundle.singleGoods(licenses);
+        Bundle nonProximity = Bundle.of(licenses);
 
         BigDecimal valueNonProximity = standardPopulation.get(0).calculateValue(nonProximity);
 

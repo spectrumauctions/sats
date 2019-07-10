@@ -94,7 +94,7 @@ public class SRVM_MIP extends ModelMIP {
     public static BigDecimal biggestUnscaledPossibleValue(Collection<SRVMBidder> bidders) {
         BigDecimal biggestValue = BigDecimal.ZERO;
         for (SRVMBidder bidder : bidders) {
-            BigDecimal val = bidder.calculateValue(Bundle.singleGoods(bidder.getWorld().getLicenses()));
+            BigDecimal val = bidder.calculateValue(Bundle.of(bidder.getWorld().getLicenses()));
             if (val.compareTo(biggestValue) > 0) {
                 biggestValue = val;
             }

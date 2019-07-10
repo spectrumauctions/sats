@@ -112,7 +112,7 @@ public class SimpleModelAccessorsExample {
         Optional<? extends SATSBidder> anyBidder = bidders.stream().findAny();
         if (anyBidder.isPresent()) {
             World world = anyBidder.get().getWorld();
-            Bundle fullBundle = Bundle.singleGoods(world.getLicenses());
+            Bundle fullBundle = Bundle.of(world.getLicenses());
             for (SATSBidder bidder : bidders) {
                 BigDecimal val = bidder.calculateValue(fullBundle);
                 logger.info("bidder " + bidder.getLongId() + "has the following value for getting all licenses: " + val.setScale(2, RoundingMode.HALF_UP));

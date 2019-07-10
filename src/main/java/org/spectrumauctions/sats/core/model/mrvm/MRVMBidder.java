@@ -242,7 +242,7 @@ public abstract class MRVMBidder extends SATSBidder {
         price.addTerm(-1, priceVar);
         for (MRVMGenericDefinition bandInRegion : getWorld().getAllGenericDefinitions()) {
             Variable xVariable = mip.getWorldPartialMip().getXVariable(this, bandInRegion.getRegion(), bandInRegion.getBand());
-            price.addTerm(prices.getPrice(Bundle.singleGoods(Sets.newHashSet(bandInRegion))).getAmount().doubleValue() / scalingFactor, xVariable);
+            price.addTerm(prices.getPrice(Bundle.of(bandInRegion)).getAmount().doubleValue() / scalingFactor, xVariable);
         }
         mip.addConstraint(price);
 

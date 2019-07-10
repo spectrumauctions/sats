@@ -128,7 +128,7 @@ public final class GSVMBidder extends SATSBidder {
         for (GSVMLicense license : world.getLicenses()) {
             Map<Integer, Variable> xVariables = mip.getXVariables(this, license);
             for (Variable xVariable : xVariables.values()) {
-                price.addTerm(prices.getPrice(Bundle.singleGoods(Sets.newHashSet(license))).getAmount().doubleValue(), xVariable);
+                price.addTerm(prices.getPrice(Bundle.of(license)).getAmount().doubleValue(), xVariable);
             }
         }
         mip.getMIP().add(price);

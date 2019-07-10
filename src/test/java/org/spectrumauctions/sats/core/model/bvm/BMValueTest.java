@@ -108,7 +108,7 @@ public class BMValueTest {
 
     @Test
     public void valueOfCompleteBundle() {
-        Bundle bundle = Bundle.singleGoods(bidder.getWorld().getLicenses());
+        Bundle bundle = Bundle.of(bidder.getWorld().getLicenses());
         BigDecimal value = bidder.calculateValue(bundle);
         Assert.assertEquals(bidder.getSetupType() + " value was " + value + " should be " + expextedValuedCompleteBundle, 0, value.compareTo(expextedValuedCompleteBundle));
     }
@@ -122,7 +122,7 @@ public class BMValueTest {
                 licenses.add(licenseIter.next());
             }
         }
-        Bundle bundle = Bundle.singleGoods(licenses);
+        Bundle bundle = Bundle.of(licenses);
         BigDecimal value = bidder.calculateValue(bundle);
         Assert.assertEquals(bidder.getSetupType() + " value was " + value + " should be " + expectedValueHalfBundle, 0, value.compareTo(expectedValueHalfBundle));
     }
@@ -139,7 +139,7 @@ public class BMValueTest {
                 licenses.add(licenseIter.next());
             }
         }
-        Bundle bundle = Bundle.singleGoods(licenses);
+        Bundle bundle = Bundle.of(licenses);
         BigDecimal value = bidder.calculateValue(bundle);
         Assert.assertEquals(bidder.getSetupType() + " value was " + value + " should be " + expectedValueSmallBundle, 0, value.compareTo(expectedValueSmallBundle));
     }

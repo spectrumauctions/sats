@@ -93,7 +93,7 @@ public class LSVMStandardMIP extends ModelMIP {
                     }
                 }
             }
-			Bundle bundle = Bundle.singleGoods(licenseSet);
+			Bundle bundle = Bundle.of(licenseSet);
             if (!Bundle.EMPTY.equals(bundle)) {
 				allocationMap.put(bidder, new BidderAllocation(bidder.calculateValue(bundle), bundle, new HashSet<>()));
 			}

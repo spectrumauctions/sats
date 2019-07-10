@@ -1,6 +1,5 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
-import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +69,7 @@ public class Scalor {
     public static BigDecimal biggestUnscaledPossibleValue(Collection<MRVMBidder> bidders) {
         BigDecimal biggestValue = BigDecimal.ZERO;
         for (MRVMBidder bidder : bidders) {
-            BigDecimal val = bidder.calculateValue(Bundle.singleGoods(Sets.newHashSet(bidder.getWorld().getLicenses())));
+            BigDecimal val = bidder.calculateValue(Bundle.of(bidder.getWorld().getLicenses()));
             if (val.compareTo(biggestValue) > 0) {
                 biggestValue = val;
             }
