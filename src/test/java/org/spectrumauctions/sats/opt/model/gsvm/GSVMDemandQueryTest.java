@@ -5,12 +5,13 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.price.LinearPrices;
+import org.marketdesignresearch.mechlib.domain.Domain;
 import org.marketdesignresearch.mechlib.domain.price.Price;
 import org.marketdesignresearch.mechlib.domain.price.Prices;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.mechanism.domains.GSVMDomain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,5 +41,28 @@ public class GSVMDemandQueryTest {
                     price.getAmount().setScale(2, RoundingMode.HALF_UP),
                     utility.setScale(2, RoundingMode.HALF_UP));
         }
+    }
+
+    @Test
+    public void testMultipleBundles() {
+        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
+        Domain domain = new GSVMDomain(bidders);
+        GSVMBidder bidder = bidders.get(0);
+        Prices prices = domain.proposeStartingPrices();
+
+        List<Bundle> bundles = bidder.getBestBundles(prices, 10);
+        for (Bundle bundle : bundles) {
+            BigDecimal value = bidder.calculateValue(bundle);
+            Price price = prices.getPrice(bundle);
+            BigDecimal utility = bidder.getUtility(bundle, prices);
+            Assert.assertTrue(utility.compareTo(BigDecimal.ZERO) > 0);
+            logger.info("Bidder {} chooses bundle [{}].\tValue: {}\tPrice: {}\tUtility: {})",
+                    bidder.getName(),
+                    bundle,
+                    value.setScale(2, RoundingMode.HALF_UP),
+                    price.getAmount().setScale(2, RoundingMode.HALF_UP),
+                    utility.setScale(2, RoundingMode.HALF_UP));
+        }
+
     }
 }

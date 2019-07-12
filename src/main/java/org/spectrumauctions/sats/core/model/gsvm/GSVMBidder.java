@@ -132,7 +132,7 @@ public final class GSVMBidder extends SATSBidder {
             }
         }
         mip.getMIP().add(price);
-        List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles);
+        List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
         List<Bundle> result = optimalAllocations.stream()
                 .map(allocation -> allocation.allocationOf(this).getBundle())
