@@ -27,7 +27,7 @@ public final class MRVMGenericDefinition extends GenericGood {
     private transient ImmutableList<MRVMLicense> licenses;
 
     public MRVMGenericDefinition(MRVMBand band, MRVMRegionsMap.Region region) {
-        super(band.getName(), band.getWorldId());
+        super("region: " + region.toString() + ", band: " + band.getName(), band.getWorldId());
         Preconditions.checkNotNull(band);
         Preconditions.checkNotNull(region);
         Preconditions.checkArgument(band.getWorld().getRegionsMap().getRegions().contains(region));
@@ -47,15 +47,6 @@ public final class MRVMGenericDefinition extends GenericGood {
 
     public MRVMRegionsMap.Region getRegion() {
         return region;
-    }
-
-    @Override
-    public String toString() {
-        return "[r=" +
-                region.toString() +
-                ",b=" +
-                band.toString() +
-                "]";
     }
 
     /**

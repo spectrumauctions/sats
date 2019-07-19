@@ -9,14 +9,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.marketdesignresearch.mechlib.domain.Good;
+import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
+@ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class GenericGood implements SATSGood, Serializable {
 
@@ -25,6 +24,7 @@ public abstract class GenericGood implements SATSGood, Serializable {
 
     @Getter
     @EqualsAndHashCode.Include
+    @ToString.Include
     private final String name;
 
     protected final long worldId;
