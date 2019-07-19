@@ -43,10 +43,15 @@ public abstract class ModelDomain implements Domain {
 
     @Override
     public Allocation getEfficientAllocation() {
-        if (efficientAllocation == null) {
+        if (!hasEfficientAllocationCalculated()) {
             efficientAllocation = getMIP().getAllocation();
         }
         return efficientAllocation;
+    }
+
+    @Override
+    public boolean hasEfficientAllocationCalculated() {
+        return efficientAllocation != null;
     }
 
 }

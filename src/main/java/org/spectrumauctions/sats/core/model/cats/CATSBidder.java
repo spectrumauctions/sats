@@ -113,7 +113,7 @@ public final class CATSBidder extends SATSBidder {
     }
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
         throw new NotImplementedException("Demand Query to be implemented");
     }
 }

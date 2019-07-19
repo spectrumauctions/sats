@@ -231,7 +231,7 @@ public abstract class MRVMBidder extends SATSBidder {
     }
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
         MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
 
         double scalingFactor = mip.getBidderPartialMips().get(this).getScalingFactor();
@@ -245,6 +245,10 @@ public abstract class MRVMBidder extends SATSBidder {
             price.addTerm(prices.getPrice(Bundle.of(bandInRegion)).getAmount().doubleValue() / scalingFactor, xVariable);
         }
         mip.addConstraint(price);
+
+        mip.setRelativePoolMode4Tolerance(relPoolTolerance);
+        mip.setAbsolutePoolMode4Tolerance(absPoolTolerance);
+        mip.setTimeLimitPoolMode4(poolTimeLimit);
 
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
