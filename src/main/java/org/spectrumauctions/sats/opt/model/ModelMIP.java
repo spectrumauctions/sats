@@ -29,33 +29,9 @@ public abstract class ModelMIP extends WinnerDetermination {
 
     private IMIP mip = new MIP();
 
-    /**
-     * This is mainly used for testing or if you need to access special SolveParams.
-     * In most cases the setters from this class are sufficient.
-     *
-     * @return reference to the JOpt mip
-     */
+    @Override
     public IMIP getMIP() {
         return mip;
-    }
-
-    /**
-     * Defines the behaviour in case the solver hits the defined timeout.
-     *
-     * @param acceptSuboptimal true: accept a suboptimal solution at timeout; false: throw an exception at timeout
-     */
-    public void setAcceptSuboptimal(boolean acceptSuboptimal) {
-        mip.setSolveParam(SolveParam.ACCEPT_SUBOPTIMAL, acceptSuboptimal);
-    }
-
-    /**
-     * Defines the time limit for the solver.
-     * What happens after the time limit is defined via {@link #setAcceptSuboptimal(boolean)}.
-     *
-     * @param timeLimit the time limit in seconds
-     */
-    public void setTimeLimit(double timeLimit) {
-        mip.setSolveParam(SolveParam.TIME_LIMIT, timeLimit);
     }
 
     /**
