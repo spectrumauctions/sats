@@ -64,7 +64,12 @@ public abstract class SATSBidder implements Bidder, Serializable {
 
     @Override
     public String getDescription() {
-        return getName() + " (" + getSetupType() + ")";
+        return getShortDescription();
+    }
+
+    @Override
+    public String getShortDescription() {
+        return getSetupType() + ": " + getName();
     }
 
     /**
