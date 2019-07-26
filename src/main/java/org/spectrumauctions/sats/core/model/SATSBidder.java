@@ -64,7 +64,7 @@ public abstract class SATSBidder implements Bidder, Serializable {
 
     @Override
     public String getDescription() {
-        return id + " (" + setupType + ")";
+        return getName() + " (" + getSetupType() + ")";
     }
 
     /**
@@ -180,8 +180,8 @@ public abstract class SATSBidder implements Bidder, Serializable {
 
     public abstract SATSBidder drawSimilarBidder(RNGSupplier rngSupplier);
 
-
     protected BidderSetup getSetup() {
         return setup;
     }
+
 }

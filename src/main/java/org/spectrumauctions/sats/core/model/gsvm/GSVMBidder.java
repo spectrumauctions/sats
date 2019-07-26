@@ -33,13 +33,16 @@ public final class GSVMBidder extends SATSBidder {
     private final int bidderPosition;
     private final HashMap<Long, BigDecimal> values;
     private transient GSVMWorld world;
+    private final String description;
 
     GSVMBidder(GSVMBidderSetup setup, GSVMWorld world, int bidderPosition, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
         this.world = world;
         this.bidderPosition = bidderPosition % world.getSize();
         this.values = setup.drawValues(rngSupplier, this);
-
+        this.description = setup.getSetupName() + " with interest in licenses "
+                + this.values.keySet().stream().map(String::valueOf).collect(Collectors.joining(", "))
+                + ".";
         store();
     }
 
@@ -140,5 +143,10 @@ public final class GSVMBidder extends SATSBidder {
                 .collect(Collectors.toList());
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 }

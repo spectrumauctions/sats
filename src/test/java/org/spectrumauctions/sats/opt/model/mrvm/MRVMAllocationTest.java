@@ -11,7 +11,6 @@ import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
