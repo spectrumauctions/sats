@@ -6,9 +6,8 @@
 package org.spectrumauctions.sats.core.model;
 
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;

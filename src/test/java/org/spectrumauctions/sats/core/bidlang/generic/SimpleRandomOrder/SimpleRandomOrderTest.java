@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;

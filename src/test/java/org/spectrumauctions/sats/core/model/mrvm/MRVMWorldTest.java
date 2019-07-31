@@ -53,7 +53,7 @@ public class MRVMWorldTest {
         int numberOfRegions = world.getRegionsMap().getRegions().size();
         for (MRVMBand band : world.getBands()) {
             int expectedNumberOfLicenses = band.getNumberOfLots() * numberOfRegions;
-            Assert.assertEquals(expectedNumberOfLicenses, band.available());
+            Assert.assertEquals(expectedNumberOfLicenses, band.getQuantity());
             Assert.assertEquals(expectedNumberOfLicenses, band.containedGoods().size());
         }
     }

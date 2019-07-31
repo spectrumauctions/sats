@@ -159,7 +159,7 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
         List<Constraint> constraints = new ArrayList<>();
         int bigM = 0;
         for (MRVMBand band : bidder.getWorld().getBands()) {
-            bigM += band.available();
+            bigM += band.getQuantity();
         }
         double smallM = 1d / bigM;
 

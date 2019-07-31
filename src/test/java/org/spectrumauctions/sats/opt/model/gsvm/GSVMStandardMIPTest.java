@@ -2,9 +2,9 @@ package org.spectrumauctions.sats.opt.model.gsvm;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
 import org.spectrumauctions.sats.core.model.gsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
@@ -62,7 +62,7 @@ public class GSVMStandardMIPTest {
 
 		for (GSVMBidder bidder : population) {
 			Bundle bundle = allocation.allocationOf(bidder).getBundle();
-			for (Good license : bundle.getSingleAvailabilityGoods()) {
+			for (Good license : bundle.getSingleQuantityGoods()) {
 				// Checks if same license is allocated multiple times
 				Assert.assertFalse("Invalid Allocation, same license allocated multiple times", invertedAllocation.containsKey(license));
 				invertedAllocation.put(license, bidder);
@@ -128,7 +128,7 @@ public class GSVMStandardMIPTest {
 		Set<GSVMLicense> fullBundle = new HashSet<>(world.getLicenses());
 
 		// the efficient allocation is not giving all licenses to the one national bidder
-		Assert.assertTrue(fullBundle.size() > allocation.allocationOf(nationalBidder).getBundle().getSingleAvailabilityGoods().size());
+		Assert.assertTrue(fullBundle.size() > allocation.allocationOf(nationalBidder).getBundle().getSingleQuantityGoods().size());
 
 		testTotalValue(population, allocation);
 	}

@@ -61,7 +61,7 @@ public class SRVMWorldPartialMip extends PartialMIP {
     private Set<Constraint> createNumberOfLotsConstraints() {
         Set<Constraint> result = new HashSet<>();
         for (SRVMBand band : world.getBands()) {
-            Constraint numberOfLotsConstraint = new Constraint(CompareType.LEQ, band.available());
+            Constraint numberOfLotsConstraint = new Constraint(CompareType.LEQ, band.getQuantity());
             for (SRVMBidder bidder : bidders) {
                 Variable xVar = getXVariable(bidder, band);
                 numberOfLotsConstraint.addTerm(1, xVar);
@@ -93,7 +93,7 @@ public class SRVMWorldPartialMip extends PartialMIP {
             Map<SRVMBand, Variable> bandMap = new HashMap<>();
             for (SRVMBand band : world.getBands()) {
                 String varName = xVariablePrefix.concat(SRVMBidderPartialMIP.createIndex(bidder, band));
-                Variable var = new Variable(varName, VarType.INT, 0, band.available());
+                Variable var = new Variable(varName, VarType.INT, 0, band.getQuantity());
                 bandMap.put(band, var);
             }
             result.put(bidder, Collections.unmodifiableMap(bandMap));

@@ -4,11 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.auction.pvm.PVMAuction;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Domain;
-import org.marketdesignresearch.mechlib.mechanisms.MechanismResult;
-import org.marketdesignresearch.mechlib.mechanisms.MechanismType;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Domain;
+import org.marketdesignresearch.mechlib.core.Outcome;
+import org.marketdesignresearch.mechlib.instrumentation.MipLoggingInstrumentation;
+import org.marketdesignresearch.mechlib.mechanism.auctions.pvm.PVMAuction;
+import org.marketdesignresearch.mechlib.outcomerules.OutcomeRuleGenerator;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
@@ -42,8 +43,8 @@ public class PVMTest {
     }
 
     private void testPVM(Domain domain) {
-        PVMAuction pvm = new PVMAuction(domain, MechanismType.CCG);
-        MechanismResult mechanismResult = pvm.getMechanismResult();
+        PVMAuction pvm = new PVMAuction(domain, OutcomeRuleGenerator.CCG, 10, new MipLoggingInstrumentation());
+        Outcome mechanismResult = pvm.getOutcome();
         logger.info(mechanismResult);
         Allocation mechanismAllocationWithTrueValues = mechanismResult.getAllocation().getAllocationWithTrueValues();
         Allocation efficientAllocation = domain.getEfficientAllocation();

@@ -6,16 +6,12 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import lombok.EqualsAndHashCode;
-import org.marketdesignresearch.mechlib.domain.Good;
 import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
-import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,7 +50,7 @@ public class BMBand extends GenericGood {
     }
 
     @Override
-    public int available() {
+    public int getQuantity() {
         return licenses.size();
     }
 

@@ -1,8 +1,8 @@
 package org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset;
 
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
@@ -19,10 +19,10 @@ public abstract class GenericPowerset implements BiddingLanguage {
         super();
         Map<GenericGood, Integer> orderedMap = new LinkedHashMap<>();
         for (GenericGood good : genericGoods) {
-            orderedMap.put(good, good.available());
+            orderedMap.put(good, good.getQuantity());
         }
         this.maxQuantities = Collections.unmodifiableMap(orderedMap);
-        this.maxBundleSize = genericGoods.stream().mapToInt(GenericGood::available).sum();
+        this.maxBundleSize = genericGoods.stream().mapToInt(GenericGood::getQuantity).sum();
         isFeasibleSize(orderedMap, maxBundleSize);
     }
 

@@ -9,20 +9,19 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.google.common.math.DoubleMath;
 import edu.harvard.econcs.jopt.solver.ISolution;
-import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
-import edu.harvard.econcs.jopt.solver.mip.MIPResult;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.BidderAllocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.bid.Bids;
-import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
-import org.marketdesignresearch.mechlib.mechanisms.MetaInfo;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bid.Bids;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
+import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
@@ -52,6 +51,11 @@ public class MRVM_MIP extends ModelMIP {
     private double scalingFactor;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
+        this(bidders, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
+    }
+
+    public MRVM_MIP(Collection<MRVMBidder> bidders, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+        super(purpose, mipInstrumentation);
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
@@ -98,7 +102,7 @@ public class MRVM_MIP extends ModelMIP {
     public MRVM_MIP getMIPWithout(Bidder bidder) {
         MRVMBidder mrvmBidder = (MRVMBidder) bidder;
         Preconditions.checkArgument(bidders.contains(mrvmBidder));
-        return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(mrvmBidder)).collect(Collectors.toSet()));
+        return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(mrvmBidder)).collect(Collectors.toSet()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
     }
 
     /* (non-Javadoc)

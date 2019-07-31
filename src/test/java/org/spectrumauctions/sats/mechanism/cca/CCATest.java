@@ -4,12 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.auction.cca.CCAuction;
-import org.marketdesignresearch.mechlib.auction.cca.bidcollection.supplementaryround.ProfitMaximizingSupplementaryRound;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Domain;
-import org.marketdesignresearch.mechlib.mechanisms.MechanismResult;
-import org.marketdesignresearch.mechlib.mechanisms.MechanismType;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Domain;
+import org.marketdesignresearch.mechlib.core.Outcome;
+import org.marketdesignresearch.mechlib.instrumentation.MipLoggingInstrumentation;
+import org.marketdesignresearch.mechlib.mechanism.auctions.cca.CCAuction;
+import org.marketdesignresearch.mechlib.mechanism.auctions.cca.bidcollection.supplementaryround.ProfitMaximizingSupplementaryRound;
+import org.marketdesignresearch.mechlib.outcomerules.OutcomeRuleGenerator;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;
@@ -43,9 +44,9 @@ public class CCATest {
     }
 
     private void testCCA(Domain domain) {
-        CCAuction cca = new CCAuction(domain, MechanismType.CCG, true);
+        CCAuction cca = new CCAuction(domain, OutcomeRuleGenerator.CCG, true, new MipLoggingInstrumentation());
         cca.addSupplementaryRound(new ProfitMaximizingSupplementaryRound(cca).withNumberOfSupplementaryBids(10));
-        MechanismResult mechanismResult = cca.getMechanismResult();
+        Outcome mechanismResult = cca.getOutcome();
         logger.info(mechanismResult);
         Allocation mechanismAllocationWithTrueValues = mechanismResult.getAllocation().getAllocationWithTrueValues();
         Allocation efficientAllocation = domain.getEfficientAllocation();

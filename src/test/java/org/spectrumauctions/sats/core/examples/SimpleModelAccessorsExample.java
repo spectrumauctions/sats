@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.examples;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.DefaultModel;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;

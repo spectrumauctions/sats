@@ -8,7 +8,7 @@ package org.spectrumauctions.sats.core.model.mrvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;

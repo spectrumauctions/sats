@@ -3,11 +3,12 @@ package org.spectrumauctions.sats.core.model.lsvm;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.mip.*;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.price.Prices;
+import lombok.Getter;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.price.Prices;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
@@ -19,7 +20,6 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -134,7 +134,7 @@ public final class LSVMBidder extends SATSBidder {
 
     @Override
     public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
-        LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this));
+        LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this), MipInstrumentation.MipPurpose.DEMAND_QUERY, mipInstrumentation);
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
         mip.getMIP().add(priceVar);
         mip.getMIP().addObjectiveTerm(-1, priceVar);
@@ -156,5 +156,15 @@ public final class LSVMBidder extends SATSBidder {
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
     }
+
+    // region instrumentation
+    @Getter
+    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
+
+    @Override
+    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
+        this.mipInstrumentation = mipInstrumentation;
+    }
+    // endregion
 
 }

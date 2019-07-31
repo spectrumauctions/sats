@@ -144,7 +144,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
             // Add Z_i_b >= 1/n_b * X_b constraint
             Constraint zgeq = new Constraint(CompareType.LEQ, 0);
             zgeq.addTerm(-1, getzVariable(band));
-            zgeq.addTerm(1.0 / band.available(), x);
+            zgeq.addTerm(1.0 / band.getQuantity(), x);
             result.add(zgeq);
             // Add Z_i_b <= X_i_b constraint
             Constraint zleq = new Constraint(CompareType.GEQ, 0);
@@ -164,7 +164,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         wleq.addTerm(-1, getwVariable());
 
         for (SRVMBand band : bidder.getWorld().getBands()) {
-            wgeq.addTerm(1.0 / band.available(), getzVariable(band));
+            wgeq.addTerm(1.0 / band.getQuantity(), getzVariable(band));
             wleq.addTerm(0.5, getzVariable(band));
         }
         result.add(wgeq);
@@ -271,7 +271,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         // Middle breakpoint
         breakpoints.put(new BigDecimal(threshold).setScale(scale), new BigDecimal(threshold));
         // Last breakpoint
-        BigDecimal key = new BigDecimal(band.available()).setScale(scale);
+        BigDecimal key = new BigDecimal(band.getQuantity()).setScale(scale);
         breakpoints.put(key, new BigDecimal(threshold));
 
         ContinuousPiecewiseLinearFunction result = new ContinuousPiecewiseLinearFunction(breakpoints);
@@ -284,7 +284,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
         // Add breakpoints
-        for (int x = 0; x <= band.available(); x++) {
+        for (int x = 0; x <= band.getQuantity(); x++) {
             double value = 0;
             if (x > 0) value = Math.min((threshold - 1.0) / threshold, (x - 1.0) / x);
             breakpoints.put(new BigDecimal(x).setScale(scale), new BigDecimal(value));
@@ -300,7 +300,7 @@ public class SRVMBidderPartialMIP extends PartialMIP {
         final int scale = 0;
         Map<BigDecimal, BigDecimal> breakpoints = new HashMap<>();
         // Add breakpoints
-        for (int x = 0; x <= band.available(); x++) {
+        for (int x = 0; x <= band.getQuantity(); x++) {
             double log = 0;
             if (x - threshold >= 0) log = Math.log(x - threshold + 1);
             double value = Math.max(0, log);

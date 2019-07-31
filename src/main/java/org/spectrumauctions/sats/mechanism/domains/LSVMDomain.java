@@ -1,5 +1,6 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.lsvm.LSVMStandardMIP;
@@ -16,7 +17,7 @@ public class LSVMDomain extends ModelDomain {
     @Override
     protected ModelMIP getMIP() {
         List<LSVMBidder> bidders = getBidders().stream().map(b -> (LSVMBidder) b).collect(Collectors.toList());
-        return new LSVMStandardMIP(bidders);
+        return new LSVMStandardMIP(bidders, MipInstrumentation.MipPurpose.ALLOCATION, getMipInstrumentation());
     }
 
 }

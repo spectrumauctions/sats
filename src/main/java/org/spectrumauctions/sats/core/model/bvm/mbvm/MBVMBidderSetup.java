@@ -25,11 +25,11 @@ public final class MBVMBidderSetup extends BMBidderSetup {
 
     /**
      * Read javadoc of superclass of explanation of this parameter.
-     * As there are no thresholds in the MBVM, this method always returns {@link BMBand#available()}.
+     * As there are no thresholds in the MBVM, this method always returns {@link BMBand#getQuantity()}.
      */
     @Override
     public Integer drawPositiveValueThreshold(BMBand band, UniformDistributionRNG rng) {
-        return band.available();
+        return band.getQuantity();
     }
 
 

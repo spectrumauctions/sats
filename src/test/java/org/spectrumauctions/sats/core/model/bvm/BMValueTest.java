@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMBidderSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMWorldSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
@@ -118,7 +118,7 @@ public class BMValueTest {
         Set<BMLicense> licenses = new HashSet<>();
         for (BMBand band : bidder.getWorld().getBands()) {
             Iterator<BMLicense> licenseIter = band.containedGoods().iterator();
-            for (int i = 0; i < band.available() / 2; i++) {
+            for (int i = 0; i < band.getQuantity() / 2; i++) {
                 licenses.add(licenseIter.next());
             }
         }

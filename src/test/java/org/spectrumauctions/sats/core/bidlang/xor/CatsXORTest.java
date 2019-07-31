@@ -3,8 +3,8 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Good;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.cats.CATSBidder;
 import org.spectrumauctions.sats.core.model.cats.CATSRegionModel;
@@ -59,9 +59,9 @@ public class CatsXORTest {
 
         Assert.assertTrue(directBids.size() > 0);
         Assert.assertTrue(iteratorBids.size() > 0);
-        List<List<? extends Good>> iteratorBundles = iteratorBids.stream().map(bv -> bv.getBundle().getSingleAvailabilityGoods()).collect(Collectors.toList());
+        List<List<? extends Good>> iteratorBundles = iteratorBids.stream().map(bv -> bv.getBundle().getSingleQuantityGoods()).collect(Collectors.toList());
         for (BundleValue directBid : directBids) {
-            Assert.assertTrue(iteratorBundles.contains(directBid.getBundle().getSingleAvailabilityGoods()));
+            Assert.assertTrue(iteratorBundles.contains(directBid.getBundle().getSingleQuantityGoods()));
         }
     }
 
@@ -160,7 +160,7 @@ public class CatsXORTest {
                     Set<BundleValue> bids = valueFunction.getCATSXORBids();
                     numberOfBidsSats += bids.size();
                     for (BundleValue bid : bids) {
-                        numberOfGoodsSats += bid.getBundle().getSingleAvailabilityGoods().size();
+                        numberOfGoodsSats += bid.getBundle().getSingleQuantityGoods().size();
                         valueOfGoodsSats += bid.getAmount().doubleValue();
                     }
                 }

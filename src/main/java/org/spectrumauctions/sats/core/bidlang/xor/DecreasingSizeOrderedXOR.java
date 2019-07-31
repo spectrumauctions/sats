@@ -5,8 +5,8 @@
  */
 package org.spectrumauctions.sats.core.bidlang.xor;
 
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 

@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Allocation;
+import org.marketdesignresearch.mechlib.core.Allocation;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;

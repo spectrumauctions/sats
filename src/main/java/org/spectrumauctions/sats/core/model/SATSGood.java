@@ -5,7 +5,8 @@
  */
 package org.spectrumauctions.sats.core.model;
 
-import org.marketdesignresearch.mechlib.domain.Good;
+
+import org.marketdesignresearch.mechlib.core.Good;
 
 public interface SATSGood extends Good {
     World getWorld();

@@ -16,13 +16,14 @@ import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.BidderAllocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.bid.Bids;
-import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
-import org.marketdesignresearch.mechlib.mechanisms.MetaInfo;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bid.Bids;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
+import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
@@ -56,6 +57,11 @@ public class SRVM_MIP extends ModelMIP {
     private SRVMWorld world;
 
     public SRVM_MIP(Collection<SRVMBidder> bidders) {
+        this(bidders, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
+    }
+
+    public SRVM_MIP(Collection<SRVMBidder> bidders, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+        super(purpose, mipInstrumentation);
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
@@ -115,7 +121,7 @@ public class SRVM_MIP extends ModelMIP {
     public ModelMIP getMIPWithout(Bidder bidder) {
         SRVMBidder srvmBidder = (SRVMBidder) bidder;
         Preconditions.checkArgument(bidderPartialMips.containsKey(srvmBidder));
-        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(srvmBidder)).collect(Collectors.toSet()));
+        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(srvmBidder)).collect(Collectors.toSet()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
     }
 
     /* (non-Javadoc)

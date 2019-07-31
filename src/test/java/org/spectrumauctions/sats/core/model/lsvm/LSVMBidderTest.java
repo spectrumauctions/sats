@@ -3,8 +3,8 @@ package org.spectrumauctions.sats.core.model.lsvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
@@ -124,7 +124,7 @@ public class LSVMBidderTest {
      */
     @Test
     public void testZeroValueForNonProximityLicenses() {
-        Set<Good> licenses = new HashSet<>(completeBundle.getSingleAvailabilityGoods());
+        Set<Good> licenses = new HashSet<>(completeBundle.getSingleQuantityGoods());
         licenses.removeAll(standardPopulation.get(0).getProximity());
         Bundle nonProximity = Bundle.of(licenses);
 

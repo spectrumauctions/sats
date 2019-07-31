@@ -6,8 +6,8 @@
 package org.spectrumauctions.sats.core.bidlang.xor;
 
 import com.google.common.math.BigIntegerMath;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.MissingInformationException;
 import org.spectrumauctions.sats.core.model.License;

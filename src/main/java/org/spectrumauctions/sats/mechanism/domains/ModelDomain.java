@@ -2,15 +2,13 @@ package org.spectrumauctions.sats.mechanism.domains;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Domain;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Domain;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.SATSGood;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
-import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
 import java.util.List;
 
@@ -52,6 +50,16 @@ public abstract class ModelDomain implements Domain {
     @Override
     public boolean hasEfficientAllocationCalculated() {
         return efficientAllocation != null;
+    }
+
+    // region instrumentation
+    @Getter
+    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
+
+    @Override
+    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
+        this.mipInstrumentation = mipInstrumentation;
+        getBidders().forEach(bidder -> bidder.attachMipInstrumentation(mipInstrumentation));
     }
 
 }

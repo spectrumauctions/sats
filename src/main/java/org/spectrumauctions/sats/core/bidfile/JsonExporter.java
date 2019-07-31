@@ -6,9 +6,9 @@
 package org.spectrumauctions.sats.core.bidfile;
 
 import com.google.gson.*;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.Good;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.License;
@@ -63,7 +63,7 @@ public class JsonExporter extends FileWriter {
             JsonObject bid = new JsonObject();
             BundleValue xorValue = iter.next();
             JsonArray licenses = new JsonArray();
-            for (Good license : xorValue.getBundle().getSingleAvailabilityGoods()) {
+            for (Good license : xorValue.getBundle().getSingleQuantityGoods()) {
                 License l = (License) license;
                 licenses.add(l.getLongId());
             }

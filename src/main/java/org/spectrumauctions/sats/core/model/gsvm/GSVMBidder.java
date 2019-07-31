@@ -2,13 +2,13 @@ package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.mip.*;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.Good;
-import org.marketdesignresearch.mechlib.domain.price.Prices;
+import lombok.Getter;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.price.Prices;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
@@ -20,7 +20,6 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +48,7 @@ public final class GSVMBidder extends SATSBidder {
     @Override
     public BigDecimal calculateValue(Bundle bundle) {
         double value = 0;
-        for (Good good : bundle.getSingleAvailabilityGoods()) {
+        for (Good good : bundle.getSingleQuantityGoods()) {
             GSVMLicense license = (GSVMLicense) good;
             if (this.values.containsKey(license.getLongId())) {
                 value += this.values.get(license.getLongId()).doubleValue();
@@ -122,7 +121,7 @@ public final class GSVMBidder extends SATSBidder {
 
     @Override
     public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
-        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this), true);
+        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this), true, MipInstrumentation.MipPurpose.DEMAND_QUERY, mipInstrumentation);
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
         mip.getMIP().add(priceVar);
         mip.getMIP().addObjectiveTerm(-1, priceVar);
@@ -149,4 +148,14 @@ public final class GSVMBidder extends SATSBidder {
     public String getDescription() {
         return description;
     }
+
+    // region instrumentation
+    @Getter
+    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
+
+    @Override
+    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
+        this.mipInstrumentation = mipInstrumentation;
+    }
+    // endregion
 }

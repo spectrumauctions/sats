@@ -2,11 +2,11 @@ package org.spectrumauctions.sats.opt.model;
 
 import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.ISolution;
-import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.marketdesignresearch.mechlib.winnerdetermination.WinnerDetermination;
 
 import java.util.Collection;
@@ -15,6 +15,18 @@ import java.util.Collection;
  * @author Fabio Isler
  */
 public abstract class ModelMIP extends WinnerDetermination {
+
+    protected ModelMIP() {
+        super(MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
+    }
+
+    protected ModelMIP(MipInstrumentation.MipPurpose purpose) {
+        super(purpose, new MipInstrumentation());
+    }
+
+    protected ModelMIP(MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+        super(purpose, mipInstrumentation);
+    }
 
     @Override
     protected abstract Allocation adaptMIPResult(ISolution mipResult); // Subclasses must implement this

@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
 

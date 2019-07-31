@@ -3,8 +3,8 @@ package org.spectrumauctions.sats.core.model.cats;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.Good;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
@@ -65,12 +65,12 @@ public class CATSBidderTest {
         BigDecimal value = customPopulation.get(0).calculateValue(completeBundle);
 
         float expectedValue = 0;
-        for (Good good : completeBundle.getSingleAvailabilityGoods()) {
+        for (Good good : completeBundle.getSingleQuantityGoods()) {
             CATSLicense license = (CATSLicense) good;
             expectedValue += license.getCommonValue();
             expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();
         }
-        expectedValue += Math.pow(completeBundle.getSingleAvailabilityGoods().size(), 1.2);
+        expectedValue += Math.pow(completeBundle.getSingleQuantityGoods().size(), 1.2);
 
         Assert.assertEquals(value.floatValue(), expectedValue, 0.01f);
     }
@@ -87,7 +87,7 @@ public class CATSBidderTest {
         BigDecimal value = customPopulation.get(0).calculateValue(completeBundle);
 
         float expectedValue = 0;
-        for (Good good : completeBundle.getSingleAvailabilityGoods()) {
+        for (Good good : completeBundle.getSingleQuantityGoods()) {
             CATSLicense license = (CATSLicense) good;
             expectedValue += license.getCommonValue();
             expectedValue += Math.pow(license.getCommonValue(), 2);

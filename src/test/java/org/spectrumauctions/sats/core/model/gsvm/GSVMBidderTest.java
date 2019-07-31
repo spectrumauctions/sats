@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
@@ -82,7 +82,7 @@ public class GSVMBidderTest {
         float nationalValueZeroHighs = 4 * 25;
         float nationalValueTwoHighs = 2 * 25 + 2 * 35;
         float nationalValueFourHighs = 4 * 35;
-        float factor = (completeBundle.getSingleAvailabilityGoods().size() - 1) * 0.2f;
+        float factor = (completeBundle.getSingleQuantityGoods().size() - 1) * 0.2f;
 
         float[] expectedValues = new float[6];
         expectedValues[0] = (nationalValueZeroHighs + regionalValue) + (nationalValueZeroHighs + regionalValue) * factor;
@@ -127,7 +127,7 @@ public class GSVMBidderTest {
         // Assert that national bidder has zero value for the whole regional bundle
         Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
 
-        float factor = (complete.getSingleAvailabilityGoods().size() - 1) * 0.2f;
+        float factor = (complete.getSingleQuantityGoods().size() - 1) * 0.2f;
 
         // Check if national bidder has expected value
         float expectedValue = 12 * 16 + 4 * 26 + (12 * 16 + 4 * 26) * factor;
@@ -172,7 +172,7 @@ public class GSVMBidderTest {
         // Assert that national bidder has zero value for the whole regional bundle
         Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
 
-        float factor = (completeBundle.getSingleAvailabilityGoods().size() - 1) * 0.2f;
+        float factor = (completeBundle.getSingleQuantityGoods().size() - 1) * 0.2f;
 
         // Check if national bidder has expected value
         float expectedValue = 2 * 16 + (2 * 16) * factor;

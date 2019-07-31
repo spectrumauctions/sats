@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.Good;
-import org.marketdesignresearch.mechlib.domain.price.Prices;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.xor.CatsXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
@@ -46,7 +46,7 @@ public final class CATSBidder extends SATSBidder {
     @Override
     public BigDecimal calculateValue(Bundle bundle) {
         double value = 0;
-        for (Good good : bundle.getSingleAvailabilityGoods()) {
+        for (Good good : bundle.getSingleQuantityGoods()) {
             CATSLicense license = (CATSLicense) good;
             if (this.privateValues.containsKey(license.getLongId())) {
                 value += license.getCommonValue();
@@ -61,7 +61,7 @@ public final class CATSBidder extends SATSBidder {
             }
         }
         if (!getWorld().getUseQuadraticPricingOption()) {
-            value += Math.pow(bundle.getSingleAvailabilityGoods().size(), 1 + world.getAdditivity());
+            value += Math.pow(bundle.getSingleQuantityGoods().size(), 1 + world.getAdditivity());
         }
         return BigDecimal.valueOf(value);
     }

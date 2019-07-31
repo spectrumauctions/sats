@@ -6,7 +6,7 @@
 package org.spectrumauctions.sats.core.model.srvm;
 
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;

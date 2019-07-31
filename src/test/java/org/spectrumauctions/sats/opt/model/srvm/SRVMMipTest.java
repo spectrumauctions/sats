@@ -8,8 +8,8 @@ package org.spectrumauctions.sats.opt.model.srvm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.srvm.*;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 

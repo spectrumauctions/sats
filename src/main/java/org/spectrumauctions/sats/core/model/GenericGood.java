@@ -39,7 +39,7 @@ public abstract class GenericGood implements SATSGood, Serializable {
     public abstract List<? extends License> containedGoods();
 
     @Override
-    public int available() {
+    public int getQuantity() {
         return containedGoods().size();
     }
 

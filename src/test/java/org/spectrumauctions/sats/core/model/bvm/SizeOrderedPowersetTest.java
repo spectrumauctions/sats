@@ -7,7 +7,7 @@ package org.spectrumauctions.sats.core.model.bvm;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;

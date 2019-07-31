@@ -5,7 +5,7 @@
  */
 package org.spectrumauctions.sats.core.bidlang;
 
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 
 import java.util.Iterator;

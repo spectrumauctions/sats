@@ -37,7 +37,7 @@ public final class MRVMBand extends GenericGood {
         int currentLicenseId = 0;
         for (MRVMWorldSetup.BandSetup bandSetup : bandSetups) {
             MRVMBand band = new MRVMBand(bandSetup, world, currentLicenseId, rng);
-            currentLicenseId += band.available();
+            currentLicenseId += band.getQuantity();
             bands.add(band);
         }
         return bands;
@@ -100,7 +100,7 @@ public final class MRVMBand extends GenericGood {
     }
 
     @Override
-    public int available() {
+    public int getQuantity() {
         return licenses.size();
     }
 

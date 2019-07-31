@@ -1,9 +1,8 @@
 package org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder;
 
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.Good;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -38,7 +37,7 @@ public abstract class XORQRandomOrderSimple implements BiddingLanguage {
         super();
         this.genericGoods = genericGoods;
         this.rngSupplier = rngSupplier;
-        int quantitySum = genericGoods.stream().mapToInt(GenericGood::available).sum();
+        int quantitySum = genericGoods.stream().mapToInt(GenericGood::getQuantity).sum();
         this.maxBundleSize = quantitySum;
         this.totalSize = quantitySum;
         this.iterations = DEFAULT_ITERATIONS;
@@ -50,7 +49,7 @@ public abstract class XORQRandomOrderSimple implements BiddingLanguage {
         int maxBids = 1;
         for (GenericGood good : genericGoods) {
             if (Math.abs(maxBids) > ABSOLUTE_MAX_BIDS) break;
-            maxBids *= good.available();
+            maxBids *= good.getQuantity();
         }
         return maxBids;
     }
@@ -126,8 +125,8 @@ public abstract class XORQRandomOrderSimple implements BiddingLanguage {
         private Map<GenericGood, Integer> getRandomQuantities() {
             Map<GenericGood, Integer> quantities = new HashMap<>();
             for (GenericGood good : genericGoods) {
-                if (includeGood(good.available(), totalSize, genericGoods.size())) {
-                    int quantity = uniRng.nextInt(1, good.available());
+                if (includeGood(good.getQuantity(), totalSize, genericGoods.size())) {
+                    int quantity = uniRng.nextInt(1, good.getQuantity());
                     quantities.put(good, quantity);
                 }
             }

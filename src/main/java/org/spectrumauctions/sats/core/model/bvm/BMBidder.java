@@ -10,10 +10,10 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.Good;
-import org.marketdesignresearch.mechlib.domain.price.Prices;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
@@ -256,7 +256,7 @@ public final class BMBidder extends SATSBidder {
             BMBand band = (BMBand) entry.getGood();
             Preconditions.checkArgument(band.getWorld().equals(this.getWorld()), "Band is not from this world" + band.getName());
             Preconditions.checkArgument(entry.getAmount() >= 0, "Quantity must not be negative. Band:" + band.getName() + "\t Licenses:" + entry.getAmount());
-            Preconditions.checkArgument(entry.getAmount() <= band.available(), "Specified too many licenses for this band" + band.getName() + "\t Licenses:" + entry.getAmount());
+            Preconditions.checkArgument(entry.getAmount() <= band.getQuantity(), "Specified too many licenses for this band" + band.getName() + "\t Licenses:" + entry.getAmount());
         }
         //Calculate Value
         BigDecimal value = BigDecimal.ZERO;

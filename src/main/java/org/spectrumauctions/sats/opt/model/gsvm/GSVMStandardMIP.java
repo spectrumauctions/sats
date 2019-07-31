@@ -6,12 +6,13 @@ import edu.harvard.econcs.jopt.solver.mip.CompareType;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.BidderAllocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.bid.Bids;
-import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
-import org.marketdesignresearch.mechlib.mechanisms.MetaInfo;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bid.Bids;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
+import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
@@ -34,16 +35,29 @@ public class GSVMStandardMIP extends ModelMIP {
 	private boolean allowAssigningLicensesWithZeroBasevalue;
 
 	public GSVMStandardMIP(List<GSVMBidder> population) {
-		this(population.iterator().next().getWorld(), population, true);
+		this(population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
+	}
+
+	public GSVMStandardMIP(List<GSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+		this(population.iterator().next().getWorld(), population, purpose, mipInstrumentation);
 	}
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
-		this(world, population, true);
+		this(world, population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
 	}
 
-	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population,
-			boolean allowAssigningLicensesWithZeroBasevalue) {
+	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+		this(world, population, true, purpose, mipInstrumentation);
+	}
 
+	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population, boolean allowAssigningLicensesWithZeroBasevalue) {
+		this(world, population, allowAssigningLicensesWithZeroBasevalue, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
+	}
+
+
+	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population,
+						   boolean allowAssigningLicensesWithZeroBasevalue, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+		super(purpose, mipInstrumentation);
 		this.allowAssigningLicensesWithZeroBasevalue = allowAssigningLicensesWithZeroBasevalue;
 		this.population = population;
 		this.world = world;
@@ -59,7 +73,7 @@ public class GSVMStandardMIP extends ModelMIP {
 	public ModelMIP getMIPWithout(Bidder bidder) {
 		GSVMBidder gsvmBidder = (GSVMBidder) bidder;
         Preconditions.checkArgument(population.contains(gsvmBidder));
-        return new GSVMStandardMIP(population.stream().filter(b -> !b.equals(gsvmBidder)).collect(Collectors.toList()));
+        return new GSVMStandardMIP(population.stream().filter(b -> !b.equals(gsvmBidder)).collect(Collectors.toList()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
 	}
 
 	@Override

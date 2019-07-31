@@ -11,11 +11,13 @@ import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.apache.commons.lang3.NotImplementedException;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.price.Prices;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.price.Prices;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
@@ -177,7 +179,7 @@ public abstract class MRVMBidder extends SATSBidder {
             int required = entry.getAmount();
             int alreadyThere = (int) licenses.stream().filter(containedLicenses::contains).count();
             int index = 0;
-            while (alreadyThere < required && index < def.available()) {
+            while (alreadyThere < required && index < def.getQuantity()) {
                 if (!licenses.contains(containedLicenses.get(index))) {
                     licenses.add(containedLicenses.get(index));
                     alreadyThere++;
@@ -232,7 +234,7 @@ public abstract class MRVMBidder extends SATSBidder {
 
     @Override
     public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
-        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
+        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this), MipInstrumentation.MipPurpose.DEMAND_QUERY, mipInstrumentation);
 
         double scalingFactor = mip.getBidderPartialMips().get(this).getScalingFactor();
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
@@ -303,4 +305,14 @@ public abstract class MRVMBidder extends SATSBidder {
             throw new UnsupportedBiddingLanguageException();
         }
     }
+
+    // region instrumentation
+    @Getter
+    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
+
+    @Override
+    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
+        this.mipInstrumentation = mipInstrumentation;
+    }
+    // endregion
 }

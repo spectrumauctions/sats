@@ -6,9 +6,9 @@
 package org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators;
 
 import com.google.common.collect.Sets;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
-import org.marketdesignresearch.mechlib.domain.bidder.value.BundleValue;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
@@ -43,7 +43,7 @@ public abstract class GenericSizeDecreasing extends GenericSizeOrdered {
         private void initNextRound() {
             roundSize = new HashMap<>();
             for (GenericGood good : allGoods) {
-                int quantity = good.available() - round;
+                int quantity = good.getQuantity() - round;
                 if (quantity < 0) {
                     quantity = 0;
                 }

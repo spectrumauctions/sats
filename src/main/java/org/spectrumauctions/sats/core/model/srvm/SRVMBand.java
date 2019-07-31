@@ -73,7 +73,7 @@ public final class SRVMBand extends GenericGood {
     }
 
     @Override
-    public int available() {
+    public int getQuantity() {
         return licenses.size();
     }
 

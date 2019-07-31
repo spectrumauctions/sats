@@ -4,8 +4,8 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.BundleEntry;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
@@ -59,7 +59,7 @@ public class SRVMBidderTest {
 
         int synergyCount = 0;
         for (SRVMBand band : world2.getBands()) {
-            int numberOfLicenses = band.available();
+            int numberOfLicenses = band.getQuantity();
             quantities.add(new BundleEntry(band, numberOfLicenses));
             double baseValue = bidder.getBaseValues().get(band.getName()).doubleValue();
             double synergyThreshold = bidder.getSynergyThreshold().get(band.getName());

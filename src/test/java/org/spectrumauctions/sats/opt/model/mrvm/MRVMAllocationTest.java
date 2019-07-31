@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Allocation;
+import org.marketdesignresearch.mechlib.core.Allocation;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMWorld;
 import org.spectrumauctions.sats.core.model.mrvm.MultiRegionModel;

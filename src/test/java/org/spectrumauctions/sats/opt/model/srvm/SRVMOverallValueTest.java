@@ -7,8 +7,8 @@ package org.spectrumauctions.sats.opt.model.srvm;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.BidderAllocation;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 

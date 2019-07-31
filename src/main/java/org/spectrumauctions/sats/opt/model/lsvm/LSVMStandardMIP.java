@@ -9,12 +9,13 @@ import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.VarType;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import lombok.EqualsAndHashCode;
-import org.marketdesignresearch.mechlib.domain.Allocation;
-import org.marketdesignresearch.mechlib.domain.BidderAllocation;
-import org.marketdesignresearch.mechlib.domain.Bundle;
-import org.marketdesignresearch.mechlib.domain.bid.Bids;
-import org.marketdesignresearch.mechlib.domain.bidder.Bidder;
-import org.marketdesignresearch.mechlib.mechanisms.MetaInfo;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bid.Bids;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
+import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMBidder;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMGrid;
@@ -48,10 +49,19 @@ public class LSVMStandardMIP extends ModelMIP {
 	private Map<Edge, Set<Integer>> validPathLengths = new HashMap<>();
 
 	public LSVMStandardMIP(List<LSVMBidder> population) {
-		this(population.iterator().next().getWorld(), population);
+		this(population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
+	}
+
+	public LSVMStandardMIP(List<LSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+		this(population.iterator().next().getWorld(), population, purpose, mipInstrumentation);
 	}
 
 	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population) {
+		this(world, population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
+	}
+
+	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
+		super(purpose, mipInstrumentation);
 		this.world = world;
 		this.population = population;
 
@@ -76,7 +86,7 @@ public class LSVMStandardMIP extends ModelMIP {
 	public ModelMIP getMIPWithout(Bidder bidder) {
 		LSVMBidder lsvmBidder = (LSVMBidder) bidder;
 		Preconditions.checkArgument(population.contains(lsvmBidder));
-		return new LSVMStandardMIP(population.stream().filter(b -> !b.equals(lsvmBidder)).collect(Collectors.toList()));
+		return new LSVMStandardMIP(population.stream().filter(b -> !b.equals(lsvmBidder)).collect(Collectors.toList()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
 	}
 
 	@Override
