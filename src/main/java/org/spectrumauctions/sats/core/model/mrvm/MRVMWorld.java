@@ -77,7 +77,7 @@ public final class MRVMWorld extends World implements GenericWorld {
      * @see World#restorePopulation(long)
      */
     @Override
-    public Collection<? extends SATSBidder> restorePopulation(long populationId) {
+    public List<? extends SATSBidder> restorePopulation(long populationId) {
         return super.restorePopulation(MRVMBidder.class, populationId);
     }
 

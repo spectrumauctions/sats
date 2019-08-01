@@ -87,7 +87,7 @@ public final class SRVMWorld extends World implements GenericWorld {
      * @see World#restorePopulation(long)
      */
     @Override
-    public Collection<SRVMBidder> restorePopulation(long populationId) {
+    public List<SRVMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(SRVMBidder.class, populationId);
     }
 

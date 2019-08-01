@@ -50,7 +50,7 @@ public abstract class World implements Serializable {
      * @param populationId the population id
      * @return the deserialized bidders
      */
-    public abstract Collection<? extends SATSBidder> restorePopulation(long populationId);
+    public abstract List<? extends SATSBidder> restorePopulation(long populationId);
 
     /**
      * Advanced way to restore serialized {@link SATSBidder} instances, allowing to specify a custom {@link InstanceHandler} <br>
@@ -64,11 +64,11 @@ public abstract class World implements Serializable {
      * @param storageHandler the instance handler
      * @return the deserialized bidders
      */
-    public <T extends SATSBidder> Collection<T> restorePopulation(Class<T> type, long populationId, InstanceHandler storageHandler) {
+    public <T extends SATSBidder> List<T> restorePopulation(Class<T> type, long populationId, InstanceHandler storageHandler) {
         return storageHandler.readPopulationWithUnknownTypes(type, this, populationId);
     }
 
-    protected <T extends SATSBidder> Collection<T> restorePopulation(Class<T> type, long populationId) {
+    protected <T extends SATSBidder> List<T> restorePopulation(Class<T> type, long populationId) {
         return restorePopulation(type, populationId, InstanceHandler.getDefaultHandler());
     }
 

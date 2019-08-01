@@ -155,7 +155,7 @@ public final class BMWorld extends World implements GenericWorld {
      * @see World#restorePopulation(long)
      */
     @Override
-    public Collection<BMBidder> restorePopulation(long populationId) {
+    public List<BMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(BMBidder.class, populationId);
     }
 

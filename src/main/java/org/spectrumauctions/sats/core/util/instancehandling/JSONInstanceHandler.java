@@ -13,10 +13,7 @@ import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 import org.spectrumauctions.sats.core.util.file.gson.GsonWrapper;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Weiss
@@ -114,9 +111,9 @@ public class JSONInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readPopulation(java.util.Map, int, int)
      */
     @Override
-    public <T extends SATSBidder> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
-                                                                                  long populationId) {
-        Set<T> bidders = new HashSet<>();
+    public <T extends SATSBidder> List<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
+                                                                         long populationId) {
+        List<T> bidders = new ArrayList<>();
         Collection<Long> bidderIds = pathUtils.getBidderIds(world.getId(), populationId);
         for (long bidderId : bidderIds) {
             bidders.add(readBidderWithUnknownType(bidderSuperType, world, populationId, bidderId));

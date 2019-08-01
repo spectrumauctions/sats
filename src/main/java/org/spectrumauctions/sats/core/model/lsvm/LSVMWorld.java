@@ -31,7 +31,7 @@ public final class LSVMWorld extends World {
     }
 
     @Override
-    public Collection<LSVMBidder> restorePopulation(long populationId) {
+    public List<LSVMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(LSVMBidder.class, populationId);
     }
 

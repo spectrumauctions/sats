@@ -61,7 +61,7 @@ public final class CATSWorld extends World {
     }
 
     @Override
-    public Collection<CATSBidder> restorePopulation(long populationId) {
+    public List<CATSBidder> restorePopulation(long populationId) {
         return super.restorePopulation(CATSBidder.class, populationId);
     }
 

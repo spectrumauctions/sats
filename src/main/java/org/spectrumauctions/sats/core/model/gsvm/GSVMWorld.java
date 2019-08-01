@@ -46,7 +46,7 @@ public final class GSVMWorld extends World {
     }
 
     @Override
-    public Collection<GSVMBidder> restorePopulation(long populationId) {
+    public List<GSVMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(GSVMBidder.class, populationId);
     }
 

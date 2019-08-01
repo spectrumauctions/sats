@@ -11,6 +11,7 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.UniformJavaUtilRandomWrapper;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A fast <b>instance handler</b> implementation.<br>
@@ -98,8 +99,8 @@ public class InMemoryInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readPopulation(java.util.Map, long, long)
      */
     @Override
-    public <T extends SATSBidder> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
-                                                                                  long populationId) {
+    public <T extends SATSBidder> List<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
+                                                                         long populationId) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
 

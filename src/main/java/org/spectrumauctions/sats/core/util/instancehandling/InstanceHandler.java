@@ -9,6 +9,7 @@ import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Michael Weiss
@@ -103,7 +104,7 @@ public abstract class InstanceHandler {
      * @param populationId the id of the population
      * @return the deserialized bidders
      */
-    public abstract <T extends SATSBidder> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world, long populationId);
+    public abstract <T extends SATSBidder> List<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world, long populationId);
 
     /**
      * Returns an new unused world id.

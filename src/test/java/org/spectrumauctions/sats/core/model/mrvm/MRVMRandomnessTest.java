@@ -21,7 +21,7 @@ public class MRVMRandomnessTest {
     long seed2 = 32487235;
 
     @Test
-    public void sameSeedSameOutcomeTestMBVM() {
+    public void sameSeedSameOutcomeTestMRVM() {
         MultiRegionModel model = new MultiRegionModel();
         MRVMWorld world1 = model.createWorld(seed);
         MRVMWorld world2 = model.createWorld(seed);
