@@ -21,13 +21,4 @@ public class GSVMDomain extends ModelDomain {
         return new GSVMStandardMIP(bidders, MipInstrumentation.MipPurpose.ALLOCATION, getMipInstrumentation());
     }
 
-    // region instrumentation
-    @Getter
-    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
-
-    @Override
-    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
-        this.mipInstrumentation = mipInstrumentation;
-        getBidders().forEach(bidder -> bidder.attachMipInstrumentation(mipInstrumentation));
-    }
 }

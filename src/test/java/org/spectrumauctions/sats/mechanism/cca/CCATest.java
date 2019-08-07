@@ -45,7 +45,7 @@ public class CCATest {
 
     private void testCCA(Domain domain) {
         CCAuction cca = new CCAuction(domain, OutcomeRuleGenerator.CCG, true, new MipLoggingInstrumentation());
-        cca.addSupplementaryRound(new ProfitMaximizingSupplementaryRound(cca).withNumberOfSupplementaryBids(10));
+        cca.addSupplementaryRound(new ProfitMaximizingSupplementaryRound().withNumberOfSupplementaryBids(10));
         Outcome mechanismResult = cca.getOutcome();
         logger.info(mechanismResult);
         Allocation mechanismAllocationWithTrueValues = mechanismResult.getAllocation().getAllocationWithTrueValues();

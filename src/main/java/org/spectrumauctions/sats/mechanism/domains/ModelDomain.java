@@ -1,7 +1,9 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Domain;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
@@ -53,7 +55,7 @@ public abstract class ModelDomain implements Domain {
     }
 
     // region instrumentation
-    @Getter
+    @Getter @Setter(AccessLevel.PROTECTED)
     private MipInstrumentation mipInstrumentation = new MipInstrumentation();
 
     @Override

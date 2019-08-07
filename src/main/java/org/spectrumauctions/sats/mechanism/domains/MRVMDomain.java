@@ -24,16 +24,4 @@ public class MRVMDomain extends ModelDomain {
         return new MRVM_MIP(bidders, MipInstrumentation.MipPurpose.ALLOCATION, getMipInstrumentation());
     }
 
-    // region instrumentation
-    @Getter
-    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
-
-    @Override
-    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
-        this.mipInstrumentation = mipInstrumentation;
-        getBidders().forEach(bidder -> bidder.attachMipInstrumentation(mipInstrumentation));
-    }
-
-    // endregion
-
 }
