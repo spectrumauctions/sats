@@ -34,6 +34,7 @@ public final class LSVMBidder extends SATSBidder {
     private final List<LSVMLicense> proximity;
     private final HashMap<Long, BigDecimal> values;
     private transient LSVMWorld world;
+    private final String description;
 
     LSVMBidder(LSVMBidderSetup setup, LSVMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -47,6 +48,10 @@ public final class LSVMBidder extends SATSBidder {
         this.values = setup.drawValues(rngSupplier, this);
         this.LSVM_A = setup.getLsvmA();
         this.LSVM_B = setup.getLsvmB();
+        this.description = setup.getSetupName() + " which has its headquarter in " + favorite.getName() +
+                ", thus interested in licenses "
+                + this.proximity.stream().map(String::valueOf).collect(Collectors.joining(", "))
+                + ".";
         store();
     }
 
@@ -155,6 +160,11 @@ public final class LSVMBidder extends SATSBidder {
                 .collect(Collectors.toList());
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     // region instrumentation
