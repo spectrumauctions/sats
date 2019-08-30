@@ -43,7 +43,8 @@ public class PVMTest {
     }
 
     private void testPVM(Domain domain) {
-        PVMAuction pvm = new PVMAuction(domain, OutcomeRuleGenerator.CCG, 10, new MipLoggingInstrumentation());
+        PVMAuction pvm = new PVMAuction(domain, OutcomeRuleGenerator.CCG, 10);
+        pvm.setMipInstrumentation(new MipLoggingInstrumentation());
         Outcome mechanismResult = pvm.getOutcome();
         logger.info(mechanismResult);
         Allocation mechanismAllocationWithTrueValues = mechanismResult.getAllocation().getAllocationWithTrueValues();

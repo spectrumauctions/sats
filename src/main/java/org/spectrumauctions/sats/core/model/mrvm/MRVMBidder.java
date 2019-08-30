@@ -12,6 +12,7 @@ import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
@@ -234,7 +235,9 @@ public abstract class MRVMBidder extends SATSBidder {
 
     @Override
     public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
-        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this), MipInstrumentation.MipPurpose.DEMAND_QUERY, mipInstrumentation);
+        MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
+        mip.setMipInstrumentation(getMipInstrumentation());
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
 
         double scalingFactor = mip.getBidderPartialMips().get(this).getScalingFactor();
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
@@ -305,14 +308,4 @@ public abstract class MRVMBidder extends SATSBidder {
             throw new UnsupportedBiddingLanguageException();
         }
     }
-
-    // region instrumentation
-    @Getter
-    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
-
-    @Override
-    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
-        this.mipInstrumentation = mipInstrumentation;
-    }
-    // endregion
 }

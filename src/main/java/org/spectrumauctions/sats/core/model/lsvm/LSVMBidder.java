@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.price.Prices;
@@ -139,7 +140,9 @@ public final class LSVMBidder extends SATSBidder {
 
     @Override
     public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
-        LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this), MipInstrumentation.MipPurpose.DEMAND_QUERY, mipInstrumentation);
+        LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this));
+        mip.setMipInstrumentation(getMipInstrumentation());
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
         mip.getMIP().add(priceVar);
         mip.getMIP().addObjectiveTerm(-1, priceVar);
@@ -166,15 +169,5 @@ public final class LSVMBidder extends SATSBidder {
     public String getDescription() {
         return description;
     }
-
-    // region instrumentation
-    @Getter
-    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
-
-    @Override
-    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
-        this.mipInstrumentation = mipInstrumentation;
-    }
-    // endregion
 
 }

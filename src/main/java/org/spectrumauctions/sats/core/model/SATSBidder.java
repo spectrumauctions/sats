@@ -6,8 +6,11 @@
 package org.spectrumauctions.sats.core.model;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
@@ -187,5 +190,10 @@ public abstract class SATSBidder implements Bidder, Serializable {
     protected BidderSetup getSetup() {
         return setup;
     }
+
+    // region instrumentation
+    @Getter @Setter
+    private MipInstrumentation mipInstrumentation = MipInstrumentation.NO_OP;
+    // endregion
 
 }

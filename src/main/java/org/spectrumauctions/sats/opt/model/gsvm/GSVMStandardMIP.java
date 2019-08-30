@@ -35,29 +35,14 @@ public class GSVMStandardMIP extends ModelMIP {
 	private boolean allowAssigningLicensesWithZeroBasevalue;
 
 	public GSVMStandardMIP(List<GSVMBidder> population) {
-		this(population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-	}
-
-	public GSVMStandardMIP(List<GSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-		this(population.iterator().next().getWorld(), population, purpose, mipInstrumentation);
+		this(population.iterator().next().getWorld(), population);
 	}
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
-		this(world, population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-	}
-
-	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-		this(world, population, true, purpose, mipInstrumentation);
+		this(world, population, true);
 	}
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population, boolean allowAssigningLicensesWithZeroBasevalue) {
-		this(world, population, allowAssigningLicensesWithZeroBasevalue, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-	}
-
-
-	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population,
-						   boolean allowAssigningLicensesWithZeroBasevalue, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-		super(purpose, mipInstrumentation);
 		this.allowAssigningLicensesWithZeroBasevalue = allowAssigningLicensesWithZeroBasevalue;
 		this.population = population;
 		this.world = world;
@@ -73,7 +58,7 @@ public class GSVMStandardMIP extends ModelMIP {
 	public ModelMIP getMIPWithout(Bidder bidder) {
 		GSVMBidder gsvmBidder = (GSVMBidder) bidder;
         Preconditions.checkArgument(population.contains(gsvmBidder));
-        return new GSVMStandardMIP(population.stream().filter(b -> !b.equals(gsvmBidder)).collect(Collectors.toList()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
+        return new GSVMStandardMIP(population.stream().filter(b -> !b.equals(gsvmBidder)).collect(Collectors.toList()));
 	}
 
 	@Override

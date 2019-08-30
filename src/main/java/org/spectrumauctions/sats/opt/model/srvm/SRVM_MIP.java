@@ -57,11 +57,6 @@ public class SRVM_MIP extends ModelMIP {
     private SRVMWorld world;
 
     public SRVM_MIP(Collection<SRVMBidder> bidders) {
-        this(bidders, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-    }
-
-    public SRVM_MIP(Collection<SRVMBidder> bidders, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-        super(purpose, mipInstrumentation);
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
@@ -121,7 +116,7 @@ public class SRVM_MIP extends ModelMIP {
     public ModelMIP getMIPWithout(Bidder bidder) {
         SRVMBidder srvmBidder = (SRVMBidder) bidder;
         Preconditions.checkArgument(bidderPartialMips.containsKey(srvmBidder));
-        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(srvmBidder)).collect(Collectors.toSet()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
+        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(srvmBidder)).collect(Collectors.toSet()));
     }
 
     /* (non-Javadoc)

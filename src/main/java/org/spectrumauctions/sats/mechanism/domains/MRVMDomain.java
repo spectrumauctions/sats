@@ -1,7 +1,5 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
-import lombok.Getter;
-import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
@@ -21,7 +19,7 @@ public class MRVMDomain extends ModelDomain {
     @Override
     protected ModelMIP getMIP() {
         List<MRVMBidder> bidders = getBidders().stream().map(b -> (MRVMBidder) b).collect(Collectors.toList());
-        return new MRVM_MIP(bidders, MipInstrumentation.MipPurpose.ALLOCATION, getMipInstrumentation());
+        return new MRVM_MIP(bidders);
     }
 
 }

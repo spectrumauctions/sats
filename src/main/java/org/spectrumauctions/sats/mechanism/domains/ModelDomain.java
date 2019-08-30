@@ -1,9 +1,7 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Domain;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
@@ -44,6 +42,8 @@ public abstract class ModelDomain implements Domain {
     @Override
     public Allocation getEfficientAllocation() {
         if (!hasEfficientAllocationCalculated()) {
+            getMIP().setMipInstrumentation(getMipInstrumentation());
+            getMIP().setPurpose(MipInstrumentation.MipPurpose.ALLOCATION);
             efficientAllocation = getMIP().getAllocation();
         }
         return efficientAllocation;
@@ -55,13 +55,14 @@ public abstract class ModelDomain implements Domain {
     }
 
     // region instrumentation
-    @Getter @Setter(AccessLevel.PROTECTED)
-    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
+    @Getter
+    private MipInstrumentation mipInstrumentation = MipInstrumentation.NO_OP;
 
     @Override
-    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
+    public void setMipInstrumentation(MipInstrumentation mipInstrumentation) {
         this.mipInstrumentation = mipInstrumentation;
-        getBidders().forEach(bidder -> bidder.attachMipInstrumentation(mipInstrumentation));
+        getBidders().forEach(bidder -> bidder.setMipInstrumentation(mipInstrumentation));
     }
+    // endregion
 
 }

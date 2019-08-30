@@ -23,30 +23,31 @@ public class VCGTest {
 
     @Test
     public void testGSVMVCG() {
-        ModelMIP mip = new GSVMStandardMIP(new GlobalSynergyValueModel().createNewPopulation(), MipInstrumentation.MipPurpose.ALLOCATION, new MipLoggingInstrumentation());
+        ModelMIP mip = new GSVMStandardMIP(new GlobalSynergyValueModel().createNewPopulation());
         testModelVCG(mip);
     }
 
     @Test
     public void testLSVMVCG() {
-        ModelMIP mip = new LSVMStandardMIP(new LocalSynergyValueModel().createNewPopulation(), MipInstrumentation.MipPurpose.ALLOCATION, new MipLoggingInstrumentation());
+        ModelMIP mip = new LSVMStandardMIP(new LocalSynergyValueModel().createNewPopulation());
         testModelVCG(mip);
     }
 
     @Test
     public void testMRVMVCG() {
-        ModelMIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation(), MipInstrumentation.MipPurpose.ALLOCATION, new MipLoggingInstrumentation());
+        ModelMIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation());
         testModelVCG(mip);
     }
 
     @Test
     public void testSRVMVCG() {
-        ModelMIP mip = new SRVM_MIP(new SingleRegionModel().createNewPopulation(), MipInstrumentation.MipPurpose.ALLOCATION, new MipLoggingInstrumentation());
+        ModelMIP mip = new SRVM_MIP(new SingleRegionModel().createNewPopulation());
         testModelVCG(mip);
     }
 
     private void testModelVCG(ModelMIP mip) {
         OutcomeRule vcg = new ModelVCGMechanism(mip);
+        vcg.setMipInstrumentation(new MipLoggingInstrumentation());
         Outcome outcome = vcg.getOutcome();
         log.info(outcome.toString());
     }

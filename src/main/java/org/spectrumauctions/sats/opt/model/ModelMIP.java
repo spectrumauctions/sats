@@ -16,18 +16,6 @@ import java.util.Collection;
  */
 public abstract class ModelMIP extends WinnerDetermination {
 
-    protected ModelMIP() {
-        super(MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-    }
-
-    protected ModelMIP(MipInstrumentation.MipPurpose purpose) {
-        super(purpose, new MipInstrumentation());
-    }
-
-    protected ModelMIP(MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-        super(purpose, mipInstrumentation);
-    }
-
     @Override
     protected abstract Allocation adaptMIPResult(ISolution mipResult); // Subclasses must implement this
 

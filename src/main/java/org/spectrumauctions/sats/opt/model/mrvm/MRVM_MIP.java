@@ -51,11 +51,6 @@ public class MRVM_MIP extends ModelMIP {
     private double scalingFactor;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
-        this(bidders, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-    }
-
-    public MRVM_MIP(Collection<MRVMBidder> bidders, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-        super(purpose, mipInstrumentation);
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
@@ -102,7 +97,7 @@ public class MRVM_MIP extends ModelMIP {
     public MRVM_MIP getMIPWithout(Bidder bidder) {
         MRVMBidder mrvmBidder = (MRVMBidder) bidder;
         Preconditions.checkArgument(bidders.contains(mrvmBidder));
-        return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(mrvmBidder)).collect(Collectors.toSet()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
+        return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(mrvmBidder)).collect(Collectors.toSet()));
     }
 
     /* (non-Javadoc)

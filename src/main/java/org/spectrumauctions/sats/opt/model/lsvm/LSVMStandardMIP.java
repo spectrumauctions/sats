@@ -49,19 +49,10 @@ public class LSVMStandardMIP extends ModelMIP {
 	private Map<Edge, Set<Integer>> validPathLengths = new HashMap<>();
 
 	public LSVMStandardMIP(List<LSVMBidder> population) {
-		this(population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-	}
-
-	public LSVMStandardMIP(List<LSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-		this(population.iterator().next().getWorld(), population, purpose, mipInstrumentation);
+		this(population.iterator().next().getWorld(), population);
 	}
 
 	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population) {
-		this(world, population, MipInstrumentation.MipPurpose.ALLOCATION, new MipInstrumentation());
-	}
-
-	public LSVMStandardMIP(LSVMWorld world, List<LSVMBidder> population, MipInstrumentation.MipPurpose purpose, MipInstrumentation mipInstrumentation) {
-		super(purpose, mipInstrumentation);
 		this.world = world;
 		this.population = population;
 
@@ -86,7 +77,7 @@ public class LSVMStandardMIP extends ModelMIP {
 	public ModelMIP getMIPWithout(Bidder bidder) {
 		LSVMBidder lsvmBidder = (LSVMBidder) bidder;
 		Preconditions.checkArgument(population.contains(lsvmBidder));
-		return new LSVMStandardMIP(population.stream().filter(b -> !b.equals(lsvmBidder)).collect(Collectors.toList()), MipInstrumentation.MipPurpose.PAYMENT, getMipInstrumentation());
+		return new LSVMStandardMIP(population.stream().filter(b -> !b.equals(lsvmBidder)).collect(Collectors.toList()));
 	}
 
 	@Override

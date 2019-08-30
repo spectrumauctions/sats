@@ -3,7 +3,6 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import edu.harvard.econcs.jopt.solver.mip.*;
-import lombok.Getter;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
@@ -121,7 +120,9 @@ public final class GSVMBidder extends SATSBidder {
 
     @Override
     public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
-        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this), true, MipInstrumentation.MipPurpose.DEMAND_QUERY, mipInstrumentation);
+        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this), true);
+        mip.setMipInstrumentation(getMipInstrumentation());
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
         mip.getMIP().add(priceVar);
         mip.getMIP().addObjectiveTerm(-1, priceVar);
@@ -149,13 +150,4 @@ public final class GSVMBidder extends SATSBidder {
         return description;
     }
 
-    // region instrumentation
-    @Getter
-    private MipInstrumentation mipInstrumentation = new MipInstrumentation();
-
-    @Override
-    public void attachMipInstrumentation(MipInstrumentation mipInstrumentation) {
-        this.mipInstrumentation = mipInstrumentation;
-    }
-    // endregion
 }

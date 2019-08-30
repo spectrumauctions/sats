@@ -44,7 +44,8 @@ public class CCATest {
     }
 
     private void testCCA(Domain domain) {
-        CCAuction cca = new CCAuction(domain, OutcomeRuleGenerator.CCG, true, new MipLoggingInstrumentation());
+        CCAuction cca = new CCAuction(domain, OutcomeRuleGenerator.CCG, true);
+        cca.setMipInstrumentation(new MipLoggingInstrumentation());
         cca.addSupplementaryRound(new ProfitMaximizingSupplementaryRound().withNumberOfSupplementaryBids(10));
         Outcome mechanismResult = cca.getOutcome();
         logger.info(mechanismResult);
@@ -52,6 +53,6 @@ public class CCATest {
         Allocation efficientAllocation = domain.getEfficientAllocation();
         BigDecimal efficiency = mechanismAllocationWithTrueValues.getTotalAllocationValue().divide(efficientAllocation.getTotalAllocationValue(), RoundingMode.HALF_UP).setScale(4, RoundingMode.HALF_UP);
         logger.info("Efficiency CCA: " + efficiency);
-        Assert.assertTrue(efficiency.doubleValue() < 1);
+        Assert.assertTrue(efficiency.doubleValue() <= 1);
     }
 }
