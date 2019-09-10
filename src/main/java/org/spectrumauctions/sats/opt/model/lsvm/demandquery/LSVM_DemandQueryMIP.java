@@ -82,7 +82,9 @@ public class LSVM_DemandQueryMIP implements NonGenericDemandQueryMIP<LSVMLicense
         }
 
         lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_CAPACITY, numberOfResults);
-        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 4);
+        // We're using mode 3 here, because we can (only boolean variables) and it's faster than mode 4 due to the
+        // immensely large solution space
+        lsvmMip.getMip().setSolveParam(SolveParam.SOLUTION_POOL_MODE, 3);
         lsvmMip.getMip().setAdvancedVariablesOfInterest(variableSetsOfInterest);
         IMIPResult mipResult = solver.solve(lsvmMip.getMip());
         logger.debug("Result:\n{}", mipResult);

@@ -24,7 +24,6 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S ex
     private final RNGSupplier rngSupplier;
 
 
-    private final transient long seed;
     private final transient int totalSize;
     private final transient Set<GenericValue> cache;
     private final transient int maxBids;
@@ -37,7 +36,6 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S ex
     protected XORQRandomOrderSimple(Collection<T> genericDefinitions, RNGSupplier rngSupplier) {
         super();
         this.rngSupplier = rngSupplier;
-        this.seed = this.rngSupplier.getUniformDistributionRNG().nextLong();
         Map<T, Integer> orderedMap = new LinkedHashMap<>();
         int quantitySum = 0;
         for (T def : genericDefinitions) {
@@ -77,7 +75,7 @@ public abstract class XORQRandomOrderSimple<T extends GenericDefinition<S>, S ex
      */
     @Override
     public Iterator<GenericValue<T, S>> iterator() {
-        return new SimpleRandomOrderIterator(iterations, rngSupplier.getUniformDistributionRNG(seed));
+        return new SimpleRandomOrderIterator(iterations, rngSupplier.getUniformDistributionRNG());
     }
 
     protected abstract GenericValueBidder<T> getGenericBidder();

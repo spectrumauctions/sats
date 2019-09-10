@@ -34,13 +34,7 @@ public class RandomOrderXORQFactory implements Serializable {
     }
 
     public static XORQRandomOrderSimple<MRVMGenericDefinition, MRVMLicense> getXORQRandomOrderSimpleLang(MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
-        List<MRVMGenericDefinition> bands = new ArrayList<>();
-        for (MRVMBand band : bidder.getWorld().getBands()) {
-            for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
-                bands.add(new MRVMGenericDefinition(band, region));
-            }
-        }
-        return new SimpleRandomOrder(bands, bidder, new JavaUtilRNGSupplier());
+        return getXORQRandomOrderSimpleLang(bidder, new JavaUtilRNGSupplier());
     }
 
 

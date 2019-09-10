@@ -60,11 +60,7 @@ public class GenericAllocation<T extends GenericDefinition<S>, S extends Good> i
 
     @Override
     public BigDecimal getTotalValue() {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (GenericValue<T, S> genVal : values.values()) {
-            sum = sum.add(genVal.getValue());
-        }
-        return sum;
+        return values.values().stream().map(GenericValue::getValue).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override

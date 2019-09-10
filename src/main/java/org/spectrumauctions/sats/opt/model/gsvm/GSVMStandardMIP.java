@@ -111,6 +111,11 @@ public class GSVMStandardMIP extends ModelMIP implements WinnerDeterminator<GSVM
 		throw new UnsupportedOperationException("The GSVM MIP does not support CCG yet.");
 	}
 
+	@Override
+	public double getScale() {
+		return 1;
+	}
+
 	private void build() {
 
         // build objective term

@@ -6,8 +6,12 @@
         </Console>
     </Appenders>
     <Loggers>
+        <Logger name="edu.harvard.econcs" level="warn" additivity="true">
+            <appender-ref ref="Console" />
+        </Logger>
         <Root level="info">
             <AppenderRef ref="Console" />
         </Root>
+
     </Loggers>
 </Configuration>

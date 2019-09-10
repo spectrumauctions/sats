@@ -49,12 +49,13 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
     private MRVMWorld world;
     private Collection<MRVMBidder> bidders;
     private double epsilon = DEFAULT_EPSILON;
+    private double scalingFactor;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
-        double scalingFactor = Scalor.scalingFactor(bidders);
+        scalingFactor = Scalor.scalingFactor(bidders);
         double biggestPossibleValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         this.bidders = bidders;
         this.worldPartialMip = new MRVMWorldPartialMip(
@@ -125,12 +126,16 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
                     Variable xVar = worldPartialMip.getXVariable(bidder.getKey(), region, band);
                     double doubleQuantity = mipResult.getValue(xVar);
                     int quantity = (int) Math.round(doubleQuantity);
-                    MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
-                    valueBuilder.putQuantity(def, quantity);
+                    if (quantity > 0) {
+                        MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
+                        valueBuilder.putQuantity(def, quantity);
+                    }
                 }
             }
             GenericValue<MRVMGenericDefinition, MRVMLicense> build = valueBuilder.build();
-            resultBuilder.putGenericValue(bidder.getKey(), build);
+            if (!build.getQuantities().isEmpty()) {
+                resultBuilder.putGenericValue(bidder.getKey(), build);
+            }
         }
         return resultBuilder.build();
     }
@@ -173,6 +178,11 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
             addConstraint(xConstraint2);
 
         }
+    }
+
+    @Override
+    public double getScale() {
+        return 1 / scalingFactor;
     }
 
     public void setEpsilon(double epsilon) {

@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.mechanism.vcg;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.model.Bidder;
 import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
@@ -13,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
+
+    private static final Logger logger = LogManager.getLogger(VCGMechanism.class);
+
 
     private WinnerDeterminator<T> baseWD;
     private MechanismResult<T> result;
@@ -55,6 +60,11 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
         baseWD.adjustPayoffs(payoffs);
     }
 
+    @Override
+    public double getScale() {
+        return baseWD.getScale();
+    }
+
     private MechanismResult<T> calculateVCGPayments() {
         Allocation<T> baseAllocation = baseWD.calculateAllocation();
 
@@ -71,6 +81,19 @@ public class VCGMechanism<T extends Good> implements AuctionMechanism<T> {
 
             double paymentAmount = valueWDWithoutBidder - valueWithoutBidder;
             payments.put(bidder, new BidderPayment(paymentAmount));
+
+            if (paymentAmount > baseAllocation.getTradeValue(bidder).doubleValue()) {
+                logger.error("Payment bigger than trade value for bidder {}!", bidder.getId());
+                logger.error("Bidder's value: {}", baseAllocation.getTradeValue(bidder));
+                logger.error("Payment: {}", paymentAmount);
+                logger.error("Base allocation:\n{}", baseAllocation);
+                logger.error("Allocation w/o bidder:\n{}", allocationWithoutBidder);
+                logger.error("Base WDP -> scale:\n{}", baseWD.getScale());
+                logger.error("WDP w/o bidder -> scale:\n{}", wdWithoutBidder.getScale());
+                logger.error("Base WDP:\n{}", baseWD.toString());
+                logger.error("WDP w/o bidder:\n{}", wdWithoutBidder.toString());
+            }
+
 
         }
         Payment<T> payment = new Payment<>(payments);

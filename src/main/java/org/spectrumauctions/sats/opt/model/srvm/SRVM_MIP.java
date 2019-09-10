@@ -42,6 +42,8 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
 
     private static SolverClient SOLVER = new SolverClient();
 
+    private double scalingFactor;
+
     /**
      * If the highest possible value any bidder can have is higher than {@link MIP#MAX_VALUE} - MAXVAL_SAFETYGAP}
      * a non-zero scaling factor for the calculation is chosen.
@@ -56,7 +58,7 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
         getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
-        double scalingFactor = calculateScalingFactor(bidders);
+        scalingFactor = calculateScalingFactor(bidders);
         double biggestPossibleValue = biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         this.worldPartialMip = new SRVMWorldPartialMip(
                 bidders,
@@ -154,6 +156,11 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
     @Override
     public void adjustPayoffs(Map<Bidder<SRVMLicense>, Double> payoffs) {
         throw new UnsupportedOperationException("The SRVM MIP does not support CCG yet.");
+    }
+
+    @Override
+    public double getScale() {
+        return 1 / scalingFactor;
     }
 
     public SRVMWorldPartialMip getWorldPartialMip() {
