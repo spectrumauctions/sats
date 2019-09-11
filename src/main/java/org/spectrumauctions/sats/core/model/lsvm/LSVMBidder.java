@@ -51,7 +51,7 @@ public final class LSVMBidder extends SATSBidder {
         this.LSVM_B = setup.getLsvmB();
         this.description = setup.getSetupName() + " which has its headquarter in " + favorite.getName() +
                 ", thus interested in licenses "
-                + this.proximity.stream().map(String::valueOf).collect(Collectors.joining(", "))
+                + this.proximity.stream().map(LSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
         store();
     }

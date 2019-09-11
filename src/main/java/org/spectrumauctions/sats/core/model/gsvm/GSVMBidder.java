@@ -39,7 +39,7 @@ public final class GSVMBidder extends SATSBidder {
         this.bidderPosition = bidderPosition % world.getSize();
         this.values = setup.drawValues(rngSupplier, this);
         this.description = setup.getSetupName() + " with interest in licenses "
-                + this.values.keySet().stream().map(String::valueOf).collect(Collectors.joining(", "))
+                + this.world.getLicenses().stream().filter(l -> this.values.containsKey(l.getLongId())).map(GSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
         store();
     }

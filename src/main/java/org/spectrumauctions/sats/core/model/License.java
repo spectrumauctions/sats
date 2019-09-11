@@ -57,7 +57,7 @@ public abstract class License implements SATSGood, Serializable {
         }
     }
 
-    private static String toAlphabetic(long i) {
+    public static String toAlphabetic(long i) {
         if (i < 0) {
             return "-" + toAlphabetic(-i - 1);
         }
