@@ -110,7 +110,16 @@ public final class LSVMBidder extends Bidder<LSVMLicense> {
     public Map<Long, BigDecimal> getBaseValues() {
         return Collections.unmodifiableMap(values);
     }
-    
+
+    /**
+     * This factor is used to calculate the bonus for having adjacent items.
+     *
+     * Note: To our knowledge, Scheffel et al. (2010) do not specify the behavior in case a license is added which the
+     * bidder does not have any interest in. This one license could connect two subsets of items which the
+     * bidder is interested in, creating one larger subset, thus increasing the bonus for adjacent items.
+     * A possible extension of the model is to adjust the bonus accordingly in this situation.
+     * Currently, SATS doesn't prevent this behavior, sticking to the original model.
+     */
     public double calculateFactor(int size){
     	return 1 + (LSVM_A / (100 * (1 + Math.exp(LSVM_B - size))));
     }

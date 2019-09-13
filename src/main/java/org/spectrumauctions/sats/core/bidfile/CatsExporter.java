@@ -14,6 +14,7 @@ import org.spectrumauctions.sats.core.model.bvm.BMLicense;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +36,7 @@ public class CatsExporter extends FileWriter {
             XORValue<?> value = (XORValue) iter.next();
             selectedValues.add(value);
             String line = String.valueOf(i).concat("\t");
-            line = line.concat(roundedValue(value.value().doubleValue()));
+            line = line.concat(value.value().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
             line = line.concat("\t");
             line = line.concat(value.getLicenses().itemIds("\t")).concat("#");
             bidLines.add(line);
@@ -86,7 +87,7 @@ public class CatsExporter extends FileWriter {
             for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
                 XORValue<?> value = (XORValue) iter.next();
                 StringBuilder line = new StringBuilder(String.valueOf(countBids++)).append("\t");
-                line.append(roundedValue(value.value().doubleValue()));
+                line.append(value.value().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
                 line.append("\t");
                 line.append(value.getLicenses().itemIds("\t"));
                 line.append("\t");

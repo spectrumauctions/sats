@@ -1,7 +1,7 @@
 package org.spectrumauctions.sats.mechanism.cca;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
@@ -16,6 +16,7 @@ import org.spectrumauctions.sats.mechanism.cca.supplementaryround.NonGenericSupp
 import org.spectrumauctions.sats.mechanism.cca.supplementaryround.ProfitMaximizingNonGenericSupplementaryRound;
 import org.spectrumauctions.sats.mechanism.ccg.CCGMechanism;
 import org.spectrumauctions.sats.mechanism.domain.MechanismResult;
+import org.spectrumauctions.sats.mechanism.domain.Payment;
 import org.spectrumauctions.sats.mechanism.domain.mechanisms.AuctionMechanism;
 import org.spectrumauctions.sats.mechanism.vcg.VCGMechanism;
 import org.spectrumauctions.sats.opt.domain.Allocation;
@@ -28,12 +29,15 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static jdk.nashorn.internal.objects.Global.Infinity;
+
 public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private static final Logger logger = LogManager.getLogger(NonGenericCCAMechanism.class);
 
     private NonGenericDemandQueryMIPBuilder<T> demandQueryMIPBuilder;
     private Map<Good, BigDecimal> startingPrices = new HashMap<>();
+
     private NonGenericPriceUpdater<T> priceUpdater = new SimpleRelativeNonGenericPriceUpdate<>();
     private List<NonGenericSupplementaryRound<T>> supplementaryRounds = new ArrayList<>();
 
@@ -64,6 +68,12 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return result;
     }
 
+    @Override
+    public Payment<T> recomputePayments() {
+        return calculatePayments().getPayment();
+    }
+
+
     public void setStartingPrice(Good good, BigDecimal price) {
         startingPrices.put(good, price);
     }
@@ -71,61 +81,52 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
     @Override
     public void calculateSampledStartingPrices(int bidsPerBidder, int numberOfWorldSamples, double fraction, long seed) {
         World world = bidders.stream().findAny().map(Bidder::getWorld).orElseThrow(NoSuchFieldError::new);
-        // We need a fixed order -> List
-        List<Good> licenseList = new ArrayList<>(world.getLicenses());
         try {
-            ArrayList<Double> yVector = new ArrayList<>();
-            ArrayList<ArrayList<Double>> xVectors = new ArrayList<>();
+            Map<Good, SimpleRegression> regressions = new HashMap<>();
+            for (Good good : world.getLicenses()) {
+                SimpleRegression regression = new SimpleRegression(false);
+                regression.addData(0.0, 0.0);
+                regressions.put(good, regression);
+            }
 
             RNGSupplier rngSupplier = new JavaUtilRNGSupplier(seed);
             for (int i = 0; i < numberOfWorldSamples; i++) {
                 List<Bidder<T>> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
                 for (Bidder<T> bidder : alternateBidders) {
                     SizeBasedUniqueRandomXOR valueFunction;
-
                     valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
                     valueFunction.setIterations(bidsPerBidder);
 
                     Iterator<XORValue<T>> bidIterator = valueFunction.iterator();
                     while (bidIterator.hasNext()) {
                         XORValue<T> bid = bidIterator.next();
-                        yVector.add(bid.value().doubleValue());
-                        ArrayList<Double> xVector = new ArrayList<>();
-                        for (Good license : licenseList) {
-                            double value = 0;
-                            if (bid.getLicenses().contains(license)) {
-                                value = 1;
-                            }
-                            xVector.add(value);
+                        Bundle<T> bundle = bid.getLicenses();
+                        BigDecimal value = bid.value();
+                        for (Good good : bundle) {
+                            double y = value.doubleValue() / bundle.size();
+                            regressions.get(good).addData(1.0, y);
                         }
-                        xVectors.add(xVector);
                     }
                 }
             }
 
+            double min = Infinity;
 
-            OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
-            regression.setNoIntercept(true);
-            double[] yArray = new double[yVector.size()];
-            for (int i = 0; i < yVector.size(); i++) {
-                yArray[i] = yVector.get(i);
-            }
-            double[][] xArrays = new double[xVectors.size()][xVectors.get(0).size()];
-            for (int i = 0; i < xVectors.size(); i++) {
-                for (int j = 0; j < xVectors.get(i).size(); j++) {
-                    xArrays[i][j] = xVectors.get(i).get(j);
-                }
-            }
-
-            regression.newSampleData(yArray, xArrays);
-            double[] betas = regression.estimateRegressionParameters();
-
-            for (int i = 0; i < licenseList.size(); i++) {
-                double prediction = Math.max(betas[i], 0.0);
-                double price = prediction * fraction;
+            for (Map.Entry<Good, SimpleRegression> entry : regressions.entrySet()) {
+                double y = entry.getValue().predict(1);
+                double price = y * fraction;
                 logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
-                        licenseList.get(i), prediction, price);
-                setStartingPrice(licenseList.get(i), BigDecimal.valueOf(price));
+                        entry.getKey(), y, price);
+                setStartingPrice(entry.getKey(), BigDecimal.valueOf(price));
+                if (price > 0 && price < min) min = price;
+            }
+
+            // If ever a prediction turns out to be zero or negative (which should almost never be the case)
+            // it is set to the smallest prediction of the other goods to avoid getting stuck in CCA
+            for (Good license : regressions.keySet()) {
+                if (startingPrices.get(license).compareTo(BigDecimal.ZERO) < 1) {
+                    setStartingPrice(license, BigDecimal.valueOf(min));
+                }
             }
 
         } catch (UnsupportedBiddingLanguageException e) {
@@ -136,6 +137,26 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         }
     }
 
+    @Override
+    public CCAMechanism<T> cloneWithoutSupplementaryBids() {
+        NonGenericCCAMechanism<T> clone = new NonGenericCCAMechanism<>(bidders, demandQueryMIPBuilder);
+        clone.priceUpdater = priceUpdater;
+        clone.absoluteResultPoolTolerance = absoluteResultPoolTolerance;
+        clone.relativeResultPoolTolerance = relativeResultPoolTolerance;
+        clone.clockPhaseNumberOfBundles = clockPhaseNumberOfBundles;
+        clone.epsilon = epsilon;
+        clone.fallbackStartingPrice = fallbackStartingPrice;
+        clone.maxRounds = maxRounds;
+        clone.paymentRule = paymentRule;
+        clone.timeLimit = timeLimit;
+        clone.bidsAfterClockPhase = bidsAfterClockPhase;
+        clone.finalPrices = finalPrices;
+        clone.finalDemand = finalDemand;
+        clone.totalRounds = totalRounds;
+        clone.startingPrices = startingPrices;
+        return clone;
+    }
+
     public Allocation<T> calculateClockPhaseAllocation() {
         if (bidsAfterClockPhase == null) {
             logger.info("Starting clock phase for XOR bids...");
@@ -143,7 +164,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         }
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterClockPhase);
 
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, getEpsilonWdp());
         return wdp.calculateAllocation();
     }
 
@@ -158,7 +179,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         }
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
 
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, getEpsilonWdp());
         return wdp.calculateAllocation();
     }
 
@@ -191,7 +212,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                         Bundle<T> bundle = demandQueryResult.getResultingBundle().getLicenses();
 
                         XORBid.Builder<T> xorBidBuilder = new XORBid.Builder<>(bidder, bids.get(bidder).getValues());
-                        BigDecimal bid = BigDecimal.valueOf(bundle.stream().mapToDouble(l -> currentPrices.get(l).doubleValue()).sum());
+                        BigDecimal bid = bundle.stream().map(currentPrices::get).reduce(BigDecimal.ZERO, BigDecimal::add);
                         XORValue<T> existing = xorBidBuilder.containsBundle(bundle);
                         if (existing != null && existing.value().compareTo(bid) < 1) {
                             xorBidBuilder.removeFromBid(existing);
@@ -212,6 +233,16 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
                 finalPrices = prices;
             } else {
                 prices = updatedPrices;
+                if (logger.isInfoEnabled()) {
+                    int aggregateDemand = 0;
+                    int supply = 0;
+                    for (Map.Entry<T, BigDecimal> priceEntry : prices.entrySet()) {
+                        T def = priceEntry.getKey();
+                        aggregateDemand += demand.getOrDefault(def, 0);
+                        supply += 1;
+                    }
+                    logger.info("Round: {} - Demand: {} - Supply: {}", totalRounds, aggregateDemand, supply);
+                }
                 totalRounds++;
             }
         }
@@ -242,7 +273,7 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
 
     private MechanismResult<T> calculatePayments() {
         Set<XORBid<T>> bids = new HashSet<>(bidsAfterSupplementaryRound);
-        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids);
+        XORWinnerDetermination<T> wdp = new XORWinnerDetermination<>(bids, getEpsilonWdp());
         AuctionMechanism<T> mechanism;
         switch (paymentRule) {
             case CCG:
@@ -343,4 +374,12 @@ public class NonGenericCCAMechanism<T extends Good> extends CCAMechanism<T> {
         return null;
     }
 
+    public BigDecimal getStartingPrice(T license) {
+        return startingPrices.getOrDefault(license, fallbackStartingPrice);
+    }
+
+    @Override
+    public double getScale() {
+        return 1;
+    }
 }

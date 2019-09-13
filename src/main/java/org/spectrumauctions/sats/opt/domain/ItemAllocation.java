@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class ItemAllocation<T extends Good> implements Allocation<T> {
 
@@ -31,7 +32,7 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
             this.declaredValues = builder.declaredValues;
         }
         if (builder.totalValue == null) {
-            this.totalValue = BigDecimal.valueOf(this.declaredValues.values().stream().mapToDouble(BigDecimal::doubleValue).sum());
+            this.totalValue = this.declaredValues.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         } else {
             this.totalValue = builder.totalValue;
         }
@@ -82,10 +83,9 @@ public final class ItemAllocation<T extends Good> implements Allocation<T> {
 
         ItemAllocation<?> that = (ItemAllocation<?>) o;
 
-        if (world != null ? !world.equals(that.world) : that.world != null) return false;
-        if (alloc != null ? !alloc.equals(that.alloc) : that.alloc != null) return false;
-        if (declaredValues != null ? !declaredValues.equals(that.declaredValues) : that.declaredValues != null)
-            return false;
+        if (!Objects.equals(world, that.world)) return false;
+        if (!Objects.equals(alloc, that.alloc)) return false;
+        if (!Objects.equals(declaredValues, that.declaredValues)) return false;
         return getTotalValue() != null ? getTotalValue().equals(that.getTotalValue()) : that.getTotalValue() == null;
     }
 

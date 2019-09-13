@@ -25,9 +25,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MRVMCCATest {
 
@@ -160,6 +158,24 @@ public class MRVMCCATest {
 
         assertTrue(ccaZero.getTotalRounds() > ccaSampled.getTotalRounds());
         assertTrue(durationZero > durationSampled);
+    }
+
+    @Test
+    public void testDeterministicSampledStartingPrices() {
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation(123123);
+        List<MRVMBidder> rawBidders2 = new MultiRegionModel().createNewPopulation(123123);
+        assertEquals(rawBidders, rawBidders2);
+        assertEquals(rawBidders.iterator().next().getWorld(), rawBidders2.iterator().next().getWorld());
+
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> ccaSampled = getMechanism(rawBidders);
+        ccaSampled.calculateSampledStartingPrices(10, 100, 0.1, 987987);
+
+        GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> ccaSampled2 = getMechanism(rawBidders);
+        ccaSampled2.calculateSampledStartingPrices(10, 100, 0.1, 987987);
+
+        for (MRVMGenericDefinition def : rawBidders.iterator().next().getWorld().getAllGenericDefinitions()) {
+            assertEquals(ccaSampled.getStartingPrice(def), ccaSampled2.getStartingPrice(def));
+        }
     }
 
     @Test

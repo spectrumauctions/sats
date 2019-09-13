@@ -122,6 +122,11 @@ public class LSVMStandardMIP extends ModelMIP implements WinnerDeterminator<LSVM
         throw new UnsupportedOperationException("The LSVM MIP does not support CCG yet.");
 	}
 
+	@Override
+	public double getScale() {
+		return 1;
+	}
+
 	private void buildObjectiveTerm() {
 		for (LSVMBidder bidder : population) {
             for (LSVMLicense license : world.getLicenses()) {

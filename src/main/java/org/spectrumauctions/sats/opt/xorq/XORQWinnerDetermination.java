@@ -1,27 +1,22 @@
 package org.spectrumauctions.sats.opt.xorq;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.math.DoubleMath;
 import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.IMIPResult;
 import edu.harvard.econcs.jopt.solver.IMIPSolver;
+import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericBid;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.opt.domain.Allocation;
 import org.spectrumauctions.sats.opt.domain.GenericAllocation;
 import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 
-import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,20 +25,24 @@ import java.util.stream.Collectors;
 import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
 
 public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends Good> implements WinnerDeterminator<T> {
-    private Map<GenericValue<G, T>, Variable> bidVariables = new HashMap<>();
+    private Map<Bidder<T>, Map<Integer, Variable>> bidVariables = new HashMap<>();
     private Set<GenericBid<G, T>> bids;
     private IMIP winnerDeterminationProgram;
     private Allocation<T> result = null;
-    private GenericWorld<T> world;
     private double scalingFactor = 1;
-
+    private double epsilon;
 
     public XORQWinnerDetermination(Set<GenericBid<G, T>> bids) {
+        this(bids, 1e-8);
+    }
+
+    public XORQWinnerDetermination(Set<GenericBid<G, T>> bids, double epsilon) {
         Preconditions.checkNotNull(bids);
         Preconditions.checkArgument(bids.size() > 0);
         this.bids = bids;
-        double maxValue = -1;
+        double maxValue = 0;
         for (GenericBid<G, T> bid : bids) {
+            bidVariables.put(bid.getBidder(), new HashMap<>());
             for (GenericValue<G, T> value : bid.getValues()) {
                 if (value.getValue().doubleValue() > maxValue) {
                     maxValue = value.getValue().doubleValue();
@@ -51,11 +50,12 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
             }
         }
         if (maxValue > MIP.MAX_VALUE * 0.9) {
-            this.scalingFactor = 0.9 / maxValue * MIP.MAX_VALUE;
+            this.scalingFactor = (MIP.MAX_VALUE * 0.9) / maxValue;
         }
 
-        this.world = (GenericWorld<T>) bids.iterator().next().getBidder().getWorld();
         winnerDeterminationProgram = createWinnerDeterminationMIP();
+        this.epsilon = epsilon;
+        winnerDeterminationProgram.setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
     }
 
     private IMIP createWinnerDeterminationMIP() {
@@ -68,7 +68,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
                 Variable bidI = new Variable("Bid " + value.getId(), VarType.BOOLEAN, 0, 1);
                 winnerDeterminationProgram.add(bidI);
                 winnerDeterminationProgram.addObjectiveTerm(value.getValue().doubleValue() * scalingFactor, bidI);
-                bidVariables.put(value, bidI);
+                bidVariables.get(bid.getBidder()).put(value.getId(), bidI);
             }
         }
 
@@ -77,7 +77,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         for (GenericBid<G, T> bid : bids) {
             Constraint exclusiveBids = new Constraint(CompareType.LEQ, 1);
             for (GenericValue<G, T> value : bid.getValues()) {
-                exclusiveBids.addTerm(1, bidVariables.get(value));
+                exclusiveBids.addTerm(1, bidVariables.get(bid.getBidder()).get(value.getId()));
                 for (Map.Entry<G, Integer> entry : value.getQuantities().entrySet()) {
                     GenericDefinition<T> def = entry.getKey();
                     int quantity = entry.getValue();
@@ -86,7 +86,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
                         numberOfLotsConstraint = new Constraint(CompareType.LEQ, def.numberOfLicenses());
                         numberOfLotsConstraints.put(def, numberOfLotsConstraint);
                     }
-                    numberOfLotsConstraint.addTerm(quantity, bidVariables.get(value));
+                    numberOfLotsConstraint.addTerm(quantity, bidVariables.get(bid.getBidder()).get(value.getId()));
                 }
             }
             winnerDeterminationProgram.add(exclusiveBids);
@@ -109,7 +109,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
 
     @Override
     public WinnerDeterminator<T> getWdWithoutBidder(Bidder<T> bidder) {
-        return new XORQWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()));
+        return new XORQWinnerDetermination<>(bids.stream().filter(b -> !b.getBidder().equals(bidder)).collect(Collectors.toSet()), epsilon);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
 
     @Override
     public WinnerDeterminator<T> copyOf() {
-        return new XORQWinnerDetermination<>(bids);
+        return new XORQWinnerDetermination<>(bids, epsilon);
     }
 
     @Override
@@ -130,21 +130,26 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         for (GenericBid<G, T> bidPerBidder : bids) {
             Variable x = new Variable("x_" + bidPerBidder.getBidder().getId(), VarType.BOOLEAN, 0, 1);
             winnerDeterminationProgram.add(x);
-            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0), x);
+            winnerDeterminationProgram.addObjectiveTerm(-payoffs.getOrDefault(bidPerBidder.getBidder(), 0.0) * scalingFactor, x);
 
             Constraint x1 = new Constraint(CompareType.GEQ, 0);
             Constraint x2 = new Constraint(CompareType.LEQ, 0);
             x1.addTerm(-1, x);
             x2.addTerm(-MAX_VALUE, x);
-            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(b)));
-            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(b)));
+            bidPerBidder.getValues().forEach(b -> x1.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b.getId())));
+            bidPerBidder.getValues().forEach(b -> x2.addTerm(1, bidVariables.get(bidPerBidder.getBidder()).get(b.getId())));
             winnerDeterminationProgram.add(x1);
             winnerDeterminationProgram.add(x2);
         }
     }
 
-    private Variable getBidVariable(GenericValue<G, T> bundleBid) {
-        return bidVariables.get(bundleBid);
+    @Override
+    public double getScale() {
+        return scalingFactor;
+    }
+
+    private Variable getBidVariable(Bidder<T> bidder, GenericValue<G, T> bundleBid) {
+        return bidVariables.get(bidder).get(bundleBid.getId());
     }
 
     private Allocation<T> adaptMIPResult(IMIPResult mipResult) {
@@ -152,7 +157,7 @@ public class XORQWinnerDetermination<G extends GenericDefinition<T>, T extends G
         GenericAllocation.Builder<G, T> builder = new GenericAllocation.Builder<>();
         for (GenericBid<G, T> bid : bids) {
             for (GenericValue<G, T> value : bid.getValues()) {
-                if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(value)), 1, 1e-3)) {
+                if (DoubleMath.fuzzyEquals(mipResult.getValue(getBidVariable(bid.getBidder(), value)), 1, 1e-3)) {
                     builder.putGenericValue(bid.getBidder(), value);
                 }
             }

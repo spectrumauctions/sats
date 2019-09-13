@@ -23,8 +23,6 @@ import java.util.Collection;
  */
 public abstract class FileWriter {
 
-    public static final int VALUE_STRING_MAXLENGTH = 7;
-
     public abstract File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException;
 
@@ -50,14 +48,6 @@ public abstract class FileWriter {
             path.mkdir();
         }
         this.folder = path;
-    }
-
-    protected String roundedValue(double value) {
-        String result = String.valueOf(value);
-        if (result.length() > VALUE_STRING_MAXLENGTH) {
-            result = result.substring(0, VALUE_STRING_MAXLENGTH);
-        }
-        return result;
     }
 
     protected Path nextNonexistingFile(String filePrefix) {
