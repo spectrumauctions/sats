@@ -32,7 +32,7 @@ public class CatsExporter extends FileWriter {
             BundleValue value = iter.next();
             selectedValues.add(value);
             String sb = i + "\t" +
-                    value.getAmount().setScale(4, BigDecimal.ROUND_HALF_UP).toString() + "\t" +
+                    value.getAmount().setScale(ROUNDING_SCALE, BigDecimal.ROUND_HALF_UP).toString() + "\t" +
                     value.getBundle().toString().replace(",", "\t") + "#";
             bidLines.add(sb);
         }
@@ -82,7 +82,7 @@ public class CatsExporter extends FileWriter {
             for (int i = 0; i < numberOfBids && iter.hasNext(); i++) {
                 BundleValue value = iter.next();
                 StringBuilder line = new StringBuilder(String.valueOf(countBids++)).append("\t");
-                line.append(value.getAmount().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
+                line.append(value.getAmount().setScale(ROUNDING_SCALE, BigDecimal.ROUND_HALF_UP).toString());
                 line.append("\t");
                 line.append(value.getBundle().toString().replace(",", "\t"));
                 line.append("\t");
