@@ -23,6 +23,8 @@ import java.util.Collection;
  */
 public abstract class FileWriter {
 
+    public static final int ROUNDING_SCALE = 4;
+
     public abstract File writeMultiBidderXOR(Collection<XORLanguage<? extends Good>> valueFunctions, int numberOfBids, String filePrefix)
             throws IOException;
 

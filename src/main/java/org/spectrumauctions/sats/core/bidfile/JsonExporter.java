@@ -68,7 +68,7 @@ public class JsonExporter extends FileWriter {
                 licenses.add(license.getId());
             }
             bid.add("licenses", licenses);
-            bid.addProperty("value", xorValue.value().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
+            bid.addProperty("value", xorValue.value().setScale(ROUNDING_SCALE, BigDecimal.ROUND_HALF_UP).toString());
             result.add(bid);
         }
         return result;
@@ -126,7 +126,7 @@ public class JsonExporter extends FileWriter {
                 }
             }
             bid.add("quantities", quantities);
-            bid.addProperty("value", val.getValue().setScale(4, BigDecimal.ROUND_HALF_UP).toString());
+            bid.addProperty("value", val.getValue().setScale(ROUNDING_SCALE, BigDecimal.ROUND_HALF_UP).toString());
             result.add(bid);
         }
         return result;
