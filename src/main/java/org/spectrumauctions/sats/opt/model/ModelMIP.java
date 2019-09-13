@@ -40,5 +40,8 @@ public abstract class ModelMIP extends WinnerDetermination {
     @Override
     protected abstract Collection<Collection<Variable>> getVariablesOfInterest();
 
-
+    @Override
+    public WinnerDetermination join(WinnerDetermination other) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }

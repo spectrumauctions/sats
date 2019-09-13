@@ -1,14 +1,14 @@
 package org.spectrumauctions.sats.mechanism.pvm;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
-import org.marketdesignresearch.mechlib.core.Allocation;
-import org.marketdesignresearch.mechlib.core.Domain;
-import org.marketdesignresearch.mechlib.core.Outcome;
+import org.marketdesignresearch.mechlib.core.*;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.marketdesignresearch.mechlib.instrumentation.MipLoggingInstrumentation;
 import org.marketdesignresearch.mechlib.mechanism.auctions.pvm.PVMAuction;
+import org.marketdesignresearch.mechlib.mechanism.auctions.pvm.ml.MLAlgorithm;
 import org.marketdesignresearch.mechlib.outcomerules.OutcomeRuleGenerator;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
@@ -19,10 +19,12 @@ import org.spectrumauctions.sats.mechanism.domains.MRVMDomain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class PVMTest {
-
-    private static final Logger logger = LogManager.getLogger(PVMTest.class);
 
     @Test
     public void testGSVM() {
@@ -43,14 +45,28 @@ public class PVMTest {
     }
 
     private void testPVM(Domain domain) {
-        PVMAuction pvm = new PVMAuction(domain, OutcomeRuleGenerator.CCG, 10);
+        PVMAuction pvm = new PVMAuction(domain, MLAlgorithm.Type.LINEAR_REGRESSION, OutcomeRuleGenerator.CCG, domain.getGoods().size() * 2);
         pvm.setMipInstrumentation(new MipLoggingInstrumentation());
+        pvm.advanceRound();
+        while (!pvm.finished()) {
+            for (Bidder bidder : domain.getBidders()) {
+                log.info("----- Elicitation in round {} for bidder {}", pvm.getNumberOfRounds(), bidder.getName());
+                for (Bundle bundle : Sets.powerSet(new HashSet<>(domain.getGoods())).stream().limit(10).map(Bundle::of).collect(Collectors.toSet())) {
+                    Optional<BundleBid> reported = pvm.getLatestAggregatedBids(bidder).getBundleBids().stream().filter(bbid -> bbid.getBundle().equals(bundle)).findAny();
+                    log.info("- Bundle {}", bundle);
+                    log.info("\t*\tTrue Value: {}", bidder.getValue(bundle).setScale(2, RoundingMode.HALF_UP));
+                    log.info("\t*\tReported Value: {}", reported.isPresent() ? reported.get().getAmount().setScale(2, RoundingMode.HALF_UP) : "-");
+                    log.info("\t*\tInferred Value: {}", pvm.getInferredValue(bidder, bundle).setScale(2, RoundingMode.HALF_UP));
+                }
+            }
+            pvm.advanceRound();
+        }
         Outcome mechanismResult = pvm.getOutcome();
-        logger.info(mechanismResult);
+        log.info(mechanismResult.toString());
         Allocation mechanismAllocationWithTrueValues = mechanismResult.getAllocation().getAllocationWithTrueValues();
         Allocation efficientAllocation = domain.getEfficientAllocation();
         BigDecimal efficiency = mechanismAllocationWithTrueValues.getTotalAllocationValue().divide(efficientAllocation.getTotalAllocationValue(), RoundingMode.HALF_UP).setScale(4, RoundingMode.HALF_UP);
-        logger.info("Efficiency PVM: " + efficiency);
+        log.info("Efficiency PVM: " + efficiency);
         Assert.assertTrue(efficiency.doubleValue() < 1);
     }
 }
