@@ -32,35 +32,4 @@ public class VCGWithGSVMTest {
         assertEquals(500.0105998484576, am.getMechanismResult().getAllocation().getTotalValue().doubleValue(), 1e-6);
         assertEquals(totalValue, sumOfValues, 1e-6);
     }
-
-    @Test
-    public void testVCGWithXORBidsFromGSVM() {
-        long seed = 20408L;
-
-        while (true) {
-            List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(seed++);
-            System.out.println("Using seed " + seed);
-            Collection<XORBid<GSVMLicense>> bids = new HashSet<>();
-            for (GSVMBidder bidder : bidders) {
-                SizeBasedUniqueRandomXOR<GSVMLicense> lang = new SizeBasedUniqueRandomXOR<>(bidder.getWorld().getLicenses(), new JavaUtilRNGSupplier(seed), bidder);
-                lang.setDistribution(4, 1.);
-                lang.setIterations(250);
-                Iterator<XORValue<GSVMLicense>> iterator = lang.iterator();
-                XORBid.Builder<GSVMLicense> builder = new XORBid.Builder<>(bidder);
-                while (iterator.hasNext()) {
-                    XORValue<GSVMLicense> licenseXORBid = iterator.next();
-                    builder.add(licenseXORBid);
-                    for (int i = 0; i < 4; i++) { // Add some clones
-                        builder.add(new XORValue<>(licenseXORBid.getLicenses(), licenseXORBid.value()));
-                    }
-                }
-                bids.add(builder.build());
-            }
-            XORWinnerDetermination<GSVMLicense> wdp = new XORWinnerDetermination<>(bids);
-            AuctionMechanism<GSVMLicense> am = new VCGMechanism<>(wdp);
-            Payment<GSVMLicense> payment = am.getPayment();
-            System.out.println("Done");
-        }
-
-    }
 }
