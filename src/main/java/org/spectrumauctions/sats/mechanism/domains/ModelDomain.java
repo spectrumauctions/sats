@@ -54,6 +54,11 @@ public abstract class ModelDomain implements Domain {
         return efficientAllocation != null;
     }
 
+    @Override
+    public String getName() {
+        return "SATS Domain";
+    }
+
     // region instrumentation
     @Getter
     private MipInstrumentation mipInstrumentation = MipInstrumentation.NO_OP;

@@ -22,4 +22,9 @@ public class MRVMDomain extends ModelDomain {
         return new MRVM_MIP(bidders);
     }
 
+    @Override
+    public String getName() {
+        return super.getName() + " (MRVM)";
+    }
+
 }

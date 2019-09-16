@@ -19,4 +19,9 @@ public class LSVMDomain extends ModelDomain {
         return new LSVMStandardMIP(bidders);
     }
 
+    @Override
+    public String getName() {
+        return super.getName() + " (LSVM)";
+    }
+
 }

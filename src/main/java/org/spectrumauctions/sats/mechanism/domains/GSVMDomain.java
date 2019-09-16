@@ -19,4 +19,8 @@ public class GSVMDomain extends ModelDomain {
         return new GSVMStandardMIP(bidders);
     }
 
+    @Override
+    public String getName() {
+        return super.getName() + " (GSVM)";
+    }
 }
