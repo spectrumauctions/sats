@@ -16,7 +16,7 @@ public class GSVMDomain extends ModelDomain {
     @Override
     protected ModelMIP getMIP() {
         List<GSVMBidder> bidders = getBidders().stream().map(b -> (GSVMBidder) b).collect(Collectors.toList());
-        return new GSVMStandardMIP(bidders.get(0).getWorld(), bidders, false);
+        return new GSVMStandardMIP(bidders.get(0).getWorld(), bidders, true);
     }
 
     @Override
