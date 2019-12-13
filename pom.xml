@@ -3,7 +3,7 @@
 
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats</artifactId>
-    <version>0.6.4</version>
+    <version>0.6.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
