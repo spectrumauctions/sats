@@ -21,7 +21,7 @@ public class VCGWithLSVMTest {
 
     @Test
     public void testVCGWithStandardLSVM() {
-        List<LSVMBidder> bidders = new LocalSynergyValueModel().createNewPopulation(2345567);
+        List<LSVMBidder> bidders = new LocalSynergyValueModel().createPopulation(2345567);
         WinnerDeterminator<LSVMLicense> wdp = new LSVMStandardMIP(bidders);
         AuctionMechanism<LSVMLicense> am = new VCGMechanism<>(wdp);
         Payment<LSVMLicense> payment = am.getPayment();

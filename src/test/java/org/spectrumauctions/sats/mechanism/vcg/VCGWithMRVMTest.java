@@ -31,7 +31,7 @@ public class VCGWithMRVMTest {
     @Test
     @Ignore
     public void testVCGWithStandardMRVM() {
-        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(234456867);
+        List<MRVMBidder> bidders = new MultiRegionModel().createPopulation(234456867);
         WinnerDeterminator<MRVMLicense> wdp = new MRVM_MIP(bidders);
         AuctionMechanism<MRVMLicense> am = new VCGMechanism<>(wdp);
         Payment<MRVMLicense> payment = am.getPayment();

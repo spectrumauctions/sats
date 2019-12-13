@@ -37,7 +37,7 @@ public class BasicExamples {
     @Test
     @Ignore
     public void basicMRVMExample() {
-        Collection<MRVMBidder> bidders = (new MultiRegionModel()).createNewPopulation();    // Create bidders
+        Collection<MRVMBidder> bidders = (new MultiRegionModel()).createPopulation();    // Create bidders
         MRVM_MIP mip = new MRVM_MIP(bidders);                                               // Create the MIP
         MRVMMipResult result = mip.calculateAllocation();                                   // Solve the MIP
         logger.info(result);                                                                // Show the allocation
@@ -46,7 +46,7 @@ public class BasicExamples {
     @Test
     @Ignore
     public void basicSRVMExample() {
-        Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewPopulation();   // Create bidders
+        Collection<SRVMBidder> bidders = (new SingleRegionModel()).createPopulation();   // Create bidders
         SRVM_MIP mip = new SRVM_MIP(bidders);                                               // Create the MIP
         SRVMMipResult result = mip.calculateAllocation();                                   // Solve the MIP
         logger.info(result);                                                                // Show the allocation
@@ -55,7 +55,7 @@ public class BasicExamples {
     @Test
     @Ignore
     public void basicGSVMExample() {
-        List<GSVMBidder> bidders = (new GlobalSynergyValueModel()).createNewPopulation();   // Create bidders
+        List<GSVMBidder> bidders = (new GlobalSynergyValueModel()).createPopulation();   // Create bidders
         GSVMStandardMIP mip = new GSVMStandardMIP(bidders);                                 // Create the MIP
         ItemAllocation<GSVMLicense> result = mip.calculateAllocation();                     // Solve the MIP
         for (Bidder<GSVMLicense> bidder : result.getWinners()) {

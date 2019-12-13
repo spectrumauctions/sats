@@ -10,10 +10,7 @@ import org.spectrumauctions.sats.core.bidfile.FileWriter;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
 import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.DefaultModel;
-import org.spectrumauctions.sats.core.model.Good;
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 
 import java.io.File;
@@ -84,15 +81,15 @@ public abstract class ModelCreator {
 
     public abstract PathResult generateResult(File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException;
 
-    protected PathResult appendTopLevelParamsAndSolve(DefaultModel<?, ?> model, File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException {
+    protected PathResult appendTopLevelParamsAndSolve(DefaultModel<? extends World, ? extends Bidder<? extends Good>> model, File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException {
 
         Collection<? extends Bidder<? extends Good>> bidders;
         if (seedType == SeedType.INDIVIDUALSEED) {
-            bidders = model.createNewPopulation(worldSeed, populationSeed);
+            bidders = model.createPopulation(worldSeed, populationSeed);
         } else if (seedType == SeedType.NOSEED) {
-            bidders = model.createNewPopulation();
+            bidders = model.createPopulation();
         } else if (seedType == SeedType.SUPERSEED) {
-            bidders = model.createNewPopulation(superSeed);
+            bidders = model.createPopulation(superSeed, superSeed);
         } else {
             throw new IllegalConfigException("Seed type unknown");
         }

@@ -38,7 +38,7 @@ public class CustomizedExamples {
         model.setNumberOfNationalBidders(1);
         model.setNumberOfRegionalBidders(2);
 
-        Collection<MRVMBidder> bidders = model.createNewPopulation();   // Create bidders
+        Collection<MRVMBidder> bidders = model.createPopulation();   // Create bidders
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
         MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
         logger.info("Result:\n" + result);                           // Show the allocation

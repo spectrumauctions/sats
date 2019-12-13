@@ -45,7 +45,7 @@ public class CatsWriterTest extends BidFileWriter {
         CatsExporter exporter = new CatsExporter(new File(EXPORT_TEST_FOLDER_NAME));
         CATSRegionModel model = new CATSRegionModel();
         model.setNumberOfBidders(25);
-        Collection<CATSBidder> bidders = model.createNewPopulation(21321468L);
+        Collection<CATSBidder> bidders = model.createPopulation(21321468L);
         Collection<XORLanguage<? extends Good>> langs = bidders.stream().map(b -> {
             try {
                 return b.getValueFunction(CatsXOR.class, 0L);

@@ -43,7 +43,7 @@ public class MRVMCCATest {
     }
 
     private void testClockPhaseVsSupplementaryPhaseEfficiency() {
-        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createPopulation();
         MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(rawBidders));
         mip.setEpsilon(1e-5);
         MRVMMipResult efficientAllocation = mip.calculateAllocation();
@@ -128,7 +128,7 @@ public class MRVMCCATest {
 
     @Test
     public void testMultipleSupplementaryRounds() {
-        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createPopulation();
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = getMechanism(rawBidders);
 
         ProfitMaximizingGenericSupplementaryRound<MRVMGenericDefinition, MRVMLicense> supplementaryRoundLastPrices = new ProfitMaximizingGenericSupplementaryRound<>();
@@ -142,7 +142,7 @@ public class MRVMCCATest {
 
     @Test
     public void testSampledStartingPrices() {
-        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createPopulation();
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> ccaZero = getMechanism(rawBidders);
         long startZero = System.currentTimeMillis();
         Allocation<MRVMLicense> allocZero = ccaZero.calculateClockPhaseAllocation();
@@ -162,8 +162,8 @@ public class MRVMCCATest {
 
     @Test
     public void testDeterministicSampledStartingPrices() {
-        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation(123123);
-        List<MRVMBidder> rawBidders2 = new MultiRegionModel().createNewPopulation(123123);
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createPopulation(123123);
+        List<MRVMBidder> rawBidders2 = new MultiRegionModel().createPopulation(123123);
         assertEquals(rawBidders, rawBidders2);
         assertEquals(rawBidders.iterator().next().getWorld(), rawBidders2.iterator().next().getWorld());
 
@@ -180,7 +180,7 @@ public class MRVMCCATest {
 
     @Test
     public void testLastBidsSupplementaryRound() {
-        List<MRVMBidder> rawBidders = new MultiRegionModel().createNewPopulation();
+        List<MRVMBidder> rawBidders = new MultiRegionModel().createPopulation();
         List<Bidder<MRVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<MRVMLicense>) b).collect(Collectors.toList());
         GenericCCAMechanism<MRVMGenericDefinition, MRVMLicense> cca = new GenericCCAMechanism<>(bidders, new MRVM_DemandQueryMIPBuilder());

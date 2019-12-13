@@ -25,7 +25,7 @@ public class LSVMDemandQueryTest {
 
     @Test
     public void testAllBiddersInLSVM() {
-        List<LSVMBidder> bidders = new LocalSynergyValueModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
+        List<LSVMBidder> bidders = new LocalSynergyValueModel().createPopulation(73246104);
         LSVMWorld world = bidders.iterator().next().getWorld();
         Map<LSVMLicense, BigDecimal> prices = new HashMap<>();
         world.getLicenses().forEach(license -> prices.put(license, BigDecimal.TEN));

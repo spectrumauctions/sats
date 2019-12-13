@@ -25,7 +25,7 @@ public class SizeOrderedIteratorTest {
     @Test
     public void testDecreasingIterator() throws UnsupportedBiddingLanguageException {
         BaseValueModel model = new BaseValueModel();
-        BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
+        BMBidder bidder = model.createPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
         GenericSizeOrdered<BMBand, BMLicense> lang = bidder.getValueFunction(GenericSizeDecreasing.class, 351354);
         int currentSize = Integer.MAX_VALUE;
@@ -46,7 +46,7 @@ public class SizeOrderedIteratorTest {
     @Test
     public void testIncreasingIterator() throws UnsupportedBiddingLanguageException {
         BaseValueModel model = new BaseValueModel();
-        BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
+        BMBidder bidder = model.createPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
         GenericSizeOrdered<BMBand, BMLicense> lang = bidder.getValueFunction(GenericSizeIncreasing.class, 351354);
         int currentSize = 0;

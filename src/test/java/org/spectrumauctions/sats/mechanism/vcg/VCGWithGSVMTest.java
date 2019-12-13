@@ -23,7 +23,7 @@ public class VCGWithGSVMTest {
 
     @Test
     public void testVCGWithStandardGSVM() {
-        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(234556782);
+        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createPopulation(234556782);
         WinnerDeterminator<GSVMLicense> wdp = new GSVMStandardMIP(bidders);
         AuctionMechanism<GSVMLicense> am = new VCGMechanism<>(wdp);
         Payment<GSVMLicense> payment = am.getPayment();
