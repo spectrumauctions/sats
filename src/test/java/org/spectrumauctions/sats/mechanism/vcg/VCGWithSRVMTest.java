@@ -29,7 +29,7 @@ public class VCGWithSRVMTest {
 
     @Test
     public void testVCGWithStandardSRVM() {
-        List<SRVMBidder> bidders = new SingleRegionModel().createNewPopulation(234456867);
+        List<SRVMBidder> bidders = new SingleRegionModel().createPopulation(234456867);
         WinnerDeterminator<SRVMLicense> wdp = new SRVM_MIP(bidders);
         AuctionMechanism<SRVMLicense> am = new VCGMechanism<>(wdp);
         Payment<SRVMLicense> payment = am.getPayment();

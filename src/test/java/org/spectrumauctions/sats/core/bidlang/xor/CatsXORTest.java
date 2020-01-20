@@ -20,7 +20,7 @@ public class CatsXORTest {
         long seed = 156567345634L;
 
         CATSRegionModel model = new CATSRegionModel();
-        List<CATSBidder> bidders = model.createNewPopulation(seed - 1);
+        List<CATSBidder> bidders = model.createPopulation(seed - 1);
 
         List<XORValue<CATSLicense>> directBids = Lists.newArrayList();
         List<XORValue<CATSLicense>> iteratorBids = Lists.newArrayList();
@@ -64,7 +64,7 @@ public class CatsXORTest {
 
         CATSRegionModel model = new CATSRegionModel();
         model.setNumberOfGoods(4);
-        CATSBidder bidder = model.createNewPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
+        CATSBidder bidder = model.createPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
 
         CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1).noCapForSubstitutableGoods();
         Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
@@ -83,7 +83,7 @@ public class CatsXORTest {
     private void testNoCap(long seed) throws UnsupportedBiddingLanguageException {
 
         CATSRegionModel model = new CATSRegionModel();
-        CATSBidder bidder = model.createNewPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
+        CATSBidder bidder = model.createPopulation(seed).stream().findAny().orElseThrow(IllegalArgumentException::new);
 
         CatsXOR valueFunction = bidder.getValueFunction(CatsXOR.class, seed + 1).noCapForSubstitutableGoods();
         Iterator<XORValue<CATSLicense>> catsIterator = valueFunction.iterator();
@@ -145,7 +145,7 @@ public class CatsXORTest {
                 CATSRegionModel model = new CATSRegionModel();
                 model.setNumberOfGoods(256);
                 model.setNumberOfBidders(25);
-                List<CATSBidder> bidders = model.createNewPopulation(seed++);
+                List<CATSBidder> bidders = model.createPopulation(seed++);
                 numberOfBiddersSats += bidders.size();
 
                 for (CATSBidder bidder : bidders) {

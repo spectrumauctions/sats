@@ -46,7 +46,7 @@ public class LSVMCCATest {
     }
 
     private void testClockPhaseVsSupplementaryPhaseEfficiency() {
-        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createPopulation();
         LSVMStandardMIP mip = new LSVMStandardMIP(Lists.newArrayList(rawBidders));
         mip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 1e-5);
         ItemAllocation<LSVMLicense> efficientAllocation = mip.calculateAllocation();
@@ -104,7 +104,7 @@ public class LSVMCCATest {
 
     @Test
     public void testNoDuplicatesInSupplementaryRound() {
-        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createPopulation();
         NonGenericCCAMechanism<LSVMLicense> cca = getMechanism(rawBidders);
         cca.calculateSampledStartingPrices(50, 100 ,0.1);
         cca.setTimeLimit(30);
@@ -133,7 +133,7 @@ public class LSVMCCATest {
 
     @Test
     public void testMultipleSupplementaryRounds() {
-        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createPopulation();
         NonGenericCCAMechanism<LSVMLicense> cca = getMechanism(rawBidders);
 
         ProfitMaximizingNonGenericSupplementaryRound<LSVMLicense> supplementaryRoundLastPrices = new ProfitMaximizingNonGenericSupplementaryRound<>();
@@ -147,7 +147,7 @@ public class LSVMCCATest {
 
     @Test
     public void testSampledStartingPrices() {
-        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createPopulation();
         NonGenericCCAMechanism<LSVMLicense> ccaZero = getMechanism(rawBidders);
         long startZero = System.currentTimeMillis();
         Allocation<LSVMLicense> allocZero = ccaZero.calculateClockPhaseAllocation();
@@ -166,7 +166,7 @@ public class LSVMCCATest {
     }
     @Test
     public void testLastBidsSupplementaryRound() {
-        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation();
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createPopulation();
         List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<LSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new LSVM_DemandQueryMIPBuilder());
@@ -199,15 +199,15 @@ public class LSVMCCATest {
 
     @Test
     public void testBidsAnomaly() {
-        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createNewPopulation(123456);
-        assertEquals(rawBidders, new LocalSynergyValueModel().createNewPopulation());
+        List<LSVMBidder> rawBidders = new LocalSynergyValueModel().createPopulation(123456);
+        assertEquals(rawBidders, new LocalSynergyValueModel().createPopulation());
         List<Collection<XORBid<LSVMLicense>>> resultingBids = new ArrayList<>();
         List<Bidder<LSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<LSVMLicense>) b).collect(Collectors.toList());
         resultingBids.add(runStandardCCA(bidders));
         //for (int i = 0; i < 3; i++) {
         //    // Unrelated code
-        //    new LocalSynergyValueModel().createNewPopulation();
+        //    new LocalSynergyValueModel().createPopulation();
         //    // Add another instance
         //    resultingBids.add(runStandardCCA(bidders));
         //}

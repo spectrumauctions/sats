@@ -271,7 +271,7 @@ public class CCGTest {
     @Test
     @Ignore // Takes a long time
     public void testCCGWithStandardMRVM() {
-        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation(234456867);
+        List<MRVMBidder> bidders = new MultiRegionModel().createPopulation(234456867);
         WinnerDeterminator<MRVMLicense> wdp = new MRVM_MIP(bidders);
         AuctionMechanism<MRVMLicense> am = new CCGMechanism<>(wdp);
         Payment<MRVMLicense> payment = am.getPayment();

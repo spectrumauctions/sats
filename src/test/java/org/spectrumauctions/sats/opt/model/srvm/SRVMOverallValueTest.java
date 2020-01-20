@@ -25,7 +25,7 @@ public class SRVMOverallValueTest {
     @Test
     @Ignore // TODO: There's still a slight difference between the values from sats-core and sats-opt
     public void mipValuesEqualSATSValues() {
-        List<SRVMBidder> bidders = new SingleRegionModel().createNewPopulation();
+        List<SRVMBidder> bidders = new SingleRegionModel().createPopulation();
         SRVM_MIP mip = new SRVM_MIP(bidders);
         SRVMMipResult result = mip.calculateAllocation();
         for (SRVMBidder bidder : bidders) {

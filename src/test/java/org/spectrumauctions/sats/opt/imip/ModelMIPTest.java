@@ -25,7 +25,7 @@ public class ModelMIPTest {
 
     @Test
     public void setAcceptSuboptimalSolutionAtTimeout() {
-        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation(5413646L));
+        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createPopulation(5413646L));
         Assert.assertTrue(mip.getMip().getDoubleSolveParam(SolveParam.TIME_LIMIT) > 2);
         mip.setTimeLimit(2);
         Assert.assertEquals(2, mip.getMip().getDoubleSolveParam(SolveParam.TIME_LIMIT), 1e-6);
@@ -35,7 +35,7 @@ public class ModelMIPTest {
 
     @Test
     public void setAcceptNoSuboptimalSolutionAtTimeout() {
-        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation(5413646L));
+        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createPopulation(5413646L));
         Assert.assertTrue(mip.getMip().getDoubleSolveParam(SolveParam.TIME_LIMIT) > 2);
         mip.setTimeLimit(2);
         Assert.assertEquals(2, mip.getMip().getDoubleSolveParam(SolveParam.TIME_LIMIT), 1e-6);
@@ -57,7 +57,7 @@ public class ModelMIPTest {
 
     @Test
     public void setDisplayOutput() {
-        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation(5413646L));
+        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createPopulation(5413646L));
         Assert.assertFalse(mip.getMip().getBooleanSolveParam(SolveParam.DISPLAY_OUTPUT));
         mip.setDisplayOutput(true);
         Assert.assertTrue(mip.getMip().getBooleanSolveParam(SolveParam.DISPLAY_OUTPUT));

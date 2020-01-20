@@ -22,7 +22,7 @@ public class GenericPowersetTest {
     @Test
     public void testLargeAuctionMustNotStart() throws UnsupportedBiddingLanguageException {
         MultiRegionModel model = new MultiRegionModel();
-        MRVMBidder bidder = model.createNewPopulation(89127349).iterator().next();
+        MRVMBidder bidder = model.createPopulation(89127349).iterator().next();
         try {
             GenericLang<?, ?> lang = bidder.getValueFunction(GenericPowersetDecreasing.class);
             Assert.fail();

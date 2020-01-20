@@ -27,10 +27,10 @@ public class SimpleRandomOrderTest {
     @BeforeClass
     public static void setUpBeforeClass() {
         bidders = new HashMap<>();
-        bidders.put(new BaseValueModel().createNewPopulation().stream().findAny().orElse(null), (int) (0.8 * 140));
-        bidders.put(new MultiBandValueModel().createNewPopulation().stream().findAny().orElse(null), 500);
-        bidders.put(new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null), 500);
-        bidders.put(new MultiRegionModel().createNewPopulation().stream().findAny().orElse(null), 500);
+        bidders.put(new BaseValueModel().createPopulation().stream().findAny().orElse(null), (int) (0.8 * 140));
+        bidders.put(new MultiBandValueModel().createPopulation().stream().findAny().orElse(null), 500);
+        bidders.put(new SingleRegionModel().createPopulation().stream().findAny().orElse(null), 500);
+        bidders.put(new MultiRegionModel().createPopulation().stream().findAny().orElse(null), 500);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testSRMSimpleRandomReduceBidAmount() {
-        Bidder bidder = new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
+        Bidder bidder = new SingleRegionModel().createPopulation().stream().findAny().orElse(null);
         XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);
@@ -59,7 +59,7 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testMRMSimpleRandomLarge() {
-        Bidder bidder = new MultiRegionModel().createNewPopulation().stream().findAny().orElse(null);
+        Bidder bidder = new MultiRegionModel().createPopulation().stream().findAny().orElse(null);
         XORQRandomOrderSimple<?, ?> valueFunction;
         try {
             valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class);

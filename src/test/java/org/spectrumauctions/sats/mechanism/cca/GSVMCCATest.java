@@ -46,7 +46,7 @@ public class GSVMCCATest {
     }
 
     private void testClockPhaseVsSupplementaryPhaseEfficiency() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation();
         GSVMStandardMIP mip = new GSVMStandardMIP(Lists.newArrayList(rawBidders));
         mip.getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 1e-5);
         ItemAllocation<GSVMLicense> efficientAllocation = mip.calculateAllocation();
@@ -109,7 +109,7 @@ public class GSVMCCATest {
 
     @Test
     public void testClonedCCA() {
-        NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(new GlobalSynergyValueModel().createNewPopulation());
+        NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(new GlobalSynergyValueModel().createPopulation());
         cca.setTimeLimit(10);
         assertNotNull(cca.getBidsAfterSupplementaryRound()); // Create bids
         NonGenericCCAMechanism<GSVMLicense> cloned = (NonGenericCCAMechanism<GSVMLicense>) cca.cloneWithoutSupplementaryBids();
@@ -120,7 +120,7 @@ public class GSVMCCATest {
 
     @Test
     public void testNoDuplicatesInSupplementaryRound() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation();
         NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);
         cca.calculateSampledStartingPrices(50, 100 ,0.1);
         cca.setTimeLimit(30);
@@ -149,7 +149,7 @@ public class GSVMCCATest {
 
     @Test
     public void testMultipleSupplementaryRounds() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation();
         NonGenericCCAMechanism<GSVMLicense> cca = getMechanism(rawBidders);
 
         ProfitMaximizingNonGenericSupplementaryRound<GSVMLicense> supplementaryRoundLastPrices = new ProfitMaximizingNonGenericSupplementaryRound<>();
@@ -163,7 +163,7 @@ public class GSVMCCATest {
 
     @Test
     public void testSampledStartingPrices() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation();
         NonGenericCCAMechanism<GSVMLicense> ccaZero = getMechanism(rawBidders);
         long startZero = System.currentTimeMillis();
         Allocation<GSVMLicense> allocZero = ccaZero.calculateClockPhaseAllocation();
@@ -183,7 +183,7 @@ public class GSVMCCATest {
 
     @Test
     public void testDeterministicSampledStartingPrices() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123123);
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation(123123);
 
         NonGenericCCAMechanism<GSVMLicense> ccaSampled = getMechanism(rawBidders);
         ccaSampled.calculateSampledStartingPrices(10, 100, 0.1, 987987);
@@ -199,7 +199,7 @@ public class GSVMCCATest {
 
     @Test
     public void testLastBidsSupplementaryRound() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation();
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
@@ -232,7 +232,7 @@ public class GSVMCCATest {
 
     @Test
     public void testEfficiencyClockPhaseVsSupplementaryRound() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation(123456);
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         NonGenericCCAMechanism<GSVMLicense> cca = new NonGenericCCAMechanism<>(bidders, new GSVM_DemandQueryMIPBuilder());
@@ -282,7 +282,7 @@ public class GSVMCCATest {
 
     @Test
     public void testMinimalExample() {
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation(123456);
         // The following line used to make a difference in the solution pool and thus the allocation, but it does not anymore
         // new FindJoptTest().joptLibrarySimpleExample();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
@@ -340,9 +340,9 @@ public class GSVMCCATest {
         pricesPerId.put(16L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
         pricesPerId.put(17L, BigDecimal.valueOf(-1 + 22.62962778408797590294467801744846023292005));
 
-        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createNewPopulation(123456);
+        List<GSVMBidder> rawBidders = new GlobalSynergyValueModel().createPopulation(123456);
         // The following line used to make a difference in the solution pool, but it does not anymore
-        // new GlobalSynergyValueModel().createNewPopulation();
+        // new GlobalSynergyValueModel().createPopulation();
         List<Bidder<GSVMLicense>> bidders = rawBidders.stream()
                 .map(b -> (Bidder<GSVMLicense>) b).collect(Collectors.toList());
         Bidder<GSVMLicense> firstBidder = bidders.get(0);

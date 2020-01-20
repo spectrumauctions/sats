@@ -24,7 +24,7 @@ public class GSVMDemandQueryTest {
 
     @Test
     public void testAllBiddersInGSVM() {
-        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
+        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createPopulation(73246104);
         GSVMWorld world = bidders.iterator().next().getWorld();
         Map<GSVMLicense, BigDecimal> prices = new HashMap<>();
         world.getLicenses().forEach(license -> prices.put(license, BigDecimal.valueOf(0)));

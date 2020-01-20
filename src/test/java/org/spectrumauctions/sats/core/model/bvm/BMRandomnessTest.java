@@ -35,8 +35,8 @@ public class BMRandomnessTest {
         Assert.assertEquals(bidders1, bidders2);
         Assert.assertEquals(bidders2, bidders3);
         Assert.assertEquals(bidders3, bidders4);
-        bidders1 = model.createNewPopulation(seed);
-        bidders2 = model.createNewPopulation(seed);
+        bidders1 = model.createPopulation(seed);
+        bidders2 = model.createPopulation(seed);
         Assert.assertEquals(bidders1, bidders2);
     }
 
@@ -54,8 +54,8 @@ public class BMRandomnessTest {
         Assert.assertEquals(bidders1, bidders2);
         Assert.assertEquals(bidders2, bidders3);
         Assert.assertEquals(bidders3, bidders4);
-        bidders1 = model.createNewPopulation(seed);
-        bidders2 = model.createNewPopulation(seed);
+        bidders1 = model.createPopulation(seed);
+        bidders2 = model.createPopulation(seed);
         Assert.assertEquals(bidders1, bidders2);
     }
 }

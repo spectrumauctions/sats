@@ -40,7 +40,7 @@ public class MRVMOverallValueTest {
     @Test
     @Ignore // Ignored for performance reasons
     public void mipValuesEqualSATSValues() {
-        List<MRVMBidder> bidders = new MultiRegionModel().createNewPopulation();
+        List<MRVMBidder> bidders = new MultiRegionModel().createPopulation();
         //Sort by bidder type
         bidders.sort(Comparator.comparing(b -> b.getClass().getSimpleName()));
         MRVM_MIP mip = new MRVM_MIP(bidders);
