@@ -33,7 +33,7 @@ public final class MRVMBand extends GenericGood {
 
     public static HashSet<MRVMBand> createBands(MRVMWorld world, MRVMWorldSetup worldSetup, MRVMRegionsMap regionsMap, UniformDistributionRNG rng) {
         Set<MRVMWorldSetup.BandSetup> bandSetups = worldSetup.getBandSetups();
-        HashSet<MRVMBand> bands = new HashSet<>();
+        HashSet<MRVMBand> bands = new LinkedHashSet<>();
         int currentLicenseId = 0;
         for (MRVMWorldSetup.BandSetup bandSetup : bandSetups) {
             MRVMBand band = new MRVMBand(bandSetup, world, currentLicenseId, rng);
