@@ -124,7 +124,7 @@ public class MRVM_MIP extends ModelMIP {
                     double doubleQuantity = solution.getValue(xVar);
                     int quantity = (int) Math.round(doubleQuantity);
                     if (quantity > 0) {
-                        MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
+                        MRVMGenericDefinition def = world.getAllGenericDefinitions().stream().filter(g -> g.getBand().equals(band) && g.getRegion().equals(region)).findFirst().get();
                         bundleEntries.add(new BundleEntry(def, quantity));
                     }
                 }
