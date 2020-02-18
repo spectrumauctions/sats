@@ -1,8 +1,11 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.logging.log4j.LogManager;
@@ -12,43 +15,29 @@ import org.marketdesignresearch.mechlib.core.BundleEntry;
 import org.marketdesignresearch.mechlib.core.Domain;
 import org.marketdesignresearch.mechlib.core.Good;
 import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
-import org.marketdesignresearch.mechlib.core.bidder.valuefunction.ValueFunction;
 import org.marketdesignresearch.mechlib.core.price.LinearPrices;
 import org.marketdesignresearch.mechlib.core.price.Price;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
-import org.spectrumauctions.sats.core.bidlang.xor.CatsXOR;
-import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.model.GenericGood;
-import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.SATSBidder;
-import org.spectrumauctions.sats.core.model.SATSGood;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.World;
-import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @EqualsAndHashCode
-public abstract class ModelDomain implements Domain {
+public abstract class ModelDomain<T extends SATSBidder> implements Domain {
 	
 	private static final Logger logger = LogManager.getLogger(ModelDomain.class);
 
     @Getter
-    private List<? extends SATSBidder> bidders;
-
-    @Getter
-    private List<? extends SATSGood> goods;
+    private List<T> bidders;
 
     private transient Allocation efficientAllocation;
 
@@ -56,7 +45,7 @@ public abstract class ModelDomain implements Domain {
     
     private boolean generic;
     
-    @Setter
+    @Setter @Getter(value = AccessLevel.PROTECTED)
     private int priceGenerationBidsPerBidder = 100;
     @Setter
     private int priceGenerationNumberOfWorldSamples = 100;
@@ -66,19 +55,12 @@ public abstract class ModelDomain implements Domain {
     private long priceGenerationSeed = System.currentTimeMillis();
     
     
-    public ModelDomain(List<? extends SATSBidder> bidders) {
+    public ModelDomain(List<T> bidders) {
         this(bidders, false);
     }
 
-    public ModelDomain(List<? extends SATSBidder> bidders, boolean generic) {
+    public ModelDomain(List<T> bidders, boolean generic) {
         this.bidders = bidders;
-        this.generic = generic;
-        if (generic) {
-            GenericWorld genericWorld = (GenericWorld) bidders.iterator().next().getWorld();
-            this.goods = genericWorld.getAllGenericDefinitions();
-        } else {
-            this.goods = bidders.iterator().next().getWorld().getLicenses();
-        }
     }
 
     @Override
@@ -116,7 +98,7 @@ public abstract class ModelDomain implements Domain {
 	public Prices proposeStartingPrices() {
     	try {
             Map<Good, SimpleRegression> regressions = new HashMap<>();
-            for (Good genericDefinition : this.goods) {
+            for (Good genericDefinition : this.getGoods()) {
                 SimpleRegression regression = new SimpleRegression(false);
                 regression.addData(0.0, 0.0);
                 regressions.put(genericDefinition, regression);
@@ -127,7 +109,7 @@ public abstract class ModelDomain implements Domain {
             	
                 List<SATSBidder> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
                 for (SATSBidder bidder : alternateBidders) {
-                	Iterator<BundleValue> bidIterator = createBidIterator(rngSupplier, bidder);
+                	Iterator<BundleValue> bidIterator = createPriceSamplingBiddingLanguage(rngSupplier, bidder).iterator();
                     while (bidIterator.hasNext()) {
                         BundleValue bid = bidIterator.next();
                         for(BundleEntry entry : bid.getBundle().getBundleEntries()) {
@@ -171,23 +153,7 @@ public abstract class ModelDomain implements Domain {
         return null;
     }
 
-	public Iterator<BundleValue> createBidIterator(RNGSupplier rngSupplier, SATSBidder bidder)
-			throws UnsupportedBiddingLanguageException {
-		if(generic) {
-			XORQRandomOrderSimple valueFunction;
-			valueFunction = bidder.getValueFunction(XORQRandomOrderSimple.class, rngSupplier);
-			valueFunction.setIterations(priceGenerationBidsPerBidder);
+	protected abstract BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder)
+			throws UnsupportedBiddingLanguageException;
 
-			Iterator<BundleValue> bidIterator = valueFunction.iterator();
-			return bidIterator;
-		} else {
-			SizeBasedUniqueRandomXOR valueFunction;
-			//valueFunction = (XORQRandomOrderSimple) bidder.getValueFunction(XORQRandomOrderSimple.class, rngSupplier);
-			valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
-			valueFunction.setIterations(priceGenerationBidsPerBidder);
-
-			Iterator<BundleValue> bidIterator = valueFunction.iterator();
-			return bidIterator;
-		}
-	}
 }

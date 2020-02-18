@@ -1,26 +1,44 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
+import java.util.List;
+
+import org.marketdesignresearch.mechlib.core.Good;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
+import org.spectrumauctions.sats.core.model.SATSBidder;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
+import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
-import java.util.List;
-import java.util.stream.Collectors;
+public class GSVMDomain extends ModelDomain<GSVMBidder> {
 
-public class GSVMDomain extends ModelDomain {
+	public GSVMDomain(List<GSVMBidder> bidders) {
+		super(bidders);
+	}
 
-    public GSVMDomain(List<GSVMBidder> bidders) {
-        super(bidders);
-    }
+	@Override
+	protected ModelMIP getMIP() {
+		return new GSVMStandardMIP(getBidders().get(0).getWorld(), getBidders(), true);
+	}
 
-    @Override
-    protected ModelMIP getMIP() {
-        List<GSVMBidder> bidders = getBidders().stream().map(b -> (GSVMBidder) b).collect(Collectors.toList());
-        return new GSVMStandardMIP(bidders.get(0).getWorld(), bidders, true);
-    }
+	@Override
+	public String getName() {
+		return super.getName() + " (GSVM)";
+	}
 
-    @Override
-    public String getName() {
-        return super.getName() + " (GSVM)";
-    }
+	@Override
+	public List<? extends Good> getGoods() {
+		return getBidders().iterator().next().getWorld().getLicenses();
+	}
+
+	@Override
+	protected BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder)
+			throws UnsupportedBiddingLanguageException {
+		SizeBasedUniqueRandomXOR valueFunction;
+		valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
+		valueFunction.setIterations(this.getPriceGenerationBidsPerBidder());
+		return valueFunction;
+	}
 }
