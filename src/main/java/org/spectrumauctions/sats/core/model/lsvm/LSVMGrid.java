@@ -8,9 +8,11 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Fabio Isler
@@ -90,24 +92,26 @@ public class LSVMGrid implements Serializable {
     }
 
     List<LSVMLicense> getProximity(LSVMLicense center, int proximitySize) {
-        List<LSVMLicense> proximity = new LinkedList<>();
+    	// no duplicates 
+    	// use LinkedHashSet -> insertion order
+        HashSet<LSVMLicense> proximity = new LinkedHashSet<>();
         proximity.add(center);
-        List<LSVMLicense> tmp = expand(proximity, center);
+        HashSet<LSVMLicense> tmp = expand(proximity, center);
         // Expand step by step
         for (int i = 0; i < proximitySize; i++) {
             proximity.addAll(tmp);
-            List<LSVMLicense> tmp2 = new LinkedList<>();
+            HashSet<LSVMLicense> tmp2 = new LinkedHashSet<>();
             for (LSVMLicense license : tmp) {
                 tmp2.addAll(expand(proximity, license));
             }
             tmp = tmp2;
         }
-        return proximity;
+        return proximity.stream().collect(Collectors.toList());
     }
 
-    private List<LSVMLicense> expand(List<LSVMLicense> proximity, LSVMLicense license) {
+    private HashSet<LSVMLicense> expand(HashSet<LSVMLicense> proximity, LSVMLicense license) {
 
-        List<LSVMLicense> newLicenses = new LinkedList<>();
+        HashSet<LSVMLicense> newLicenses = new LinkedHashSet<>();
         // Add top neighbor if not in first row
         if (license.getRowPosition() > 0) {
             // Only add if not added yet
