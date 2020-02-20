@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.core.*;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValuePair;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.marketdesignresearch.mechlib.instrumentation.MipLoggingInstrumentation;
 import org.marketdesignresearch.mechlib.mechanism.auctions.pvm.PVMAuction;
@@ -52,7 +53,7 @@ public class PVMTest {
             for (Bidder bidder : domain.getBidders()) {
                 log.info("----- Elicitation in round {} for bidder {}", pvm.getNumberOfRounds(), bidder.getName());
                 for (Bundle bundle : Sets.powerSet(new HashSet<>(domain.getGoods())).stream().limit(10).map(Bundle::of).collect(Collectors.toSet())) {
-                    Optional<BundleBid> reported = pvm.getLatestAggregatedBids(bidder).getBundleBids().stream().filter(bbid -> bbid.getBundle().equals(bundle)).findAny();
+                    Optional<BundleValuePair> reported = pvm.getLatestAggregatedBids(bidder).getBundleBids().stream().filter(bbid -> bbid.getBundle().equals(bundle)).findAny();
                     log.info("- Bundle {}", bundle);
                     log.info("\t*\tTrue Value: {}", bidder.getValue(bundle).setScale(2, RoundingMode.HALF_UP));
                     log.info("\t*\tReported Value: {}", reported.isPresent() ? reported.get().getAmount().setScale(2, RoundingMode.HALF_UP) : "-");
