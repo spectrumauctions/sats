@@ -30,11 +30,11 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @EqualsAndHashCode
+@Slf4j
 public abstract class ModelDomain<T extends SATSBidder> implements Domain {
-	
-	private static final Logger logger = LogManager.getLogger(ModelDomain.class);
 
     @Getter
     private List<T> bidders;
@@ -53,13 +53,8 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
     private double priceGenerationFraction = 0.01;
     @Setter
     private long priceGenerationSeed = System.currentTimeMillis();
-    
-    
-    public ModelDomain(List<T> bidders) {
-        this(bidders, false);
-    }
 
-    public ModelDomain(List<T> bidders, boolean generic) {
+    public ModelDomain(List<T> bidders) {
         this.bidders = bidders;
     }
 
@@ -127,7 +122,7 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
             for (Map.Entry<Good, SimpleRegression> entry : regressions.entrySet()) {
                 double y = entry.getValue().predict(1);
                 double price = y * priceGenerationFraction;
-                logger.info("{}:\nFound prediction of {}, setting starting price to {}.",
+                log.info("{}:\nFound prediction of {}, setting starting price to {}.",
                         entry.getKey(), y, price);
                 priceMap.put(entry.getKey(), new Price(BigDecimal.valueOf(price)));
                 if (price > 0 && price < min) min = price;
@@ -146,7 +141,7 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
             // Catching this error here, because it's very unlikely to happen and we don't want to bother
             // the user with handling this error. We just log it and don't set the starting prices.
         	// TODO
-            logger.error("Tried to calculate sampled starting prices, but {} doesn't support the " +
+            log.error("Tried to calculate sampled starting prices, but {} doesn't support the " +
                     "SizeBasedUniqueRandomXOR bidding language. Not setting any starting prices.", this);
         }
         // TODO Exception handling
