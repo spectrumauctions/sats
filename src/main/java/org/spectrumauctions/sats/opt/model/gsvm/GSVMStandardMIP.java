@@ -9,6 +9,7 @@ import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.BidderAllocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
 import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValueBids;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
@@ -92,7 +93,7 @@ public class GSVMStandardMIP extends ModelMIP {
 		metaInfo.setNumberOfMIPs(1);
 		metaInfo.setMipSolveTime(solution.getSolveTime());
 
-		return new Allocation(allocationMap, new BundleValueBids<>(), metaInfo);
+		return new Allocation(allocationMap, new BundleExactValueBids(), metaInfo);
 	}
 
 	public Map<Integer, Variable> getXVariables(GSVMBidder bidder, GSVMLicense license) {

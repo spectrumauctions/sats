@@ -9,7 +9,7 @@ import org.marketdesignresearch.mechlib.core.Domain;
 import org.marketdesignresearch.mechlib.core.Outcome;
 import org.marketdesignresearch.mechlib.instrumentation.MipLoggingInstrumentation;
 import org.marketdesignresearch.mechlib.mechanism.auctions.cca.CCAuction;
-import org.marketdesignresearch.mechlib.mechanism.auctions.cca.bidcollection.supplementaryround.ProfitMaximizingSupplementaryRound;
+import org.marketdesignresearch.mechlib.mechanism.auctions.cca.supplementaryphase.ProfitMaximizingSupplementaryPhase;
 import org.marketdesignresearch.mechlib.outcomerules.OutcomeRuleGenerator;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
 import org.spectrumauctions.sats.core.model.lsvm.LocalSynergyValueModel;
@@ -46,7 +46,7 @@ public class CCATest {
     private void testCCA(Domain domain) {
         CCAuction cca = new CCAuction(domain, OutcomeRuleGenerator.CCG, true);
         cca.setMipInstrumentation(new MipLoggingInstrumentation());
-        cca.addSupplementaryRound(new ProfitMaximizingSupplementaryRound().withNumberOfSupplementaryBids(10));
+        cca.addSupplementaryRound(new ProfitMaximizingSupplementaryPhase().withNumberOfSupplementaryBids(10));
         Outcome mechanismResult = cca.getOutcome();
         logger.info(mechanismResult);
         Allocation mechanismAllocationWithTrueValues = mechanismResult.getAllocation().getAllocationWithTrueValues();

@@ -10,15 +10,21 @@ import lombok.Getter;
 import lombok.Setter;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.core.bidder.newstrategy.InteractionStrategy;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+import org.springframework.data.annotation.Persistent;
+
+import com.google.common.collect.ClassToInstanceMap;
+import com.google.common.collect.MutableClassToInstanceMap;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 
 @EqualsAndHashCode(doNotUseGetters = true, onlyExplicitlyIncluded = true)
@@ -190,6 +196,23 @@ public abstract class SATSBidder implements Bidder, Serializable {
     protected BidderSetup getSetup() {
         return setup;
     }
+    
+    // region strategy
+    // TODO handle persistence
+    private ClassToInstanceMap<InteractionStrategy> strategies = MutableClassToInstanceMap.create();
+    
+    @Override
+	public void setStrategy(InteractionStrategy strategy) {
+    	strategy.setBidder(this);
+		strategy.getTypes().forEach(t -> this.strategies.put(t, strategy));
+	}
+    
+    @Override
+	public <T extends InteractionStrategy> T getStrategy(Class<T> type) {
+		if(!this.strategies.containsKey(type)) this.setStrategy(InteractionStrategy.defaultStrategy(type));
+		return  this.strategies.getInstance(type);
+	}
+	// endregion
 
     // region instrumentation
     @Getter @Setter
