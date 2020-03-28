@@ -139,7 +139,7 @@ public final class LSVMBidder extends SATSBidder {
     }
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative, double relPoolTolerance, double absPoolTolerance, double poolTimeLimit) {
+    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this));
         mip.setMipInstrumentation(getMipInstrumentation());
         mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
@@ -155,6 +155,9 @@ public final class LSVMBidder extends SATSBidder {
             }
         }
         mip.getMIP().add(price);
+        
+        mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
+        
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles);
 
         List<Bundle> result = optimalAllocations.stream()
