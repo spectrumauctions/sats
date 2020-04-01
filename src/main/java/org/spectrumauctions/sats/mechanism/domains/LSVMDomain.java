@@ -34,12 +34,12 @@ public class LSVMDomain extends ModelDomain<LSVMBidder> {
 	}
 
 	@Override
-	protected BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder)
+	public BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder, int numberOfSamples)
 			throws UnsupportedBiddingLanguageException {
 		
 		SizeBasedUniqueRandomXOR valueFunction;
 		valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
-		valueFunction.setIterations(this.getPriceGenerationBidsPerBidder());
+		valueFunction.setIterations(numberOfSamples);
 		return valueFunction;
 	}
 

@@ -104,7 +104,7 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
             	
                 List<SATSBidder> alternateBidders = bidders.stream().map(b -> b.drawSimilarBidder(rngSupplier)).collect(Collectors.toList());
                 for (SATSBidder bidder : alternateBidders) {
-                	Iterator<BundleValue> bidIterator = createPriceSamplingBiddingLanguage(rngSupplier, bidder).iterator();
+                	Iterator<BundleValue> bidIterator = createPriceSamplingBiddingLanguage(rngSupplier, bidder, this.getPriceGenerationBidsPerBidder()).iterator();
                     while (bidIterator.hasNext()) {
                         BundleValue bid = bidIterator.next();
                         for(BundleEntry entry : bid.getBundle().getBundleEntries()) {
@@ -148,7 +148,7 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
         return null;
     }
 
-	protected abstract BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder)
+	public abstract BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder, int numberOfSamples)
 			throws UnsupportedBiddingLanguageException;
 
 }

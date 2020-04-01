@@ -44,17 +44,17 @@ public class MRVMDomain extends ModelDomain<MRVMBidder> {
 	}
 	
 	@Override
-	protected BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder)
+	public BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder, int numberOfSamples)
 			throws UnsupportedBiddingLanguageException {
 		if(generic) {
 			XORQRandomOrderSimple valueFunction;
 			valueFunction = bidder.getValueFunction(XORQRandomOrderSimple.class, rngSupplier);
-			valueFunction.setIterations(this.getPriceGenerationBidsPerBidder());
+			valueFunction.setIterations(numberOfSamples);
 			return valueFunction;
 		} else {
 			SizeBasedUniqueRandomXOR valueFunction;
 			valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
-			valueFunction.setIterations(this.getPriceGenerationBidsPerBidder());
+			valueFunction.setIterations(numberOfSamples);
 			return valueFunction;
 		}
 	}
