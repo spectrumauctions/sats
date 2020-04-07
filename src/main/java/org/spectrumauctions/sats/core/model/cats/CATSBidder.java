@@ -21,6 +21,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Fabio Isler
@@ -113,7 +114,7 @@ public final class CATSBidder extends SATSBidder {
     }
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         throw new NotImplementedException("Demand Query to be implemented");
     }
 }

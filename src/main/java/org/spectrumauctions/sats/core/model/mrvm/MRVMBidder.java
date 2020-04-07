@@ -36,6 +36,7 @@ import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -234,7 +235,7 @@ public abstract class MRVMBidder extends SATSBidder {
     }
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
         mip.setMipInstrumentation(getMipInstrumentation());
         mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
@@ -252,12 +253,13 @@ public abstract class MRVMBidder extends SATSBidder {
         mip.addConstraint(price);
         
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
+        mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
 
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
-        List<Bundle> result = optimalAllocations.stream()
+        Set<Bundle> result = optimalAllocations.stream()
                 .map(allocation -> allocation.allocationOf(this).getBundle())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
     }

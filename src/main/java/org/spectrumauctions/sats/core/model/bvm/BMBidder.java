@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Weiss
@@ -282,7 +283,7 @@ public final class BMBidder extends SATSBidder {
 
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         throw new NotImplementedException("Demand Query to be implemented");
     }
 

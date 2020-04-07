@@ -41,6 +41,7 @@ public abstract class SATSBidder implements Bidder, Serializable {
     private transient final BidderSetup setup;
     
     protected static final double DEFAULT_DEMAND_QUERY_EPSILON = 1e-10;
+    protected static final double DEFAULT_DEMAND_QUERY_TIME_LIMIT = 600;
 
     protected SATSBidder(BidderSetup setup, long population, long id, long worldId) {
         this.uuid = UUID.randomUUID();

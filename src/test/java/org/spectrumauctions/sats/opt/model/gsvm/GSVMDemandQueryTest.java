@@ -16,6 +16,7 @@ import org.spectrumauctions.sats.mechanism.domains.GSVMDomain;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Fabio Isler
@@ -50,7 +51,7 @@ public class GSVMDemandQueryTest {
         GSVMBidder bidder = bidders.get(0);
         Prices prices = domain.proposeStartingPrices();
 
-        List<Bundle> bundles = bidder.getBestBundles(prices, 10);
+        Set<Bundle> bundles = bidder.getBestBundles(prices, 10);
         for (Bundle bundle : bundles) {
             BigDecimal value = bidder.calculateValue(bundle);
             Price price = prices.getPrice(bundle);

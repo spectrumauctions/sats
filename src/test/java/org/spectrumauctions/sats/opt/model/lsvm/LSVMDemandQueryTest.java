@@ -19,6 +19,7 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Fabio Isler
@@ -36,7 +37,7 @@ public class LSVMDemandQueryTest {
         Prices prices = new LinearPrices(priceMap);
 
         for (LSVMBidder bidder : bidders) {
-            List<Bundle> results = bidder.getBestBundles(prices, 10);
+            Set<Bundle> results = bidder.getBestBundles(prices, 10);
             Assert.assertEquals(10, results.size());
             results.forEach(bundle -> {
                 BigDecimal value = bidder.calculateValue(bundle);
