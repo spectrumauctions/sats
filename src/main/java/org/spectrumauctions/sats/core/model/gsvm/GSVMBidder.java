@@ -47,14 +47,18 @@ public final class GSVMBidder extends SATSBidder {
     @Override
     public BigDecimal calculateValue(Bundle bundle) {
         double value = 0;
+        int synergyCount = 0;
         for (Good good : bundle.getSingleQuantityGoods()) {
             GSVMLicense license = (GSVMLicense) good;
             if (this.values.containsKey(license.getLongId())) {
                 value += this.values.get(license.getLongId()).doubleValue();
+                synergyCount++;
+            } else if (world.isLegacyGSVM()) {
+                synergyCount++;
             }
         }
         double factor = 0;
-        if (!bundle.getBundleEntries().isEmpty()) factor = 0.2 * (bundle.getBundleEntries().size() - 1);
+        if (!bundle.getBundleEntries().isEmpty()) factor = 0.2 * (synergyCount - 1);
         return BigDecimal.valueOf(value + value * factor);
     }
 
