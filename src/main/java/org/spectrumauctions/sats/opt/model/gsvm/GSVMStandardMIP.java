@@ -40,7 +40,7 @@ public class GSVMStandardMIP extends ModelMIP {
 	}
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
-		this(world, population, true);
+		this(world, population, false);
 	}
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population, boolean allowAssigningLicensesWithZeroBasevalue) {

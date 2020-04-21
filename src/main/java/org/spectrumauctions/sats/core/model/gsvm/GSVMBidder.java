@@ -124,7 +124,7 @@ public final class GSVMBidder extends SATSBidder {
 
     @Override
     public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
-        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this), true);
+        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this));
         mip.setMipInstrumentation(getMipInstrumentation());
         mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
