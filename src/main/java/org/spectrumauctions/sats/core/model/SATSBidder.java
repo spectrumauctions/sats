@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @EqualsAndHashCode(doNotUseGetters = true, onlyExplicitlyIncluded = true)
@@ -202,7 +203,7 @@ public abstract class SATSBidder implements Bidder, Serializable {
     
     // region strategy
     // TODO handle persistence
-    private ClassToInstanceMap<InteractionStrategy> strategies = MutableClassToInstanceMap.create();
+    private Map<Class<? extends InteractionStrategy>,InteractionStrategy> strategies = new HashMap<>();
     
     @Override
 	public void setStrategy(InteractionStrategy strategy) {
@@ -210,10 +211,11 @@ public abstract class SATSBidder implements Bidder, Serializable {
 		strategy.getTypes().forEach(t -> this.strategies.put(t, strategy));
 	}
     
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
 	public <T extends InteractionStrategy> T getStrategy(Class<T> type) {
 		if(!this.strategies.containsKey(type)) this.setStrategy(InteractionStrategy.defaultStrategy(type));
-		return  this.strategies.getInstance(type);
+		return  (T) this.strategies.get(type);
 	}
 	// endregion
 
