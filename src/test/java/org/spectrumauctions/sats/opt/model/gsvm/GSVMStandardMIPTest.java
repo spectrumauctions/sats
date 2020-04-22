@@ -91,11 +91,13 @@ public class GSVMStandardMIPTest {
 	public void testEfficientAllocationWhenAllowingToAssignLicensesToAgentsWithZeroBasevalue() {
 		GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
 		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));
+		// Allow Assignment of licenses with zero base value
+		worldSetupBuilder.setLegacyGSVM(true);
 		GSVMWorldSetup setup = worldSetupBuilder.build();
 		GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983742L));
 		List<GSVMBidder> population = buildSpecialPopulation(world);
 
-		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, true);
+		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
 		Allocation allocation = gsvmMIP.getAllocation();
 
 		GSVMBidder nationalBidder = population.stream()
@@ -114,12 +116,14 @@ public class GSVMStandardMIPTest {
 	public void testEfficientAllocationWhenNotAllowingToAssignLicensesToAgentsWithZeroBasevalue() {
 		GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
 		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));
+		// Do not allow Assignment of licenses with zero base value
+		worldSetupBuilder.setLegacyGSVM(false);
 		GSVMWorldSetup setup = worldSetupBuilder.build();
 		GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983742L));
 		List<GSVMBidder> population = buildSpecialPopulation(world);
 
 		// use only licenses with positive values
-		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population, false);
+		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
 		Allocation allocation = gsvmMIP.getAllocation();
 
 		GSVMBidder nationalBidder = population.stream()

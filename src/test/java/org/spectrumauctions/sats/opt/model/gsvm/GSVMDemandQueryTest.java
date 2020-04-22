@@ -5,18 +5,31 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
 import org.marketdesignresearch.mechlib.core.Domain;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.price.LinearPrices;
 import org.marketdesignresearch.mechlib.core.price.Price;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
+import org.spectrumauctions.sats.core.model.gsvm.GSVMNationalBidderSetup;
+import org.spectrumauctions.sats.core.model.gsvm.GSVMRegionalBidderSetup;
+import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
+import org.spectrumauctions.sats.core.model.gsvm.GSVMWorldSetup;
 import org.spectrumauctions.sats.core.model.gsvm.GlobalSynergyValueModel;
+import org.spectrumauctions.sats.core.util.random.DoubleInterval;
+import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.mechanism.domains.GSVMDomain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Fabio Isler
@@ -66,4 +79,67 @@ public class GSVMDemandQueryTest {
         }
 
     }
+    
+    @Test
+    public void testAllBiddersInGSVMOriginal() {
+    	GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
+		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));
+		// Do not allow Assignment of licenses with zero base value
+		worldSetupBuilder.setLegacyGSVM(false);
+		GSVMWorldSetup setup = worldSetupBuilder.build();
+		GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983749L));
+
+        List<GSVMBidder> customPopulation = customPopulation(world, 8, 2);
+        Assert.assertEquals(customPopulation.size(), 10);
+        
+        for(GSVMBidder bidder : customPopulation) {
+        	Bundle interestIn = new Bundle(bidder.getBaseValues().keySet().stream().map(l -> new BundleEntry(world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow(), 1)).collect(Collectors.toSet()));
+        	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 5.0 : 0.1)))));
+        	Bundle demandedBundle = bidder.getBestBundle(prices);
+        	Assert.assertEquals(interestIn, demandedBundle);
+        }
+    }
+    
+    @Test
+    public void testAllBiddersInGSVMLegacy() {
+    	GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
+		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));
+		// Do not allow Assignment of licenses with zero base value
+		worldSetupBuilder.setLegacyGSVM(true);
+		GSVMWorldSetup setup = worldSetupBuilder.build();
+		GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983749L));
+
+        List<GSVMBidder> customPopulation = customPopulation(world, 8, 2);
+        Assert.assertEquals(customPopulation.size(), 10);
+        
+        for(GSVMBidder bidder : customPopulation) {
+        	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 5.0 : 0.1)))));
+        	Bundle demandedBundle = bidder.getBestBundle(prices);
+        	Assert.assertEquals(Bundle.of(world.getLicenses()), demandedBundle);
+        }
+    }
+    
+    private List<GSVMBidder> customPopulation(GSVMWorld world, int numberOfRegionalBidders, int numberOfNationalBidders) {
+
+        GSVMRegionalBidderSetup.Builder regionalBidderBuilder = new GSVMRegionalBidderSetup.Builder();
+        regionalBidderBuilder.setRegionalValueInterval(new DoubleInterval(15));
+        regionalBidderBuilder.setLowNationalValueInterval(new DoubleInterval(25));
+        regionalBidderBuilder.setHighNationalValueInterval(new DoubleInterval(35));
+        regionalBidderBuilder.setNumberOfBidders(numberOfRegionalBidders);
+        regionalBidderBuilder.setSetupName("Test Regional Bidder");
+
+        GSVMNationalBidderSetup.Builder nationalBidderBuilder = new GSVMNationalBidderSetup.Builder();
+        nationalBidderBuilder.setNumberOfBidders(numberOfNationalBidders);
+        nationalBidderBuilder.setLowNationalValueInterval(new DoubleInterval(16));
+        nationalBidderBuilder.setHighNationalValueInterval(new DoubleInterval(26));
+        nationalBidderBuilder.setSetupName("Test National Bidder");
+
+        Collection<GSVMRegionalBidderSetup> regionalSetups = new ArrayList<>();
+        regionalSetups.add(regionalBidderBuilder.build());
+        Collection<GSVMNationalBidderSetup> nationalSetups = new ArrayList<>();
+        nationalSetups.add(nationalBidderBuilder.build());
+
+        return world.createPopulation(regionalSetups, nationalSetups, new JavaUtilRNGSupplier(983742L));
+    }
+
 }

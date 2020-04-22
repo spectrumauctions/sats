@@ -40,11 +40,7 @@ public class GSVMStandardMIP extends ModelMIP {
 	}
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
-		this(world, population, false);
-	}
-
-	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population, boolean allowAssigningLicensesWithZeroBasevalue) {
-		this.allowAssigningLicensesWithZeroBasevalue = allowAssigningLicensesWithZeroBasevalue;
+		this.allowAssigningLicensesWithZeroBasevalue = world.isLegacyGSVM();
 		this.population = population;
 		this.world = world;
 		tauHatMap = new HashMap<>();
