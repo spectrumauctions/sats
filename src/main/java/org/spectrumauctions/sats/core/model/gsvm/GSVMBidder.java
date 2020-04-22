@@ -143,8 +143,9 @@ public final class GSVMBidder extends SATSBidder {
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
         mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
         
-        // Limit max number of bundles to the feasible ones
-        maxNumberOfBundles = maxNumberOfBundles > Math.pow(2, this.getBaseValues().size()) ? (int)Math.pow(2, this.getBaseValues().size()) : maxNumberOfBundles; 
+        // Limit max number of bundles to the feasible ones in non legacy worlds
+        if(!world.isLegacyGSVM())
+        	maxNumberOfBundles = maxNumberOfBundles > Math.pow(2, this.getBaseValues().size()) ? (int)Math.pow(2, this.getBaseValues().size()) : maxNumberOfBundles; 
         
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
