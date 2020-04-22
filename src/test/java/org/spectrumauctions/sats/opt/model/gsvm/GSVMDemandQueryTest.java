@@ -119,6 +119,43 @@ public class GSVMDemandQueryTest {
         }
     }
     
+    @Test
+    public void testMaxNumberInGSVMOriginal() {
+    	GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
+		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));
+		// Do not allow Assignment of licenses with zero base value
+		worldSetupBuilder.setLegacyGSVM(false);
+		GSVMWorldSetup setup = worldSetupBuilder.build();
+		GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983749L));
+
+        List<GSVMBidder> customPopulation = customPopulation(world, 8, 2);
+        Assert.assertEquals(customPopulation.size(), 10);
+        
+        // only empty bundle a best response (high prices)
+        for(GSVMBidder bidder : customPopulation) {
+        	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 500.0 : 0.1)))));
+        	Set<Bundle> demandedBundle = bidder.getBestBundles(prices,100);
+        	logger.info("{}: {} bundles returned for a demand query of 100 bundles",bidder,demandedBundle.size());
+        	Assert.assertEquals(1,demandedBundle.size());
+        }
+        
+        // allow negative with high prices
+        for(GSVMBidder bidder : customPopulation) {
+        	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 500.0 : 0.1)))));
+        	Set<Bundle> demandedBundle = bidder.getBestBundles(prices, 100, true);
+        	logger.info("{}: {} bundles returned for a demand query of 100 bundles",bidder,demandedBundle.size());
+        	Assert.assertEquals(Math.min(100,Math.pow(2, bidder.getBaseValues().size())),demandedBundle.size(),0);
+        }
+        
+        // query with prices lower than value
+        for(GSVMBidder bidder : customPopulation) {
+        	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 5.0 : 0.1)))));
+        	Set<Bundle> demandedBundle = bidder.getBestBundles(prices, 100, true);
+        	logger.info("{}: {} bundles returned for a demand query of 100 bundles",bidder,demandedBundle.size());
+        	Assert.assertEquals(Math.min(100,Math.pow(2, bidder.getBaseValues().size())),demandedBundle.size(),0);
+        }
+    }
+    
     private List<GSVMBidder> customPopulation(GSVMWorld world, int numberOfRegionalBidders, int numberOfNationalBidders) {
 
         GSVMRegionalBidderSetup.Builder regionalBidderBuilder = new GSVMRegionalBidderSetup.Builder();
@@ -141,5 +178,4 @@ public class GSVMDemandQueryTest {
 
         return world.createPopulation(regionalSetups, nationalSetups, new JavaUtilRNGSupplier(983742L));
     }
-
 }
