@@ -3,6 +3,8 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import edu.harvard.econcs.jopt.solver.mip.*;
+
+import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
@@ -160,11 +162,11 @@ public final class GSVMBidder extends SATSBidder {
         
         // Limit max number of bundles to the feasible ones in non legacy worlds
         if(!world.isLegacyGSVM()) {
-        	if(this.getSetupType().equals("Regional Bidder Setup")) {
-        		maxNumberOfBundles = Math.min(maxNumberOfBundles, (int)Math.pow(2, this.getBaseValues().size())-7);
-        	} else {
-        		maxNumberOfBundles = Math.min(maxNumberOfBundles, (int)Math.pow(2, this.getBaseValues().size()));
+        	int maxNumberOfBundlesInterestedIn = 0;
+        	for(int i = 0; i <= this.getActivityLimit(); i++) {
+        		maxNumberOfBundlesInterestedIn += CombinatoricsUtils.binomialCoefficient(this.getBaseValues().size(), i);
         	}
+        	maxNumberOfBundles = Math.min(maxNumberOfBundles, maxNumberOfBundlesInterestedIn);
         } else {
         	maxNumberOfBundles = Math.min(maxNumberOfBundles, (int)Math.pow(2, this.getWorld().getNumberOfGoods()));
         }
