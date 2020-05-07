@@ -254,6 +254,8 @@ public abstract class MRVMBidder extends SATSBidder {
         
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
         mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
+        
+        this.bidderTypeSpecificDemandQueryMIPAdjustments(mip);
 
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
@@ -262,6 +264,10 @@ public abstract class MRVMBidder extends SATSBidder {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
+    }
+    
+    protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
+    	// Do nothing here
     }
 
     /**
