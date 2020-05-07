@@ -34,6 +34,7 @@ public class GSVMStandardMIP extends ModelMIP {
 	private GSVMWorld world;
 
 	private boolean allowAssigningLicensesWithZeroBasevalue;
+	private boolean allowMoreThan4LicencesForRegionalBidders = false;
 
 	public GSVMStandardMIP(List<GSVMBidder> population) {
 		this(population.iterator().next().getWorld(), population);
@@ -41,6 +42,7 @@ public class GSVMStandardMIP extends ModelMIP {
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
 		this.allowAssigningLicensesWithZeroBasevalue = world.isLegacyGSVM();
+		this.allowMoreThan4LicencesForRegionalBidders = world.isLegacyGSVM();
 		this.population = population;
 		this.world = world;
 		tauHatMap = new HashMap<>();
@@ -162,6 +164,23 @@ public class GSVMStandardMIP extends ModelMIP {
 					}
 				}
 				this.getMIP().add(constraint);
+			}
+		}
+		
+		// build regional bidder restrictions
+		if(!allowMoreThan4LicencesForRegionalBidders) {
+			for(GSVMBidder bidder : this.population) {
+				if(bidder.getSetupType().equals("Regional Bidder Setup")) {
+					Constraint regionalLimit = new Constraint(CompareType.LEQ,4);
+					for(GSVMLicense license : world.getLicenses()) {
+						if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
+							for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+								regionalLimit.addTerm(1, gMap.get(bidder).get(license).get(tau));
+							}
+						}
+					}
+					this.getMIP().add(regionalLimit);
+				}
 			}
 		}
 	}
