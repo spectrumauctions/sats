@@ -35,7 +35,7 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
          */
         public Builder() {
             super("National Bidder Setup", 1,
-                    new DoubleInterval(0, 10), new DoubleInterval(0, 20), new DoubleInterval(0, 0));
+                    new DoubleInterval(0, 10), new DoubleInterval(0, 20), new DoubleInterval(0, 0),12);
         }
 
         @Override

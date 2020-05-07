@@ -53,7 +53,7 @@ public class GSVMRegionalBidderSetup extends GSVMBidderSetup {
          */
         public Builder() {
             super("Regional Bidder Setup", 6,
-                    new DoubleInterval(0, 20), new DoubleInterval(0, 40), new DoubleInterval(0, 20));
+                    new DoubleInterval(0, 20), new DoubleInterval(0, 40), new DoubleInterval(0, 20),4);
         }
 
         /**

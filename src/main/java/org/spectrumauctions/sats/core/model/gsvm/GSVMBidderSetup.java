@@ -17,12 +17,14 @@ public abstract class GSVMBidderSetup extends BidderSetup {
     private final DoubleInterval lowNationalValueInterval;
     private final DoubleInterval highNationalValueInterval;
     private final DoubleInterval regionalValueInterval;
+    private final int activityLimit;
 
     GSVMBidderSetup(Builder builder) {
         super(builder);
         this.lowNationalValueInterval = builder.lowNationalValueInterval;
         this.highNationalValueInterval = builder.highNationalValueInterval;
         this.regionalValueInterval = builder.regionalValueInterval;
+        this.activityLimit = builder.activityLimit;
     }
 
     public DoubleInterval getLowNationalValueInterval() {
@@ -63,13 +65,15 @@ public abstract class GSVMBidderSetup extends BidderSetup {
         protected DoubleInterval lowNationalValueInterval;
         protected DoubleInterval highNationalValueInterval;
         protected DoubleInterval regionalValueInterval;
+        protected int activityLimit;
 
         protected Builder(String setupName, int numberOfBidders,
-                          DoubleInterval lnvi, DoubleInterval hnvi, DoubleInterval rvi) {
+                          DoubleInterval lnvi, DoubleInterval hnvi, DoubleInterval rvi, int activityLimit) {
             super(setupName, numberOfBidders);
             this.lowNationalValueInterval = lnvi;
             this.highNationalValueInterval = hnvi;
             this.regionalValueInterval = rvi;
+            this.activityLimit = activityLimit;
         }
 
         /**
@@ -94,6 +98,10 @@ public abstract class GSVMBidderSetup extends BidderSetup {
 
         @Override
         public abstract GSVMBidderSetup build();
+    }
+    
+    public int getActivityLimit() {
+    	return this.activityLimit;
     }
 
 }

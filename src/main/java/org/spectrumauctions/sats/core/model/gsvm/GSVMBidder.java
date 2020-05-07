@@ -32,6 +32,7 @@ public final class GSVMBidder extends SATSBidder {
     private final HashMap<Long, BigDecimal> values;
     private transient GSVMWorld world;
     private final String description;
+    private final int activityLimit;
 
     GSVMBidder(GSVMBidderSetup setup, GSVMWorld world, int bidderPosition, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -41,6 +42,7 @@ public final class GSVMBidder extends SATSBidder {
         this.description = setup.getSetupName() + " with interest in licenses "
                 + this.world.getLicenses().stream().filter(l -> this.values.containsKey(l.getLongId())).map(GSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
+        this.activityLimit = setup.getActivityLimit();
         store();
     }
 
@@ -59,15 +61,15 @@ public final class GSVMBidder extends SATSBidder {
         }
         
         double value = 0;
-        if(!world.isLegacyGSVM() && this.getSetupType().equals("Regional Bidder Setup")) {
+        if(world.isLegacyGSVM()) {
+        	value = values.stream().mapToDouble(Double::doubleValue).sum();
+        } else {
         	// Only use 4 highest base values for regional bidders
         	values.sort(Double::compare);
         	Collections.reverse(values);
-        	value = values.stream().limit(4).mapToDouble(Double::doubleValue).sum();
+        	value = values.stream().limit(this.getActivityLimit()).mapToDouble(Double::doubleValue).sum();
         	// Limit synergy to 4 items
-        	synergyCount = Math.min(synergyCount, 4);
-        } else {
-        	value = values.stream().mapToDouble(Double::doubleValue).sum();
+        	synergyCount = Math.min(synergyCount, this.getActivityLimit());
         }
         
         double factor = 0;
@@ -175,6 +177,10 @@ public final class GSVMBidder extends SATSBidder {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
+    }
+    
+    public int getActivityLimit() {
+    	return this.activityLimit;
     }
 
     @Override

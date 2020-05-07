@@ -170,17 +170,15 @@ public class GSVMStandardMIP extends ModelMIP {
 		// build regional bidder restrictions
 		if(!allowMoreThan4LicencesForRegionalBidders) {
 			for(GSVMBidder bidder : this.population) {
-				if(bidder.getSetupType().equals("Regional Bidder Setup")) {
-					Constraint regionalLimit = new Constraint(CompareType.LEQ,4);
-					for(GSVMLicense license : world.getLicenses()) {
-						if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
-							for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
-								regionalLimit.addTerm(1, gMap.get(bidder).get(license).get(tau));
-							}
+				Constraint regionalLimit = new Constraint(CompareType.LEQ,bidder.getActivityLimit());
+				for(GSVMLicense license : world.getLicenses()) {
+					if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
+						for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+							regionalLimit.addTerm(1, gMap.get(bidder).get(license).get(tau));
 						}
 					}
-					this.getMIP().add(regionalLimit);
 				}
+				this.getMIP().add(regionalLimit);
 			}
 		}
 	}
