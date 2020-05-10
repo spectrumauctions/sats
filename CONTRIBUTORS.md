@@ -6,4 +6,5 @@ The SATS team consists of
 
 We are grateful for the contributions to `sats` by (in alphabetical order)
 * Dmitry Moor
+* Manuel Beyeler
 * Nicolas Kuechler
