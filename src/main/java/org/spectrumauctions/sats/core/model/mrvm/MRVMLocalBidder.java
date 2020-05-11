@@ -112,7 +112,6 @@ public final class MRVMLocalBidder extends MRVMBidder {
 				}
 	        }
 		}
-		super.bidderTypeSpecificDemandQueryMIPAdjustments(mip);
 	}
 
     @Override

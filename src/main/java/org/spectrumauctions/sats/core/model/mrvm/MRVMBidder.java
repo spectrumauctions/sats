@@ -261,9 +261,7 @@ public abstract class MRVMBidder extends SATSBidder {
         return result;
     }
     
-    protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
-    	// Do nothing here
-    }
+    protected abstract void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip);
 
     /**
      * @see SATSBidder#refreshReference(World)
