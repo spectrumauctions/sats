@@ -20,7 +20,7 @@ import java.util.List;
 public class GSVMBidderTest {
 
     private static Bundle completeBundle;
-
+ 
     @BeforeClass
     public static void setUpBeforeClass() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
