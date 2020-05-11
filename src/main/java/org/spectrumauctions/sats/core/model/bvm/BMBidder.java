@@ -30,9 +30,8 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Michael Weiss
@@ -283,7 +282,7 @@ public final class BMBidder extends SATSBidder {
 
 
     @Override
-    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         throw new NotImplementedException("Demand Query to be implemented");
     }
 
