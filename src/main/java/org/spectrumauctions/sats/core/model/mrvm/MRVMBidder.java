@@ -261,6 +261,12 @@ public abstract class MRVMBidder extends SATSBidder {
         return result;
     }
     
+    /**
+     * Allows a specific bidder type (subclass) to change the demand query mip before 
+     * execution. I.e. restrict demand query result to items where the bidder is interested in.
+     * 
+     * @param mip
+     */
     protected abstract void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip);
 
     /**
