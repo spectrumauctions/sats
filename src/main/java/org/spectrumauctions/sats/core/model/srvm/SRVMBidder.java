@@ -25,6 +25,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -236,7 +237,7 @@ public final class SRVMBidder extends SATSBidder {
 
 
     @Override
-    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         throw new NotImplementedException("Demand Query to be implemented");
     }
 

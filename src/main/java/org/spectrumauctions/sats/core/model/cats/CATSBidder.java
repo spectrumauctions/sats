@@ -3,7 +3,6 @@ package org.spectrumauctions.sats.core.model.cats;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
@@ -20,8 +19,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 /**
  * @author Fabio Isler
@@ -114,7 +112,7 @@ public final class CATSBidder extends SATSBidder {
     }
 
     @Override
-    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         throw new NotImplementedException("Demand Query to be implemented");
     }
 }

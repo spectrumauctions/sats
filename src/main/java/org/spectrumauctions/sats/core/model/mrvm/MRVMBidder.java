@@ -7,13 +7,8 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import edu.harvard.econcs.jopt.solver.IMIP;
-import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang3.NotImplementedException;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
@@ -235,7 +230,7 @@ public abstract class MRVMBidder extends SATSBidder {
     }
 
     @Override
-    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
         mip.setMipInstrumentation(getMipInstrumentation());
         mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
@@ -259,7 +254,7 @@ public abstract class MRVMBidder extends SATSBidder {
 
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
-        Set<Bundle> result = optimalAllocations.stream()
+        LinkedHashSet<Bundle> result = optimalAllocations.stream()
                 .map(allocation -> allocation.allocationOf(this).getBundle())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (result.isEmpty()) result.add(Bundle.EMPTY);

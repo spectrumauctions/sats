@@ -140,7 +140,7 @@ public final class LSVMBidder extends SATSBidder {
     }
 
     @Override
-    public Set<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this));
         mip.setMipInstrumentation(getMipInstrumentation());
         mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
@@ -173,7 +173,7 @@ public final class LSVMBidder extends SATSBidder {
         
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
-        Set<Bundle> result = optimalAllocations.stream()
+        LinkedHashSet<Bundle> result = optimalAllocations.stream()
                 .map(allocation -> allocation.allocationOf(this).getBundle())
                 .filter(bundle -> allowNegative || getUtility(bundle, prices).signum() > -1)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
