@@ -11,7 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="sats" target="1.8" />
+      <module name="sats" target="10" />
     </bytecodeTargetLevel>
   </component>
 </project>

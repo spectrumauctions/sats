@@ -28,6 +28,14 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
         return values;
     }
 
+    @Override
+    public int getActivityLimit(GSVMBidder bidder) {
+        if (getActivityLimitOverride() > -1) {
+            return getActivityLimitOverride();
+        }
+        return bidder.getWorld().getNationalCircle().getSize();
+    }
+
     public static class Builder extends GSVMBidderSetup.Builder {
 
         /**
@@ -35,7 +43,7 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
          */
         public Builder() {
             super("National Bidder Setup", 1,
-                    new DoubleInterval(0, 10), new DoubleInterval(0, 20), new DoubleInterval(0, 0),12);
+                    new DoubleInterval(0, 10), new DoubleInterval(0, 20), new DoubleInterval(0, 0));
         }
 
         @Override

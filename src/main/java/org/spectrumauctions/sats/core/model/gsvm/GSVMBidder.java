@@ -44,7 +44,7 @@ public final class GSVMBidder extends SATSBidder {
         this.description = setup.getSetupName() + " with interest in licenses "
                 + this.world.getLicenses().stream().filter(l -> this.values.containsKey(l.getLongId())).map(GSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
-        this.activityLimit = setup.getActivityLimit();
+        this.activityLimit = setup.getActivityLimit(this);
         store();
     }
 
@@ -70,7 +70,7 @@ public final class GSVMBidder extends SATSBidder {
         	values.sort(Double::compare);
         	Collections.reverse(values);
         	value = values.stream().limit(this.getActivityLimit()).mapToDouble(Double::doubleValue).sum();
-        	// Limit synergy to 4 items
+        	// Limit synergy to activity limit
         	synergyCount = Math.min(synergyCount, this.getActivityLimit());
         }
         
