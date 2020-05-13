@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
+import lombok.Setter;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -20,11 +22,14 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
 
     private final IntegerInterval numberOfRegionsInterval;
     private final List<String> regionNotes;
+    @Getter
+    private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     protected MRVMLocalBidderSetup(Builder builder) {
         super(builder);
         this.numberOfRegionsInterval = builder.numberOfRegionsInterval;
         this.regionNotes = builder.regionNotes;
+        this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = builder.allowAssigningLicensesWithZeroBasevalueInDemandQuery;
     }
 
 
@@ -71,6 +76,8 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
 
         private IntegerInterval numberOfRegionsInterval;
         private List<String> regionNotes;
+        @Setter
+        private boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
         public Builder() {
             super("Multi Region Model Local Bidder",
@@ -78,6 +85,7 @@ public class MRVMLocalBidderSetup extends MRVMBidderSetup {
                     new DoubleInterval(60, 100),
                     new DoubleInterval(0.05, 0.12));
             this.numberOfRegionsInterval = new IntegerInterval(3, 7);
+            this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = false;
         }
 
         /**

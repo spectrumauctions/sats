@@ -36,7 +36,7 @@ public final class LSVMBidder extends SATSBidder {
     private final HashMap<Long, BigDecimal> values;
     private transient LSVMWorld world;
     private final String description;
-    private boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery = false;
+    private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     LSVMBidder(LSVMBidderSetup setup, LSVMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -54,6 +54,7 @@ public final class LSVMBidder extends SATSBidder {
                 ", thus interested in licenses "
                 + this.proximity.stream().map(LSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
+        this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = setup.isAllowAssigningLicensesWithZeroBasevalueInDemandQuery();
         store();
     }
 

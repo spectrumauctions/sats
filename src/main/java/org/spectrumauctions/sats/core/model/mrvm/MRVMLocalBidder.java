@@ -23,8 +23,6 @@ import java.util.*;
  *
  */
 public final class MRVMLocalBidder extends MRVMBidder {
-	
-	private boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery = false;
 
 	private static final long serialVersionUID = -7654713373213024311L;
     /**
@@ -37,6 +35,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
      * Stores the ids of all regions for which this bidder is interested
      */
     final Set<Integer> regionsOfInterest;
+    private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     MRVMLocalBidder(long id, long populationId, MRVMWorld world, MRVMLocalBidderSetup setup,
                     UniformDistributionRNG rng) {
@@ -50,6 +49,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
             regionsOfInterestIds.add(region.getId());
         }
         this.regionsOfInterest = Collections.unmodifiableSet(regionsOfInterestIds);
+        this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = setup.isAllowAssigningLicensesWithZeroBasevalueInDemandQuery();
         store();
     }
 
