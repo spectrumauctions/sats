@@ -249,6 +249,8 @@ public abstract class MRVMBidder extends SATSBidder {
         
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
         mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
+        
+        this.bidderTypeSpecificDemandQueryMIPAdjustments(mip);
 
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
@@ -258,6 +260,14 @@ public abstract class MRVMBidder extends SATSBidder {
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
     }
+    
+    /**
+     * Allows a specific bidder type (subclass) to change the demand query mip before 
+     * execution. I.e. restrict demand query result to items where the bidder is interested in.
+     * 
+     * @param mip
+     */
+    protected abstract void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip);
 
     /**
      * @see SATSBidder#refreshReference(World)

@@ -1,5 +1,7 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.spectrumauctions.sats.core.model.BidderSetup;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
@@ -19,6 +21,8 @@ public class LSVMBidderSetup extends BidderSetup {
     private final int proximitySize;
     private final int a;
     private final int b;
+    @Getter
+    private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     private LSVMBidderSetup(Builder builder) {
         super(builder);
@@ -26,6 +30,7 @@ public class LSVMBidderSetup extends BidderSetup {
         this.proximitySize = builder.proximitySize;
         this.a = builder.a;
         this.b = builder.b;
+        this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = builder.allowAssigningLicensesWithZeroBasevalueInDemandQuery;
     }
 
     LSVMLicense drawFavorite(RNGSupplier rngSupplier, LSVMWorld world) {
@@ -66,6 +71,8 @@ public class LSVMBidderSetup extends BidderSetup {
         private int proximitySize;
         private int a;
         private int b;
+        @Setter
+        private boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
         private Builder(String setupName, int numberOfBidders, DoubleInterval valueInterval, int proximitySize, int a, int b) {
             super(setupName, numberOfBidders);
@@ -73,6 +80,7 @@ public class LSVMBidderSetup extends BidderSetup {
             this.proximitySize = proximitySize;
             this.a = a;
             this.b = b;
+            this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = false;
         }
 
         public void setValueInterval(DoubleInterval newInterval) {

@@ -12,6 +12,7 @@ import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.BigDecimalUtils;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -145,6 +146,11 @@ public final class MRVMRegionalBidder extends MRVMBidder {
             return false;
         return true;
     }
+
+	@Override
+	protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
+		// Do nothing
+	}
 
 
 }

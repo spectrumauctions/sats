@@ -36,6 +36,7 @@ public final class LSVMBidder extends SATSBidder {
     private final HashMap<Long, BigDecimal> values;
     private transient LSVMWorld world;
     private final String description;
+    private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     LSVMBidder(LSVMBidderSetup setup, LSVMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -53,6 +54,7 @@ public final class LSVMBidder extends SATSBidder {
                 ", thus interested in licenses "
                 + this.proximity.stream().map(LSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
+        this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = setup.isAllowAssigningLicensesWithZeroBasevalueInDemandQuery();
         store();
     }
 
@@ -149,15 +151,26 @@ public final class LSVMBidder extends SATSBidder {
         Constraint price = new Constraint(CompareType.EQ, 0);
         price.addTerm(-1, priceVar);
         for (LSVMLicense license : world.getLicenses()) {
-            Map<Integer, Variable> xVariables = mip.getXVariables(this, license);
-            for (Variable xVariable : xVariables.values()) {
-                price.addTerm(prices.getPrice(Bundle.of(license)).getAmount().doubleValue(), xVariable);
-            }
+        	Map<Integer, Variable> xVariables = mip.getXVariables(this, license);
+        	for (Variable xVariable : xVariables.values()) {
+        		if(this.proximity.contains(license) || this.allowAssigningLicensesWithZeroBasevalueInDemandQuery) {
+        			price.addTerm(prices.getPrice(Bundle.of(license)).getAmount().doubleValue(), xVariable);
+        		} else {
+        			xVariable.setUpperBound(0);
+        		}
+        	}
+
         }
         mip.getMIP().add(price);
         
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
         mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
+        
+        if(this.allowAssigningLicensesWithZeroBasevalueInDemandQuery) {
+        	maxNumberOfBundles = Math.min(maxNumberOfBundles, (int) Math.pow(2, this.getWorld().getNumberOfGoods()));
+        } else {
+        	maxNumberOfBundles = Math.min(maxNumberOfBundles, (int) Math.pow(2, this.getProximity().size()));
+        }
         
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
