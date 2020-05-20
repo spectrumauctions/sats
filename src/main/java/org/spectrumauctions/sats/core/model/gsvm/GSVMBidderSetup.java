@@ -1,6 +1,8 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
+import lombok.Setter;
 import org.spectrumauctions.sats.core.model.BidderSetup;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -17,14 +19,15 @@ public abstract class GSVMBidderSetup extends BidderSetup {
     private final DoubleInterval lowNationalValueInterval;
     private final DoubleInterval highNationalValueInterval;
     private final DoubleInterval regionalValueInterval;
-    private final int activityLimit;
+    @Getter
+    private final int activityLimitOverride;
 
     GSVMBidderSetup(Builder builder) {
         super(builder);
         this.lowNationalValueInterval = builder.lowNationalValueInterval;
         this.highNationalValueInterval = builder.highNationalValueInterval;
         this.regionalValueInterval = builder.regionalValueInterval;
-        this.activityLimit = builder.activityLimit;
+        this.activityLimitOverride = builder.activityLimitOverride;
     }
 
     public DoubleInterval getLowNationalValueInterval() {
@@ -40,6 +43,8 @@ public abstract class GSVMBidderSetup extends BidderSetup {
     }
 
     abstract HashMap<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, GSVMBidder bidder);
+
+    public abstract int getActivityLimit(GSVMBidder bidder);
 
     /**
      * Represents the value distribution inside a circle, given by the Global Synergy Value Model.
@@ -65,15 +70,23 @@ public abstract class GSVMBidderSetup extends BidderSetup {
         protected DoubleInterval lowNationalValueInterval;
         protected DoubleInterval highNationalValueInterval;
         protected DoubleInterval regionalValueInterval;
-        protected int activityLimit;
+        /**
+         * In this simple implementation of the GSVM activity limit (how many licenses can be won by a bidder),
+         * the default is:
+         *   * |nationalCircleLicenses| for the national bidder
+         *   * Math.round(2/3 * |positiveBaseValueLicenses|) for regional bidders
+         * In a default world, that results in the original activity limits of 12 for a national bidder 4 for a regional bidder.
+         * By setting the activityLimitOverride parameter to > -1, you can override this.
+         */
+        @Setter
+        protected int activityLimitOverride = -1;
 
         protected Builder(String setupName, int numberOfBidders,
-                          DoubleInterval lnvi, DoubleInterval hnvi, DoubleInterval rvi, int activityLimit) {
+                          DoubleInterval lnvi, DoubleInterval hnvi, DoubleInterval rvi) {
             super(setupName, numberOfBidders);
             this.lowNationalValueInterval = lnvi;
             this.highNationalValueInterval = hnvi;
             this.regionalValueInterval = rvi;
-            this.activityLimit = activityLimit;
         }
 
         /**
@@ -98,10 +111,6 @@ public abstract class GSVMBidderSetup extends BidderSetup {
 
         @Override
         public abstract GSVMBidderSetup build();
-    }
-    
-    public int getActivityLimit() {
-    	return this.activityLimit;
     }
 
 }
