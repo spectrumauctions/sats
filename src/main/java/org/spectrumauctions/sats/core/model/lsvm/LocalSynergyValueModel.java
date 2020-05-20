@@ -41,4 +41,8 @@ public class LocalSynergyValueModel extends DefaultModel<LSVMWorld, LSVMBidder> 
     public void setNumberOfRegionalBidders(int numberOfBidders) {
         regionalBidderBuilder.setNumberOfBidders(numberOfBidders);
     }
+    
+    public void setLegacyLSVM(boolean legacyLSVM) {
+        worldSetupBuilder.setLegacyLSVM(legacyLSVM);
+    }
 }

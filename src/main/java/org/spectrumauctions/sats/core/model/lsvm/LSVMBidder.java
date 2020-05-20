@@ -63,7 +63,11 @@ public final class LSVMBidder extends SATSBidder {
     @Override
     public BigDecimal calculateValue(Bundle bundle) {
         double value = 0;
-        Set<LSVMLicense> licences = bundle.getBundleEntries().stream().map(be -> (LSVMLicense) be.getGood()).collect(Collectors.toSet());
+        Set<LSVMLicense> licences;
+        if(world.isLegacyLSVM())
+        	licences = bundle.getBundleEntries().stream().map(be -> (LSVMLicense) be.getGood()).collect(Collectors.toSet());
+        else 
+        	licences = bundle.getBundleEntries().stream().map(be -> (LSVMLicense) be.getGood()).filter(l -> this.getProximity().contains(l)).collect(Collectors.toSet());
         Set<Set<LSVMLicense>> subpackages = world.getGrid().getMaximallyConnectedSubpackages(licences);
         for (Set<LSVMLicense> subset : subpackages) {
             double factor = calculateFactor(subset.size());
