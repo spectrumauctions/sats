@@ -72,6 +72,9 @@ public class LSVMStandardMIP extends ModelMIP {
 		buildNeighbourConstraints();
 		buildEdgeConstraints();
 		buildTauConstraints();
+		if(!this.world.isLegacyLSVM()) {
+			buildLicenceRestrictions();
+		}
 	}
 
 	@Override
@@ -239,6 +242,20 @@ public class LSVMStandardMIP extends ModelMIP {
                 getMIP().add(constraint);
             }
         }
+	}
+	
+	private void buildLicenceRestrictions() {
+		for (LSVMBidder bidder : population) {
+			for (LSVMLicense license : world.getLicenses()) {
+	        	Map<Integer, Variable> xVariables = this.getXVariables(bidder, license);
+	        	for (Variable xVariable : xVariables.values()) {
+	        		if(!bidder.getProximity().contains(license)) {
+	        			xVariable.setUpperBound(0);
+	        		}
+	        	}
+
+	        }
+		}
 	}
 
 	private void initBaseValues() {

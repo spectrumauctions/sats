@@ -36,7 +36,6 @@ public final class LSVMBidder extends SATSBidder {
     private final HashMap<Long, BigDecimal> values;
     private transient LSVMWorld world;
     private final String description;
-    private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     LSVMBidder(LSVMBidderSetup setup, LSVMWorld world, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -54,7 +53,6 @@ public final class LSVMBidder extends SATSBidder {
                 ", thus interested in licenses "
                 + this.proximity.stream().map(LSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
-        this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = setup.isAllowAssigningLicensesWithZeroBasevalueInDemandQuery();
         store();
     }
 
@@ -157,11 +155,7 @@ public final class LSVMBidder extends SATSBidder {
         for (LSVMLicense license : world.getLicenses()) {
         	Map<Integer, Variable> xVariables = mip.getXVariables(this, license);
         	for (Variable xVariable : xVariables.values()) {
-        		if(this.proximity.contains(license) || this.allowAssigningLicensesWithZeroBasevalueInDemandQuery) {
-        			price.addTerm(prices.getPrice(Bundle.of(license)).getAmount().doubleValue(), xVariable);
-        		} else {
-        			xVariable.setUpperBound(0);
-        		}
+        		price.addTerm(prices.getPrice(Bundle.of(license)).getAmount().doubleValue(), xVariable);
         	}
 
         }
@@ -170,7 +164,7 @@ public final class LSVMBidder extends SATSBidder {
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
         mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
         
-        if(this.allowAssigningLicensesWithZeroBasevalueInDemandQuery) {
+        if(this.getWorld().isLegacyLSVM()) {
         	maxNumberOfBundles = Math.min(maxNumberOfBundles, (int) Math.pow(2, this.getWorld().getNumberOfGoods()));
         } else {
         	maxNumberOfBundles = Math.min(maxNumberOfBundles, (int) Math.pow(2, this.getProximity().size()));
