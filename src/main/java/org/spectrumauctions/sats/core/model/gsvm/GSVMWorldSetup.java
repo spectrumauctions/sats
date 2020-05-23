@@ -1,6 +1,8 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
+import lombok.Setter;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
@@ -10,11 +12,14 @@ import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 public final class GSVMWorldSetup {
 
     private final IntegerInterval sizeInterval;
+    @Getter
+    private final boolean isLegacyGSVM;
 
 
     private GSVMWorldSetup(GSVMWorldSetupBuilder builder) {
         super();
         this.sizeInterval = builder.sizeInterval;
+        this.isLegacyGSVM = builder.isLegacyGSVM;
     }
 
     Integer drawSize(UniformDistributionRNG rng) {
@@ -26,6 +31,9 @@ public final class GSVMWorldSetup {
         private static final int DEFAULT_SIZE = 6;
 
         private IntegerInterval sizeInterval;
+
+        @Setter @Getter
+        private boolean isLegacyGSVM = false;
 
 
         public GSVMWorldSetupBuilder() {
@@ -40,7 +48,6 @@ public final class GSVMWorldSetup {
 
         public GSVMWorldSetup build() {
             return new GSVMWorldSetup(this);
-
         }
 
     }

@@ -3,6 +3,8 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import edu.harvard.econcs.jopt.solver.mip.*;
+
+import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
@@ -32,6 +34,7 @@ public final class GSVMBidder extends SATSBidder {
     private final HashMap<Long, BigDecimal> values;
     private transient GSVMWorld world;
     private final String description;
+    private final int activityLimit;
 
     GSVMBidder(GSVMBidderSetup setup, GSVMWorld world, int bidderPosition, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -41,20 +44,38 @@ public final class GSVMBidder extends SATSBidder {
         this.description = setup.getSetupName() + " with interest in licenses "
                 + this.world.getLicenses().stream().filter(l -> this.values.containsKey(l.getLongId())).map(GSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
+        this.activityLimit = setup.getActivityLimit(this);
         store();
     }
 
     @Override
     public BigDecimal calculateValue(Bundle bundle) {
-        double value = 0;
+        List<Double> values = new ArrayList<>();
+        int synergyCount = 0;
         for (Good good : bundle.getSingleQuantityGoods()) {
             GSVMLicense license = (GSVMLicense) good;
             if (this.values.containsKey(license.getLongId())) {
-                value += this.values.get(license.getLongId()).doubleValue();
+                values.add(this.values.get(license.getLongId()).doubleValue());
+                synergyCount++;
+            } else if (world.isLegacyGSVM()) {
+                synergyCount++;
             }
         }
+        
+        double value = 0;
+        if(world.isLegacyGSVM()) {
+        	value = values.stream().mapToDouble(Double::doubleValue).sum();
+        } else {
+        	// Only use 4 highest base values for regional bidders
+        	values.sort(Double::compare);
+        	Collections.reverse(values);
+        	value = values.stream().limit(this.getActivityLimit()).mapToDouble(Double::doubleValue).sum();
+        	// Limit synergy to activity limit
+        	synergyCount = Math.min(synergyCount, this.getActivityLimit());
+        }
+        
         double factor = 0;
-        if (!bundle.getBundleEntries().isEmpty()) factor = 0.2 * (bundle.getBundleEntries().size() - 1);
+        if (synergyCount > 0) factor = 0.2 * (synergyCount - 1);
         return BigDecimal.valueOf(value + value * factor);
     }
 
@@ -120,7 +141,7 @@ public final class GSVMBidder extends SATSBidder {
 
     @Override
     public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
-        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this), true);
+        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this));
         mip.setMipInstrumentation(getMipInstrumentation());
         mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
@@ -139,6 +160,17 @@ public final class GSVMBidder extends SATSBidder {
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
         mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
         
+        // Limit max number of bundles to the feasible ones in non legacy worlds
+        if(!world.isLegacyGSVM()) {
+        	int maxNumberOfBundlesInterestedIn = 0;
+        	for(int i = 0; i <= this.getActivityLimit(); i++) {
+        		maxNumberOfBundlesInterestedIn += CombinatoricsUtils.binomialCoefficient(this.getBaseValues().size(), i);
+        	}
+        	maxNumberOfBundles = Math.min(maxNumberOfBundles, maxNumberOfBundlesInterestedIn);
+        } else {
+        	maxNumberOfBundles = Math.min(maxNumberOfBundles, (int)Math.pow(2, this.getWorld().getNumberOfGoods()));
+        }
+        
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
         LinkedHashSet<Bundle> result = optimalAllocations.stream()
@@ -147,6 +179,10 @@ public final class GSVMBidder extends SATSBidder {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
+    }
+    
+    public int getActivityLimit() {
+    	return this.activityLimit;
     }
 
     @Override

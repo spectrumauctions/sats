@@ -37,6 +37,14 @@ public class GSVMRegionalBidderSetup extends GSVMBidderSetup {
         return values;
     }
 
+    @Override
+    public int getActivityLimit(GSVMBidder bidder) {
+        if (getActivityLimitOverride() > -1) {
+            return getActivityLimitOverride();
+        }
+        return (int) Math.round(bidder.getBaseValues().size() * 2d/3);
+    }
+
     private boolean isInProximity(int licensePosition, int bidderPosition, int size, boolean isNationalCircle) {
         int factor = isNationalCircle ? 1 : 2;
         bidderPosition = bidderPosition * 2 / factor;

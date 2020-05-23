@@ -20,7 +20,7 @@ public class GSVMDomain extends ModelDomain<GSVMBidder> {
 
 	@Override
 	protected ModelMIP getMIP() {
-		return new GSVMStandardMIP(getBidders().get(0).getWorld(), getBidders(), true);
+		return new GSVMStandardMIP(getBidders().get(0).getWorld(), getBidders());
 	}
 
 	@Override
