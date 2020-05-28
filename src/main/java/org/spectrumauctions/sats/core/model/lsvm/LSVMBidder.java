@@ -132,7 +132,25 @@ public final class LSVMBidder extends SATSBidder {
     /**
      * This factor is used to calculate the bonus for having adjacent items.
      * <p>
-     * Note: To our knowledge, Scheffel et al. (2010) do not specify the behavior in case a license is added which the
+     * Note: The current interpretation of Scheffel et al. (2010) is such that a bidder has no positive marginal value
+     * for any licenses he is not interested in. (I.e. adding or removing such a license from a bundle does not change
+     * the value of the bundle). There are mainly two arguments for this interpretation:
+     * 1.  Scheffel et al. (2010) states that the bidding space of the regional bidder consists of 63 - 2047 packages (bundles).
+     *     As a regional bidder is interested in 6 to 11 licenses this makes clear that the bidding space of a regional bidder
+     *     does not include any licences he is not interested in
+     * 2.  This interpretation follows the implementation of GSVM where items of no interest have no influence on the bundle
+     *     values.
+     *     
+     * The former interpretation is stated as Note II. It still applies to the legacy version of LSVM. In addition to this 
+     * note you may notice that licenses where a bidder has no interest in do not only affect the computation of maximally 
+     * connected subsets of licenses, but also increases the synergies in the legacy version. I.e. assume a bundle of 3 
+     * licenses DEJ. The bidder is only interested in licenses E and J. (see table 1 in Scheffel et al. (2010)). In the 
+     * current version no synergies will be applied to this package. The legacy version will apply synergies for 3 licences.
+     * Note II could also be interpreted towards that only synergies for 2 licenses are applied and the license of no interest
+     * (D) only is used to compute maximally connected subpackages. Note that this last interpretation is not implemented
+     * in any version of LSVM in sats.
+     * 
+     * Note II: To our knowledge, Scheffel et al. (2010) do not specify the behavior in case a license is added which the
      * bidder does not have any interest in. This one license could connect two subsets of items which the
      * bidder is interested in, creating one larger subset, thus increasing the bonus for adjacent items.
      * A possible extension of the model is to adjust the bonus accordingly in this situation.
