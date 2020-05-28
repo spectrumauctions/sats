@@ -141,14 +141,13 @@ public final class LSVMBidder extends SATSBidder {
      * 2.  This interpretation follows the implementation of GSVM where items of no interest have no influence on the bundle
      *     values.
      *     
-     * The former interpretation is stated as Note II. It still applies to the legacy version of LSVM. In addition to this 
-     * note you may notice that licenses where a bidder has no interest in do not only affect the computation of maximally 
-     * connected subsets of licenses, but also increases the synergies in the legacy version. I.e. assume a bundle of 3 
-     * licenses DEJ. The bidder is only interested in licenses E and J. (see table 1 in Scheffel et al. (2010)). In the 
-     * current version no synergies will be applied to this package. The legacy version will apply synergies for 3 licences.
-     * Note II could also be interpreted towards that only synergies for 2 licenses are applied and the license of no interest
-     * (D) only is used to compute maximally connected subpackages. Note that this last interpretation is not implemented
-     * in any version of LSVM in sats.
+     * The interpretation which was used to implement the legacy version of LVSM is stated as Note II. In addition to this note 
+     * you may notice that licenses where a bidder has no interest in, do not only affect the computation of maximally connected 
+     * subsets of licenses, but also increases the synergies in the legacy version. I.e. assume a bundle of 3 licenses DEJ. The 
+     * bidder is only interested in licenses E and J. (see table 1 in Scheffel et al. (2010)). In the current version no synergies 
+     * will be applied to this package. The legacy version will apply synergies for 3 licenses. Note II could also be interpreted 
+     * towards that only synergies for 2 licenses are applied and the license of no interest (D) is only used to compute maximally 
+     * connected subpackages. This last interpretation is not implemented in any version of LSVM in sats.
      * 
      * Note II: To our knowledge, Scheffel et al. (2010) do not specify the behavior in case a license is added which the
      * bidder does not have any interest in. This one license could connect two subsets of items which the
