@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.core.bidder.newstrategy.DefaultStrategyHandler;
 import org.marketdesignresearch.mechlib.core.bidder.newstrategy.InteractionStrategy;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
@@ -214,7 +215,7 @@ public abstract class SATSBidder implements Bidder, Serializable {
     @SuppressWarnings("unchecked")
 	@Override
 	public <T extends InteractionStrategy> T getStrategy(Class<T> type) {
-		if(!this.strategies.containsKey(type)) this.setStrategy(InteractionStrategy.defaultStrategy(type));
+		if(!this.strategies.containsKey(type)) this.setStrategy(DefaultStrategyHandler.defaultStrategy(type));
 		return  (T) this.strategies.get(type);
 	}
 	// endregion
