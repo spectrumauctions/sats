@@ -29,10 +29,10 @@ public class MRVMWorldTest {
         world = new MRVMWorld(MRMSimpleWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(983742L));
     }
 
-    @Test
     /**
-     * Checks if the complete bundle is split correcly into regional bundles
+     * Checks if the complete bundle is split correctly into regional bundles
      */
+    @Test
     public void selectAllLicensesOfRegionOnCompleteBundle() {
         Map<MRVMRegionsMap.Region, Set<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerRegion(Sets.newHashSet(world.getLicenses()));
         int expectedNumberOfLicenses = 0;
