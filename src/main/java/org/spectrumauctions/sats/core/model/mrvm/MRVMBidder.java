@@ -233,7 +233,7 @@ public abstract class MRVMBidder extends SATSBidder {
     public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
         mip.setMipInstrumentation(getMipInstrumentation());
-        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY.name());
 
         double scalingFactor = mip.getBidderPartialMips().get(this).getScalingFactor();
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
