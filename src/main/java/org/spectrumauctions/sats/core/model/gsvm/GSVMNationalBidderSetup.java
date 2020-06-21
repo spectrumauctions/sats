@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 
 import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.DefaultBundleSizeAndGoodAllocationLimit;
 import org.marketdesignresearch.mechlib.core.allocationlimits.DefaultGoodAllocationLimit;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -37,11 +38,10 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
     	if(bidder.getWorld().isLegacyGSVM())
     		return AllocationLimit.NO;
     	
-    	// TODO think if the national bidder should be able to have as well and activity limit
         if (getActivityLimitOverride() > -1) {
-        	throw new IllegalArgumentException("Activity Limits are not yet supported for national bidders");
-            //return getActivityLimitOverride();
+        	new DefaultBundleSizeAndGoodAllocationLimit(getActivityLimitOverride(), Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
         }
+        
         return new DefaultGoodAllocationLimit(Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
     }
 
