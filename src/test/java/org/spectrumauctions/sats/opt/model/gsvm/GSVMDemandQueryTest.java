@@ -8,6 +8,7 @@ import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
 import org.marketdesignresearch.mechlib.core.Domain;
 import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.allocationlimits.utils.AllocationLimitUtils;
 import org.marketdesignresearch.mechlib.core.price.LinearPrices;
 import org.marketdesignresearch.mechlib.core.price.Price;
 import org.marketdesignresearch.mechlib.core.price.Prices;
@@ -93,8 +94,16 @@ public class GSVMDemandQueryTest {
         List<GSVMBidder> customPopulation = customPopulation(world, 8, 2);
         Assert.assertEquals(customPopulation.size(), 10);
         
-        for(GSVMBidder bidder : customPopulation) {
-        	Bundle interestIn = new Bundle(bidder.getBaseValues().keySet().stream().map(l -> new BundleEntry(world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow(), 1)).collect(Collectors.toSet()));
+        // regional bidders
+        for(GSVMBidder bidder : customPopulation.subList(0, 8)) {
+        	Bundle interestIn = new Bundle(bidder.getBaseValues().entrySet().stream().sorted((a,b) -> -a.getValue().compareTo(b.getValue())).limit(4).map(Map.Entry::getKey).map(l -> new BundleEntry(world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow(), 1)).collect(Collectors.toSet()));
+        	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 5.0 : 0.1)))));
+        	Bundle demandedBundle = bidder.getBestBundle(prices);
+        	Assert.assertEquals(interestIn, demandedBundle);
+        }
+        // regional national
+        for(GSVMBidder bidder : customPopulation.subList(8, 10)) {
+        	Bundle interestIn = new Bundle(bidder.getBaseValues().entrySet().stream().sorted((a,b) -> -a.getValue().compareTo(b.getValue())).map(Map.Entry::getKey).map(l -> new BundleEntry(world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow(), 1)).collect(Collectors.toSet()));
         	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 5.0 : 0.1)))));
         	Bundle demandedBundle = bidder.getBestBundle(prices);
         	Assert.assertEquals(interestIn, demandedBundle);
@@ -156,7 +165,7 @@ public class GSVMDemandQueryTest {
         	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 500.0 : 0.1)))));
         	Set<Bundle> demandedBundle = bidder.getBestBundles(prices, 100, true);
         	logger.info("{}: {} bundles returned for a demand query of 100 bundles",bidder,demandedBundle.size());
-        	Assert.assertEquals(Math.min(100,Math.pow(2, bidder.getBaseValues().size())),demandedBundle.size(),0);
+        	Assert.assertEquals(Math.min(100,AllocationLimitUtils.HELPER.calculateAllocationBundleSpaceSize(bidder.getAllocationLimit(), bidder.getBaseValues().keySet().stream().map(l -> world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow()).collect(Collectors.toList()))),demandedBundle.size(),0);
         }
         
         // query with prices lower than value
@@ -164,7 +173,7 @@ public class GSVMDemandQueryTest {
         	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 5.0 : 0.1)))));
         	Set<Bundle> demandedBundle = bidder.getBestBundles(prices, 100, true);
         	logger.info("{}: {} bundles returned for a demand query of 100 bundles",bidder,demandedBundle.size());
-        	Assert.assertEquals(Math.min(100,Math.pow(2, bidder.getBaseValues().size())),demandedBundle.size(),0);
+        	Assert.assertEquals(Math.min(100,AllocationLimitUtils.HELPER.calculateAllocationBundleSpaceSize(bidder.getAllocationLimit(), bidder.getBaseValues().keySet().stream().map(l -> world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow()).collect(Collectors.toList()))),demandedBundle.size(),0);
         }
     }
     

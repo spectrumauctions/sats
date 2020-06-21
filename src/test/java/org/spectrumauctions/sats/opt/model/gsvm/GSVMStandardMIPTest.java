@@ -82,8 +82,8 @@ public class GSVMStandardMIPTest {
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
 		Allocation allocation = gsvmMIP.getAllocation();
 
-		// Efficient Allocation should be 91.0
-		Assert.assertEquals(0, BigDecimal.valueOf(91.0).compareTo(allocation.getTotalAllocationValue()));
+		// Efficient Allocation should be 75.0
+		Assert.assertEquals(0, BigDecimal.valueOf(75.0).compareTo(allocation.getTotalAllocationValue()));
 		testTotalValue(population, allocation);
 	}
 
