@@ -159,7 +159,7 @@ public final class GSVMBidder extends SATSBidder {
         } else {
         	bundleSpaceOfInterest = this.getBaseValues().keySet().stream().map(longId -> world.getLicenses().stream().filter(l -> l.getLongId() == longId).findAny().orElseThrow()).collect(Collectors.toList());
         }
-        int maxNumberOfBundlesOfInterest = AllocationLimitUtils.HELPER.calculateAllocationBundleSpace(this.getAllocationLimit(), bundleSpaceOfInterest);
+        int maxNumberOfBundlesOfInterest = AllocationLimitUtils.HELPER.calculateAllocationBundleSpaceSize(this.getAllocationLimit(), bundleSpaceOfInterest);
         maxNumberOfBundles = Math.min(maxNumberOfBundles, maxNumberOfBundlesOfInterest);
         
         
