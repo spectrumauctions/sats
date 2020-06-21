@@ -1,27 +1,38 @@
 package org.spectrumauctions.sats.opt.model.gsvm;
 
-import com.google.common.base.Preconditions;
-import edu.harvard.econcs.jopt.solver.ISolution;
-import edu.harvard.econcs.jopt.solver.mip.CompareType;
-import edu.harvard.econcs.jopt.solver.mip.Constraint;
-import edu.harvard.econcs.jopt.solver.mip.VarType;
-import edu.harvard.econcs.jopt.solver.mip.Variable;
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.BidderAllocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.GoodAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.NoAllocationLimit;
 import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
-import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValueBids;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
-import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+
+import edu.harvard.econcs.jopt.solver.ISolution;
+import edu.harvard.econcs.jopt.solver.mip.CompareType;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.VarType;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 
 public class GSVMStandardMIP extends ModelMIP {
 
@@ -34,7 +45,6 @@ public class GSVMStandardMIP extends ModelMIP {
 	private GSVMWorld world;
 
 	private boolean allowAssigningLicensesWithZeroBasevalue;
-	private boolean ignoreActivityLimits = false;
 
 	public GSVMStandardMIP(List<GSVMBidder> population) {
 		this(population.iterator().next().getWorld(), population);
@@ -42,7 +52,6 @@ public class GSVMStandardMIP extends ModelMIP {
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
 		this.allowAssigningLicensesWithZeroBasevalue = world.isLegacyGSVM();
-		this.ignoreActivityLimits = world.isLegacyGSVM();
 		this.population = population;
 		this.world = world;
 		tauHatMap = new HashMap<>();
@@ -167,18 +176,42 @@ public class GSVMStandardMIP extends ModelMIP {
 			}
 		}
 		
-		// build regional bidder restrictions
-		if(!ignoreActivityLimits) {
-			for(GSVMBidder bidder : this.population) {
-				Constraint regionalLimit = new Constraint(CompareType.LEQ,bidder.getActivityLimit());
-				for(GSVMLicense license : world.getLicenses()) {
-					if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
-						for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
-							regionalLimit.addTerm(1, gMap.get(bidder).get(license).get(tau));
-						}
-					}
+		// add allocation limits
+		for(GSVMBidder bidder : this.population) {
+			Class<? extends AllocationLimit> type = bidder.getAllocationLimit().getType();
+			if(type.equals(NoAllocationLimit.class)) {
+				// Do nothing
+			} else if(type.equals(BundleSizeAllocationLimit.class)) {
+				BundleSizeAllocationLimit limit = (BundleSizeAllocationLimit) bidder.getAllocationLimit();
+				this.applyBundleSizeAllocationLimit(bidder, limit.getBundleSizeLimit());
+			} else if(type.equals(GoodAllocationLimit.class)) {
+				GoodAllocationLimit limit = (GoodAllocationLimit) bidder.getAllocationLimit();
+				this.applyGoodAllocationLimit(bidder, limit.getGoodAllocationLimit());
+			} else {
+				throw new IllegalStateException("Unkown Allocation limit: "+ type);
+			}
+		}
+		
+	}
+	
+	private void applyBundleSizeAllocationLimit(GSVMBidder bidder, int limit) {
+		Constraint regionalLimit = new Constraint(CompareType.LEQ,limit);
+		for(GSVMLicense license : world.getLicenses()) {
+			if(gMap.get(bidder).containsKey(license)) {
+				for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+					regionalLimit.addTerm(1, gMap.get(bidder).get(license).get(tau));
 				}
-				this.getMIP().add(regionalLimit);
+			}
+		}
+		this.getMIP().add(regionalLimit);
+	}
+	
+	private void applyGoodAllocationLimit(GSVMBidder bidder, List<? extends Good> goods) {
+		for(GSVMLicense license : world.getLicenses()) {
+			if(!goods.contains(license) &&  gMap.get(bidder).containsKey(license)) {
+				for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
+					gMap.get(bidder).get(license).get(tau).setUpperBound(0);
+				}
 			}
 		}
 	}

@@ -1,11 +1,15 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.DefaultGoodAllocationLimit;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
 
 /**
  * @author Fabio Isler
@@ -29,11 +33,16 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
     }
 
     @Override
-    public int getActivityLimit(GSVMBidder bidder) {
+    public AllocationLimit getAllocationLimit(GSVMBidder bidder) {
+    	if(bidder.getWorld().isLegacyGSVM())
+    		return AllocationLimit.NO;
+    	
+    	// TODO think if the national bidder should be able to have as well and activity limit
         if (getActivityLimitOverride() > -1) {
-            return getActivityLimitOverride();
+        	throw new IllegalArgumentException("Activity Limits are not yet supported for national bidders");
+            //return getActivityLimitOverride();
         }
-        return bidder.getWorld().getNationalCircle().getSize();
+        return new DefaultGoodAllocationLimit(Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
     }
 
     public static class Builder extends GSVMBidderSetup.Builder {

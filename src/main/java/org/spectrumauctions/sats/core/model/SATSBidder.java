@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.allocationlimits.validators.AllocationLimitUtils;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.marketdesignresearch.mechlib.core.bidder.newstrategy.DefaultStrategyHandler;
 import org.marketdesignresearch.mechlib.core.bidder.newstrategy.InteractionStrategy;
@@ -19,6 +20,7 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.springframework.data.annotation.Persistent;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.MutableClassToInstanceMap;
 
@@ -117,7 +119,8 @@ public abstract class SATSBidder implements Bidder, Serializable {
     public abstract BigDecimal calculateValue(Bundle bundle);
 
     @Override
-    public BigDecimal getValue(Bundle bundle) {
+    public BigDecimal getValue(Bundle bundle, boolean ignoreAllocationLimits) {
+    	Preconditions.checkArgument(ignoreAllocationLimits || AllocationLimitUtils.HELPER.validate(this.getAllocationLimit(), bundle));
         return calculateValue(bundle);
     }
 

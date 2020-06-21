@@ -81,6 +81,7 @@ public class GSVMDemandQueryTest {
     }
     
     @Test
+    // TODO fix test for with Allocation limits
     public void testAllBiddersInGSVMOriginal() {
     	GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
 		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));
@@ -120,6 +121,7 @@ public class GSVMDemandQueryTest {
     }
     
     @Test
+    // TODO fix for AllocationLimits
     public void testMaxNumberInGSVMOriginal() {
     	GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
 		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));

@@ -8,6 +8,8 @@ import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.validators.AllocationLimitUtils;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
@@ -34,7 +36,7 @@ public final class GSVMBidder extends SATSBidder {
     private final HashMap<Long, BigDecimal> values;
     private transient GSVMWorld world;
     private final String description;
-    private final int activityLimit;
+    private final AllocationLimit allocationLimit;
 
     GSVMBidder(GSVMBidderSetup setup, GSVMWorld world, int bidderPosition, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -44,7 +46,7 @@ public final class GSVMBidder extends SATSBidder {
         this.description = setup.getSetupName() + " with interest in licenses "
                 + this.world.getLicenses().stream().filter(l -> this.values.containsKey(l.getLongId())).map(GSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
-        this.activityLimit = setup.getActivityLimit(this);
+        this.allocationLimit = setup.getAllocationLimit(this);
         store();
     }
 
@@ -63,16 +65,7 @@ public final class GSVMBidder extends SATSBidder {
         }
         
         double value = 0;
-        if(world.isLegacyGSVM()) {
-        	value = values.stream().mapToDouble(Double::doubleValue).sum();
-        } else {
-        	// Only use 4 highest base values for regional bidders
-        	values.sort(Double::compare);
-        	Collections.reverse(values);
-        	value = values.stream().limit(this.getActivityLimit()).mapToDouble(Double::doubleValue).sum();
-        	// Limit synergy to activity limit
-        	synergyCount = Math.min(synergyCount, this.getActivityLimit());
-        }
+        value = values.stream().mapToDouble(Double::doubleValue).sum();
         
         double factor = 0;
         if (synergyCount > 0) factor = 0.2 * (synergyCount - 1);
@@ -160,16 +153,15 @@ public final class GSVMBidder extends SATSBidder {
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
         mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
         
-        // Limit max number of bundles to the feasible ones in non legacy worlds
-        if(!world.isLegacyGSVM()) {
-        	int maxNumberOfBundlesInterestedIn = 0;
-        	for(int i = 0; i <= this.getActivityLimit(); i++) {
-        		maxNumberOfBundlesInterestedIn += CombinatoricsUtils.binomialCoefficient(this.getBaseValues().size(), i);
-        	}
-        	maxNumberOfBundles = Math.min(maxNumberOfBundles, maxNumberOfBundlesInterestedIn);
+        List<? extends Good> bundleSpaceOfInterest;
+        if(world.isLegacyGSVM()) {
+        	bundleSpaceOfInterest = world.getLicenses();
         } else {
-        	maxNumberOfBundles = Math.min(maxNumberOfBundles, (int)Math.pow(2, this.getWorld().getNumberOfGoods()));
+        	bundleSpaceOfInterest = this.getBaseValues().keySet().stream().map(longId -> world.getLicenses().stream().filter(l -> l.getLongId() == longId).findAny().orElseThrow()).collect(Collectors.toList());
         }
+        int maxNumberOfBundlesOfInterest = AllocationLimitUtils.HELPER.calculateAllocationBundleSpace(this.getAllocationLimit(), bundleSpaceOfInterest);
+        maxNumberOfBundles = Math.min(maxNumberOfBundles, maxNumberOfBundlesOfInterest);
+        
         
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
@@ -181,8 +173,9 @@ public final class GSVMBidder extends SATSBidder {
         return result;
     }
     
-    public int getActivityLimit() {
-    	return this.activityLimit;
+    @Override
+    public AllocationLimit getAllocationLimit() {
+    	return this.allocationLimit;
     }
 
     @Override
