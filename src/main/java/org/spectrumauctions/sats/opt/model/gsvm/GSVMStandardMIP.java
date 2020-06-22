@@ -16,6 +16,7 @@ import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
 import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAndGoodAllocationLimit;
 import org.marketdesignresearch.mechlib.core.allocationlimits.GoodAllocationLimit;
 import org.marketdesignresearch.mechlib.core.allocationlimits.NoAllocationLimit;
 import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
@@ -187,11 +188,14 @@ public class GSVMStandardMIP extends ModelMIP {
 			} else if(type.equals(GoodAllocationLimit.class)) {
 				GoodAllocationLimit limit = (GoodAllocationLimit) bidder.getAllocationLimit();
 				this.applyGoodAllocationLimit(bidder, limit.getGoodAllocationLimit());
+			} else if(type.equals(BundleSizeAndGoodAllocationLimit.class)){
+				BundleSizeAndGoodAllocationLimit limit = (BundleSizeAndGoodAllocationLimit) bidder.getAllocationLimit();
+				this.applyBundleSizeAllocationLimit(bidder, limit.getBundleSizeLimit());
+				this.applyGoodAllocationLimit(bidder, limit.getGoodAllocationLimit());
 			} else {
 				throw new IllegalStateException("Unkown Allocation limit: "+ type);
 			}
 		}
-		
 	}
 	
 	private void applyBundleSizeAllocationLimit(GSVMBidder bidder, int limit) {

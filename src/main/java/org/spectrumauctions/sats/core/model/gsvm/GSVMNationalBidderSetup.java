@@ -39,7 +39,7 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
     		return AllocationLimit.NO;
     	
         if (getActivityLimitOverride() > -1) {
-        	new DefaultBundleSizeAndGoodAllocationLimit(getActivityLimitOverride(), Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
+        	return new DefaultBundleSizeAndGoodAllocationLimit(getActivityLimitOverride(), Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
         }
         
         return new DefaultGoodAllocationLimit(Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
