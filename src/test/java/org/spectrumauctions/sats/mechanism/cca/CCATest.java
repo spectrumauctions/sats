@@ -27,19 +27,19 @@ public class CCATest {
 
     @Test
     public void testGSVM() {
-        Domain domain = new GSVMDomain(new GlobalSynergyValueModel().createNewPopulation());
+        Domain domain = new GSVMDomain(new GlobalSynergyValueModel().createNewWorldAndPopulation());
         testCCA(domain);
     }
 
     @Test
     public void testLSVM() {
-        Domain domain = new LSVMDomain(new LocalSynergyValueModel().createNewPopulation());
+        Domain domain = new LSVMDomain(new LocalSynergyValueModel().createNewWorldAndPopulation());
         testCCA(domain);
     }
 
     @Test
     public void testMRVM() {
-        Domain domain = new MRVMDomain(new MultiRegionModel().createNewPopulation());
+        Domain domain = new MRVMDomain(new MultiRegionModel().createNewWorldAndPopulation());
         testCCA(domain);
     }
 

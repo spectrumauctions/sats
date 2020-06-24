@@ -86,11 +86,11 @@ public abstract class ModelCreator {
 
         Collection<? extends SATSBidder> bidders;
         if (seedType == SeedType.INDIVIDUALSEED) {
-            bidders = model.createNewPopulation(worldSeed, populationSeed);
+            bidders = model.createNewWorldAndPopulation(worldSeed, populationSeed);
         } else if (seedType == SeedType.NOSEED) {
-            bidders = model.createNewPopulation();
+            bidders = model.createNewWorldAndPopulation();
         } else if (seedType == SeedType.SUPERSEED) {
-            bidders = model.createNewPopulation(superSeed);
+            bidders = model.createNewWorldAndPopulation(superSeed);
         } else {
             throw new IllegalConfigException("Seed type unknown");
         }

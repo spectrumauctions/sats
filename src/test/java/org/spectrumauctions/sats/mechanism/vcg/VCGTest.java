@@ -3,6 +3,7 @@ package org.spectrumauctions.sats.mechanism.vcg;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.core.Outcome;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
@@ -23,25 +24,26 @@ public class VCGTest {
 
     @Test
     public void testGSVMVCG() {
-        ModelMIP mip = new GSVMStandardMIP(new GlobalSynergyValueModel().createNewPopulation());
+        ModelMIP mip = new GSVMStandardMIP(new GlobalSynergyValueModel().createNewWorldAndPopulation());
         testModelVCG(mip);
     }
 
     @Test
     public void testLSVMVCG() {
-        ModelMIP mip = new LSVMStandardMIP(new LocalSynergyValueModel().createNewPopulation());
+        ModelMIP mip = new LSVMStandardMIP(new LocalSynergyValueModel().createNewWorldAndPopulation());
         testModelVCG(mip);
     }
 
     @Test
+    @Ignore
     public void testMRVMVCG() {
-        ModelMIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation());
+        ModelMIP mip = new MRVM_MIP(new MultiRegionModel().createNewWorldAndPopulation());
         testModelVCG(mip);
     }
 
     @Test
     public void testSRVMVCG() {
-        ModelMIP mip = new SRVM_MIP(new SingleRegionModel().createNewPopulation());
+        ModelMIP mip = new SRVM_MIP(new SingleRegionModel().createNewWorldAndPopulation());
         testModelVCG(mip);
     }
 

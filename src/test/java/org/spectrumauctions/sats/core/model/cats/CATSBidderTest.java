@@ -32,7 +32,7 @@ public class CATSBidderTest {
     public void testDefaultCustomBidderSetup() {
         CATSRegionModel model = new CATSRegionModel();
         CATSWorld world = model.createWorld(983742L);
-        List<CATSBidder> defaultPopulation = model.createPopulation(world);
+        List<CATSBidder> defaultPopulation = model.createNewPopulation(world);
         Assert.assertEquals(defaultPopulation.size(), 1);
         checkBidder(defaultPopulation.get(0), "CATS Bidder Setup");
     }
@@ -45,7 +45,7 @@ public class CATSBidderTest {
         CATSRegionModel model2 = new CATSRegionModel();
         CATSWorld world2 = model2.createWorld(983742L);
         model2.setNumberOfBidders(2);
-        List<CATSBidder> population2 = model2.createPopulation(world2);
+        List<CATSBidder> population2 = model2.createNewPopulation(world2);
         Assert.assertEquals(population2.size(), 2);
         checkBidder(population2.get(0), "CATS Bidder Setup");
         checkBidder(population2.get(1), "CATS Bidder Setup");

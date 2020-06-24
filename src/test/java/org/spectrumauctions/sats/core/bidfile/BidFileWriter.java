@@ -33,7 +33,7 @@ public abstract class BidFileWriter {
 
     protected void testMultiBidderXOR(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
-        Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
+        Collection<BMBidder> bidders = bvm.createNewWorldAndPopulation(0L);
         Collection<BiddingLanguage> languages = new ArrayList<>();
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
@@ -59,7 +59,7 @@ public abstract class BidFileWriter {
 
     protected void testSingleBidderXOR(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
-        Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
+        Collection<BMBidder> bidders = bvm.createNewWorldAndPopulation(0L);
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {
@@ -81,7 +81,7 @@ public abstract class BidFileWriter {
 
     protected void testMultiBidderXORQ(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
-        Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
+        Collection<BMBidder> bidders = bvm.createNewWorldAndPopulation(0L);
         Collection<BiddingLanguage> languages = new ArrayList<>();
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
@@ -105,7 +105,7 @@ public abstract class BidFileWriter {
 
     protected void testSingleBidderXORQ(FileWriter exporter) {
         BaseValueModel bvm = new BaseValueModel();
-        Collection<BMBidder> bidders = bvm.createNewPopulation(0L);
+        Collection<BMBidder> bidders = bvm.createNewWorldAndPopulation(0L);
         int bidsPerBidder = 150;
         for (BMBidder bidder : bidders) {
             try {

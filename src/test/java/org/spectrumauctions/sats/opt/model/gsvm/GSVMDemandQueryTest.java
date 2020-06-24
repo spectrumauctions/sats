@@ -41,7 +41,7 @@ public class GSVMDemandQueryTest {
 
     @Test
     public void testAllBiddersInGSVM() {
-        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
+        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewWorldAndPopulation(new JavaUtilRNGSupplier(73246104));
 
         for (GSVMBidder bidder : bidders) {
             Bundle bundle = bidder.getBestBundle(Prices.NONE);
@@ -60,7 +60,7 @@ public class GSVMDemandQueryTest {
 
     @Test
     public void testMultipleBundles() {
-        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewPopulation(new JavaUtilRNGSupplier(73246104));
+        List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewWorldAndPopulation(new JavaUtilRNGSupplier(73246104));
         Domain domain = new GSVMDomain(bidders);
         GSVMBidder bidder = bidders.get(0);
         Prices prices = domain.proposeStartingPrices();

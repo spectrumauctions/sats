@@ -35,7 +35,7 @@ public class GSVMBidderTest {
     public void testDefaultCustomBidderSetup() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld(983742L);
-        List<GSVMBidder> defaultPopulation = model.createPopulation(world);
+        List<GSVMBidder> defaultPopulation = model.createNewPopulation(world);
 
         Assert.assertEquals(defaultPopulation.size(), 7);
 
@@ -52,7 +52,7 @@ public class GSVMBidderTest {
         GSVMWorld world2 = model2.createWorld(983742L);
         model2.setNumberOfNationalBidders(3);
         model2.setNumberOfRegionalBidders(2);
-        List<GSVMBidder> minimalPopulation = model2.createPopulation(world2);
+        List<GSVMBidder> minimalPopulation = model2.createNewPopulation(world2);
 
         Assert.assertEquals(minimalPopulation.size(), 5);
 

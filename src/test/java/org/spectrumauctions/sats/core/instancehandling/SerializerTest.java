@@ -78,7 +78,7 @@ public class SerializerTest {
 
     public <W extends World, B extends SATSBidder> void testBidderSerializability(DefaultModel<W, B> model) {
         W world = model.createWorld(rng.nextLong());
-        List<B> originalPopulation = model.createPopulation(world, rng.nextLong());
+        List<B> originalPopulation = model.createNewPopulation(world, rng.nextLong());
         long populationId = originalPopulation.iterator().next().getPopulation();
         List<? extends SATSBidder> deserializedPopulation = new ArrayList<>(world.restorePopulation(populationId));
         Assert.assertEquals(originalPopulation, deserializedPopulation);

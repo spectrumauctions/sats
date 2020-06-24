@@ -72,7 +72,7 @@ public class LSVMStandardMIPTest {
 		LocalSynergyValueModel model = new LocalSynergyValueModel();
 		model.setLegacyLSVM(true);
 		LSVMWorld world = model.createWorld(seed);
-		List<LSVMBidder> population = model.createPopulation(world, seed);
+		List<LSVMBidder> population = model.createNewPopulation(world, seed);
 
 		LSVMStandardMIP lsvmMIP = new LSVMStandardMIP(world, population);
 		Allocation allocation = lsvmMIP.getAllocation();

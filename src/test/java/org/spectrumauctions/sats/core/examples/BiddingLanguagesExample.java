@@ -28,7 +28,7 @@ public class BiddingLanguagesExample {
      * See {@link SimpleModelAccessorsExample} and {@link ParameterizingModelsExample} for examples how bidders can be generated
      */
     private static SRVMBidder createAnyBidder() {
-        return new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
+        return new SingleRegionModel().createNewWorldAndPopulation().stream().findAny().orElse(null);
     }
 
     /**

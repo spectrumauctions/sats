@@ -23,7 +23,7 @@ public class XORQtoXORTest {
     @Test
     public void testAllCombinations() throws UnsupportedBiddingLanguageException {
         MultiBandValueModel model = new MultiBandValueModel();
-        BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
+        BMBidder bidder = model.createNewWorldAndPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
         GenericPowersetDecreasing lang =
                 bidder.getValueFunction(GenericPowersetDecreasing.class, 351354);
