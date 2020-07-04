@@ -1,15 +1,19 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import edu.harvard.econcs.jopt.solver.mip.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
 import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
-import org.marketdesignresearch.mechlib.core.allocationlimits.utils.AllocationLimitUtils;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
@@ -22,9 +26,14 @@ import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import edu.harvard.econcs.jopt.solver.mip.CompareType;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.MIP;
+import edu.harvard.econcs.jopt.solver.mip.VarType;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 
 /**
  * @author Fabio Isler
@@ -159,9 +168,8 @@ public final class GSVMBidder extends SATSBidder {
         } else {
         	bundleSpaceOfInterest = this.getBaseValues().keySet().stream().map(longId -> world.getLicenses().stream().filter(l -> l.getLongId() == longId).findAny().orElseThrow()).collect(Collectors.toList());
         }
-        int maxNumberOfBundlesOfInterest = AllocationLimitUtils.HELPER.calculateAllocationBundleSpaceSize(this.getAllocationLimit(), bundleSpaceOfInterest);
+        int maxNumberOfBundlesOfInterest = this.getAllocationLimit().calculateAllocationBundleSpace(bundleSpaceOfInterest);
         maxNumberOfBundles = Math.min(maxNumberOfBundles, maxNumberOfBundlesOfInterest);
-        
         
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 

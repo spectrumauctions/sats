@@ -5,11 +5,14 @@
  */
 package org.spectrumauctions.sats.core.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.marketdesignresearch.mechlib.core.Bundle;
-import org.marketdesignresearch.mechlib.core.allocationlimits.utils.AllocationLimitUtils;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.marketdesignresearch.mechlib.core.bidder.newstrategy.DefaultStrategyHandler;
 import org.marketdesignresearch.mechlib.core.bidder.newstrategy.InteractionStrategy;
@@ -18,18 +21,12 @@ import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
-import org.springframework.data.annotation.Persistent;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ClassToInstanceMap;
-import com.google.common.collect.MutableClassToInstanceMap;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @EqualsAndHashCode(doNotUseGetters = true, onlyExplicitlyIncluded = true)
 public abstract class SATSBidder implements Bidder, Serializable {
@@ -120,7 +117,7 @@ public abstract class SATSBidder implements Bidder, Serializable {
 
     @Override
     public BigDecimal getValue(Bundle bundle, boolean ignoreAllocationLimits) {
-    	Preconditions.checkArgument(ignoreAllocationLimits || AllocationLimitUtils.HELPER.validate(this.getAllocationLimit(), bundle));
+    	Preconditions.checkArgument(ignoreAllocationLimits || this.getAllocationLimit().validate(bundle));
         return calculateValue(bundle);
     }
 

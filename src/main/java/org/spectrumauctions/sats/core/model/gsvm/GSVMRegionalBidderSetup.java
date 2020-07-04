@@ -3,7 +3,7 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import com.google.common.base.Preconditions;
 
 import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
-import org.marketdesignresearch.mechlib.core.allocationlimits.DefaultBundleSizeAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAllocationLimit;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -46,9 +46,9 @@ public class GSVMRegionalBidderSetup extends GSVMBidderSetup {
     		return AllocationLimit.NO;
     	}
         if (getActivityLimitOverride() > -1) {
-        	return new DefaultBundleSizeAllocationLimit(getActivityLimitOverride());
+        	return new BundleSizeAllocationLimit(getActivityLimitOverride(), bidder.getWorld().getLicenses());
         }
-        return new DefaultBundleSizeAllocationLimit((int) Math.round(bidder.getBaseValues().size() * 2d/3));
+        return new BundleSizeAllocationLimit((int) Math.round(bidder.getBaseValues().size() * 2d/3), bidder.getWorld().getLicenses());
     }
 
     private boolean isInProximity(int licensePosition, int bidderPosition, int size, boolean isNationalCircle) {

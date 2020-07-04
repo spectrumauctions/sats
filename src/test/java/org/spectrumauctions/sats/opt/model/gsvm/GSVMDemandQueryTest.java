@@ -1,5 +1,14 @@
 package org.spectrumauctions.sats.opt.model.gsvm;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
@@ -7,8 +16,6 @@ import org.junit.Test;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
 import org.marketdesignresearch.mechlib.core.Domain;
-import org.marketdesignresearch.mechlib.core.Good;
-import org.marketdesignresearch.mechlib.core.allocationlimits.utils.AllocationLimitUtils;
 import org.marketdesignresearch.mechlib.core.price.LinearPrices;
 import org.marketdesignresearch.mechlib.core.price.Price;
 import org.marketdesignresearch.mechlib.core.price.Prices;
@@ -22,15 +29,6 @@ import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.mechanism.domains.GSVMDomain;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Fabio Isler
@@ -165,7 +163,7 @@ public class GSVMDemandQueryTest {
         	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 500.0 : 0.1)))));
         	Set<Bundle> demandedBundle = bidder.getBestBundles(prices, 100, true);
         	logger.info("{}: {} bundles returned for a demand query of 100 bundles",bidder,demandedBundle.size());
-        	Assert.assertEquals(Math.min(100,AllocationLimitUtils.HELPER.calculateAllocationBundleSpaceSize(bidder.getAllocationLimit(), bidder.getBaseValues().keySet().stream().map(l -> world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow()).collect(Collectors.toList()))),demandedBundle.size(),0);
+        	Assert.assertEquals(Math.min(100,bidder.getAllocationLimit().calculateAllocationBundleSpace(bidder.getBaseValues().keySet().stream().map(l -> world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow()).collect(Collectors.toList()))),demandedBundle.size(),0);
         }
         
         // query with prices lower than value
@@ -173,7 +171,7 @@ public class GSVMDemandQueryTest {
         	Prices prices = new LinearPrices(world.getLicenses().stream().collect(Collectors.toMap(l -> l, l -> new Price(BigDecimal.valueOf(bidder.getBaseValues().containsKey(l.getLongId()) ? 5.0 : 0.1)))));
         	Set<Bundle> demandedBundle = bidder.getBestBundles(prices, 100, true);
         	logger.info("{}: {} bundles returned for a demand query of 100 bundles",bidder,demandedBundle.size());
-        	Assert.assertEquals(Math.min(100,AllocationLimitUtils.HELPER.calculateAllocationBundleSpaceSize(bidder.getAllocationLimit(), bidder.getBaseValues().keySet().stream().map(l -> world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow()).collect(Collectors.toList()))),demandedBundle.size(),0);
+        	Assert.assertEquals(Math.min(100,bidder.getAllocationLimit().calculateAllocationBundleSpace(bidder.getBaseValues().keySet().stream().map(l -> world.getLicenses().stream().filter(lic -> lic.getLongId() == l).findAny().orElseThrow()).collect(Collectors.toList()))),demandedBundle.size(),0);
         }
     }
     
