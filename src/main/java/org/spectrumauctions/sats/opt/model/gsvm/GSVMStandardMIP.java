@@ -178,7 +178,7 @@ public class GSVMStandardMIP extends ModelMIP {
 		for(GSVMBidder bidder : this.population) {
 			Map<Good, List<Variable>> bidderVariables = gMap.get(bidder).entrySet().stream().collect(Collectors.toMap(e->e.getKey(), e-> new ArrayList<>(e.getValue().values()), (e1, e2) -> e1, LinkedHashMap::new));
 			for(AllocationLimitConstraint alc : bidder.getAllocationLimit().getConstraints()) {
-				this.getMIP().add(alc.createCPLEXConstraintList(bidderVariables));
+				this.getMIP().add(alc.createCPLEXConstraintWithMultiVarsPerGood(bidderVariables));
 			}
 		}
 	}
