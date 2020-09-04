@@ -19,7 +19,6 @@ public class GSVMDomain extends ModelDomain<GSVMBidder> {
 
 	public GSVMDomain(List<GSVMBidder> bidders) {
 		super(bidders);
-		this.setPriceGenerationFraction(0.1);
 	}
 
 	@Override
