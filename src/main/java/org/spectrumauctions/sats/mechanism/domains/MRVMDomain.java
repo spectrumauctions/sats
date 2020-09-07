@@ -52,7 +52,7 @@ public class MRVMDomain extends ModelDomain<MRVMBidder> {
     }
 
     @Override
-    protected ModelMIP getMIP() {
+    public ModelMIP getMIP() {
         return new MRVM_MIP(getBidders());
     }
 

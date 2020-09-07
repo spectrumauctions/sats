@@ -14,8 +14,8 @@ import java.util.UUID;
 
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
-import org.marketdesignresearch.mechlib.core.bidder.newstrategy.DefaultStrategyHandler;
-import org.marketdesignresearch.mechlib.core.bidder.newstrategy.InteractionStrategy;
+import org.marketdesignresearch.mechlib.core.bidder.strategy.DefaultStrategyHandler;
+import org.marketdesignresearch.mechlib.core.bidder.strategy.InteractionStrategy;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
