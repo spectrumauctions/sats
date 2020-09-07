@@ -28,15 +28,15 @@ public class BMRandomnessTest {
         BMWorld world1 = model.createWorld(seed);
         BMWorld world2 = model.createWorld(seed);
         Assert.assertEquals(world1, world2);
-        List<? extends SATSBidder> bidders1 = model.createPopulation(world1, seed2);
-        List<? extends SATSBidder> bidders2 = model.createPopulation(world1, seed2);
-        List<? extends SATSBidder> bidders3 = model.createPopulation(world2, seed2);
-        List<? extends SATSBidder> bidders4 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder> bidders1 = model.createNewPopulation(world1, seed2);
+        List<? extends SATSBidder> bidders2 = model.createNewPopulation(world1, seed2);
+        List<? extends SATSBidder> bidders3 = model.createNewPopulation(world2, seed2);
+        List<? extends SATSBidder> bidders4 = model.createNewPopulation(world2, seed2);
         Assert.assertEquals(bidders1, bidders2);
         Assert.assertEquals(bidders2, bidders3);
         Assert.assertEquals(bidders3, bidders4);
-        bidders1 = model.createNewPopulation(seed);
-        bidders2 = model.createNewPopulation(seed);
+        bidders1 = model.createNewWorldAndPopulation(seed);
+        bidders2 = model.createNewWorldAndPopulation(seed);
         Assert.assertEquals(bidders1, bidders2);
     }
 
@@ -47,15 +47,15 @@ public class BMRandomnessTest {
         BMWorld world1 = model.createWorld(seed);
         BMWorld world2 = model.createWorld(seed);
         Assert.assertEquals(world1, world2);
-        List<? extends SATSBidder> bidders1 = model.createPopulation(world1, seed2);
-        List<? extends SATSBidder> bidders2 = model.createPopulation(world1, seed2);
-        List<? extends SATSBidder> bidders3 = model.createPopulation(world2, seed2);
-        List<? extends SATSBidder> bidders4 = model.createPopulation(world2, seed2);
+        List<? extends SATSBidder> bidders1 = model.createNewPopulation(world1, seed2);
+        List<? extends SATSBidder> bidders2 = model.createNewPopulation(world1, seed2);
+        List<? extends SATSBidder> bidders3 = model.createNewPopulation(world2, seed2);
+        List<? extends SATSBidder> bidders4 = model.createNewPopulation(world2, seed2);
         Assert.assertEquals(bidders1, bidders2);
         Assert.assertEquals(bidders2, bidders3);
         Assert.assertEquals(bidders3, bidders4);
-        bidders1 = model.createNewPopulation(seed);
-        bidders2 = model.createNewPopulation(seed);
+        bidders1 = model.createNewWorldAndPopulation(seed);
+        bidders2 = model.createNewWorldAndPopulation(seed);
         Assert.assertEquals(bidders1, bidders2);
     }
 }

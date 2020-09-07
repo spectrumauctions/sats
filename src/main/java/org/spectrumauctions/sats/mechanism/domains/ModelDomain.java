@@ -41,7 +41,7 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
 
     private transient Allocation efficientAllocation;
 
-    protected abstract ModelMIP getMIP();
+    public abstract ModelMIP getMIP();
     
     private boolean generic;
     

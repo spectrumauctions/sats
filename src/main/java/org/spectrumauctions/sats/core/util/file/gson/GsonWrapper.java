@@ -7,6 +7,12 @@ package org.spectrumauctions.sats.core.util.file.gson;
 
 import com.google.gson.*;
 import org.jgrapht.Graph;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit.NoAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAndGoodAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.GoodAllocationLimit;
+import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.file.FileException;
 
 /**
@@ -18,26 +24,25 @@ public class GsonWrapper {
     private static final String IMPLEMENTATION_FIELD = "implementation";
     private static final boolean PRETTY_JSON = true;
 
-    private static GsonWrapper INSTANCE = null;
     private Gson gson;
+    
+    private AllocationLimitAdapter allocationLimitAdapter = new AllocationLimitAdapter();
 
-    private GsonWrapper() {
+    public GsonWrapper() {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Graph.class, new GraphAdapter());
+        builder.registerTypeAdapter(AllocationLimit.class, allocationLimitAdapter);
+        builder.registerTypeAdapter(NoAllocationLimit.class, allocationLimitAdapter);
+        builder.registerTypeAdapter(BundleSizeAllocationLimit.class, allocationLimitAdapter);
+        builder.registerTypeAdapter(BundleSizeAndGoodAllocationLimit.class, allocationLimitAdapter);
+        builder.registerTypeAdapter(GoodAllocationLimit.class, allocationLimitAdapter);
         builder.disableHtmlEscaping();
         if (PRETTY_JSON) {
             builder.setPrettyPrinting();
         }
         gson = builder.create();
     }
-
-    public static GsonWrapper getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new GsonWrapper();
-        }
-        return INSTANCE;
-    }
-
+    
     public Gson getGson() {
         return gson;
     }
@@ -68,5 +73,9 @@ public class GsonWrapper {
         JsonObject jsonObject = parser.parse(json).getAsJsonObject();
         return jsonObject.get(key).getAsString();
     }
+
+	public void setWorld(World world) {
+		this.allocationLimitAdapter.setWorld(world);
+	}
 
 }

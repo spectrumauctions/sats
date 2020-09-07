@@ -26,7 +26,7 @@ public class SRVMMipTest {
 
     @Test
     public void testNoException() {
-        Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewPopulation();
+        Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewWorldAndPopulation();
         SRVM_MIP mip = new SRVM_MIP(bidders);
         Allocation result = mip.getAllocation();
         for (SRVMBidder bidder : bidders) {
