@@ -7,12 +7,11 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jgrapht.Graph;
-import org.jgrapht.generate.GraphGenerator;
-import org.jgrapht.generate.RandomRegularGraphGenerator;
+import org.jgrapht.generate.GnmRandomGraphGenerator;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.DefaultUndirectedGraph;
+import org.jgrapht.util.SupplierUtil;
 import org.spectrumauctions.sats.core.util.math.ContinuousPiecewiseLinearFunction;
 import org.spectrumauctions.sats.core.util.math.Function;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
@@ -62,13 +61,12 @@ public final class MRVMWorldSetup {
         if (usePredefinedGraph) {
             return predefinedGraph;
         } else {
-            throw new NotImplementedException("Creating a random graph in MRVM needs to be reworked due to JGrapht-API-changes.");
-            // return nonPlanarRandomGraphStructure(
-            //         populationPerRegionMean,
-            //         populationStandardDeviation,
-            //         rng,
-            //         numberOfRegionsInterval,
-            //         averageAdjacenciesPerRegionInterval);
+            return nonPlanarRandomGraphStructure(
+                    populationPerRegionMean,
+                    populationStandardDeviation,
+                    rng,
+                    numberOfRegionsInterval,
+                    averageAdjacenciesPerRegionInterval);
         }
     }
 
@@ -276,27 +274,26 @@ public final class MRVMWorldSetup {
     }
 
 
-//    /**
-//     * Creates a naive, random, not necessarily planar graph
-//     */
-//    @Deprecated
-//    public Graph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(
-//            final double populationPerRegionMean,
-//            final double populationStandardDeviation,
-//            UniformDistributionRNG rng,
-//            IntegerInterval numberOfRegionsInterval,
-//            IntegerInterval averageAdjacenciesPerRegionInterval
-//    ) {
-//        int numberOfRegions = rng.nextInt(numberOfRegionsInterval);
-//        int numberOfAdjacencies = rng.nextInt(averageAdjacenciesPerRegionInterval) * numberOfRegions;
-//        GraphGenerator<RegionSetup, DefaultEdge> randomGraphGenerator = new RandomRegularGraphGenerator<>(
-//                numberOfRegions, numberOfAdjacencies, rng.nextLong());
-//        SimpleGraph<RegionSetup, DefaultEdge> targetGraph = new SimpleGraph<>(DefaultEdge.class);
-//        Supplier<RegionSetup> vertexFactory = () ->
-//                new RegionSetup(populationPerRegionMean, populationStandardDeviation, randomRegionCount++ + ": randomly created");
-//        randomGraphGenerator.generateGraph(targetGraph, vertexFactory, null);
-//        return targetGraph;
-//    }
+    /**
+     * Creates a naive, random, not necessarily planar graph
+     */
+    public Graph<RegionSetup, DefaultEdge> nonPlanarRandomGraphStructure(
+            final double populationPerRegionMean,
+            final double populationStandardDeviation,
+            UniformDistributionRNG rng,
+            IntegerInterval numberOfRegionsInterval,
+            IntegerInterval averageAdjacenciesPerRegionInterval
+    ) {
+        int numberOfRegions = rng.nextInt(numberOfRegionsInterval);
+        int numberOfAdjacencies = rng.nextInt(averageAdjacenciesPerRegionInterval) * numberOfRegions;
+        GnmRandomGraphGenerator<RegionSetup, DefaultEdge> randomGraphGenerator = new GnmRandomGraphGenerator<>(
+                numberOfRegions, numberOfAdjacencies, rng.nextLong());
+        Supplier<RegionSetup> vertexFactory = () ->
+            new RegionSetup(populationPerRegionMean, populationStandardDeviation, randomRegionCount++ + ": randomly created");
+        DefaultUndirectedGraph<RegionSetup, DefaultEdge> targetGraph = new DefaultUndirectedGraph<>(vertexFactory, SupplierUtil.createDefaultEdgeSupplier(), false);
+        randomGraphGenerator.generateGraph(targetGraph);
+        return targetGraph;
+    }
 
 
 }
