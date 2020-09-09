@@ -1,11 +1,19 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import edu.harvard.econcs.jopt.solver.mip.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
@@ -18,9 +26,14 @@ import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.opt.model.gsvm.GSVMStandardMIP;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import edu.harvard.econcs.jopt.solver.mip.CompareType;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.MIP;
+import edu.harvard.econcs.jopt.solver.mip.VarType;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 
 /**
  * @author Fabio Isler
@@ -32,6 +45,7 @@ public final class GSVMBidder extends SATSBidder {
     private final HashMap<Long, BigDecimal> values;
     private transient GSVMWorld world;
     private final String description;
+    private final AllocationLimit allocationLimit;
 
     GSVMBidder(GSVMBidderSetup setup, GSVMWorld world, int bidderPosition, long currentId, long population, RNGSupplier rngSupplier) {
         super(setup, population, currentId, world.getId());
@@ -41,20 +55,29 @@ public final class GSVMBidder extends SATSBidder {
         this.description = setup.getSetupName() + " with interest in licenses "
                 + this.world.getLicenses().stream().filter(l -> this.values.containsKey(l.getLongId())).map(GSVMLicense::getName).collect(Collectors.joining(", "))
                 + ".";
+        this.allocationLimit = setup.getAllocationLimit(this);
         store();
     }
 
     @Override
     public BigDecimal calculateValue(Bundle bundle) {
-        double value = 0;
+        List<Double> values = new ArrayList<>();
+        int synergyCount = 0;
         for (Good good : bundle.getSingleQuantityGoods()) {
             GSVMLicense license = (GSVMLicense) good;
             if (this.values.containsKey(license.getLongId())) {
-                value += this.values.get(license.getLongId()).doubleValue();
+                values.add(this.values.get(license.getLongId()).doubleValue());
+                synergyCount++;
+            } else if (world.isLegacyGSVM()) {
+                synergyCount++;
             }
         }
+        
+        double value = 0;
+        value = values.stream().mapToDouble(Double::doubleValue).sum();
+        
         double factor = 0;
-        if (!bundle.getBundleEntries().isEmpty()) factor = 0.2 * (bundle.getBundleEntries().size() - 1);
+        if (synergyCount > 0) factor = 0.2 * (synergyCount - 1);
         return BigDecimal.valueOf(value + value * factor);
     }
 
@@ -119,10 +142,10 @@ public final class GSVMBidder extends SATSBidder {
     }
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
-        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this), true);
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+        GSVMStandardMIP mip = new GSVMStandardMIP(world, Lists.newArrayList(this));
         mip.setMipInstrumentation(getMipInstrumentation());
-        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY.name());
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
         mip.getMIP().add(priceVar);
         mip.getMIP().addObjectiveTerm(-1, priceVar);
@@ -137,15 +160,30 @@ public final class GSVMBidder extends SATSBidder {
         mip.getMIP().add(price);
         
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
+        mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
+        
+        List<? extends Good> bundleSpaceOfInterest;
+        if(world.isLegacyGSVM()) {
+        	bundleSpaceOfInterest = world.getLicenses();
+        } else {
+        	bundleSpaceOfInterest = this.getBaseValues().keySet().stream().map(longId -> world.getLicenses().stream().filter(l -> l.getLongId() == longId).findAny().orElseThrow()).collect(Collectors.toList());
+        }
+        int maxNumberOfBundlesOfInterest = this.getAllocationLimit().calculateAllocationBundleSpace(bundleSpaceOfInterest);
+        maxNumberOfBundles = Math.min(maxNumberOfBundles, maxNumberOfBundlesOfInterest);
         
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
-        List<Bundle> result = optimalAllocations.stream()
+        LinkedHashSet<Bundle> result = optimalAllocations.stream()
                 .map(allocation -> allocation.allocationOf(this).getBundle())
                 .filter(bundle -> allowNegative || getUtility(bundle, prices).signum() > -1)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
+    }
+    
+    @Override
+    public AllocationLimit getAllocationLimit() {
+    	return this.allocationLimit;
     }
 
     @Override

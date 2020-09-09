@@ -5,21 +5,28 @@
  */
 package org.spectrumauctions.sats.core.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.core.bidder.strategy.DefaultStrategyHandler;
+import org.marketdesignresearch.mechlib.core.bidder.strategy.InteractionStrategy;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.UUID;
+import com.google.common.base.Preconditions;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @EqualsAndHashCode(doNotUseGetters = true, onlyExplicitlyIncluded = true)
 public abstract class SATSBidder implements Bidder, Serializable {
@@ -35,6 +42,7 @@ public abstract class SATSBidder implements Bidder, Serializable {
     private transient final BidderSetup setup;
     
     protected static final double DEFAULT_DEMAND_QUERY_EPSILON = 1e-10;
+    protected static final double DEFAULT_DEMAND_QUERY_TIME_LIMIT = 600;
 
     protected SATSBidder(BidderSetup setup, long population, long id, long worldId) {
         this.uuid = UUID.randomUUID();
@@ -108,7 +116,8 @@ public abstract class SATSBidder implements Bidder, Serializable {
     public abstract BigDecimal calculateValue(Bundle bundle);
 
     @Override
-    public BigDecimal getValue(Bundle bundle) {
+    public BigDecimal getValue(Bundle bundle, boolean ignoreAllocationLimits) {
+    	Preconditions.checkArgument(ignoreAllocationLimits || this.getAllocationLimit().validate(bundle));
         return calculateValue(bundle);
     }
 
@@ -192,6 +201,24 @@ public abstract class SATSBidder implements Bidder, Serializable {
     protected BidderSetup getSetup() {
         return setup;
     }
+    
+    // region strategy
+    // TODO handle persistence
+    private Map<Class<? extends InteractionStrategy>,InteractionStrategy> strategies = new HashMap<>();
+    
+    @Override
+	public void setStrategy(InteractionStrategy strategy) {
+    	strategy.setBidder(this);
+		strategy.getTypes().forEach(t -> this.strategies.put(t, strategy));
+	}
+    
+    @SuppressWarnings("unchecked")
+	@Override
+	public <T extends InteractionStrategy> T getStrategy(Class<T> type) {
+		if(!this.strategies.containsKey(type)) this.setStrategy(DefaultStrategyHandler.defaultStrategy(type));
+		return  (T) this.strategies.get(type);
+	}
+	// endregion
 
     // region instrumentation
     @Getter @Setter

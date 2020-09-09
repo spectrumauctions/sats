@@ -22,7 +22,7 @@ public class SRVMOverallValueTest {
 
     @Test
     public void mipValuesEqualSATSValues() {
-        List<SRVMBidder> bidders = new SingleRegionModel().createNewPopulation();
+        List<SRVMBidder> bidders = new SingleRegionModel().createNewWorldAndPopulation();
         SRVM_MIP mip = new SRVM_MIP(bidders);
         Allocation result = mip.getAllocation();
         for (SRVMBidder bidder : bidders) {

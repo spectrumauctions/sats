@@ -7,16 +7,16 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import edu.harvard.econcs.jopt.solver.IMIP;
-import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.NotImplementedException;
+
+import lombok.Getter;
+
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
@@ -36,6 +36,7 @@ import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,9 +78,13 @@ public abstract class MRVMBidder extends SATSBidder {
      * key: regionId, value: beta
      */
     private final HashMap<Integer, BigDecimal> zHigh;
+    
+    @Getter
+    @Setter
+    private AllocationLimit allocationLimit = AllocationLimit.NO;
 
 
-    MRVMBidder(long id, long populationId, MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
+    MRVMBidder(long id, long populationId, MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng, AllocationLimit limit) {
         super(setup, populationId, id, world.getId());
         this.world = world;
         this.alpha = setup.drawAlpha(rng);
@@ -88,6 +93,7 @@ public abstract class MRVMBidder extends SATSBidder {
         zLow.forEach((key, value) -> Preconditions.checkArgument(value.compareTo(BigDecimal.ZERO) > 0));
         this.zHigh = setup.drawZHigh(beta, world, rng);
         assertRegionalValuesAssigned();
+        this.allocationLimit = limit;
     }
 
     private HashMap<Integer, BigDecimal> drawBeta(MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
@@ -234,10 +240,10 @@ public abstract class MRVMBidder extends SATSBidder {
     }
 
     @Override
-    public List<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
         mip.setMipInstrumentation(getMipInstrumentation());
-        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY.name());
 
         double scalingFactor = mip.getBidderPartialMips().get(this).getScalingFactor();
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
@@ -252,15 +258,26 @@ public abstract class MRVMBidder extends SATSBidder {
         mip.addConstraint(price);
         
         mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
+        mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
+        
+        this.bidderTypeSpecificDemandQueryMIPAdjustments(mip);
 
         List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
 
-        List<Bundle> result = optimalAllocations.stream()
+        LinkedHashSet<Bundle> result = optimalAllocations.stream()
                 .map(allocation -> allocation.allocationOf(this).getBundle())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         if (result.isEmpty()) result.add(Bundle.EMPTY);
         return result;
     }
+    
+    /**
+     * Allows a specific bidder type (subclass) to change the demand query mip before 
+     * execution. I.e. restrict demand query result to items where the bidder is interested in.
+     * 
+     * @param mip
+     */
+    protected abstract void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip);
 
     /**
      * @see SATSBidder#refreshReference(World)

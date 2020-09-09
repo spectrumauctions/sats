@@ -1,11 +1,17 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAndGoodAllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.GoodAllocationLimit;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
 
 /**
  * @author Fabio Isler
@@ -26,6 +32,18 @@ public class GSVMNationalBidderSetup extends GSVMBidderSetup {
             values.put(license.getLongId(), getValueDependingOnRegion(rng, license.getPosition(), world.getSize()));
         }
         return values;
+    }
+
+    @Override
+    public AllocationLimit getAllocationLimit(GSVMBidder bidder) {
+    	if(bidder.getWorld().isLegacyGSVM())
+    		return AllocationLimit.NO;
+    	
+        if (getActivityLimitOverride() > -1) {
+        	return new BundleSizeAndGoodAllocationLimit(getActivityLimitOverride(), bidder.getWorld().getLicenses() ,Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
+        }
+        
+        return new GoodAllocationLimit(bidder.getWorld().getLicenses(), Arrays.asList(bidder.getWorld().getNationalCircle().getLicenses()));
     }
 
     public static class Builder extends GSVMBidderSetup.Builder {

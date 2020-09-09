@@ -7,11 +7,14 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedMap;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.BigDecimalUtils;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -31,8 +34,8 @@ public final class MRVMNationalBidder extends MRVMBidder {
 
 
     MRVMNationalBidder(long id, long populationId, MRVMWorld world, MRVMNationalBidderSetup setup,
-                       UniformDistributionRNG rng) {
-        super(id, populationId, world, setup, rng);
+                       UniformDistributionRNG rng, AllocationLimit limit) {
+        super(id, populationId, world, setup, rng, limit);
         Map<Integer, BigDecimal> gammaInput = setup.drawGamma(world, rng);
         //TODO Do nicely, no ImmutableSortedMap conversion
         gammaValues = new TreeMap<>(buildGammaMap(gammaInput));
@@ -114,7 +117,7 @@ public final class MRVMNationalBidder extends MRVMBidder {
 
     @Override
     public MRVMNationalBidder drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new MRVMNationalBidder(getLongId(), getPopulation(), getWorld(), (MRVMNationalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+        return new MRVMNationalBidder(getLongId(), getPopulation(), getWorld(), (MRVMNationalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG(), this.getAllocationLimit());
     }
 
     /* (non-Javadoc)
@@ -151,6 +154,11 @@ public final class MRVMNationalBidder extends MRVMBidder {
         }
         return true;
     }
+
+	@Override
+	protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
+		// Do nothing
+	}
 
 
 }

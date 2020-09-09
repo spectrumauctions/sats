@@ -32,28 +32,28 @@ public class LSVMStandardMIPTest {
 	}
 
 	@Test
-	@Ignore // FIXME: Currently, value is 542.9613847418564 (instead of 550.547333429). Most probably world changed for same seed.
-	public void testDefaultSetupEasySeed() {
+	public void testLegacyDefaultSetupEasySeed() {
 		// reference runtime approx 2 seconds
-		testDefaultSetup(1498246131808L);
+		testLegacyDefaultSetup(1498246131808L);
 	}
 
 	@Test
-	@Ignore // FIXME: Currently, value is 506.579764315678 (instead of 502.943796697). Most probably world changed for same seed.
-	public void testDefaultSetupMediumSeed() {
+	public void testLegacyDefaultSetupMediumSeed() {
 		// reference runtime approx 1 minute
-		testDefaultSetup(1498247338147L);
+		testLegacyDefaultSetup(1498247338147L);
 	}
 
-	// @Test -> Uncomment to test the hard seed
-	public void testDefaultSetupHardSeed() {
+	@Test
+	@Ignore // -> Remove to test the hard seed
+	public void testLegacyDefaultSetupHardSeed() {
 		// hardest known seed -> reference runtime approx 15 minutes
-		testDefaultSetup(1498249317254L);
+		testLegacyDefaultSetup(1498249317254L);
 	}
 
 	@Test
 	public void testEfficientAllocationCustomSetup() {
 		LSVMWorldSetup.LSVMWorldSetupBuilder worldSetupBuilder = new LSVMWorldSetup.LSVMWorldSetupBuilder();
+		worldSetupBuilder.setLegacyLSVM(true);
 		worldSetupBuilder.setNumberOfColumnsInterval(new IntegerInterval(3));
 		worldSetupBuilder.setNumberOfRowsInterval(new IntegerInterval(2));
 		LSVMWorldSetup setup = worldSetupBuilder.build();
@@ -66,10 +66,11 @@ public class LSVMStandardMIPTest {
 		testTotalValue(population, allocation);
 	}
 
-	private void testDefaultSetup(Long seed) {
+	private void testLegacyDefaultSetup(Long seed) {
 		LocalSynergyValueModel model = new LocalSynergyValueModel();
+		model.setLegacyLSVM(true);
 		LSVMWorld world = model.createWorld(seed);
-		List<LSVMBidder> population = model.createPopulation(world, seed);
+		List<LSVMBidder> population = model.createNewPopulation(world, seed);
 
 		LSVMStandardMIP lsvmMIP = new LSVMStandardMIP(world, population);
 		Allocation allocation = lsvmMIP.getAllocation();

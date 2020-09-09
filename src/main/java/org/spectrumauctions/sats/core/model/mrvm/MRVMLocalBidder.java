@@ -5,10 +5,16 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
+
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -19,7 +25,7 @@ import java.util.*;
  */
 public final class MRVMLocalBidder extends MRVMBidder {
 
-    private static final long serialVersionUID = -7654713373213024311L;
+	private static final long serialVersionUID = -7654713373213024311L;
     /**
      * Caches the gamma factors.<br>
      * This is only instantiated at its first use.
@@ -30,10 +36,11 @@ public final class MRVMLocalBidder extends MRVMBidder {
      * Stores the ids of all regions for which this bidder is interested
      */
     final Set<Integer> regionsOfInterest;
+    private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     MRVMLocalBidder(long id, long populationId, MRVMWorld world, MRVMLocalBidderSetup setup,
-                    UniformDistributionRNG rng) {
-        super(id, populationId, world, setup, rng);
+                    UniformDistributionRNG rng, AllocationLimit limit) {
+        super(id, populationId, world, setup, rng, limit);
         Set<MRVMRegionsMap.Region> regionsOfInterest = setup.drawRegionsOfInterest(world, rng);
         Set<Integer> regionsOfInterestIds = new HashSet<>();
         for (MRVMRegionsMap.Region region : regionsOfInterest) {
@@ -43,6 +50,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
             regionsOfInterestIds.add(region.getId());
         }
         this.regionsOfInterest = Collections.unmodifiableSet(regionsOfInterestIds);
+        this.allowAssigningLicensesWithZeroBasevalueInDemandQuery = setup.isAllowAssigningLicensesWithZeroBasevalueInDemandQuery();
         store();
     }
 
@@ -92,8 +100,20 @@ public final class MRVMLocalBidder extends MRVMBidder {
 
     @Override
     public MRVMLocalBidder drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new MRVMLocalBidder(getLongId(), getPopulation(), getWorld(), (MRVMLocalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+        return new MRVMLocalBidder(getLongId(), getPopulation(), getWorld(), (MRVMLocalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG(), this.getAllocationLimit());
     }
+    
+	@Override
+	protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
+		if(!this.allowAssigningLicensesWithZeroBasevalueInDemandQuery) {
+			for (MRVMGenericDefinition bandInRegion : getWorld().getAllGenericDefinitions()) {
+				if(!this.regionsOfInterest.contains(bandInRegion.getRegion().getId())) {
+					Variable xVariable = mip.getWorldPartialMip().getXVariable(this, bandInRegion.getRegion(), bandInRegion.getBand());
+					xVariable.setUpperBound(0);
+				}
+	        }
+		}
+	}
 
     @Override
     public int hashCode() {

@@ -2,7 +2,7 @@ package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import lombok.Getter;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -23,6 +23,14 @@ public final class GSVMWorld extends World {
     private final GSVMCircle nationalCircle;
     private final GSVMCircle regionalCircle;
     private transient ImmutableList<GSVMLicense> licenseList;
+    /**
+     *  In earlier versions of SATS (<0.7.0), the original model was interpreted differently than it is today.
+     *  Back then, when asking a bidder what her value is for bundle X, the synergy factor increased with any good in X.
+     *  Now, the synergy factor only increases with goods which the bidder has a positive value for.
+     *  This flag can be set to true in order to reproduce results of the old SATS versions.
+     */
+    @Getter
+    private final boolean isLegacyGSVM;
 
     public GSVMWorld(GSVMWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
@@ -30,6 +38,7 @@ public final class GSVMWorld extends World {
         this.size = worldSetup.drawSize(rng);
         this.nationalCircle = new GSVMCircle(this, size * 2, 0);
         this.regionalCircle = new GSVMCircle(this, size, size * 2);
+        this.isLegacyGSVM = worldSetup.isLegacyGSVM();
         store();
     }
 

@@ -44,7 +44,7 @@ public class LSVMBidderTest {
         LSVMWorld world2 = model2.createWorld(983742L);
         model2.setNumberOfNationalBidders(3);
         model2.setNumberOfRegionalBidders(2);
-        List<LSVMBidder> minimalPopulation = model2.createPopulation(world2);
+        List<LSVMBidder> minimalPopulation = model2.createNewPopulation(world2);
 
         Assert.assertEquals(5, minimalPopulation.size());
 

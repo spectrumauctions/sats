@@ -20,7 +20,7 @@ import java.util.List;
 public class GSVMBidderTest {
 
     private static Bundle completeBundle;
-
+ 
     @BeforeClass
     public static void setUpBeforeClass() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
@@ -35,7 +35,7 @@ public class GSVMBidderTest {
     public void testDefaultCustomBidderSetup() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld(983742L);
-        List<GSVMBidder> defaultPopulation = model.createPopulation(world);
+        List<GSVMBidder> defaultPopulation = model.createNewPopulation(world);
 
         Assert.assertEquals(defaultPopulation.size(), 7);
 
@@ -52,7 +52,7 @@ public class GSVMBidderTest {
         GSVMWorld world2 = model2.createWorld(983742L);
         model2.setNumberOfNationalBidders(3);
         model2.setNumberOfRegionalBidders(2);
-        List<GSVMBidder> minimalPopulation = model2.createPopulation(world2);
+        List<GSVMBidder> minimalPopulation = model2.createNewPopulation(world2);
 
         Assert.assertEquals(minimalPopulation.size(), 5);
 
@@ -66,6 +66,128 @@ public class GSVMBidderTest {
     @Test
     public void testCustomBidderSetup() {
         GlobalSynergyValueModel model2 = new GlobalSynergyValueModel();
+        GSVMWorld world2 = model2.createWorld(983742L);
+
+        List<GSVMBidder> customPopulation = customPopulation(world2, 8, 2);
+        Assert.assertEquals(customPopulation.size(), 10);
+
+        for (int i = 0; i < 8; i++)
+            checkBidder(customPopulation.get(i), "Test Regional Bidder");
+        for (int i = 8; i < 10; i++) checkBidder(customPopulation.get(i), "Test National Bidder");
+
+        BigDecimal[] values = new BigDecimal[10];
+        for (int i = 0; i < values.length; i++) values[i] = customPopulation.get(i).calculateValue(completeBundle);
+
+        float regionalValue = 2 * 15;
+        float nationalValueZeroHighs = 4 * 25 + 2 * 15;
+        float nationalValueTwoHighs = 2 * 25 + 2 * 35 + 2 * 15;
+        float nationalValueFourHighs = 4 * 35 + 2 * 15;
+
+        float[] expectedValues = new float[6];
+        expectedValues[0] = (nationalValueZeroHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[1] = (nationalValueTwoHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[2] = (nationalValueFourHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[3] = (nationalValueTwoHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[4] = (nationalValueZeroHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[5] = (nationalValueZeroHighs) * (1 + (6 - 1) * 0.2f);
+        float expectedNationalBidderValue = (8 * 16 + 4 * 26) * (1 + (12 - 1) * 0.2f);
+
+        for (int i = 0; i < 8; i++) {
+            Assert.assertEquals(values[i].floatValue(), expectedValues[i % 6], 0.001f);
+        }
+        for (int i = 8; i < 10; i++) Assert.assertEquals(values[i].floatValue(), expectedNationalBidderValue, 0.001f);
+
+    }
+
+    /**
+     * Test a custom world setup
+     */
+    @Test
+    public void testCustomWorldSetup() {
+        GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
+        worldSetupBuilder.setSizeInterval(new IntegerInterval(1, 16));
+        GSVMWorldSetup setup = worldSetupBuilder.build();
+        GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983742L));
+        Assert.assertEquals(world.getSize(), 8);
+        Assert.assertEquals(world.getNumberOfGoods(), 8 * 3);
+        Assert.assertEquals(world.getNationalCircle().getLicenses().length, 8 * 2);
+        Assert.assertEquals(world.getRegionalCircle().getLicenses().length, 8);
+
+        Bundle complete = Bundle.of(world.getLicenses());
+        List<GSVMBidder> customPopulation = customPopulation(world, 3, 1);
+        Assert.assertEquals(customPopulation.size(), 4);
+
+        Bundle regionalBundle = Bundle.of(Arrays.asList(world.getRegionalCircle().getLicenses()));
+
+        for (int i = 0; i < 3; i++)
+            checkBidder(customPopulation.get(i), "Test Regional Bidder");
+        for (int i = 3; i < 4; i++) checkBidder(customPopulation.get(i), "Test National Bidder");
+
+        // Assert that national bidder has zero value for the whole regional bundle
+        Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
+
+
+        // Check if national bidder has expected value
+        float expectedValue = (12 * 16 + 4 * 26) * (1 + (16 - 1) * 0.2f);
+        Assert.assertEquals(customPopulation.get(3).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+
+        // Check if regional bidder in low region has expected value
+        expectedValue = (4 * 25 + 2 * 15) * (1 + (6 - 1) * 0.2f);
+        Assert.assertEquals(customPopulation.get(0).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+
+        // Check if regional bidder in high region has expected value
+        expectedValue = (4 * 35 + 2 * 15) * (1 + (6 - 1) * 0.2f);
+        Assert.assertEquals(customPopulation.get(2).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+
+        // Check if regional bidder in mixed region has expected value
+        expectedValue = (2 * 25 + 2 * 35 + 2 * 15) * (1 + (6 - 1) * 0.2f);
+        Assert.assertEquals(customPopulation.get(1).calculateValue(complete).floatValue(), expectedValue, 0.001f);
+    }
+
+    /**
+     * Test a very small world setup
+     */
+    @Test
+    public void testExtremeWorldSetup() {
+        GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
+        worldSetupBuilder.setSizeInterval(new IntegerInterval(1));
+        GSVMWorldSetup setup = worldSetupBuilder.build();
+        GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983742L));
+        Assert.assertEquals(world.getSize(), 1);
+        Assert.assertEquals(world.getNumberOfGoods(), 3);
+        Assert.assertEquals(world.getNationalCircle().getLicenses().length, 2);
+        Assert.assertEquals(world.getRegionalCircle().getLicenses().length, 1);
+
+        List<GSVMBidder> customPopulation = customPopulation(world, 3, 1);
+        Assert.assertEquals(customPopulation.size(), 4);
+
+        for (int i = 0; i < 3; i++)
+            checkBidder(customPopulation.get(i), "Test Regional Bidder");
+        for (int i = 3; i < 4; i++) checkBidder(customPopulation.get(i), "Test National Bidder");
+
+        Bundle regionalBundle = Bundle.of(Arrays.asList(world.getRegionalCircle().getLicenses()));
+
+        // Assert that national bidder has zero value for the whole regional bundle
+        Assert.assertEquals(customPopulation.get(3).calculateValue(regionalBundle).doubleValue(), 0, 0);
+
+        // Check if national bidder has expected value
+        float expectedValue = (2 * 16) * (1 + (2 - 1) * 0.2f);
+        Assert.assertEquals(customPopulation.get(3).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+
+        // Check if regional bidders all have expected value
+        expectedValue = (2 * 25 + 15) * (1 + (3 - 1) * 0.2f);
+        Assert.assertEquals(customPopulation.get(0).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(1).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+        Assert.assertEquals(customPopulation.get(2).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
+    }
+
+    /**
+     * Legacy GSVM: Tests a highly customized bidder setup via the model
+     */
+    @Test
+    public void testLegacyCustomBidderSetup() {
+        GlobalSynergyValueModel model2 = new GlobalSynergyValueModel();
+        model2.setLegacyGSVM(true);
         GSVMWorld world2 = model2.createWorld(983742L);
 
         List<GSVMBidder> customPopulation = customPopulation(world2, 8, 2);
@@ -101,12 +223,13 @@ public class GSVMBidderTest {
     }
 
     /**
-     * Test a custom world setup
+     * Legacy GSVM: Test a custom world setup
      */
     @Test
-    public void testCustomWorldSetup() {
+    public void testLegacyCustomWorldSetup() {
         GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
         worldSetupBuilder.setSizeInterval(new IntegerInterval(1, 16));
+        worldSetupBuilder.setLegacyGSVM(true);
         GSVMWorldSetup setup = worldSetupBuilder.build();
         GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983742L));
         Assert.assertEquals(world.getSize(), 8);
@@ -147,12 +270,13 @@ public class GSVMBidderTest {
     }
 
     /**
-     * Test a very small world setup
+     * Legacy GSVM: Test a very small world setup
      */
     @Test
-    public void testExtremeWorldSetup() {
+    public void testLegacyExtremeWorldSetup() {
         GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
         worldSetupBuilder.setSizeInterval(new IntegerInterval(1));
+        worldSetupBuilder.setLegacyGSVM(true);
         GSVMWorldSetup setup = worldSetupBuilder.build();
         GSVMWorld world = new GSVMWorld(setup, new JavaUtilRNGSupplier(983742L));
         Assert.assertEquals(world.getSize(), 1);

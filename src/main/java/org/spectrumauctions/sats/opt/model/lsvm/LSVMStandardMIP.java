@@ -12,7 +12,8 @@ import lombok.EqualsAndHashCode;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.BidderAllocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
-import org.marketdesignresearch.mechlib.core.bid.Bids;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValueBids;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
@@ -71,6 +72,9 @@ public class LSVMStandardMIP extends ModelMIP {
 		buildNeighbourConstraints();
 		buildEdgeConstraints();
 		buildTauConstraints();
+		if(!this.world.isLegacyLSVM()) {
+			buildLicenceRestrictions();
+		}
 	}
 
 	@Override
@@ -104,7 +108,7 @@ public class LSVMStandardMIP extends ModelMIP {
 		metaInfo.setNumberOfMIPs(1);
 		metaInfo.setMipSolveTime(solution.getSolveTime());
 
-		return new Allocation(allocationMap, new Bids(), metaInfo);
+		return new Allocation(allocationMap, new BundleExactValueBids(), metaInfo);
 	}
 
     public Map<Integer, Variable> getXVariables(LSVMBidder bidder, LSVMLicense license) {
@@ -238,6 +242,20 @@ public class LSVMStandardMIP extends ModelMIP {
                 getMIP().add(constraint);
             }
         }
+	}
+	
+	private void buildLicenceRestrictions() {
+		for (LSVMBidder bidder : population) {
+			for (LSVMLicense license : world.getLicenses()) {
+	        	Map<Integer, Variable> xVariables = this.getXVariables(bidder, license);
+	        	for (Variable xVariable : xVariables.values()) {
+	        		if(!bidder.getProximity().contains(license)) {
+	        			xVariable.setUpperBound(0);
+	        		}
+	        	}
+
+	        }
+		}
 	}
 
 	private void initBaseValues() {

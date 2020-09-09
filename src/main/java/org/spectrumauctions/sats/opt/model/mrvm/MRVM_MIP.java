@@ -18,10 +18,17 @@ import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.BidderAllocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
-import org.marketdesignresearch.mechlib.core.bid.Bids;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint.AllocationLimitLinearTerm;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint.LinearGoodTerm;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint.LinearVarTerm;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValueBids;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
@@ -76,8 +83,48 @@ public class MRVM_MIP extends ModelMIP {
             }
             bidderPartialMIP.appendToMip(getMIP());
             bidderPartialMips.put(bidder, bidderPartialMIP);
+            
+            addAllocationLimit(bidder);
         }
     }
+
+	private void addAllocationLimit(MRVMBidder bidder) {
+		bidder.getAllocationLimit().getAdditionalVariables().forEach(this::addVariable);
+		for(AllocationLimitConstraint constraint : bidder.getAllocationLimit().getConstraints()) {
+			Constraint allocationConstraint = new Constraint(constraint.getType(), constraint.getConstant());
+			
+			Map<GenericGood,Double> alreadeAddedDefinitions = new HashMap<>();
+			
+			// Assume that a LinearTerm does not contain a mixure of Terms with GenericGoods and Licenses
+			// Do not check this here. The AlloctionLimit needs to take care of this.
+			for(AllocationLimitLinearTerm term : constraint.getLinearTerms()) {
+				if(term instanceof LinearGoodTerm) {
+					LinearGoodTerm lgt = (LinearGoodTerm) term;
+					if(lgt.getGood() instanceof MRVMGenericDefinition) {
+						MRVMGenericDefinition mgd = (MRVMGenericDefinition) lgt.getGood();
+						allocationConstraint.addTerm(term.getCoefficient(), this.getWorldPartialMip().getXVariable(bidder, mgd.getRegion(), mgd.getBand()));
+					} else {
+						MRVMLicense license = (MRVMLicense) lgt.getGood();
+						GenericGood mgd = world.getGenericDefinitionOf(license);
+						if(alreadeAddedDefinitions.containsKey(mgd)) {
+							if(alreadeAddedDefinitions.get(mgd) != term.getCoefficient()) {
+								throw new IllegalStateException("Constraint with the same generic good but different coefficients detected. Therefore the Constraint cannot be transformed from MRVMLicence to MRVMGenericGood which would be necessary here.");
+							}
+						} else {
+							alreadeAddedDefinitions.put(mgd, term.getCoefficient());
+							allocationConstraint.addTerm(term.getCoefficient(), this.getWorldPartialMip().getXVariable(bidder, license.getRegion(), license.getBand()));
+						}
+					}
+				} else if(term instanceof LinearVarTerm) {
+					allocationConstraint.addTerm(((LinearVarTerm) term).getLinearTerm());
+				} else {
+					throw new IllegalStateException("Unkown Allocation Limit Linear Term type");
+				}
+			}
+         
+			this.addConstraint(allocationConstraint);
+		}
+	}
 
 
     public void addConstraint(Constraint constraint) {
@@ -130,7 +177,9 @@ public class MRVM_MIP extends ModelMIP {
                 }
             }
             Bundle bundle = new Bundle(bundleEntries);
-            BigDecimal value = bidder.getKey().getValue(bundle);
+            // ignore AllocationLimits as they are may formulated on non generic licences and therfore throw an error
+            // change this if the resulting allocation contains Licenses rather than GenericGoods for non generic settings
+            BigDecimal value = bidder.getKey().getValue(bundle,true);
             if (!DoubleMath.fuzzyEquals(unscaledValue, value.doubleValue(), 1.0)) {
                 logger.warn("MIP value of bidder {}: {}; Actual value: {}. With very high numbers, a " +
                                 "deviation can happen. Make sure this is just a relatively small deviation, else check your MIP.",
@@ -148,7 +197,7 @@ public class MRVM_MIP extends ModelMIP {
         metaInfo.setNumberOfMIPs(1);
         metaInfo.setMipSolveTime(solution.getSolveTime());
 
-        return new Allocation(bidderAllocationMap, new Bids(), metaInfo);
+        return new Allocation(bidderAllocationMap, new BundleExactValueBids(), metaInfo);
     }
 
     @Override

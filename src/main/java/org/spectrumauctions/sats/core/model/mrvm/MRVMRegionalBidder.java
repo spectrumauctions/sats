@@ -6,12 +6,15 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.BigDecimalUtils;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -29,8 +32,8 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     private final SortedMap<Integer, BigDecimal> distanceDiscounts;
 
     MRVMRegionalBidder(long id, long populationId, MRVMWorld world, MRVMRegionalBidderSetup setup,
-                       UniformDistributionRNG rng) {
-        super(id, populationId, world, setup, rng);
+                       UniformDistributionRNG rng, AllocationLimit limit) {
+        super(id, populationId, world, setup, rng, limit);
         this.home = setup.drawHome(world, rng);
         this.homeId = home.getId();
         this.distanceDiscounts = new TreeMap<>(setup.drawDistanceDiscounts(world, home, rng));
@@ -92,7 +95,7 @@ public final class MRVMRegionalBidder extends MRVMBidder {
 
     @Override
     public MRVMRegionalBidder drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new MRVMRegionalBidder(getLongId(), getPopulation(), getWorld(), (MRVMRegionalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+        return new MRVMRegionalBidder(getLongId(), getPopulation(), getWorld(), (MRVMRegionalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG(), this.getAllocationLimit());
     }
 
     /* (non-Javadoc)
@@ -145,6 +148,11 @@ public final class MRVMRegionalBidder extends MRVMBidder {
             return false;
         return true;
     }
+
+	@Override
+	protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
+		// Do nothing
+	}
 
 
 }

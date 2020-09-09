@@ -1,10 +1,13 @@
 package org.spectrumauctions.sats.mechanism.domains;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
@@ -19,8 +22,8 @@ public class GSVMDomain extends ModelDomain<GSVMBidder> {
 	}
 
 	@Override
-	protected ModelMIP getMIP() {
-		return new GSVMStandardMIP(getBidders().get(0).getWorld(), getBidders(), true);
+	public ModelMIP getMIP() {
+		return new GSVMStandardMIP(getBidders().get(0).getWorld(), getBidders());
 	}
 
 	@Override
@@ -34,11 +37,35 @@ public class GSVMDomain extends ModelDomain<GSVMBidder> {
 	}
 
 	@Override
-	protected BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder)
+	public BiddingLanguage createPriceSamplingBiddingLanguage(RNGSupplier rngSupplier, SATSBidder bidder, int numberOfSamples)
 			throws UnsupportedBiddingLanguageException {
-		SizeBasedUniqueRandomXOR valueFunction;
-		valueFunction = bidder.getValueFunction(SizeBasedUniqueRandomXOR.class, rngSupplier);
-		valueFunction.setIterations(this.getPriceGenerationBidsPerBidder());
-		return valueFunction;
+		return new BiddingLanguage() {
+			
+			@Override
+			public SATSBidder getBidder() {
+				return bidder;
+			}
+
+			@Override
+			public Iterator<BundleValue> iterator() {
+				return new Iterator<BundleValue>() {
+					
+					private int number=0;
+					private Random random = new Random(rngSupplier.getUniformDistributionRNG().nextLong());
+					
+					@Override
+					public boolean hasNext() {
+						return number < numberOfSamples;
+					}
+
+					@Override
+					public BundleValue next() {
+						number++;
+						Bundle bundle = bidder.getAllocationLimit().getUniformRandomBundle(random, getGoods());
+						return new BundleValue(bidder.calculateValue(bundle), bundle);
+					}
+				};
+			};
+		};
 	}
 }

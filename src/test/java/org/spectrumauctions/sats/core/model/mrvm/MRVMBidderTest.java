@@ -7,6 +7,7 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
@@ -55,7 +56,7 @@ public class MRVMBidderTest {
 
     @Test
     public void testCorrectlyInitialized() {
-        bidder = new MRVMLocalBidder(0, 0, world, setup, null);
+        bidder = new MRVMLocalBidder(0, 0, world, setup, null, AllocationLimit.NO);
         assertEquals(0, bidder.getAlpha().compareTo(BigDecimal.valueOf(0.1))); //alpha == 0.1
         assertEquals(0, bidder.getBeta(region1).compareTo(BigDecimal.valueOf(0.2))); //beta1 == 0.2
         assertEquals(0, bidder.getBeta(region2).compareTo(BigDecimal.valueOf(0.2))); //beta2 == 0.2
@@ -66,7 +67,7 @@ public class MRVMBidderTest {
 
     @Test
     public void testSvFunction() {
-        bidder = new MRVMLocalBidder(0, 0, world, setup, null);
+        bidder = new MRVMLocalBidder(0, 0, world, setup, null, AllocationLimit.NO);
         when(region1.getPopulation()).thenReturn(50);
         //Check corner points
         //		Corner point 1

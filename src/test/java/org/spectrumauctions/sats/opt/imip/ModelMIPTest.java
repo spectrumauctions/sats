@@ -5,12 +5,14 @@
  */
 package org.spectrumauctions.sats.opt.imip;
 
+import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.MIPException;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
@@ -25,20 +27,28 @@ public class ModelMIPTest {
 
     @Test
     public void setAcceptSuboptimalSolutionAtTimeout() {
-        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation(5413646L));
+        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewWorldAndPopulation(5413646L));
         mip.setTimeLimit(2);
-        Assert.assertEquals(2, mip.getMIP().getDoubleSolveParam(SolveParam.TIME_LIMIT), 1e-6);
+        mip.setMipInstrumentation(new MipInstrumentation() {
+        	public void preMIP(String mipPurpose, IMIP mip) {
+        		Assert.assertEquals(2, mip.getDoubleSolveParam(SolveParam.TIME_LIMIT), 1e-6);
+        	}
+        });
         mip.getAllocation();
         logger.info("Successfully accepted suboptimal solution at timeout!");
     }
 
     @Test
     public void setAcceptNoSuboptimalSolutionAtTimeout() {
-        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewPopulation(5413646L));
+        MRVM_MIP mip = new MRVM_MIP(new MultiRegionModel().createNewWorldAndPopulation(5413646L));
         mip.setTimeLimit(2);
-        Assert.assertEquals(2, mip.getMIP().getDoubleSolveParam(SolveParam.TIME_LIMIT), 1e-6);
         mip.setAcceptSuboptimal(false);
-        Assert.assertFalse(mip.getMIP().getBooleanSolveParam(SolveParam.ACCEPT_SUBOPTIMAL));
+        mip.setMipInstrumentation(new MipInstrumentation() {
+        	public void preMIP(String mipPurpose, IMIP mip) {
+        		Assert.assertEquals(2, mip.getDoubleSolveParam(SolveParam.TIME_LIMIT), 1e-6);
+        		Assert.assertFalse(mip.getBooleanSolveParam(SolveParam.ACCEPT_SUBOPTIMAL));
+        	}
+        });
         try {
             mip.getAllocation();
             fail("Should have timed out and thrown an error.");
@@ -52,4 +62,6 @@ public class ModelMIPTest {
             }
         }
     }
+    
+    
 }

@@ -22,7 +22,6 @@ import java.util.*;
 public class JSONInstanceHandler extends InstanceHandler {
 
     private FilePathUtils pathUtils = FilePathUtils.getInstance();
-    private GsonWrapper gson = GsonWrapper.getInstance();
 
     private static JSONInstanceHandler instance;
 
@@ -48,7 +47,7 @@ public class JSONInstanceHandler extends InstanceHandler {
     @Override
     public void writeWorld(World world) {
         File file = pathUtils.worldFilePath(world.getId());
-        String json = gson.toJson(world);
+        String json = new GsonWrapper().toJson(world);
         pathUtils.writeStringToFile(file, json);
     }
 
@@ -61,7 +60,7 @@ public class JSONInstanceHandler extends InstanceHandler {
                 bidder.getWorld().getId(),
                 bidder.getPopulation(),
                 bidder.getLongId());
-        String json = gson.toJson(bidder);
+        String json = new GsonWrapper().toJson(bidder);
         pathUtils.writeStringToFile(file, json);
     }
 
@@ -82,6 +81,9 @@ public class JSONInstanceHandler extends InstanceHandler {
                                                                  long bidderId) {
         File file = pathUtils.bidderFilePath(world.getId(), populationId, bidderId);
         String json = pathUtils.readFileToString(file);
+        
+        GsonWrapper gson = new GsonWrapper();
+        gson.setWorld(world);
         Class<?> type = gson.readClass(json);
         Object obj = gson.fromJson(type, json);
 
@@ -101,6 +103,8 @@ public class JSONInstanceHandler extends InstanceHandler {
     @Override
     public <T extends SATSBidder> T readBidder(Class<T> type, World world, long populationId, long bidderId) {
         File file = pathUtils.bidderFilePath(world.getId(), populationId, bidderId);
+        GsonWrapper gson = new GsonWrapper();
+        gson.setWorld(world);
         String json = pathUtils.readFileToString(file);
         T bidder = gson.fromJson(type, json);
         bidder.refreshReference(world);
@@ -197,7 +201,7 @@ public class JSONInstanceHandler extends InstanceHandler {
     @Override
     public <T extends World> T readWorld(Class<T> type, long worldId) {
         String json = pathUtils.readFileToString(pathUtils.worldFilePath(worldId));
-        T world = gson.fromJson(type, json);
+        T world = new GsonWrapper().fromJson(type, json);
         world.refreshFieldBackReferences();
         return world;
     }
