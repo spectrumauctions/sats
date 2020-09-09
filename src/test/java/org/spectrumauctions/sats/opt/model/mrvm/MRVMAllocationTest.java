@@ -2,6 +2,7 @@ package org.spectrumauctions.sats.opt.model.mrvm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
@@ -20,7 +21,7 @@ public class MRVMAllocationTest {
     public void testEqualAllocationWhenSolvingTwice() {
         MultiRegionModel model = new MultiRegionModel();
         MRVMWorld world =  model.createWorld(1234567);
-        List<MRVMBidder> biddersList = model.createPopulation(world, 1234567);
+        List<MRVMBidder> biddersList = model.createNewPopulation(world, 1234567);
         MRVM_MIP mip = new MRVM_MIP(biddersList);
         mip.setDisplayOutput(true);
         Allocation result1 = mip.getAllocation();
@@ -35,7 +36,7 @@ public class MRVMAllocationTest {
     public void testEqualAllocationWhenCreatingMIPTwice() {
         MultiRegionModel model = new MultiRegionModel();
         MRVMWorld world =  model.createWorld(1234567);
-        List<MRVMBidder> biddersList = model.createPopulation(world, 1234567);
+        List<MRVMBidder> biddersList = model.createNewPopulation(world, 1234567);
         MRVM_MIP mip1 = new MRVM_MIP(biddersList);
         mip1.setDisplayOutput(true);
         MRVM_MIP mip2 = new MRVM_MIP(biddersList);
@@ -48,12 +49,13 @@ public class MRVMAllocationTest {
     }
 
     @Test
+    @Ignore
     public void testRuntime() {
         List<Long> runtimes = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             MultiRegionModel model = new MultiRegionModel();
             MRVMWorld world =  model.createWorld();
-            List<MRVMBidder> biddersList = model.createPopulation(world);
+            List<MRVMBidder> biddersList = model.createNewPopulation(world);
             MRVM_MIP mip = new MRVM_MIP(biddersList);
             mip.setTimeLimit(600);
             long start = System.currentTimeMillis();

@@ -70,7 +70,7 @@ public class UniformJavaUtilRandomWrapper implements UniformDistributionRNG {
      */
     @Override
     public BigDecimal nextBigDecimal() {
-        return new BigDecimal(nextDouble());
+        return BigDecimal.valueOf(nextDouble());
     }
 
     /*
@@ -80,7 +80,7 @@ public class UniformJavaUtilRandomWrapper implements UniformDistributionRNG {
      */
     @Override
     public BigDecimal nextBigDecimal(double lowerLimit, double upperLimit) {
-        return new BigDecimal(nextDouble(lowerLimit, upperLimit));
+        return BigDecimal.valueOf(nextDouble(lowerLimit, upperLimit));
     }
 
     /*
@@ -92,7 +92,7 @@ public class UniformJavaUtilRandomWrapper implements UniformDistributionRNG {
      */
     @Override
     public BigDecimal nextBigDecimal(DoubleInterval interval) {
-        return new BigDecimal(nextDouble(interval));
+        return BigDecimal.valueOf(nextDouble(interval));
     }
 
     /*

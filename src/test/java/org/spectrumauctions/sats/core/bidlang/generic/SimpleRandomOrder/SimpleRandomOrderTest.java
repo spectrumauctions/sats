@@ -27,10 +27,10 @@ public class SimpleRandomOrderTest {
     @BeforeClass
     public static void setUpBeforeClass() {
         bidders = new HashMap<>();
-        bidders.put(new BaseValueModel().createNewPopulation().stream().findAny().orElse(null), (int) (0.8 * 140));
-        bidders.put(new MultiBandValueModel().createNewPopulation().stream().findAny().orElse(null), 500);
-        bidders.put(new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null), 500);
-        bidders.put(new MultiRegionModel().createNewPopulation().stream().findAny().orElse(null), 500);
+        bidders.put(new BaseValueModel().createNewWorldAndPopulation().stream().findAny().orElse(null), (int) (0.8 * 140));
+        bidders.put(new MultiBandValueModel().createNewWorldAndPopulation().stream().findAny().orElse(null), 500);
+        bidders.put(new SingleRegionModel().createNewWorldAndPopulation().stream().findAny().orElse(null), 500);
+        bidders.put(new MultiRegionModel().createNewWorldAndPopulation().stream().findAny().orElse(null), 500);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testSRMSimpleRandomReduceBidAmount() {
-        SATSBidder bidder = new SingleRegionModel().createNewPopulation().stream().findAny().orElseThrow(NoSuchElementException::new);
+        SATSBidder bidder = new SingleRegionModel().createNewWorldAndPopulation().stream().findAny().orElseThrow(NoSuchElementException::new);
         XORQRandomOrderSimple valueFunction;
         try {
             valueFunction = bidder.getValueFunction(XORQRandomOrderSimple.class);
@@ -59,7 +59,7 @@ public class SimpleRandomOrderTest {
 
     @Test
     public void testMRMSimpleRandomLarge() {
-        SATSBidder bidder = new MultiRegionModel().createNewPopulation().stream().findAny().orElseThrow(NoSuchElementException::new);
+        SATSBidder bidder = new MultiRegionModel().createNewWorldAndPopulation().stream().findAny().orElseThrow(NoSuchElementException::new);
         XORQRandomOrderSimple valueFunction;
         try {
             valueFunction = bidder.getValueFunction(XORQRandomOrderSimple.class);

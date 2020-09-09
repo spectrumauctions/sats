@@ -1,40 +1,48 @@
 package org.spectrumauctions.sats.opt.model.gsvm;
 
-import com.google.common.base.Preconditions;
-import edu.harvard.econcs.jopt.solver.ISolution;
-import edu.harvard.econcs.jopt.solver.mip.CompareType;
-import edu.harvard.econcs.jopt.solver.mip.Constraint;
-import edu.harvard.econcs.jopt.solver.mip.VarType;
-import edu.harvard.econcs.jopt.solver.mip.Variable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.BidderAllocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint;
 import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
-import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValueBids;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
-import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMBidder;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMLicense;
 import org.spectrumauctions.sats.core.model.gsvm.GSVMWorld;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+
+import edu.harvard.econcs.jopt.solver.ISolution;
+import edu.harvard.econcs.jopt.solver.mip.CompareType;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.VarType;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 
 public class GSVMStandardMIP extends ModelMIP {
 
     private Map<GSVMBidder, Map<GSVMLicense, Map<Integer, Variable>>> gMap;
 	private Map<GSVMBidder, Map<GSVMLicense, Double>> valueMap;
 	private Map<GSVMBidder, Integer> tauHatMap;
-	private Collection<Collection<Variable>> variableSetsOfInterest = new HashSet<>();
+	private Collection<Collection<Variable>> variableSetsOfInterest = new LinkedHashSet<>();
 
 	private List<GSVMBidder> population;
 	private GSVMWorld world;
 
 	private boolean allowAssigningLicensesWithZeroBasevalue;
-	private boolean ignoreActivityLimits = false;
 
 	public GSVMStandardMIP(List<GSVMBidder> population) {
 		this(population.iterator().next().getWorld(), population);
@@ -42,11 +50,10 @@ public class GSVMStandardMIP extends ModelMIP {
 
 	public GSVMStandardMIP(GSVMWorld world, List<GSVMBidder> population) {
 		this.allowAssigningLicensesWithZeroBasevalue = world.isLegacyGSVM();
-		this.ignoreActivityLimits = world.isLegacyGSVM();
 		this.population = population;
 		this.world = world;
-		tauHatMap = new HashMap<>();
-		valueMap = new HashMap<>();
+		tauHatMap = new LinkedHashMap<>();
+		valueMap = new LinkedHashMap<>();
 		this.getMIP().setObjectiveMax(true);
 		initValues();
 		initVariables();
@@ -68,10 +75,10 @@ public class GSVMStandardMIP extends ModelMIP {
 	@Override
 	protected Allocation adaptMIPResult(ISolution solution) {
 
-		Map<Bidder, BidderAllocation> allocationMap = new HashMap<>();
+		Map<Bidder, BidderAllocation> allocationMap = new LinkedHashMap<>();
 
 		for (GSVMBidder bidder : population) {
-            Set<GSVMLicense> licenseSet = new HashSet<>();
+            Set<GSVMLicense> licenseSet = new LinkedHashSet<>();
             for (GSVMLicense license : world.getLicenses()) {
                 if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
                     for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
@@ -83,7 +90,7 @@ public class GSVMStandardMIP extends ModelMIP {
             }
             Bundle bundle = Bundle.of(licenseSet);
             if (!Bundle.EMPTY.equals(bundle)) {
-				allocationMap.put(bidder, new BidderAllocation(bidder.calculateValue(bundle), bundle, new HashSet<>()));
+				allocationMap.put(bidder, new BidderAllocation(bidder.calculateValue(bundle), bundle, new LinkedHashSet<>()));
 			}
         }
 
@@ -104,7 +111,7 @@ public class GSVMStandardMIP extends ModelMIP {
 				}
 			}
 		}
-		return new HashMap<>();
+		return new LinkedHashMap<>();
 	}
 
 	@Override
@@ -167,26 +174,19 @@ public class GSVMStandardMIP extends ModelMIP {
 			}
 		}
 		
-		// build regional bidder restrictions
-		if(!ignoreActivityLimits) {
-			for(GSVMBidder bidder : this.population) {
-				Constraint regionalLimit = new Constraint(CompareType.LEQ,bidder.getActivityLimit());
-				for(GSVMLicense license : world.getLicenses()) {
-					if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
-						for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
-							regionalLimit.addTerm(1, gMap.get(bidder).get(license).get(tau));
-						}
-					}
-				}
-				this.getMIP().add(regionalLimit);
+		// add allocation limits
+		for(GSVMBidder bidder : this.population) {
+			Map<Good, List<Variable>> bidderVariables = gMap.get(bidder).entrySet().stream().collect(Collectors.toMap(e->e.getKey(), e-> new ArrayList<>(e.getValue().values()), (e1, e2) -> e1, LinkedHashMap::new));
+			for(AllocationLimitConstraint alc : bidder.getAllocationLimit().getConstraints()) {
+				this.getMIP().add(alc.createCPLEXConstraintWithMultiVarsPerGood(bidderVariables));
 			}
 		}
 	}
-
+	
 	private void initValues() {
 
 	    for (GSVMBidder bidder : population) {
-	        valueMap.put(bidder, new HashMap<>());
+	        valueMap.put(bidder, new LinkedHashMap<>());
             int tauCounter = 0;
             for (GSVMLicense license : world.getLicenses()) {
                 BigDecimal val = bidder.getBaseValues().getOrDefault(license.getLongId(), BigDecimal.ZERO);
@@ -210,13 +210,13 @@ public class GSVMStandardMIP extends ModelMIP {
 	}
 
 	private void initVariables() {
-		gMap = new HashMap<>();
+		gMap = new LinkedHashMap<>();
 		for (GSVMBidder bidder : population) {
-		    gMap.put(bidder, new HashMap<>());
+		    gMap.put(bidder, new LinkedHashMap<>());
 			for (GSVMLicense license : world.getLicenses()) {
 				if (allowAssigningLicensesWithZeroBasevalue || valueMap.get(bidder).get(license) > 0) {
-					Collection<Variable> xVariables = new HashSet<>();
-					gMap.get(bidder).put(license, new HashMap<>());
+					Collection<Variable> xVariables = new LinkedHashSet<>();
+					gMap.get(bidder).put(license, new LinkedHashMap<>());
 					for (int tau = 0; tau < tauHatMap.get(bidder); tau++) {
 					    Variable var = new Variable("g_i[" + (int) bidder.getLongId() + "]j[" + (int) license.getLongId() + "]t[" + tau + "]", VarType.BOOLEAN, 0, 1);
 						getMIP().add(var);

@@ -163,7 +163,7 @@ public final class LSVMBidder extends SATSBidder {
     public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         LSVMStandardMIP mip = new LSVMStandardMIP(world, Lists.newArrayList(this));
         mip.setMipInstrumentation(getMipInstrumentation());
-        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY.name());
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
         mip.getMIP().add(priceVar);
         mip.getMIP().addObjectiveTerm(-1, priceVar);

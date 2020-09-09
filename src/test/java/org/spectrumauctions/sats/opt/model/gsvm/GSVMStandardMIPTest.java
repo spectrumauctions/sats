@@ -19,7 +19,7 @@ public class GSVMStandardMIPTest {
     public void testDeterministicOutcome() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld();
-        List<GSVMBidder> population = model.createPopulation(world);
+        List<GSVMBidder> population = model.createNewPopulation(world);
 
         GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
         Allocation allocation = gsvmMIP.getAllocation();
@@ -34,7 +34,7 @@ public class GSVMStandardMIPTest {
     public void testDifferentOrderOfBidders() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld();
-        List<GSVMBidder> population = model.createPopulation(world);
+        List<GSVMBidder> population = model.createNewPopulation(world);
         List<GSVMBidder> invertedPopulation = new ArrayList<>(population);
         Collections.reverse(population);
 
@@ -53,7 +53,7 @@ public class GSVMStandardMIPTest {
 	public void testValidAllocationDefaultSetup() {
 		GlobalSynergyValueModel model = new GlobalSynergyValueModel();
 		GSVMWorld world = model.createWorld();
-		List<GSVMBidder> population = model.createPopulation(world);
+		List<GSVMBidder> population = model.createNewPopulation(world);
 
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
 		Allocation allocation = gsvmMIP.getAllocation();
@@ -82,8 +82,8 @@ public class GSVMStandardMIPTest {
 		GSVMStandardMIP gsvmMIP = new GSVMStandardMIP(world, population);
 		Allocation allocation = gsvmMIP.getAllocation();
 
-		// Efficient Allocation should be 91.0
-		Assert.assertEquals(0, BigDecimal.valueOf(91.0).compareTo(allocation.getTotalAllocationValue()));
+		// Efficient Allocation should be 75.0
+		Assert.assertEquals(0, BigDecimal.valueOf(75.0).compareTo(allocation.getTotalAllocationValue()));
 		testTotalValue(population, allocation);
 	}
 

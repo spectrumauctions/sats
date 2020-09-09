@@ -41,7 +41,7 @@ public class SimpleModelAccessorsExample {
     public void exampleOne() {
         SingleRegionModel singleRegionModel = new SingleRegionModel();
         SRVMWorld world = singleRegionModel.createWorld();
-        List<SRVMBidder> bidders = singleRegionModel.createPopulation(world);
+        List<SRVMBidder> bidders = singleRegionModel.createNewPopulation(world);
         treatBidders(bidders);
     }
 
@@ -57,7 +57,7 @@ public class SimpleModelAccessorsExample {
         singleRegionModel.setNumberOfPrimaryBidders(2);
         singleRegionModel.setNumberOfSecondaryBidders(0);
         singleRegionModel.setNumberOfSmallBidders(0);
-        List<SRVMBidder> bidders = singleRegionModel.createPopulation(world);
+        List<SRVMBidder> bidders = singleRegionModel.createNewPopulation(world);
         treatBidders(bidders);
     }
 
@@ -101,7 +101,7 @@ public class SimpleModelAccessorsExample {
                 anyModel = new SingleRegionModel();
         }
         World world = anyModel.createWorld();
-        List<SATSBidder> bidders = anyModel.createPopulation(world);
+        List<SATSBidder> bidders = anyModel.createNewPopulation(world);
         treatBidders(bidders);
     }
 

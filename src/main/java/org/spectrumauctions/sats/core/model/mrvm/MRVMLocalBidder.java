@@ -6,6 +6,7 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
@@ -38,8 +39,8 @@ public final class MRVMLocalBidder extends MRVMBidder {
     private final boolean allowAssigningLicensesWithZeroBasevalueInDemandQuery;
 
     MRVMLocalBidder(long id, long populationId, MRVMWorld world, MRVMLocalBidderSetup setup,
-                    UniformDistributionRNG rng) {
-        super(id, populationId, world, setup, rng);
+                    UniformDistributionRNG rng, AllocationLimit limit) {
+        super(id, populationId, world, setup, rng, limit);
         Set<MRVMRegionsMap.Region> regionsOfInterest = setup.drawRegionsOfInterest(world, rng);
         Set<Integer> regionsOfInterestIds = new HashSet<>();
         for (MRVMRegionsMap.Region region : regionsOfInterest) {
@@ -99,7 +100,7 @@ public final class MRVMLocalBidder extends MRVMBidder {
 
     @Override
     public MRVMLocalBidder drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new MRVMLocalBidder(getLongId(), getPopulation(), getWorld(), (MRVMLocalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+        return new MRVMLocalBidder(getLongId(), getPopulation(), getWorld(), (MRVMLocalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG(), this.getAllocationLimit());
     }
     
 	@Override

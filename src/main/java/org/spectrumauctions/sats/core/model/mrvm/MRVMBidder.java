@@ -9,9 +9,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
+
+import lombok.Getter;
+
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
@@ -73,9 +78,13 @@ public abstract class MRVMBidder extends SATSBidder {
      * key: regionId, value: beta
      */
     private final HashMap<Integer, BigDecimal> zHigh;
+    
+    @Getter
+    @Setter
+    private AllocationLimit allocationLimit = AllocationLimit.NO;
 
 
-    MRVMBidder(long id, long populationId, MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
+    MRVMBidder(long id, long populationId, MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng, AllocationLimit limit) {
         super(setup, populationId, id, world.getId());
         this.world = world;
         this.alpha = setup.drawAlpha(rng);
@@ -84,6 +93,7 @@ public abstract class MRVMBidder extends SATSBidder {
         zLow.forEach((key, value) -> Preconditions.checkArgument(value.compareTo(BigDecimal.ZERO) > 0));
         this.zHigh = setup.drawZHigh(beta, world, rng);
         assertRegionalValuesAssigned();
+        this.allocationLimit = limit;
     }
 
     private HashMap<Integer, BigDecimal> drawBeta(MRVMWorld world, MRVMBidderSetup setup, UniformDistributionRNG rng) {
@@ -233,7 +243,7 @@ public abstract class MRVMBidder extends SATSBidder {
     public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
         MRVM_MIP mip = new MRVM_MIP(Sets.newHashSet(this));
         mip.setMipInstrumentation(getMipInstrumentation());
-        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY);
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY.name());
 
         double scalingFactor = mip.getBidderPartialMips().get(this).getScalingFactor();
         Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);

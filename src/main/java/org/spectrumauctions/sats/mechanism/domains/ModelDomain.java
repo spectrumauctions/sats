@@ -41,7 +41,7 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
 
     private transient Allocation efficientAllocation;
 
-    protected abstract ModelMIP getMIP();
+    public abstract ModelMIP getMIP();
     
     private boolean generic;
     
@@ -62,7 +62,7 @@ public abstract class ModelDomain<T extends SATSBidder> implements Domain {
     public Allocation getEfficientAllocation() {
         if (!hasEfficientAllocationCalculated()) {
             getMIP().setMipInstrumentation(getMipInstrumentation());
-            getMIP().setPurpose(MipInstrumentation.MipPurpose.ALLOCATION);
+            getMIP().setPurpose(MipInstrumentation.MipPurpose.ALLOCATION.name());
             efficientAllocation = getMIP().getAllocation();
         }
         return efficientAllocation;

@@ -35,7 +35,7 @@ public class GSVMBidderTest {
     public void testDefaultCustomBidderSetup() {
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world = model.createWorld(983742L);
-        List<GSVMBidder> defaultPopulation = model.createPopulation(world);
+        List<GSVMBidder> defaultPopulation = model.createNewPopulation(world);
 
         Assert.assertEquals(defaultPopulation.size(), 7);
 
@@ -52,7 +52,7 @@ public class GSVMBidderTest {
         GSVMWorld world2 = model2.createWorld(983742L);
         model2.setNumberOfNationalBidders(3);
         model2.setNumberOfRegionalBidders(2);
-        List<GSVMBidder> minimalPopulation = model2.createPopulation(world2);
+        List<GSVMBidder> minimalPopulation = model2.createNewPopulation(world2);
 
         Assert.assertEquals(minimalPopulation.size(), 5);
 
@@ -79,17 +79,17 @@ public class GSVMBidderTest {
         for (int i = 0; i < values.length; i++) values[i] = customPopulation.get(i).calculateValue(completeBundle);
 
         float regionalValue = 2 * 15;
-        float nationalValueZeroHighs = 4 * 25;
-        float nationalValueTwoHighs = 2 * 25 + 2 * 35;
-        float nationalValueFourHighs = 4 * 35;
+        float nationalValueZeroHighs = 4 * 25 + 2 * 15;
+        float nationalValueTwoHighs = 2 * 25 + 2 * 35 + 2 * 15;
+        float nationalValueFourHighs = 4 * 35 + 2 * 15;
 
         float[] expectedValues = new float[6];
-        expectedValues[0] = (nationalValueZeroHighs) * (1 + (4 - 1) * 0.2f);
-        expectedValues[1] = (nationalValueTwoHighs) * (1 + (4 - 1) * 0.2f);
-        expectedValues[2] = (nationalValueFourHighs) * (1 + (4 - 1) * 0.2f);
-        expectedValues[3] = (nationalValueTwoHighs) * (1 + (4 - 1) * 0.2f);
-        expectedValues[4] = (nationalValueZeroHighs) * (1 + (4 - 1) * 0.2f);
-        expectedValues[5] = (nationalValueZeroHighs) * (1 + (4 - 1) * 0.2f);
+        expectedValues[0] = (nationalValueZeroHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[1] = (nationalValueTwoHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[2] = (nationalValueFourHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[3] = (nationalValueTwoHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[4] = (nationalValueZeroHighs) * (1 + (6 - 1) * 0.2f);
+        expectedValues[5] = (nationalValueZeroHighs) * (1 + (6 - 1) * 0.2f);
         float expectedNationalBidderValue = (8 * 16 + 4 * 26) * (1 + (12 - 1) * 0.2f);
 
         for (int i = 0; i < 8; i++) {
@@ -132,15 +132,15 @@ public class GSVMBidderTest {
         Assert.assertEquals(customPopulation.get(3).calculateValue(complete).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in low region has expected value
-        expectedValue = (4 * 25) * (1 + (4 - 1) * 0.2f);
+        expectedValue = (4 * 25 + 2 * 15) * (1 + (6 - 1) * 0.2f);
         Assert.assertEquals(customPopulation.get(0).calculateValue(complete).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in high region has expected value
-        expectedValue = (4 * 35) * (1 + (4 - 1) * 0.2f);
+        expectedValue = (4 * 35 + 2 * 15) * (1 + (6 - 1) * 0.2f);
         Assert.assertEquals(customPopulation.get(2).calculateValue(complete).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidder in mixed region has expected value
-        expectedValue = (2 * 25 + 2 * 35) * (1 + (4 - 1) * 0.2f);
+        expectedValue = (2 * 25 + 2 * 35 + 2 * 15) * (1 + (6 - 1) * 0.2f);
         Assert.assertEquals(customPopulation.get(1).calculateValue(complete).floatValue(), expectedValue, 0.001f);
     }
 
@@ -175,7 +175,7 @@ public class GSVMBidderTest {
         Assert.assertEquals(customPopulation.get(3).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
 
         // Check if regional bidders all have expected value
-        expectedValue = (2 * 25) * (1 + (2 - 1) * 0.2f);
+        expectedValue = (2 * 25 + 15) * (1 + (3 - 1) * 0.2f);
         Assert.assertEquals(customPopulation.get(0).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
         Assert.assertEquals(customPopulation.get(1).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
         Assert.assertEquals(customPopulation.get(2).calculateValue(completeBundle).floatValue(), expectedValue, 0.001f);
