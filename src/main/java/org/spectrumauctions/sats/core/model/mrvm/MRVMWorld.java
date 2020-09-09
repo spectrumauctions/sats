@@ -6,6 +6,10 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+
+import lombok.Getter;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
@@ -252,21 +256,21 @@ public final class MRVMWorld extends World implements GenericWorld {
         if (localSetups != null) {
             for (MRVMLocalBidderSetup setup : localSetups) {
                 for (int i = 0; i < setup.getNumberOfBidders(); i++) {
-                    bidders.add(new MRVMLocalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG()));
+                    bidders.add(new MRVMLocalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG(), AllocationLimit.NO));
                 }
             }
         }
         if (regionalSetups != null) {
             for (MRVMRegionalBidderSetup setup : regionalSetups) {
                 for (int i = 0; i < setup.getNumberOfBidders(); i++) {
-                    bidders.add(new MRVMRegionalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG()));
+                    bidders.add(new MRVMRegionalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG(), AllocationLimit.NO));
                 }
             }
         }
         if (nationalSetups != null) {
             for (MRVMNationalBidderSetup setup : nationalSetups) {
                 for (int i = 0; i < setup.getNumberOfBidders(); i++) {
-                    bidders.add(new MRVMNationalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG()));
+                    bidders.add(new MRVMNationalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG(), AllocationLimit.NO));
                 }
             }
         }

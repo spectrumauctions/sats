@@ -25,7 +25,7 @@ public class SizeOrderedPowersetTest {
     @Test
     public void testDecreasingIterator() throws UnsupportedBiddingLanguageException {
         MultiBandValueModel model = new MultiBandValueModel();
-        BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
+        BMBidder bidder = model.createNewWorldAndPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
         GenericPowersetDecreasing lang = bidder.getValueFunction(GenericPowersetDecreasing.class, 351354);
         int currentSize = Integer.MAX_VALUE;
@@ -48,7 +48,7 @@ public class SizeOrderedPowersetTest {
     @Test
     public void testIncreasingIterator() throws UnsupportedBiddingLanguageException {
         BaseValueModel model = new BaseValueModel();
-        BMBidder bidder = model.createNewPopulation(51465435L).iterator().next();
+        BMBidder bidder = model.createNewWorldAndPopulation(51465435L).iterator().next();
         @SuppressWarnings("unchecked")
         GenericPowersetIncreasing lang = bidder.getValueFunction(GenericPowersetIncreasing.class, 351354);
         int currentSize = 0;

@@ -32,14 +32,12 @@ public class LSVMStandardMIPTest {
 	}
 
 	@Test
-	// FIXME: Currently, value is 542.9613847418564 (instead of 550.547333429). Most probably world changed for same seed.
 	public void testLegacyDefaultSetupEasySeed() {
 		// reference runtime approx 2 seconds
 		testLegacyDefaultSetup(1498246131808L);
 	}
 
 	@Test
-	// FIXME: Currently, value is 506.579764315678 (instead of 502.943796697). Most probably world changed for same seed.
 	public void testLegacyDefaultSetupMediumSeed() {
 		// reference runtime approx 1 minute
 		testLegacyDefaultSetup(1498247338147L);
@@ -72,7 +70,7 @@ public class LSVMStandardMIPTest {
 		LocalSynergyValueModel model = new LocalSynergyValueModel();
 		model.setLegacyLSVM(true);
 		LSVMWorld world = model.createWorld(seed);
-		List<LSVMBidder> population = model.createPopulation(world, seed);
+		List<LSVMBidder> population = model.createNewPopulation(world, seed);
 
 		LSVMStandardMIP lsvmMIP = new LSVMStandardMIP(world, population);
 		Allocation allocation = lsvmMIP.getAllocation();

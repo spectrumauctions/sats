@@ -19,7 +19,7 @@ public class LSVMDomain extends ModelDomain<LSVMBidder> {
 	}
 
 	@Override
-	protected ModelMIP getMIP() {
+	public ModelMIP getMIP() {
 		return new LSVMStandardMIP(getBidders());
 	}
 

@@ -3,6 +3,8 @@ package org.spectrumauctions.sats.core.model.gsvm;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.model.BidderSetup;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -44,7 +46,7 @@ public abstract class GSVMBidderSetup extends BidderSetup {
 
     abstract HashMap<Long, BigDecimal> drawValues(RNGSupplier rngSupplier, GSVMBidder bidder);
 
-    public abstract int getActivityLimit(GSVMBidder bidder);
+    public abstract AllocationLimit getAllocationLimit(GSVMBidder bidder);
 
     /**
      * Represents the value distribution inside a circle, given by the Global Synergy Value Model.

@@ -3,6 +3,7 @@ package org.spectrumauctions.sats.mechanism.cca;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Domain;
@@ -26,20 +27,21 @@ public class CCATest {
     private static final Logger logger = LogManager.getLogger(CCATest.class);
 
     @Test
+    @Ignore // price generation for GSVM with AllocationLimits takes a litte time
     public void testGSVM() {
-        Domain domain = new GSVMDomain(new GlobalSynergyValueModel().createNewPopulation());
+        Domain domain = new GSVMDomain(new GlobalSynergyValueModel().createNewWorldAndPopulation());
         testCCA(domain);
     }
 
     @Test
     public void testLSVM() {
-        Domain domain = new LSVMDomain(new LocalSynergyValueModel().createNewPopulation());
+        Domain domain = new LSVMDomain(new LocalSynergyValueModel().createNewWorldAndPopulation());
         testCCA(domain);
     }
 
     @Test
     public void testMRVM() {
-        Domain domain = new MRVMDomain(new MultiRegionModel().createNewPopulation());
+        Domain domain = new MRVMDomain(new MultiRegionModel().createNewWorldAndPopulation());
         testCCA(domain);
     }
 

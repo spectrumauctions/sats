@@ -36,7 +36,7 @@ public class SRVMBidderTest {
     public void testDefaultCustomBidderSetup() {
         SingleRegionModel model = new SingleRegionModel();
         SRVMWorld world = model.createWorld(983742L);
-        List<SRVMBidder> defaultPopulation = model.createPopulation(world);
+        List<SRVMBidder> defaultPopulation = model.createNewPopulation(world);
         Assert.assertEquals(defaultPopulation.size(), 7);
     }
 
