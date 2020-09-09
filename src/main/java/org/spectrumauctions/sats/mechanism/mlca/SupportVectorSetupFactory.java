@@ -37,15 +37,24 @@ public enum SupportVectorSetupFactory {
 			KernelType.Gaussian, new KernelGaussian(100d, 100d));
 	
 	public SupportVectorSetup createDefaultGSVMSupportVectorSetup(KernelType kernelType) {
-		return new SupportVectorSetup(3000d, 0.05d, BigDecimal.ONE, this.gsvmDefaultKernels.get(kernelType));
+		return new SupportVectorSetup(3000d, 0.05d, BigDecimal.ONE,this.getRemoveSupportVectors(kernelType), this.gsvmDefaultKernels.get(kernelType));
 	}
 	
 	public SupportVectorSetup createDefaultLSVMSupportVectorSetup(KernelType kernelType) {
-		return new SupportVectorSetup(100d,0.0001d,BigDecimal.ONE,this.lsvmDefaultKernels.get(kernelType));
+		return new SupportVectorSetup(100d,0.0001d,BigDecimal.ONE,this.getRemoveSupportVectors(kernelType),this.lsvmDefaultKernels.get(kernelType));
 	}
 	
 	public SupportVectorSetup createDefaultMRVMSupportVectorSetup(KernelType kernelType) {
-		return new SupportVectorSetup(100d,0.0001d,BigDecimal.ONE.divide(BigDecimal.valueOf(100000)),this.mrvmDefaultKernels.get(kernelType));
+		return new SupportVectorSetup(100d,0.0001d,BigDecimal.ONE.divide(BigDecimal.valueOf(100000)),this.getRemoveSupportVectors(kernelType),this.mrvmDefaultKernels.get(kernelType));
+	}
+	
+	/**
+	 * For historic reasons eliminiate small support vectors (1e-5) in linear and quadratic kernel SVRs
+	 */
+	private boolean getRemoveSupportVectors(KernelType type) {
+		if(type.equals(KernelType.Linear) || type.equals(KernelType.Quadratic)) 
+			return true;
+		return false;
 	}
 	
 }
