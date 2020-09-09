@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
@@ -57,6 +58,7 @@ public class GSVMDemandQueryTest {
     }
 
     @Test
+    @Ignore // Price generation for GSVM with AllocationLimit takes quite a little time
     public void testMultipleBundles() {
         List<GSVMBidder> bidders = new GlobalSynergyValueModel().createNewWorldAndPopulation(new JavaUtilRNGSupplier(73246104));
         Domain domain = new GSVMDomain(bidders);
@@ -80,7 +82,6 @@ public class GSVMDemandQueryTest {
     }
     
     @Test
-    // TODO fix test for with Allocation limits
     public void testAllBiddersInGSVMOriginal() {
     	GSVMWorldSetup.GSVMWorldSetupBuilder worldSetupBuilder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
 		worldSetupBuilder.setSizeInterval(new IntegerInterval(6));
