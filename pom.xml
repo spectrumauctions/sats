@@ -238,7 +238,7 @@
         <dependency>
             <groupId>edu.harvard.eecs</groupId>
             <artifactId>jopt</artifactId>
-            <version>1.4.0</version>
+            <version>1.4.2</version>
         </dependency>
 
         <dependency>
@@ -253,7 +253,7 @@
         <dependency>
             <groupId>org.marketdesignresearch</groupId>
             <artifactId>mechlib</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
@@ -283,6 +283,24 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok-maven-plugin</artifactId>
+                        <version>1.18.12.0</version>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+                            <outputDirectory>${delombok.output}</outputDirectory>
+                            <addOutputDirectory>false</addOutputDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>delombok</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>3.0.1</version>
@@ -307,6 +325,9 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <sourcepath>${delombok.output}</sourcepath>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -345,6 +366,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <delombok.output>${project.basedir}/target/delombok</delombok.output>
         <sonar.language>java</sonar.language>
         <sonar.jdbc.url>
             jdbc:h2:tcp://localhost:9092/sonar

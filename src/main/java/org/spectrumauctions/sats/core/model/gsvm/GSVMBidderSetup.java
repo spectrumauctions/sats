@@ -78,7 +78,7 @@ public abstract class GSVMBidderSetup extends BidderSetup {
          *   * |nationalCircleLicenses| for the national bidder
          *   * Math.round(2/3 * |positiveBaseValueLicenses|) for regional bidders
          * In a default world, that results in the original activity limits of 12 for a national bidder 4 for a regional bidder.
-         * By setting the activityLimitOverride parameter to > -1, you can override this.
+         * By setting the activityLimitOverride parameter to zero or more, you can override this.
          */
         @Setter
         protected int activityLimitOverride = -1;

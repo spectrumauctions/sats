@@ -22,7 +22,7 @@ public final class LSVMWorld extends World {
     private final LSVMGrid grid;
     
     /**
-     *  In earlier versions of SATS (<0.7.0), the original model was interpreted differently than it is today.
+     *  In earlier versions of SATS (earlier than 0.7.0), the original model was interpreted differently than it is today.
      *  Back then, when asking a bidder what her value is for bundle X, the synergy factor increased with any good in X.
      *  Now, the synergy factor only increases with goods which the bidder has a positive value for.
      *  This flag can be set to true in order to reproduce results of the old SATS versions.
