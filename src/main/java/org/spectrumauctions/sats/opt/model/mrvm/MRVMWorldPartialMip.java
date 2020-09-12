@@ -6,10 +6,10 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.mip.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spectrumauctions.sats.core.bidlang.generic.Band;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap;
@@ -33,7 +33,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
     public final static String xVariablePrefix = "X_";
     public final static String valueVariablePrefix = "v_";
 
-    private final Map<MRVMBidder, Map<MRVMRegionsMap.Region, Map<Band, Variable>>> xVariables;
+    private final Map<MRVMBidder, Map<MRVMRegionsMap.Region, Map<MRVMBand, Variable>>> xVariables;
     private final Map<MRVMBidder, Variable> valueVariables;
 
     private final double biggestPossibleValue;
@@ -83,23 +83,20 @@ public class MRVMWorldPartialMip extends PartialMIP {
     private Map<MRVMBidder, Variable> initValueVariables() {
         Map<MRVMBidder, Variable> result = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
-            String varName = new StringBuilder(valueVariablePrefix)
-                    .append("_")
-                    .append(bidder.getId())
-                    .toString();
+            String varName = valueVariablePrefix + "_" + bidder.getLongId();
             Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
             result.put(bidder, var);
         }
         return Collections.unmodifiableMap(result);
     }
 
-    private Map<MRVMBidder, Map<Region, Map<Band, Variable>>> initXVariables() {
-        Map<MRVMBidder, Map<Region, Map<Band, Variable>>> result = new HashMap<>();
+    private Map<MRVMBidder, Map<Region, Map<MRVMBand, Variable>>> initXVariables() {
+        Map<MRVMBidder, Map<Region, Map<MRVMBand, Variable>>> result = new HashMap<>();
 
         for (MRVMBidder bidder : bidders) {
-            Map<Region, Map<Band, Variable>> biddersMap = new HashMap<>();
+            Map<Region, Map<MRVMBand, Variable>> biddersMap = new HashMap<>();
             for (Region region : world.getRegionsMap().getRegions()) {
-                Map<Band, Variable> bandMap = new HashMap<>();
+                Map<MRVMBand, Variable> bandMap = new HashMap<>();
                 for (MRVMBand band : world.getBands()) {
                     String varName = xVariablePrefix.concat(MRVMBidderPartialMIP.createIndex(bidder, region, band));
                     Variable var = new Variable(varName, VarType.INT, 0, band.getNumberOfLots());
@@ -112,7 +109,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
         return Collections.unmodifiableMap(result);
     }
 
-    private void appendObjectiveToMip(MIP mip) {
+    private void appendObjectiveToMip(IMIP mip) {
         mip.setObjectiveMax(true);
 
         if (!mip.getObjectiveTerms().isEmpty()) {
@@ -128,7 +125,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
      * Furthermore, this implementation of a PartialMip adds the objective term to the MIP
      */
     @Override
-    public void appendToMip(MIP mip) {
+    public void appendToMip(IMIP mip) {
         super.appendToMip(mip);
         appendObjectiveToMip(mip);
     }
@@ -138,7 +135,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
      * @see PartialMIP#appendConstraintsToMip(edu.harvard.econcs.jopt.solver.mip.MIP)
      */
     @Override
-    public void appendConstraintsToMip(MIP mip) {
+    public void appendConstraintsToMip(IMIP mip) {
         super.appendConstraintsToMip(mip);
         for (Constraint c : createNumberOfLicensesConstraints()) {
             mip.add(c);
@@ -146,13 +143,13 @@ public class MRVMWorldPartialMip extends PartialMIP {
     }
 
     @Override
-    public void appendVariablesToMip(MIP mip) {
+    public void appendVariablesToMip(IMIP mip) {
         super.appendVariablesToMip(mip);
         for (Variable var : valueVariables.values()) {
             mip.add(var);
         }
-        for (Map<Region, Map<Band, Variable>> middleMap : xVariables.values()) {
-            for (Map<Band, Variable> innerMap : middleMap.values()) {
+        for (Map<Region, Map<MRVMBand, Variable>> middleMap : xVariables.values()) {
+            for (Map<MRVMBand, Variable> innerMap : middleMap.values()) {
                 for (Variable var : innerMap.values()) {
                     mip.add(var);
                 }
@@ -173,7 +170,7 @@ public class MRVMWorldPartialMip extends PartialMIP {
 
     public Set<Variable> getXVariables(MRVMBidder bidder) {
         Set<Variable> variables = new HashSet<>();
-        for (Map.Entry<Region, Map<Band, Variable>> entry : xVariables.get(bidder).entrySet()) {
+        for (Map.Entry<Region, Map<MRVMBand, Variable>> entry : xVariables.get(bidder).entrySet()) {
                 variables.addAll(entry.getValue().values());
         }
         return variables;

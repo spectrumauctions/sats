@@ -6,20 +6,18 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.BigDecimalUtils;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @author Michael Weiss
@@ -34,8 +32,8 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     private final SortedMap<Integer, BigDecimal> distanceDiscounts;
 
     MRVMRegionalBidder(long id, long populationId, MRVMWorld world, MRVMRegionalBidderSetup setup,
-                       UniformDistributionRNG rng) {
-        super(id, populationId, world, setup, rng);
+                       UniformDistributionRNG rng, AllocationLimit limit) {
+        super(id, populationId, world, setup, rng, limit);
         this.home = setup.drawHome(world, rng);
         this.homeId = home.getId();
         this.distanceDiscounts = new TreeMap<>(setup.drawDistanceDiscounts(world, home, rng));
@@ -70,7 +68,7 @@ public final class MRVMRegionalBidder extends MRVMBidder {
      * @param bundle Is not required for calculation of regional bidders gamma factors and will be ignored.
      */
     @Override
-    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle) {
+    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, Set<MRVMLicense> bundle) {
         int distance = getWorld().getRegionsMap().getDistance(home, r);
         if (distance > distanceDiscounts.lastKey()) {
             //Not connected regions
@@ -84,7 +82,7 @@ public final class MRVMRegionalBidder extends MRVMBidder {
      * @param bundle Is not required for calculation of regional bidders gamma factors and will be ignored.
      */
     @Override
-    public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle) {
+    public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Set<MRVMLicense> bundle) {
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();
         for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
             // Note that repeatedly calculating distance is not expensive, as distance is cached in Map Instance
@@ -96,12 +94,12 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     }
 
     @Override
-    public Bidder<MRVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new MRVMRegionalBidder(getId(), getPopulation(), getWorld(), (MRVMRegionalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+    public MRVMRegionalBidder drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new MRVMRegionalBidder(getLongId(), getPopulation(), getWorld(), (MRVMRegionalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG(), this.getAllocationLimit());
     }
 
     /* (non-Javadoc)
-     * @see Bidder#getValueFunctionRepresentation(java.lang.Class, long)
+     * @see SATSBidder#getValueFunctionRepresentation(java.lang.Class, long)
      */
     @Override
     public <T extends BiddingLanguage> T getValueFunction(Class<T> type, RNGSupplier rngSupplier)
@@ -110,7 +108,7 @@ public final class MRVMRegionalBidder extends MRVMBidder {
     }
 
     /* (non-Javadoc)
-     * @see Bidder#refreshReference(World)
+     * @see SATSBidder#refreshReference(World)
      */
     @Override
     public void refreshReference(World world) {
@@ -150,6 +148,11 @@ public final class MRVMRegionalBidder extends MRVMBidder {
             return false;
         return true;
     }
+
+	@Override
+	protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
+		// Do nothing
+	}
 
 
 }

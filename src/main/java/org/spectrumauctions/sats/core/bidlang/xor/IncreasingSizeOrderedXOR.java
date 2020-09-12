@@ -5,9 +5,10 @@
  */
 package org.spectrumauctions.sats.core.bidlang.xor;
 
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
+import org.spectrumauctions.sats.core.model.License;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -17,19 +18,19 @@ import java.util.Iterator;
  * @author Michael Weiss
  *
  */
-public class IncreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> {
+public class IncreasingSizeOrderedXOR extends SizeOrderedXOR {
 
-    public IncreasingSizeOrderedXOR(Collection<T> goods, Bidder<T> bidder) {
+    public IncreasingSizeOrderedXOR(Collection<? extends License> goods, SATSBidder bidder) {
         super(goods, bidder);
     }
 
 
     @Override
-    public Iterator<XORValue<T>> iterator() {
+    public Iterator<BundleValue> iterator() {
         return new IncreasingIterator();
     }
 
-    private class IncreasingIterator implements Iterator<XORValue<T>> {
+    private class IncreasingIterator implements Iterator<BundleValue> {
 
         BigInteger index = BigInteger.ONE;
         BigInteger maxIntex = BigInteger.valueOf(2).pow(IncreasingSizeOrderedXOR.this.goods.size());
@@ -40,10 +41,10 @@ public class IncreasingSizeOrderedXOR<T extends Good> extends SizeOrderedXOR<T> 
         }
 
         @Override
-        public XORValue<T> next() {
-            Bundle<T> bundle = IncreasingSizeOrderedXOR.this.getBundle(index);
+        public BundleValue next() {
+            Bundle bundle = IncreasingSizeOrderedXOR.this.getBundle(index);
             index = index.add(BigInteger.ONE);
-            return new XORValue<>(bundle, IncreasingSizeOrderedXOR.this.getValue(bundle));
+            return new BundleValue(getBidder().calculateValue(bundle), bundle);
         }
     }
 }

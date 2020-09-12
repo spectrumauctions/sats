@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMBidderSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BVMWorldSetup;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
@@ -19,9 +19,7 @@ import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Michael Weiss
@@ -110,45 +108,46 @@ public class BMValueTest {
 
     @Test
     public void valueOfCompleteBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>(bidder.getWorld().getLicenses());
+        Bundle bundle = Bundle.of(bidder.getWorld().getLicenses());
         BigDecimal value = bidder.calculateValue(bundle);
-        Assert.assertTrue(bidder.getSetupType() + " value was " + value + " should be " + expextedValuedCompleteBundle, value.compareTo(expextedValuedCompleteBundle) == 0);
+        Assert.assertEquals(bidder.getSetupType() + " value was " + value + " should be " + expextedValuedCompleteBundle, 0, value.compareTo(expextedValuedCompleteBundle));
     }
 
     @Test
     public void valueOfHalfBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>();
+        Set<BMLicense> licenses = new HashSet<>();
         for (BMBand band : bidder.getWorld().getBands()) {
-            Iterator<BMLicense> licenseIter = band.getLicenses().iterator();
-            for (int i = 0; i < band.getNumberOfLicenses() / 2; i++) {
-                bundle.add(licenseIter.next());
+            Iterator<BMLicense> licenseIter = band.containedGoods().iterator();
+            for (int i = 0; i < band.getQuantity() / 2; i++) {
+                licenses.add(licenseIter.next());
             }
         }
+        Bundle bundle = Bundle.of(licenses);
         BigDecimal value = bidder.calculateValue(bundle);
-        Assert.assertTrue(bidder.getSetupType() + " value was " + value + " should be " + expectedValueHalfBundle, value.compareTo(expectedValueHalfBundle) == 0);
+        Assert.assertEquals(bidder.getSetupType() + " value was " + value + " should be " + expectedValueHalfBundle, 0, value.compareTo(expectedValueHalfBundle));
     }
 
     @Test
     public void valueOfSmallBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>();
+        Set<BMLicense> licenses = new HashSet<>();
         for (BMBand band : bidder.getWorld().getBands()) {
-            Iterator<BMLicense> licenseIter = band.getLicenses().iterator();
-            bundle.add(licenseIter.next());
+            Iterator<BMLicense> licenseIter = band.containedGoods().iterator();
+            licenses.add(licenseIter.next());
             //Names for default A band is the same in both models, hence only compare to one of them
             if (band.getName().equals(BVMWorldSetup.BVMWorldSetupBuilder.BICHLER_2014_BVM_DEFAULT_BAND_NAME_A)) {
                 //Add a second license of band A
-                bundle.add(licenseIter.next());
+                licenses.add(licenseIter.next());
             }
         }
+        Bundle bundle = Bundle.of(licenses);
         BigDecimal value = bidder.calculateValue(bundle);
-        Assert.assertTrue(bidder.getSetupType() + " value was " + value + " should be " + expectedValueSmallBundle, value.compareTo(expectedValueSmallBundle) == 0);
+        Assert.assertEquals(bidder.getSetupType() + " value was " + value + " should be " + expectedValueSmallBundle, 0, value.compareTo(expectedValueSmallBundle));
     }
 
     @Test
     public void valueOfEmptyBundle() {
-        Bundle<BMLicense> bundle = new Bundle<>();
-        BigDecimal value = bidder.calculateValue(bundle);
-        Assert.assertTrue(bidder.getSetupType() + " value was " + value + " should be " + expectedValueEmptyBundle, value.compareTo(expectedValueEmptyBundle) == 0);
+        BigDecimal value = bidder.calculateValue(Bundle.EMPTY);
+        Assert.assertEquals(bidder.getSetupType() + " value was " + value + " should be " + expectedValueEmptyBundle, 0, value.compareTo(expectedValueEmptyBundle));
     }
 
 }

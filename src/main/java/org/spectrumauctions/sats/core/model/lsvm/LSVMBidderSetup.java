@@ -39,7 +39,7 @@ public class LSVMBidderSetup extends BidderSetup {
         UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
         HashMap<Long, BigDecimal> values = new HashMap<>();
         for (LSVMLicense license : lsvmBidder.getProximity()) {
-            values.put(license.getId(), rng.nextBigDecimal(this.valueInterval));
+            values.put(license.getLongId(), rng.nextBigDecimal(this.valueInterval));
         }
         return values;
     }

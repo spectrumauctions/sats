@@ -6,22 +6,24 @@
 package org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
+import org.spectrumauctions.sats.core.model.GenericGood;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael Weiss
- *
  */
-public abstract class DeterministicIncreasingSizeComparator<T extends GenericDefinition> implements Comparator<Set<T>>, Serializable{
+public abstract class DeterministicIncreasingSizeComparator implements Comparator<Set<GenericGood>>, Serializable {
 
     /* (non-Javadoc)
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
-    public int compare(Set<T> o1, Set<T> o2) {
+    public int compare(Set<GenericGood> o1, Set<GenericGood> o2) {
         Preconditions.checkNotNull(o1);
         Preconditions.checkNotNull(o2);
         int difference = o1.size() - o2.size();
@@ -32,11 +34,11 @@ public abstract class DeterministicIncreasingSizeComparator<T extends GenericDef
         }
     }
 
-    private int compareSameSize(Set<T> o1, Set<T> o2) {
+    private int compareSameSize(Set<GenericGood> o1, Set<GenericGood> o2) {
         Preconditions.checkArgument(o1.size() == o2.size());
-        List<T> o1List = new ArrayList<>(o1);
+        List<GenericGood> o1List = new ArrayList<>(o1);
         o1List.sort(getDefintionComparator());
-        List<T> o2List = new ArrayList<>(o2);
+        List<GenericGood> o2List = new ArrayList<>(o2);
         o2List.sort(getDefintionComparator());
         for (int i = 0; i < o1List.size(); i++) {
             int comparison = getDefintionComparator().compare(o1List.get(i), o2List.get(i));
@@ -47,5 +49,5 @@ public abstract class DeterministicIncreasingSizeComparator<T extends GenericDef
         return 0;
     }
 
-    protected abstract Comparator<T> getDefintionComparator();
+    protected abstract Comparator<GenericGood> getDefintionComparator();
 }

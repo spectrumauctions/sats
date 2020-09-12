@@ -67,7 +67,7 @@ public abstract class BMBidderSetup extends BidderSetup {
     public BigDecimal drawBaseValue(BMBand band, UniformDistributionRNG rng) {
         DoubleInterval interval = baseValueIntervals.get(band.getName());
         if (interval == null) {
-            throw new IncompatibleWorldException("Band name unknown to Bidder Setup");
+            throw new IncompatibleWorldException("Band name unknown to SATSBidder Setup");
         } else {
             return rng.nextBigDecimal(interval);
         }

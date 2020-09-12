@@ -3,7 +3,10 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 import com.google.common.base.Preconditions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.cats.CATSBidder;
 import org.spectrumauctions.sats.core.model.cats.CATSLicense;
 import org.spectrumauctions.sats.core.model.cats.CATSWorld;
@@ -41,7 +44,7 @@ import java.util.stream.Collectors;
  *
  * @author Fabio Isler
  */
-public class CatsXOR implements XORLanguage<CATSLicense> {
+public class CatsXOR implements BiddingLanguage {
 
     private static final Logger logger = LogManager.getLogger(CatsXOR.class);
 
@@ -70,7 +73,7 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
     }
 
     @Override
-    public Iterator<XORValue<CATSLicense>> iterator() {
+    public Iterator<BundleValue> iterator() {
         if (noCapForSubstitutableGoods) {
             return new CATSIterator(rngSupplier.getUniformDistributionRNG(), false);
         } else {
@@ -78,17 +81,17 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
         }
     }
 
-    public Set<XORValue<CATSLicense>> getCATSXORBids() {
-        TreeSet<XORValue<CATSLicense>> sortedSet = new TreeSet<>();
-        Set<XORValue<CATSLicense>> result = new HashSet<>();
+    public Set<BundleValue> getCATSXORBids() {
+        TreeSet<BundleValue> sortedSet = new TreeSet<>();
+        Set<BundleValue> result = new HashSet<>();
 
-        Iterator<XORValue<CATSLicense>> iterator = new CATSIterator(rngSupplier.getUniformDistributionRNG(), true);
+        Iterator<BundleValue> iterator = new CATSIterator(rngSupplier.getUniformDistributionRNG(), true);
 
         result.add(iterator.next()); // CATS always includes the original bundle
 
         // Fill the sorted set with all the elements that are not null
         while (iterator.hasNext()) {
-            XORValue<CATSLicense> next = iterator.next();
+            BundleValue next = iterator.next();
             if (next != null) {
                 sortedSet.add(next);
             }
@@ -96,8 +99,8 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
 
         // Get the most valuable elements from the substitutable bids
         for (int i = 0; i < world.getMaxSubstitutableBids() && !sortedSet.isEmpty(); i++) {
-            XORValue<CATSLicense> val = sortedSet.first();
-            if (!result.stream().map(XORValue::getLicenses).collect(Collectors.toList()).contains(val.getLicenses())) {
+            BundleValue val = sortedSet.first();
+            if (!result.stream().map(BundleValue::getBundle).collect(Collectors.toList()).contains(val.getBundle())) {
                 result.add(val);
             }
             sortedSet.remove(val);
@@ -105,12 +108,12 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
         return result;
     }
 
-    private class CATSIterator implements Iterator<XORValue<CATSLicense>> {
+    private class CATSIterator implements Iterator<BundleValue> {
         private static final int MAX_RETRIES = 100;
 
         private final UniformDistributionRNG uniRng;
         private Queue<CATSLicense> originalLicenseQueue;
-        private Bundle<CATSLicense> originalBundle;
+        private Set<CATSLicense> originalBundle;
         private double minValue;
         private double budget;
         private double minResaleValue;
@@ -136,11 +139,11 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
         }
 
         @Override
-        public XORValue<CATSLicense> next() throws NoSuchElementException {
+        public BundleValue next() throws NoSuchElementException {
             if (!hasNext())
                 throw new NoSuchElementException();
 
-            Bundle<CATSLicense> bundle = new Bundle<>();
+            HashSet<CATSLicense> licenses = new HashSet<>();
             for (Map.Entry<Long, BigDecimal> entry : bidder.getPrivateValues().entrySet()) {
                 if (entry.getValue().doubleValue() < minValue) minValue = entry.getValue().doubleValue();
             }
@@ -149,37 +152,42 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
                 // We didn't construct an original bid yet
                 WeightedRandomCollection<CATSLicense> weightedGoods = new WeightedRandomCollection<>(uniRng);
                 goods.forEach(g -> {
-                    double positivePrivateValue = (bidder.getPrivateValues().get(g.getId()).doubleValue() - minValue);
+                    double positivePrivateValue = (bidder.getPrivateValues().get(g.getLongId()).doubleValue() - minValue);
                     weightedGoods.add(positivePrivateValue, g);
                 });
                 CATSLicense first = weightedGoods.next();
-                bundle.add(first);
-                while (uniRng.nextDouble() <= world.getAdditionalLocation()) {
-                    bundle.add(selectLicenseToAdd(bundle));
+                licenses.add(first);
+                while (licenses.size() < goods.size() && uniRng.nextDouble() <= world.getAdditionalLocation()) {
+                    CATSLicense next = selectLicenseToAdd(licenses);
+                    licenses.add(next);
                 }
 
+                Set<BundleEntry> bundleEntries = licenses.stream().map(l -> new BundleEntry(l, 1)).collect(Collectors.toSet());
+                Bundle bundle = new Bundle(bundleEntries);
                 BigDecimal value = bidder.calculateValue(bundle);
                 if (value.compareTo(BigDecimal.ZERO) < 0) return next(); // Restart bundle generation for this bidder
 
                 budget = world.getBudgetFactor() * value.doubleValue();
-                minResaleValue = world.getResaleFactor() * bundle.stream().mapToDouble(CATSLicense::getCommonValue).sum();
-                originalLicenseQueue = new LinkedBlockingQueue<>(bundle);
-                originalBundle = bundle;
-                return new XORValue<>(bundle, value);
+                minResaleValue = world.getResaleFactor() * licenses.stream().mapToDouble(CATSLicense::getCommonValue).sum();
+                originalLicenseQueue = new LinkedBlockingQueue<>(licenses);
+                originalBundle = licenses;
+                return new BundleValue(value, bundle);
             } else {
                 CATSLicense first = originalLicenseQueue.poll();
-                bundle.add(first);
-                while (bundle.size() < originalBundle.size()) {
-                    CATSLicense toAdd = selectLicenseToAdd(bundle);
-                    if (toAdd != null) bundle.add(toAdd);
+                licenses.add(first);
+                while (licenses.size() < originalBundle.size()) {
+                    CATSLicense toAdd = selectLicenseToAdd(licenses);
+                    if (toAdd != null) licenses.add(toAdd);
                 }
+                HashSet<BundleEntry> bundleEntries = (HashSet<BundleEntry>) licenses.stream().map(l -> new BundleEntry(l, 1)).collect(Collectors.toSet());
+                Bundle bundle = new Bundle(bundleEntries);
                 BigDecimal value = bidder.calculateValue(bundle);
-                double resaleValue = bundle.stream().mapToDouble(CATSLicense::getCommonValue).sum();
+                double resaleValue = licenses.stream().mapToDouble(CATSLicense::getCommonValue).sum();
                 if (value.doubleValue() >= 0 && value.doubleValue() <= budget
                         && resaleValue >= minResaleValue
-                        && !bundle.equals(originalBundle)) {
+                        && !licenses.equals(originalBundle)) {
                     retries = 0; // Found one - reset retries counter
-                    return new XORValue<>(bundle, value);
+                    return new BundleValue(value, bundle);
                 } else {
                     try {
                         return handleNulls(first);
@@ -192,7 +200,7 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
             }
         }
 
-        private XORValue<CATSLicense> handleNulls(CATSLicense first) throws NoValidElementFoundException {
+        private BundleValue handleNulls(CATSLicense first) throws NoValidElementFoundException {
             if (acceptNulls) {
                 return null;
             }
@@ -201,7 +209,7 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
             else throw new NoValidElementFoundException();
         }
 
-        private CATSLicense selectLicenseToAdd(Bundle<CATSLicense> bundle) {
+        private CATSLicense selectLicenseToAdd(Set<CATSLicense> bundle) {
             if (uniRng.nextDouble() <= world.getJumpProbability()) {
                 if (goods.size() == bundle.size()) return null; // Prevent infinite loop if there is no other license
                 CATSLicense randomLicense;
@@ -221,7 +229,7 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
                 // of the licenses in the bundle.
                 goods.stream().filter(l -> !bundle.contains(l) && edgeExists(l, bundle))
                         .forEach(g -> {
-                            double positivePrivateValue = bidder.getPrivateValues().get(g.getId()).doubleValue() - minValue;
+                            double positivePrivateValue = bidder.getPrivateValues().get(g.getLongId()).doubleValue() - minValue;
                             neighbors.add(positivePrivateValue, g);
                         });
                 if (neighbors.hasNext()) return neighbors.next();
@@ -229,7 +237,7 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
             }
         }
 
-        private boolean edgeExists(CATSLicense license, Bundle<CATSLicense> bundle) {
+        private boolean edgeExists(CATSLicense license, Set<CATSLicense> bundle) {
             for (CATSLicense l : bundle) {
                 if (world.getGrid().isAdjacent(license.getVertex(), l.getVertex()))
                     return true;
@@ -242,9 +250,9 @@ public class CatsXOR implements XORLanguage<CATSLicense> {
                 super("After " + retries + " retries, no other bundle was found " +
                         "that was not identical to the original bundle bid and is valid in terms of budget and " +
                         "min_resale_value constraints. \n" +
-                        "Most likely, there are either almost no licenses to choose from or the original bundle is very" +
-                        "small and highly valued, so that it's difficult to create another bundle that satisfies the" +
-                        "constraints. Try again (maybe with a higher number of goods) or use the the iterator that handles" +
+                        "Most likely, there are either almost no licenses to choose from or the original bundle is very " +
+                        "small and highly valued, so that it's difficult to create another bundle that satisfies the " +
+                        "constraints. Try again (maybe with a higher number of goods) or use the the iterator that handles " +
                         "this situation with null-values.");
             }
         }

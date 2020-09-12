@@ -7,20 +7,18 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedMap;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.BigDecimalUtils;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
+import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author Michael Weiss
@@ -36,8 +34,8 @@ public final class MRVMNationalBidder extends MRVMBidder {
 
 
     MRVMNationalBidder(long id, long populationId, MRVMWorld world, MRVMNationalBidderSetup setup,
-                       UniformDistributionRNG rng) {
-        super(id, populationId, world, setup, rng);
+                       UniformDistributionRNG rng, AllocationLimit limit) {
+        super(id, populationId, world, setup, rng, limit);
         Map<Integer, BigDecimal> gammaInput = setup.drawGamma(world, rng);
         //TODO Do nicely, no ImmutableSortedMap conversion
         gammaValues = new TreeMap<>(buildGammaMap(gammaInput));
@@ -66,7 +64,7 @@ public final class MRVMNationalBidder extends MRVMBidder {
      * @param r Not required for gamma calculation of national bidder and will be ignored
      */
     @Override
-    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle) {
+    public BigDecimal gammaFactor(MRVMRegionsMap.Region r, Set<MRVMLicense> bundle) {
         int uncoveredRegions = countUncoveredRegions(bundle);
         BigDecimal gamma = getGamma(uncoveredRegions);
         return gamma;
@@ -78,7 +76,7 @@ public final class MRVMNationalBidder extends MRVMBidder {
      * i.e. the same gamma for all regions
      */
     @Override
-    public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Bundle<MRVMLicense> bundle) {
+    public Map<MRVMRegionsMap.Region, BigDecimal> gammaFactors(Set<MRVMLicense> bundle) {
         BigDecimal gamma = gammaFactor(null, bundle);
         Map<MRVMRegionsMap.Region, BigDecimal> result = new HashMap<>();
         for (MRVMRegionsMap.Region region : getWorld().getRegionsMap().getRegions()) {
@@ -91,10 +89,10 @@ public final class MRVMNationalBidder extends MRVMBidder {
         return gammaValues.lastKey();
     }
 
-    private int countUncoveredRegions(Bundle<MRVMLicense> bundle) {
-        Map<MRVMRegionsMap.Region, Bundle<MRVMLicense>> licensesPerRegion = MRVMWorld.getLicensesPerRegion(bundle);
+    private int countUncoveredRegions(Set<MRVMLicense> bundle) {
+        Map<MRVMRegionsMap.Region, Set<MRVMLicense>> licensesPerRegion = MRVMWorld.getLicensesPerRegion(bundle);
         int uncoveredCount = 0;
-        for (Bundle<MRVMLicense> regionalBundle : licensesPerRegion.values()) {
+        for (Set<MRVMLicense> regionalBundle : licensesPerRegion.values()) {
             if (regionalBundle.isEmpty()) {
                 uncoveredCount++;
             }
@@ -118,12 +116,12 @@ public final class MRVMNationalBidder extends MRVMBidder {
     }
 
     @Override
-    public Bidder<MRVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new MRVMNationalBidder(getId(), getPopulation(), getWorld(), (MRVMNationalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG());
+    public MRVMNationalBidder drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new MRVMNationalBidder(getLongId(), getPopulation(), getWorld(), (MRVMNationalBidderSetup) getSetup(), rngSupplier.getUniformDistributionRNG(), this.getAllocationLimit());
     }
 
     /* (non-Javadoc)
-     * @see Bidder#getValueFunctionRepresentation(java.lang.Class, long)
+     * @see SATSBidder#getValueFunctionRepresentation(java.lang.Class, long)
      */
     @Override
     public <T extends BiddingLanguage> T getValueFunction(Class<T> type, RNGSupplier rngSupplier)
@@ -156,6 +154,11 @@ public final class MRVMNationalBidder extends MRVMBidder {
         }
         return true;
     }
+
+	@Override
+	protected void bidderTypeSpecificDemandQueryMIPAdjustments(MRVM_MIP mip) {
+		// Do nothing
+	}
 
 
 }

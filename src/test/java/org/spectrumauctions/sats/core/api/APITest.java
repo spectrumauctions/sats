@@ -25,7 +25,7 @@ public class APITest {
         BVMModelCreator.Builder builder = new BVMModelCreator.Builder();
         builder.setFileType(FileType.CATS);
         builder.setGeneric(false);
-        builder.setLang(BiddingLanguage.RANDOM);
+        builder.setLang(BiddingLanguageEnum.RANDOM);
         builder.setBidsPerBidder(1000);
         BVMModelCreator creator = builder.build();
         try {

@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Graph;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
-import org.spectrumauctions.sats.core.model.cats.graphalgorithms.VertexCell;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMGrid;
 import org.spectrumauctions.sats.core.model.lsvm.LSVMLicense;
 
@@ -20,7 +19,7 @@ public class LSVMGridGraph extends Graph {
 	public LSVMGridGraph(LSVMGrid lsvmGrid) {
 		super();
 
-		List<Vertex> vertices = lsvmGrid.getLicenses().stream().map(license -> new Vertex(((int) license.getId()) + 1))
+		List<Vertex> vertices = lsvmGrid.getLicenses().stream().map(license -> new Vertex(((int) license.getLongId()) + 1))
 				.collect(Collectors.toList());
 
 		addListOfVertices(vertices);
@@ -40,7 +39,7 @@ public class LSVMGridGraph extends Graph {
 	}
 
 	public Vertex getVertex(LSVMLicense license) {
-		return getVertices().stream().filter(v -> (v.getID() - 1) == (int) license.getId()).findAny().get();
+		return getVertices().stream().filter(v -> (v.getID() - 1) == (int) license.getLongId()).findAny().get();
 	}
 
 }

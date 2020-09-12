@@ -2,13 +2,14 @@ package org.spectrumauctions.sats.opt.model.lsvm;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.lsvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.domain.ItemAllocation;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,26 +32,28 @@ public class LSVMStandardMIPTest {
 	}
 
 	@Test
-	public void testDefaultSetupEasySeed() {
+	public void testLegacyDefaultSetupEasySeed() {
 		// reference runtime approx 2 seconds
-		testDefaultSetup(1498246131808L);
+		testLegacyDefaultSetup(1498246131808L);
 	}
 
 	@Test
-	public void testDefaultSetupMediumSeed() {
+	public void testLegacyDefaultSetupMediumSeed() {
 		// reference runtime approx 1 minute
-		testDefaultSetup(1498247338147L);
+		testLegacyDefaultSetup(1498247338147L);
 	}
 
-	// @Test -> Uncomment to test the hard seed
-	public void testDefaultSetupHardSeed() {
+	@Test
+	@Ignore // -> Remove to test the hard seed
+	public void testLegacyDefaultSetupHardSeed() {
 		// hardest known seed -> reference runtime approx 15 minutes
-		testDefaultSetup(1498249317254L);
+		testLegacyDefaultSetup(1498249317254L);
 	}
 
 	@Test
 	public void testEfficientAllocationCustomSetup() {
 		LSVMWorldSetup.LSVMWorldSetupBuilder worldSetupBuilder = new LSVMWorldSetup.LSVMWorldSetupBuilder();
+		worldSetupBuilder.setLegacyLSVM(true);
 		worldSetupBuilder.setNumberOfColumnsInterval(new IntegerInterval(3));
 		worldSetupBuilder.setNumberOfRowsInterval(new IntegerInterval(2));
 		LSVMWorldSetup setup = worldSetupBuilder.build();
@@ -58,35 +61,36 @@ public class LSVMStandardMIPTest {
 		List<LSVMBidder> population = customPopulation(world, 2, 1);
 
 		LSVMStandardMIP lsvmMIP = new LSVMStandardMIP(world, population);
-		ItemAllocation<LSVMLicense> allocation = lsvmMIP.calculateAllocation();
+		Allocation allocation = lsvmMIP.getAllocation();
 
 		testTotalValue(population, allocation);
 	}
 
-	private void testDefaultSetup(Long seed) {
+	private void testLegacyDefaultSetup(Long seed) {
 		LocalSynergyValueModel model = new LocalSynergyValueModel();
+		model.setLegacyLSVM(true);
 		LSVMWorld world = model.createWorld(seed);
-		List<LSVMBidder> population = model.createPopulation(world, seed);
+		List<LSVMBidder> population = model.createNewPopulation(world, seed);
 
 		LSVMStandardMIP lsvmMIP = new LSVMStandardMIP(world, population);
-		ItemAllocation<LSVMLicense> allocation = lsvmMIP.calculateAllocation();
+		Allocation allocation = lsvmMIP.getAllocation();
 
 		Assert.assertEquals("Error Objective Value not matching Test Data Seed: " + seed, seedMap.get(seed),
-				allocation.getTotalValue().doubleValue(), 0.0000001);
+				allocation.getTotalAllocationValue().doubleValue(), 0.0000001);
 		testTotalValue(population, allocation);
 	}
 
-	private void testTotalValue(List<LSVMBidder> population, ItemAllocation<LSVMLicense> allocation) {
+	private void testTotalValue(List<LSVMBidder> population, Allocation allocation) {
 		BigDecimal totalValue = new BigDecimal(0);
 
 		for (LSVMBidder bidder : population) {
-			Bundle<LSVMLicense> bundle = allocation.getAllocation(bidder);
+			Bundle bundle = allocation.allocationOf(bidder).getBundle();
 			totalValue = totalValue.add(bidder.calculateValue(bundle));
 		}
 
 		double delta = 0.0000001;
 		Assert.assertEquals("Values of allocated bundles don't match with objectie value of MIP ",
-				allocation.getTotalValue().doubleValue(), totalValue.doubleValue(), delta);
+				allocation.getTotalAllocationValue().doubleValue(), totalValue.doubleValue(), delta);
 	}
 
 	private List<LSVMBidder> customPopulation(LSVMWorld world, int numberOfRegionalBidders,

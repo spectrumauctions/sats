@@ -3,9 +3,9 @@ package org.spectrumauctions.sats.core.examples;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.DefaultModel;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.bvm.bvm.BaseValueModel;
 import org.spectrumauctions.sats.core.model.bvm.mbvm.MultiBandValueModel;
@@ -17,6 +17,7 @@ import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class SimpleModelAccessorsExample {
     public void exampleOne() {
         SingleRegionModel singleRegionModel = new SingleRegionModel();
         SRVMWorld world = singleRegionModel.createWorld();
-        List<SRVMBidder> bidders = singleRegionModel.createPopulation(world);
+        List<SRVMBidder> bidders = singleRegionModel.createNewPopulation(world);
         treatBidders(bidders);
     }
 
@@ -56,7 +57,7 @@ public class SimpleModelAccessorsExample {
         singleRegionModel.setNumberOfPrimaryBidders(2);
         singleRegionModel.setNumberOfSecondaryBidders(0);
         singleRegionModel.setNumberOfSmallBidders(0);
-        List<SRVMBidder> bidders = singleRegionModel.createPopulation(world);
+        List<SRVMBidder> bidders = singleRegionModel.createNewPopulation(world);
         treatBidders(bidders);
     }
 
@@ -100,21 +101,21 @@ public class SimpleModelAccessorsExample {
                 anyModel = new SingleRegionModel();
         }
         World world = anyModel.createWorld();
-        List<Bidder> bidders = anyModel.createPopulation(world);
+        List<SATSBidder> bidders = anyModel.createNewPopulation(world);
         treatBidders(bidders);
     }
 
     /**
      * Writes, for every passed bidder, his value for getting all licenses to the console.
      */
-    public static void treatBidders(Collection<? extends Bidder> bidders) {
-        Optional<? extends Bidder> anyBidder = bidders.stream().findAny();
+    public static void treatBidders(Collection<? extends SATSBidder> bidders) {
+        Optional<? extends SATSBidder> anyBidder = bidders.stream().findAny();
         if (anyBidder.isPresent()) {
             World world = anyBidder.get().getWorld();
-            Bundle fullBundle = new Bundle<>(world.getLicenses());
-            for (Bidder bidder : bidders) {
+            Bundle fullBundle = Bundle.of(world.getLicenses());
+            for (SATSBidder bidder : bidders) {
                 BigDecimal val = bidder.calculateValue(fullBundle);
-                logger.info("bidder " + bidder.getId() + "has the following value for getting all licenses: " + val.toString());
+                logger.info("bidder " + bidder.getLongId() + "has the following value for getting all licenses: " + val.setScale(2, RoundingMode.HALF_UP));
             }
         } else {
             logger.info("No bidder created");

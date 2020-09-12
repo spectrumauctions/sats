@@ -7,8 +7,9 @@ package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
 import org.jgrapht.GraphPath;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.FloydWarshallShortestPaths;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
+import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
 import org.jgrapht.graph.*;
 import org.spectrumauctions.sats.core.util.random.GaussianDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -23,20 +24,20 @@ import java.util.*;
 public class MRVMRegionsMap implements Serializable {
 
     private static final long serialVersionUID = -7539511827334949347L;
-    private final UnmodifiableUndirectedGraph<Region, DefaultEdge> adjacencyGraph;
+    private final Graph<Region, DefaultEdge> adjacencyGraph;
     private transient FloydWarshallShortestPaths<Region, DefaultEdge> floyedWarshallDistances = null;
 
 
     public MRVMRegionsMap(MRVMWorldSetup worldStructure, RNGSupplier rngSupplier) {
-        UndirectedGraph<MRVMWorldSetup.RegionSetup, DefaultEdge> graphStructure =
+        Graph<MRVMWorldSetup.RegionSetup, DefaultEdge> graphStructure =
                 worldStructure.drawGraphStructure(rngSupplier.getUniformDistributionRNG());
         adjacencyGraph = makeGraph(graphStructure, rngSupplier.getGaussianDistributionRNG());
 
     }
 
 
-    private UnmodifiableUndirectedGraph<Region, DefaultEdge> makeGraph(
-            UndirectedGraph<MRVMWorldSetup.RegionSetup, DefaultEdge> graphStructure,
+    private Graph<Region, DefaultEdge> makeGraph(
+            Graph<MRVMWorldSetup.RegionSetup, DefaultEdge> graphStructure,
             GaussianDistributionRNG rng) {
         SimpleGraph<Region, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
         Map<MRVMWorldSetup.RegionSetup, Region> regions = new HashMap<>();
@@ -51,7 +52,7 @@ public class MRVMRegionsMap implements Serializable {
             Region target = regions.get(graphStructure.getEdgeTarget(edge));
             graph.addEdge(source, target);
         }
-        return new UnmodifiableUndirectedGraph<>(graph);
+        return graph;
     }
 
 
@@ -67,10 +68,10 @@ public class MRVMRegionsMap implements Serializable {
      */
     public int getLongestShortestPath(Region region) {
         Preconditions.checkArgument(adjacencyGraph.containsVertex(region));
-        List<GraphPath<Region, DefaultEdge>> shortestPaths = getFloyedWarshallDistances().getShortestPaths();
+        ShortestPathAlgorithm.SingleSourcePaths<Region, DefaultEdge> shortestPaths = getFloyedWarshallDistances().getPaths(region);
         int max = 0;
-        for (GraphPath<Region, DefaultEdge> candidatePath : shortestPaths) {
-            int length = candidatePath.getEdgeList().size();
+        for (Region vertex : adjacencyGraph.vertexSet()) {
+            int length = shortestPaths.getPath(vertex).getLength();
             if (length > max) {
                 max = length;
             }
@@ -92,18 +93,18 @@ public class MRVMRegionsMap implements Serializable {
         }
     }
 
-    /**
-     * Creates a new, unmodifiable regions-graph, consistent with the adjacency graph of this map,
-     * but only containing the specified set of regions as vertices.
-     * Note: The Region Instances are not copied, hence, calling {@link #getDistance(Region, Region)},
-     * {@link #adjacentRegions(Region)} and similar methods on the regions in the returned graph will return the values
-     * w.r.t. the original graph in the map.
-     */
-    protected UnmodifiableGraph<Region, DefaultEdge> getSubgraph(Set<Region> regions) {
-        Subgraph<Region, DefaultEdge, UndirectedGraph<Region, DefaultEdge>> subgraph = new Subgraph<>(
-                adjacencyGraph, regions);
-        return new UnmodifiableGraph<>(subgraph);
-    }
+//    /**
+//     * Creates a new, unmodifiable regions-graph, consistent with the adjacency graph of this map,
+//     * but only containing the specified set of regions as vertices.
+//     * Note: The Region Instances are not copied, hence, calling {@link #getDistance(Region, Region)},
+//     * {@link #adjacentRegions(Region)} and similar methods on the regions in the returned graph will return the values
+//     * w.r.t. the original graph in the map.
+//     */
+//    protected UnmodifiableGraph<Region, DefaultEdge> getSubgraph(Set<Region> regions) {
+//        Subgraph<Region, DefaultEdge, UndirectedGraph<Region, DefaultEdge>> subgraph = new Subgraph<>(
+//                adjacencyGraph, regions);
+//        return new UnmodifiableGraph<>(subgraph);
+//    }
 
 
     /**
@@ -130,7 +131,7 @@ public class MRVMRegionsMap implements Serializable {
         if (regionOne.equals(regionTwo)) {
             return 0;
         }
-        GraphPath<Region, DefaultEdge> shortestPath = getFloyedWarshallDistances().getShortestPath(regionOne, regionTwo);
+        GraphPath<Region, DefaultEdge> shortestPath = getFloyedWarshallDistances().getPath(regionOne, regionTwo);
         if (shortestPath == null) {
             //No path found, return max distance
             return getNumberOfRegions() - 1;

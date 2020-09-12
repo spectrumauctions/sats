@@ -8,7 +8,8 @@ package org.spectrumauctions.sats.opt.model.srvm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
 import org.spectrumauctions.sats.core.model.srvm.*;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
@@ -25,17 +26,17 @@ public class SRVMMipTest {
 
     @Test
     public void testNoException() {
-        Collection<SRVMBidder> bidders = (new SingleRegionModel()).createPopulation();
+        Collection<SRVMBidder> bidders = (new SingleRegionModel()).createNewWorldAndPopulation();
         SRVM_MIP mip = new SRVM_MIP(bidders);
-        SRVMMipResult result = mip.calculateAllocation();
+        Allocation result = mip.getAllocation();
         for (SRVMBidder bidder : bidders) {
-            GenericValue<SRVMBand, SRVMLicense> genVal = result.getGenericAllocation(bidder);
+            Bundle bundle = result.allocationOf(bidder).getBundle();
             for (SRVMBand band : bidder.getWorld().getBands()) {
-                Integer quantity = genVal.getQuantity(band);
-                logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
+                Integer quantity = bundle.countGood(band);
+                logger.info(new StringBuilder("bidder ").append(bidder.getLongId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }
         }
-        logger.info("Total value:" + result.getTotalValue());
+        logger.info("Total value:" + result.getTotalAllocationValue());
     }
 
     @Test
@@ -55,15 +56,15 @@ public class SRVMMipTest {
         setups.addAll(SRVMWorldGen.getSimpleHighFrequencyBidderSetup(numberOfHighfrequencyBidders));
         Collection<SRVMBidder> bidders = world.createPopulation(setups, new JavaUtilRNGSupplier(963852741L));
         SRVM_MIP mip = new SRVM_MIP(bidders);
-        SRVMMipResult result = mip.calculateAllocation();
+        Allocation result = mip.getAllocation();
         for (SRVMBidder bidder : bidders) {
-            GenericValue<SRVMBand, SRVMLicense> genVal = result.getGenericAllocation(bidder);
+            Bundle bundle = result.allocationOf(bidder).getBundle();
             for (SRVMBand band : bidder.getWorld().getBands()) {
-                Integer quantity = genVal.getQuantity(band);
-                logger.info(new StringBuilder("bidder ").append(bidder.getId()).append("\t").append(band.toString()).append("\t").append(quantity));
+                Integer quantity = bundle.countGood(band);
+                logger.info(new StringBuilder("bidder ").append(bidder.getLongId()).append("\t").append(band.toString()).append("\t").append(quantity));
             }
         }
-        logger.info("Total value:" + result.getTotalValue());
+        logger.info("Total value:" + result.getTotalAllocationValue());
     }
 
 }

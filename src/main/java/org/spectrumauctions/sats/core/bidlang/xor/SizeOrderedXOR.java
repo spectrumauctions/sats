@@ -8,54 +8,51 @@ package org.spectrumauctions.sats.core.bidlang.xor;
 import com.google.common.math.BigIntegerMath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.License;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
-public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
+public abstract class SizeOrderedXOR implements BiddingLanguage {
 
     private static final Logger logger = LogManager.getLogger(SizeOrderedXOR.class);
 
+    final List<? extends License> goods;
+    private SATSBidder bidder;
 
-    final List<T> goods = new ArrayList<>();
-    private Bidder<T> bidder;
-
-    protected SizeOrderedXOR(Collection<T> goods, Bidder<T> bidder) {
-        this.goods.addAll(goods);
+    protected SizeOrderedXOR(Collection<? extends License> goods, SATSBidder bidder) {
+        this.goods = new ArrayList<>(goods);
         this.bidder = bidder;
     }
 
     @Override
-    public Bidder<T> getBidder() {
+    public SATSBidder getBidder() {
         return bidder;
     }
 
     /**
      * @param index of the queried bundle
      */
-    public Bundle<T> getBundle(BigInteger index) {
+    public Bundle getBundle(BigInteger index) {
         String bundleRepresentation = packageRepresentation(index, goods.size()).toString();
         return getBundle(bundleRepresentation);
     }
 
-    private Bundle<T> getBundle(String bundleRepresentation) {
-        Bundle<T> result = new Bundle<>();
+    private Bundle getBundle(String bundleRepresentation) {
+        HashSet<BundleEntry> result = new HashSet<>();
         for (int i = 0; i < bundleRepresentation.length(); i++) {
             if (bundleRepresentation.charAt(i) == '1') {
-                result.add(goods.get(i));
+                result.add(new BundleEntry(goods.get(i), 1));
             }
         }
-        return result;
-    }
-
-    protected BigDecimal getValue(Bundle bundle) {
-        return getBidder().calculateValue(bundle);
+        return new Bundle(result);
     }
 
     /**
@@ -64,7 +61,7 @@ public abstract class SizeOrderedXOR<T extends Good> implements XORLanguage<T> {
      * @param size the size of the bundle
      * @return a specific bundle of given size
      */
-    public Bundle<T> getBundle(BigInteger subIndex, int size) {
+    public Bundle getBundle(BigInteger subIndex, int size) {
         // TODO check if subIndex is valid;
         String binaryString = recBinaryString(subIndex, goods.size(), size).toString();
         return getBundle(binaryString);

@@ -2,21 +2,22 @@ package org.spectrumauctions.sats.core.model.srvm;
 
 
 import com.google.common.base.Preconditions;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.NotImplementedException;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
-import org.spectrumauctions.sats.core.model.World;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
@@ -24,13 +25,17 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author Michael Weiss
  */
-public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValueBidder<SRVMBand> {
+@EqualsAndHashCode(callSuper = true)
+public final class SRVMBidder extends SATSBidder {
 
     private static final int CALCSCALE = 5;
     private static final long serialVersionUID = -4577743658098455267L;
@@ -78,7 +83,7 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
     }
 
     /* (non-Javadoc)
-     * @see Bidder#getWorld()
+     * @see SATSBidder#getWorld()
      */
     @Override
     public SRVMWorld getWorld() {
@@ -118,33 +123,30 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
         return interbandSynergyValue;
     }
 
-
     @Override
-    public BigDecimal calculateValue(Bundle<SRVMLicense> licenses) {
-        Map<SRVMBand, Integer> bandCount = new HashMap<>();
-        for (SRVMBand band : this.getWorld().getBands()) {
-            bandCount.put(band, 0);
+    public BigDecimal calculateValue(Bundle bundle) {
+        if (bundle.getBundleEntries().isEmpty()) return BigDecimal.ZERO;
+        // First, if there are only single licenses, construct the generic map
+        Map<Good, Integer> combined = new HashMap<>();
+        for (BundleEntry bundleEntry : bundle.getBundleEntries()) {
+            if (bundleEntry.getGood() instanceof SRVMLicense) {
+                Good band = getWorld().getGenericDefinitionOf((License) bundleEntry.getGood());
+                combined.put(band, combined.getOrDefault(band, 0) + 1);
+            } else if (bundleEntry.getGood() instanceof SRVMBand) {
+                Good band = bundleEntry.getGood();
+                combined.put(band, combined.getOrDefault(band, 0) + bundleEntry.getAmount());
+            } else {
+                throw new WrongConfigException("A good specified in a bundle is neither a SRVMLicense nor a SRVMBand!");
+            }
         }
-        for (SRVMLicense license : licenses) {
-            bandCount.put(license.getBand(), bandCount.get(license.getBand()) + 1);
-        }
-        return calculateValue(bandCount);
-    }
 
-
-    /**
-     * @see GenericValueBidder#calculateValue(java.util.Map)
-     */
-    @Override
-    public BigDecimal calculateValue(Map<SRVMBand, Integer> genericQuantities) {
+        bundle = new Bundle(combined);
         BigDecimal bandValuesSum = BigDecimal.ZERO;
         //We count the number of bands with more than 0 licenses in this bundle
         int synergyBandCount = 0;
-        for (Entry<SRVMBand, Integer> entry : genericQuantities.entrySet()) {
-            if (entry.getValue() != 0) {
-                bandValuesSum = bandValuesSum.add(getBandValue(entry.getKey(), entry.getValue()));
-                synergyBandCount++;
-            }
+        for (BundleEntry entry : bundle.getBundleEntries()) {
+            bandValuesSum = bandValuesSum.add(getBandValue((SRVMBand) entry.getGood(), entry.getAmount()));
+            synergyBandCount++;
         }
         if (synergyBandCount >= 2) {
             // We have interband synergies
@@ -184,8 +186,8 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
     }
 
     @Override
-    public Bidder<SRVMLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new SRVMBidder((SRVMBidderSetup) getSetup(), getWorld(), getId(), getPopulation(), rngSupplier);
+    public SRVMBidder drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new SRVMBidder((SRVMBidderSetup) getSetup(), getWorld(), getLongId(), getPopulation(), rngSupplier);
     }
 
     @Override
@@ -193,13 +195,13 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
             throws UnsupportedBiddingLanguageException {
         if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
+                    new SizeBasedUniqueRandomXOR(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new IncreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(DecreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new DecreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(GenericSizeIncreasing.class)) {
             return clazz.cast(
                     SizeOrderedGenericFactory.getSizeOrderedGenericLang(true, this));
@@ -221,7 +223,7 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
     }
 
     /**
-     * @see Bidder#refreshReference(World)
+     * @see SATSBidder#refreshReference(World)
      */
     @Override
     public void refreshReference(World world) {
@@ -233,54 +235,10 @@ public final class SRVMBidder extends Bidder<SRVMLicense> implements GenericValu
         }
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((baseValues == null) ? 0 : baseValues.hashCode());
-        result = prime * result + ((bidderStrength == null) ? 0 : bidderStrength.hashCode());
-        result = prime * result + ((interbandSynergyValue == null) ? 0 : interbandSynergyValue.hashCode());
-        result = prime * result + ((intrabandSynergyFactors == null) ? 0 : intrabandSynergyFactors.hashCode());
-        result = prime * result + ((synergyThreshold == null) ? 0 : synergyThreshold.hashCode());
-        return result;
-    }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        SRVMBidder other = (SRVMBidder) obj;
-        if (baseValues == null) {
-            if (other.baseValues != null)
-                return false;
-        } else if (!baseValues.equals(other.baseValues))
-            return false;
-        if (bidderStrength == null) {
-            if (other.bidderStrength != null)
-                return false;
-        } else if (!bidderStrength.equals(other.bidderStrength))
-            return false;
-        if (interbandSynergyValue == null) {
-            if (other.interbandSynergyValue != null)
-                return false;
-        } else if (!interbandSynergyValue.equals(other.interbandSynergyValue))
-            return false;
-        if (intrabandSynergyFactors == null) {
-            if (other.intrabandSynergyFactors != null)
-                return false;
-        } else if (!intrabandSynergyFactors.equals(other.intrabandSynergyFactors))
-            return false;
-        if (synergyThreshold == null) {
-            if (other.synergyThreshold != null)
-                return false;
-        } else if (!synergyThreshold.equals(other.synergyThreshold))
-            return false;
-        return true;
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+        throw new NotImplementedException("Demand Query to be implemented");
     }
-
 
 }

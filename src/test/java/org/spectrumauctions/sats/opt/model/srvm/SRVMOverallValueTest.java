@@ -6,12 +6,10 @@
 package org.spectrumauctions.sats.opt.model.srvm;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
-import org.spectrumauctions.sats.core.model.srvm.SRVMLicense;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 
 import java.math.BigDecimal;
@@ -23,15 +21,14 @@ import java.util.List;
 public class SRVMOverallValueTest {
 
     @Test
-    @Ignore // TODO: There's still a slight difference between the values from sats-core and sats-opt
     public void mipValuesEqualSATSValues() {
-        List<SRVMBidder> bidders = new SingleRegionModel().createPopulation();
+        List<SRVMBidder> bidders = new SingleRegionModel().createNewWorldAndPopulation();
         SRVM_MIP mip = new SRVM_MIP(bidders);
-        SRVMMipResult result = mip.calculateAllocation();
+        Allocation result = mip.getAllocation();
         for (SRVMBidder bidder : bidders) {
-            GenericValue<SRVMBand, SRVMLicense> outcomeVal = result.getGenericAllocation(bidder);
-            BigDecimal satsVal = bidder.calculateValue(outcomeVal.getQuantities());
-            Assert.assertEquals(satsVal.doubleValue(), outcomeVal.getValue().doubleValue(), 0.1);
+            BidderAllocation outcome = result.allocationOf(bidder);
+            BigDecimal satsVal = bidder.calculateValue(outcome.getBundle());
+            Assert.assertEquals(satsVal.doubleValue(), outcome.getValue().doubleValue(), 0.1);
         }
     }
 }

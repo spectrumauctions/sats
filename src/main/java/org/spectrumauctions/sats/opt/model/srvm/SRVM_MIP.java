@@ -6,7 +6,9 @@
 package org.spectrumauctions.sats.opt.model.srvm;
 
 import com.google.common.base.Preconditions;
-import edu.harvard.econcs.jopt.solver.IMIPResult;
+import com.google.common.collect.Sets;
+import com.google.common.math.DoubleMath;
+import edu.harvard.econcs.jopt.solver.ISolution;
 import edu.harvard.econcs.jopt.solver.SolveParam;
 import edu.harvard.econcs.jopt.solver.client.SolverClient;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
@@ -14,27 +16,29 @@ import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValueBids;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
+import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBand;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
-import org.spectrumauctions.sats.core.model.srvm.SRVMLicense;
 import org.spectrumauctions.sats.core.model.srvm.SRVMWorld;
-import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Fabio Isler
  */
-public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense> {
+public class SRVM_MIP extends ModelMIP {
 
     private static final Logger logger = LogManager.getLogger(SRVM_MIP.class);
 
@@ -57,19 +61,19 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
         Preconditions.checkNotNull(bidders);
         Preconditions.checkArgument(bidders.size() > 0);
         world = bidders.iterator().next().getWorld();
-        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
+        getMIP().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, 0.001);
         scalingFactor = calculateScalingFactor(bidders);
         double biggestPossibleValue = biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         this.worldPartialMip = new SRVMWorldPartialMip(
                 bidders,
                 biggestPossibleValue,
                 scalingFactor);
-        worldPartialMip.appendToMip(getMip());
+        worldPartialMip.appendToMip(getMIP());
         bidderPartialMips = new HashMap<>();
         for (SRVMBidder bidder : bidders) {
             SRVMBidderPartialMIP bidderPartialMIP;
             bidderPartialMIP = new SRVMBidderPartialMIP(bidder, worldPartialMip);
-            bidderPartialMIP.appendToMip(getMip());
+            bidderPartialMIP.appendToMip(getMIP());
             bidderPartialMips.put(bidder, bidderPartialMIP);
         }
     }
@@ -92,7 +96,7 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
     public static BigDecimal biggestUnscaledPossibleValue(Collection<SRVMBidder> bidders) {
         BigDecimal biggestValue = BigDecimal.ZERO;
         for (SRVMBidder bidder : bidders) {
-            BigDecimal val = bidder.calculateValue(new Bundle<>(bidder.getWorld().getLicenses()));
+            BigDecimal val = bidder.calculateValue(Bundle.of(bidder.getWorld().getLicenses()));
             if (val.compareTo(biggestValue) > 0) {
                 biggestValue = val;
             }
@@ -101,66 +105,86 @@ public class SRVM_MIP extends ModelMIP implements WinnerDeterminator<SRVMLicense
     }
 
     public void addConstraint(Constraint constraint) {
-        getMip().add(constraint);
+        getMIP().add(constraint);
     }
 
     public void addVariable(Variable variable) {
-        getMip().add(variable);
+        getMIP().add(variable);
     }
 
 
     @Override
-    public WinnerDeterminator<SRVMLicense> getWdWithoutBidder(Bidder<SRVMLicense> bidder) {
-        Preconditions.checkArgument(bidderPartialMips.containsKey(bidder));
-        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
+    public ModelMIP getMIPWithout(Bidder bidder) {
+        SRVMBidder srvmBidder = (SRVMBidder) bidder;
+        Preconditions.checkArgument(bidderPartialMips.containsKey(srvmBidder));
+        return new SRVM_MIP(bidderPartialMips.keySet().stream().filter(b -> !b.equals(srvmBidder)).collect(Collectors.toSet()));
     }
 
     /* (non-Javadoc)
      * @see EfficientAllocator#calculateEfficientAllocation()
      */
     @Override
-    public SRVMMipResult calculateAllocation() {
-        IMIPResult mipResult = SOLVER.solve(getMip());
+    public Allocation adaptMIPResult(ISolution solution) {
         if (PRINT_SOLVER_RESULT) {
-            logger.info("Result:\n" + mipResult);
+            logger.info("Result:\n" + solution);
         }
-        SRVMMipResult.Builder resultBuilder = new SRVMMipResult.Builder(world, mipResult);
+        Map<Bidder, BidderAllocation> bidderAllocationMap = new HashMap<>();
         for (SRVMBidder bidder : bidderPartialMips.keySet()) {
             double unscaledValue = 0;
             for (SRVMBand band : world.getBands()) {
                 Variable bidderVmVar = worldPartialMip.getVmVariable(bidder, band);
-                double mipVmUtilityResult = mipResult.getValue(bidderVmVar);
+                double mipVmUtilityResult = solution.getValue(bidderVmVar);
                 Variable bidderVoVar = worldPartialMip.getVoVariable(bidder, band);
-                double mipVoUtilityResult = mipResult.getValue(bidderVoVar);
+                double mipVoUtilityResult = solution.getValue(bidderVoVar);
                 double value = bidder.getInterbandSynergyValue().floatValue() * mipVmUtilityResult + mipVoUtilityResult;
-                unscaledValue = value * worldPartialMip.getScalingFactor();
+                unscaledValue += value * worldPartialMip.getScalingFactor();
             }
 
-            GenericValue.Builder<SRVMBand, SRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            Set<BundleEntry> bundleEntries = new HashSet<>();
             for (SRVMBand band : world.getBands()) {
                 Variable xVar = worldPartialMip.getXVariable(bidder, band);
-                double doubleQuantity = mipResult.getValue(xVar);
+                double doubleQuantity = solution.getValue(xVar);
                 int quantity = (int) Math.round(doubleQuantity);
-                valueBuilder.putQuantity(band, quantity);
+                if (quantity > 0) {
+                    bundleEntries.add(new BundleEntry(band, quantity));
+                }
             }
-            resultBuilder.putGenericValue(bidder, valueBuilder.build());
+
+            Bundle bundle = new Bundle(bundleEntries);
+            BigDecimal value = bidder.getValue(bundle);
+            if (!DoubleMath.fuzzyEquals(unscaledValue, value.doubleValue(), 1.0)) {
+                logger.warn("MIP value of bidder {}: {}; Actual value: {}. With very high numbers, a " +
+                                "deviation can happen. Make sure this is just a relatively small deviation, else check your MIP.",
+                        bidder.getName(),
+                        BigDecimal.valueOf(unscaledValue).setScale(4, RoundingMode.HALF_UP),
+                        value.setScale(4, RoundingMode.HALF_UP));
+            }
+            if (!bundle.equals(Bundle.EMPTY)) {
+                bidderAllocationMap.put(bidder, new BidderAllocation(value, bundle, new HashSet<>()));
+            }
         }
-        return resultBuilder.build();
+
+        MetaInfo metaInfo = new MetaInfo();
+        metaInfo.setNumberOfMIPs(1);
+        metaInfo.setMipSolveTime(solution.getSolveTime());
+
+        return new Allocation(bidderAllocationMap, new BundleExactValueBids(), metaInfo);
     }
 
     @Override
-    public WinnerDeterminator<SRVMLicense> copyOf() {
+    public ModelMIP copyOf() {
         return new SRVM_MIP(bidderPartialMips.keySet());
     }
 
     @Override
-    public void adjustPayoffs(Map<Bidder<SRVMLicense>, Double> payoffs) {
-        throw new UnsupportedOperationException("The SRVM MIP does not support CCG yet.");
-    }
-
-    @Override
-    public double getScale() {
-        return 1 / scalingFactor;
+    protected Collection<Collection<Variable>> getVariablesOfInterest() {
+        Collection<Collection<Variable>> variablesOfInterest = new HashSet<>();
+        for (SRVMBidder bidder : bidderPartialMips.keySet()) {
+            for (SRVMBand band : world.getBands()) {
+                variablesOfInterest.add(Sets.newHashSet(worldPartialMip.getXVariable(bidder, band)));
+            }
+        }
+        return variablesOfInterest;
     }
 
     public SRVMWorldPartialMip getWorldPartialMip() {

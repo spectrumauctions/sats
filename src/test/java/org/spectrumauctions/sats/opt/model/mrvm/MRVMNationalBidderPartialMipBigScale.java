@@ -35,7 +35,7 @@ public class MRVMNationalBidderPartialMipBigScale {
         model.setNumberOfNationalBidders(3);
         model.setNumberOfLocalBidders(0);
         model.setNumberOfRegionalBidders(0);
-        Collection<MRVMBidder> bidders = model.createPopulation(5413646L);
+        Collection<MRVMBidder> bidders = model.createNewWorldAndPopulation(5413646L);
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
@@ -59,7 +59,7 @@ public class MRVMNationalBidderPartialMipBigScale {
         model.setNumberOfNationalBidders(3);
         model.setNumberOfLocalBidders(0);
         model.setNumberOfRegionalBidders(0);
-        Collection<MRVMBidder> bidders = model.createPopulation(5413646L);
+        Collection<MRVMBidder> bidders = model.createNewWorldAndPopulation(5413646L);
         MRVMWorld world = bidders.iterator().next().getWorld();
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
@@ -124,7 +124,7 @@ public class MRVMNationalBidderPartialMipBigScale {
         model.setNumberOfNationalBidders(3);
         model.setNumberOfLocalBidders(0);
         model.setNumberOfRegionalBidders(0);
-        Collection<MRVMBidder> bidders = model.createPopulation(5413646L);
+        Collection<MRVMBidder> bidders = model.createNewWorldAndPopulation(5413646L);
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;
         MRVMWorldPartialMip worldPartialMip = new MRVMWorldPartialMip(bidders, biggestScaledValue);
@@ -186,7 +186,7 @@ public class MRVMNationalBidderPartialMipBigScale {
         model.setNumberOfNationalBidders(1);
         model.setNumberOfLocalBidders(0);
         model.setNumberOfRegionalBidders(0);
-        Collection<MRVMBidder> bidders = model.createPopulation(5413646L);
+        Collection<MRVMBidder> bidders = model.createNewWorldAndPopulation(5413646L);
         MRVMWorld world = bidders.iterator().next().getWorld();
         double scalingFactor = Scalor.scalingFactor(bidders);
         double biggestScaledValue = Scalor.biggestUnscaledPossibleValue(bidders).doubleValue() / scalingFactor;

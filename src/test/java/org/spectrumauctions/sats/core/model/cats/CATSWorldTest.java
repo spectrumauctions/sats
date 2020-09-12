@@ -6,6 +6,7 @@ import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -41,8 +42,8 @@ public class CATSWorldTest {
         builder.setNumberOfRowsInterval(new IntegerInterval(3));
         builder.setNumberOfColumnsInterval(new IntegerInterval(5));
         CATSWorld world1 = new CATSWorld(builder.build(), new JavaUtilRNGSupplier());
-        Set<CATSLicense> licenses = world1.getLicenses();
-        Assert.assertTrue(licenses.size() == 15);
+        List<CATSLicense> licenses = world1.getLicenses();
+        Assert.assertEquals(15, licenses.size());
         Assert.assertFalse(world1.getUseQuadraticPricingOption());
     }
 
@@ -61,7 +62,7 @@ public class CATSWorldTest {
         builder.setCommonValueInterval(new DoubleInterval(0, 5));
         builder.setUseQuadraticPricingOption(true);
         CATSWorld world1 = new CATSWorld(builder.build(), new JavaUtilRNGSupplier());
-        Set<CATSLicense> licenses = world1.getLicenses();
+        List<CATSLicense> licenses = world1.getLicenses();
         Assert.assertEquals(licenses.size(), 6);
         Assert.assertEquals(world1.getAdditivity(), 0.5, 0);
         Assert.assertTrue(world1.getUseQuadraticPricingOption());
@@ -84,7 +85,7 @@ public class CATSWorldTest {
         // This will override the previously set number of rows / columns
         builder.setNumberOfGoodsInterval(new IntegerInterval(25));
         CATSWorld world1 = new CATSWorld(builder.build(), new JavaUtilRNGSupplier());
-        Set<CATSLicense> licenses = world1.getLicenses();
+        List<CATSLicense> licenses = world1.getLicenses();
         Assert.assertEquals(licenses.size(), 25);
         Assert.assertEquals(world1.getNumberOfGoods(), 25);
         Assert.assertEquals(world1.getAdditivity(), 0.5, 0);

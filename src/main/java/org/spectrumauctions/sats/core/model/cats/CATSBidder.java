@@ -2,27 +2,36 @@ package org.spectrumauctions.sats.core.model.cats;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.NotImplementedException;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
+import org.marketdesignresearch.mechlib.core.price.Prices;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
 import org.spectrumauctions.sats.core.bidlang.xor.CatsXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.DecreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
-import org.spectrumauctions.sats.core.model.*;
-import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
+import org.spectrumauctions.sats.core.model.SATSBidder;
+import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
+import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 /**
  * @author Fabio Isler
  */
-public final class CATSBidder extends Bidder<CATSLicense> {
+@EqualsAndHashCode(callSuper = true)
+public final class CATSBidder extends SATSBidder {
 
     private static final long serialVersionUID = -6762037404466323951L;
     private final HashMap<Long, BigDecimal> privateValues;
+    @EqualsAndHashCode.Exclude
     private transient CATSWorld world;
+    @EqualsAndHashCode.Exclude
     private transient ImmutableMap<Long, BigDecimal> privateValueMap;
 
 
@@ -34,12 +43,13 @@ public final class CATSBidder extends Bidder<CATSLicense> {
     }
 
     @Override
-    public BigDecimal calculateValue(Bundle<CATSLicense> bundle) {
+    public BigDecimal calculateValue(Bundle bundle) {
         double value = 0;
-        for (CATSLicense license : bundle) {
-            if (this.privateValues.containsKey(license.getId())) {
+        for (Good good : bundle.getSingleQuantityGoods()) {
+            CATSLicense license = (CATSLicense) good;
+            if (this.privateValues.containsKey(license.getLongId())) {
                 value += license.getCommonValue();
-                value += this.privateValues.get(license.getId()).doubleValue();
+                value += this.privateValues.get(license.getLongId()).doubleValue();
                 /*
                  * This quadratic pricing option doesn't seem to be implemented in CATS, just mentioned in the paper.
                  * This is how we assume it would have been implemented, according to the author's remarks.
@@ -50,9 +60,9 @@ public final class CATSBidder extends Bidder<CATSLicense> {
             }
         }
         if (!getWorld().getUseQuadraticPricingOption()) {
-            value += Math.pow(bundle.size(), 1 + world.getAdditivity());
+            value += Math.pow(bundle.getSingleQuantityGoods().size(), 1 + world.getAdditivity());
         }
-        return new BigDecimal(value);
+        return BigDecimal.valueOf(value);
     }
 
 
@@ -62,15 +72,13 @@ public final class CATSBidder extends Bidder<CATSLicense> {
             return clazz.cast(new CatsXOR(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(SizeBasedUniqueRandomXOR.class)) {
             return clazz.cast(
-                    new SizeBasedUniqueRandomXOR<>(world.getLicenses(), rngSupplier, this));
+                    new SizeBasedUniqueRandomXOR(world.getLicenses(), rngSupplier, this));
         } else if (clazz.isAssignableFrom(IncreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new IncreasingSizeOrderedXOR<>(world.getLicenses(), this));
+                    new IncreasingSizeOrderedXOR(world.getLicenses(), this));
         } else if (clazz.isAssignableFrom(DecreasingSizeOrderedXOR.class)) {
             return clazz.cast(
-                    new DecreasingSizeOrderedXOR<>(world.getLicenses(), this));
-        } else if (GenericLang.class.isAssignableFrom(clazz)) {
-            throw new IncompatibleBiddingLanguageException("CATS is not suitable for XOR-Q, as it doesn't have generic items");
+                    new DecreasingSizeOrderedXOR(world.getLicenses(), this));
         } else {
             throw new UnsupportedBiddingLanguageException();
         }
@@ -99,8 +107,12 @@ public final class CATSBidder extends Bidder<CATSLicense> {
     }
 
     @Override
-    public Bidder<CATSLicense> drawSimilarBidder(RNGSupplier rngSupplier) {
-        return new CATSBidder((CATSBidderSetup) getSetup(), getWorld(), getId(), getPopulation(), rngSupplier);
+    public SATSBidder drawSimilarBidder(RNGSupplier rngSupplier) {
+        return new CATSBidder((CATSBidderSetup) getSetup(), getWorld(), getLongId(), getPopulation(), rngSupplier);
     }
 
+    @Override
+    public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
+        throw new NotImplementedException("Demand Query to be implemented");
+    }
 }

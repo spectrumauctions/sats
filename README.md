@@ -43,7 +43,7 @@ The SATS source code consists of three sub-modules:
 Since v0.6.0, these sub-modules are merged into a single module called `sats`.
 
 ## Prerequisites
-* Java 8 (or later)
+* Java 11 (or later)
 
 ## Getting started with the SATS Core API
 You can use the SATS Core API as a library in your own java project.
@@ -55,9 +55,10 @@ The complete `sats` package is deployed to Maven Central, so including it in you
 <dependency>
     <groupId>org.spectrumauctions</groupId>
     <artifactId>sats</artifactId>
-    <version>0.6.2</version>
+    <version>x.y.z</version>
 </dependency>
 ```
+(replace `x.y.z` with the [release version](https://github.com/spectrumauctions/sats/releases/) you'd like to use)
 
 Alternatively, if you don't use Maven nor Gradle, you can also simply download the newest version's JAR and include it in your project.
 The JAR is published along with the [release](https://github.com/spectrumauctions/sats/releases/).

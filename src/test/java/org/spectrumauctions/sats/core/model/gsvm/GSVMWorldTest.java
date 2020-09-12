@@ -18,9 +18,9 @@ public class GSVMWorldTest {
         // Directly create standard world through model
         GlobalSynergyValueModel model = new GlobalSynergyValueModel();
         GSVMWorld world1 = model.createWorld(new JavaUtilRNGSupplier(983742L));
-        Assert.assertTrue(world1.getNationalCircle().getSize() == 12);
-        Assert.assertTrue(world1.getRegionalCircle().getSize() == 6);
-        Assert.assertTrue(world1.getLicenses().size() == 18);
+        Assert.assertEquals(12, world1.getNationalCircle().getSize());
+        Assert.assertEquals(6, world1.getRegionalCircle().getSize());
+        Assert.assertEquals(18, world1.getLicenses().size());
 
         // Create standard world with a builder
         GSVMWorldSetup.GSVMWorldSetupBuilder builder = new GSVMWorldSetup.GSVMWorldSetupBuilder();
@@ -40,18 +40,18 @@ public class GSVMWorldTest {
         // Single value as interval
         builder.setSizeInterval(new IntegerInterval(9));
         GSVMWorld world1 = new GSVMWorld(builder.build(), new JavaUtilRNGSupplier(983742L));
-        Assert.assertTrue(world1.getSize() == 9);
-        Assert.assertTrue(world1.getLicenses().size() == 27);
+        Assert.assertEquals(9, world1.getSize());
+        Assert.assertEquals(27, world1.getLicenses().size());
 
         // Actual interval
         builder.setSizeInterval(new IntegerInterval(3, 12));
         GSVMWorld world2 = new GSVMWorld(builder.build(), new JavaUtilRNGSupplier(983742L));
-        Assert.assertTrue(world2.getSize() == 11);
-        Assert.assertTrue(world2.getLicenses().size() == 33);
+        Assert.assertEquals(11, world2.getSize());
+        Assert.assertEquals(33, world2.getLicenses().size());
 
         // Another seed
         GSVMWorld world3 = new GSVMWorld(builder.build(), new JavaUtilRNGSupplier(963742L));
-        Assert.assertTrue(world3.getSize() == 3);
-        Assert.assertTrue(world3.getLicenses().size() == 9);
+        Assert.assertEquals(3, world3.getSize());
+        Assert.assertEquals(9, world3.getLicenses().size());
     }
 }

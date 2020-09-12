@@ -7,6 +7,7 @@ package org.spectrumauctions.sats.core.model;
 
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import java.util.List;
 
@@ -14,15 +15,14 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public abstract class DefaultModel<W extends World, B extends Bidder<? extends Good>> {
+public abstract class DefaultModel<W extends World, B extends SATSBidder> {
 
     /**
      * Creates a new {@link World}
+     * @param worldSeed A rng supplier for random creation of world parameters
      * @return a new world
      */
-    public W createWorld() {
-        return createWorld(new JavaUtilRNGSupplier());
-    }
+    public abstract W createWorld(RNGSupplier worldSeed);
 
     /**
      * Creates a new {@link World}
@@ -35,63 +35,100 @@ public abstract class DefaultModel<W extends World, B extends Bidder<? extends G
 
     /**
      * Creates a new {@link World}
-     * @param worldSeed A rng supplier for random creation of world parameters
      * @return a new world
      */
-    public abstract W createWorld(RNGSupplier worldSeed);
-
-    /**
-     * Creates a new set of {@link Bidder} instances randomly
-     * @return a new set of bidders
-     */
-    public List<B> createPopulation() {
-        return createPopulation(createWorld());
+    public W createWorld() {
+    	return createWorld(new JavaUtilRNGSupplier());
     }
 
     /**
-     * Creates a new set of {@link Bidder} instances
-     * @param world The world for which the bidders are created
-     * @return a new set of bidders
-     */
-    public List<B> createPopulation(W world) {
-        return createPopulation(world, new JavaUtilRNGSupplier());
-    }
-
-    /**
-     * Creates a new set of {@link Bidder} instances
-     * @param world The world for which the bidders are created
-     * @param populationSeed A seed for random creation of bidder parameters
-     * @return a new set of bidders
-     */
-    public List<B> createPopulation(W world, long populationSeed) {
-        return createPopulation(world, new JavaUtilRNGSupplier(populationSeed));
-    }
-
-    /**
-     * Creates a new set of {@link Bidder} instances
-     * @param worldSeed The seed for random creation of the world for which the bidders are created
-     * @param populationSeed A seed for random creation of bidder parameters
-     * @return a new set of bidders
-     */
-    public List<B> createPopulation(long worldSeed, long populationSeed) {
-        return createPopulation(createWorld(worldSeed), populationSeed);
-    }
-
-    /**
-     * Creates a new set of {@link Bidder} instances
-     * @param superSeed The seed for random creation of the world and the bidders
-     * @return a new set of bidders
-     */
-    public List<B> createPopulation(long superSeed) {
-        return createPopulation(createWorld(superSeed), superSeed);
-    }
-
-    /**
-     * Creates a new set of {@link Bidder} instances
+     * Creates a new set of {@link SATSBidder} instances
      * @param world the {@link World} for which the bidders are created
      * @param populationRNG a rng supplier for the creation of random bidder parameters
      * @return a new set of bidders
      */
     public abstract List<B> createPopulation(W world, RNGSupplier populationRNG);
+
+    /**
+     * Default version if you do not have to keep track of the seeds of your auction instance.
+     * Note your experiments will not be repeatable with this version.
+     * Creates a new set of {@link SATSBidder} instances
+     * @return a new set of bidders
+     */
+    public List<B> createNewWorldAndPopulation() {
+    	return createNewWorldAndPopulation(new JavaUtilRNGSupplier());
+    }
+
+    /**
+     * Default version if you want to keep track of the seeds of your auction instances.
+     * In practice you want you to use this version to achieve repeatable experiments. 
+     * Creates a new set of {@link SATSBidder} instances
+     * @param seed the seed for the RNG
+     * @return a new set of bidders
+     */
+    public List<B> createNewWorldAndPopulation(long seed) {
+        return createNewWorldAndPopulation(seed, seed+1);
+    }
+
+    /**
+     * 
+     * Creates a new set of {@link SATSBidder} instances for a newly generated {@link World} instance
+     * @param rngSupplier A rng supplier for random creation of both world parameters and bidder paramters
+     * @return a new set of bidders
+     */
+    @Deprecated
+    public List<B> createNewWorldAndPopulation(RNGSupplier rngSupplier) {
+        UniformDistributionRNG rng = rngSupplier.getUniformDistributionRNG();
+        JavaUtilRNGSupplier worldSupplier = new JavaUtilRNGSupplier(rng.nextLong());
+        JavaUtilRNGSupplier populationSupplier = new JavaUtilRNGSupplier(rng.nextLong());
+        return createNewWorldAndPopulation(worldSupplier, populationSupplier);
+    }
+
+    /**
+     * Creates a new set of {@link SATSBidder} instances for a newly generated {@link World} instance
+     * If you are only interested in one population of the world you might rather use the method, 
+     * where you only provide one seed. When you are interested in different populations of the same
+     * world you may use the method where you provide the already created world
+     * @param worldSeed A seed for random creation of world parameters
+     * @param populationSeed A seed for random creation of bidder parameters
+     * @return a new set of bidders
+     * @see #createNewWorldAndPopulation(long)
+     * @see #createNewPopulation(World, long)
+     */
+    @Deprecated
+    public List<B> createNewWorldAndPopulation(long worldSeed, long populationSeed) {
+        return createNewWorldAndPopulation(new JavaUtilRNGSupplier(worldSeed), new JavaUtilRNGSupplier(populationSeed));
+    }
+
+    /**
+     * Creates a new set of {@link SATSBidder} instances for a newly generated {@link World} instance
+     * @param worldRNG A rng supplier for random creation of world parameters
+     * @param populationRNG A rng supplier for randmon creation of bidder parameters
+     * @return a new set of bidders
+     */
+    public List<B> createNewWorldAndPopulation(RNGSupplier worldRNG, RNGSupplier populationRNG) {
+        W world = createWorld(worldRNG);
+        return createPopulation(world, populationRNG);
+    }
+
+    /**
+     * Creates a new set of {@link SATSBidder} instances
+     * @param world The world for which the bidders are created
+     * @param populationSeed A seed for random creation of bidder parameters
+     * @return a new set of bidders
+     */
+    public List<B> createNewPopulation(W world, long populationSeed) {
+        return createPopulation(world, new JavaUtilRNGSupplier(populationSeed));
+    }
+
+    /**
+     * Creates a new set of {@link SATSBidder} instances
+     * @param world The world for which the bidders are created
+     * @return a new set of bidders
+     */
+    public List<B> createNewPopulation(W world) {
+        return createPopulation(world, new JavaUtilRNGSupplier());
+    }
+
 
 }

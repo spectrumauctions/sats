@@ -1,64 +1,63 @@
 package org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
+import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.*;
 import java.util.Map.Entry;
 
-public abstract class GenericPowerset<T extends GenericDefinition<S>, S extends Good> implements GenericLang<T, S> {
+public abstract class GenericPowerset implements BiddingLanguage {
 
-    final Map<T, Integer> maxQuantities;
+    final Map<GenericGood, Integer> maxQuantities;
     final int maxBundleSize;
 
-    protected GenericPowerset(List<T> genericDefinitions) throws UnsupportedBiddingLanguageException {
+    protected GenericPowerset(List<? extends GenericGood> genericGoods) throws UnsupportedBiddingLanguageException {
         super();
-        Map<T, Integer> orderedMap = new LinkedHashMap<>();
-        int quantitySum = 0;
-        for (T def : genericDefinitions) {
-            quantitySum += def.numberOfLicenses();
-            orderedMap.put(def, def.numberOfLicenses());
+        Map<GenericGood, Integer> orderedMap = new LinkedHashMap<>();
+        for (GenericGood good : genericGoods) {
+            orderedMap.put(good, good.getQuantity());
         }
         this.maxQuantities = Collections.unmodifiableMap(orderedMap);
-        this.maxBundleSize = quantitySum;
-        isFeasibleSize(maxQuantities, maxBundleSize);
+        this.maxBundleSize = genericGoods.stream().mapToInt(GenericGood::getQuantity).sum();
+        isFeasibleSize(orderedMap, maxBundleSize);
     }
 
-    GenericPowerset(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
+    GenericPowerset(Map<? extends GenericGood, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
         super();
-        isFeasibleSize(maxQuantities, maxBundleSize);
-        this.maxQuantities = Collections.unmodifiableMap(new LinkedHashMap<>(maxQuantities));
+        this.maxQuantities = Collections.unmodifiableMap(maxQuantities);
         this.maxBundleSize = maxBundleSize;
+        isFeasibleSize(maxQuantities, maxBundleSize);
     }
 
-    protected abstract void isFeasibleSize(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException;
+    protected abstract void isFeasibleSize(Map<? extends GenericGood, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException;
 
-    protected abstract GenericValueBidder<T> getGenericBidder();
-
-    abstract class PowersetIterator implements Iterator<GenericValue<T, S>> {
+    abstract class PowersetIterator implements Iterator<BundleValue> {
 
 
         int bundleSize;
-        GenericSetsPickN<T> pickN;
+        GenericSetsPickN<GenericGood> pickN;
 
         /**
          * @see java.util.Iterator#next()
          */
         @Override
-        public GenericValue<T, S> next() {
+        public BundleValue next() {
             if (!pickN.hasNext()) {
                 intiPickN();
             }
-            Map<T, Integer> quantities = pickN.next();
-            GenericValue.Builder<T, S> genValBuilder = new GenericValue.Builder<>(getGenericBidder());
-            for (Entry<T, Integer> entry : quantities.entrySet()) {
-                genValBuilder.putQuantity(entry.getKey(), entry.getValue());
+            Map<GenericGood, Integer> quantities = pickN.next();
+            HashSet<BundleEntry> bundleEntries = new HashSet<>();
+            for (Entry<GenericGood, Integer> entry : quantities.entrySet()) {
+                if (entry.getValue() > 0) {
+                    bundleEntries.add(new BundleEntry(entry.getKey(), entry.getValue()));
+                }
             }
-            return genValBuilder.build();
+            Bundle bundle = new Bundle(bundleEntries);
+            return new BundleValue(getBidder().calculateValue(bundle), bundle);
         }
 
         abstract void intiPickN();

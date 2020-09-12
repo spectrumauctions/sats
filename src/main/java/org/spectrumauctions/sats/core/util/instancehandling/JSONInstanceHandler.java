@@ -5,7 +5,7 @@
  */
 package org.spectrumauctions.sats.core.util.instancehandling;
 
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.CacheMap;
 import org.spectrumauctions.sats.core.util.file.FileException;
@@ -13,10 +13,7 @@ import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 import org.spectrumauctions.sats.core.util.file.gson.GsonWrapper;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Weiss
@@ -25,7 +22,6 @@ import java.util.Set;
 public class JSONInstanceHandler extends InstanceHandler {
 
     private FilePathUtils pathUtils = FilePathUtils.getInstance();
-    private GsonWrapper gson = GsonWrapper.getInstance();
 
     private static JSONInstanceHandler instance;
 
@@ -51,20 +47,20 @@ public class JSONInstanceHandler extends InstanceHandler {
     @Override
     public void writeWorld(World world) {
         File file = pathUtils.worldFilePath(world.getId());
-        String json = gson.toJson(world);
+        String json = new GsonWrapper().toJson(world);
         pathUtils.writeStringToFile(file, json);
     }
 
     /* (non-Javadoc)
-     * @see InstanceHandler#writeBidder(Bidder)
+     * @see InstanceHandler#writeBidder(SATSBidder)
      */
     @Override
-    public void writeBidder(Bidder<?> bidder) {
+    public void writeBidder(SATSBidder bidder) {
         File file = pathUtils.bidderFilePath(
                 bidder.getWorld().getId(),
                 bidder.getPopulation(),
-                bidder.getId());
-        String json = gson.toJson(bidder);
+                bidder.getLongId());
+        String json = new GsonWrapper().toJson(bidder);
         pathUtils.writeStringToFile(file, json);
     }
 
@@ -81,15 +77,18 @@ public class JSONInstanceHandler extends InstanceHandler {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Bidder<?>> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId,
-                                                             long bidderId) {
+    public <T extends SATSBidder> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId,
+                                                                 long bidderId) {
         File file = pathUtils.bidderFilePath(world.getId(), populationId, bidderId);
         String json = pathUtils.readFileToString(file);
+        
+        GsonWrapper gson = new GsonWrapper();
+        gson.setWorld(world);
         Class<?> type = gson.readClass(json);
         Object obj = gson.fromJson(type, json);
 
         if (bidderSuperType.isAssignableFrom(obj.getClass())) {
-            Bidder bidder = (T) obj;
+            SATSBidder bidder = (T) obj;
             bidder.refreshReference(world);
             return (T) bidder;
 
@@ -102,8 +101,10 @@ public class JSONInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readBidder(java.lang.Class, int, int, int)
      */
     @Override
-    public <T extends Bidder<?>> T readBidder(Class<T> type, World world, long populationId, long bidderId) {
+    public <T extends SATSBidder> T readBidder(Class<T> type, World world, long populationId, long bidderId) {
         File file = pathUtils.bidderFilePath(world.getId(), populationId, bidderId);
+        GsonWrapper gson = new GsonWrapper();
+        gson.setWorld(world);
         String json = pathUtils.readFileToString(file);
         T bidder = gson.fromJson(type, json);
         bidder.refreshReference(world);
@@ -114,9 +115,9 @@ public class JSONInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readPopulation(java.util.Map, int, int)
      */
     @Override
-    public <T extends Bidder<?>> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
-                                                                              long populationId) {
-        Set<T> bidders = new HashSet<>();
+    public <T extends SATSBidder> List<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world,
+                                                                         long populationId) {
+        List<T> bidders = new ArrayList<>();
         Collection<Long> bidderIds = pathUtils.getBidderIds(world.getId(), populationId);
         for (long bidderId : bidderIds) {
             bidders.add(readBidderWithUnknownType(bidderSuperType, world, populationId, bidderId));
@@ -128,7 +129,7 @@ public class JSONInstanceHandler extends InstanceHandler {
      * @see InstanceHandler#readPopulation(java.lang.Class, int, int)
      */
     @Override
-    public <T extends Bidder<?>> Collection<T> readPopulation(Class<T> type, World world, long populationId) {
+    public <T extends SATSBidder> Collection<T> readPopulation(Class<T> type, World world, long populationId) {
         Set<T> bidders = new HashSet<>();
         Collection<Long> bidderIds = pathUtils.getBidderIds(world.getId(), populationId);
         for (long bidderId : bidderIds) {
@@ -200,7 +201,7 @@ public class JSONInstanceHandler extends InstanceHandler {
     @Override
     public <T extends World> T readWorld(Class<T> type, long worldId) {
         String json = pathUtils.readFileToString(pathUtils.worldFilePath(worldId));
-        T world = gson.fromJson(type, json);
+        T world = new GsonWrapper().fromJson(type, json);
         world.refreshFieldBackReferences();
         return world;
     }

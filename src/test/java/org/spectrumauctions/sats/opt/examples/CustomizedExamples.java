@@ -5,11 +5,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.core.Allocation;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
-import org.spectrumauctions.sats.opt.model.mrvm.MRVMMipResult;
 import org.spectrumauctions.sats.opt.model.mrvm.MRVM_MIP;
 
 import java.math.BigDecimal;
@@ -31,16 +31,15 @@ public class CustomizedExamples {
      * Setting the number of bidders is possible on {@link MultiRegionModel} level.
      */
     @Test
-    @Ignore
     public void differentNumberOfBiddersMRVMExample() {
         MultiRegionModel model = new MultiRegionModel();
         model.setNumberOfLocalBidders(3);
         model.setNumberOfNationalBidders(1);
         model.setNumberOfRegionalBidders(2);
 
-        Collection<MRVMBidder> bidders = model.createPopulation();   // Create bidders
+        Collection<MRVMBidder> bidders = model.createNewWorldAndPopulation();   // Create bidders
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
-        MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
+        Allocation result = mip.getAllocation();                        // Solve the MIP
         logger.info("Result:\n" + result);                           // Show the allocation
     }
 
@@ -48,7 +47,6 @@ public class CustomizedExamples {
      * To customize the world, {@link MRVMWorldSetup} and the available builders can be used
      */
     @Test
-    @Ignore
     public void customizedWorldMRVMExample() {
         MRVMWorldSetup.MRVMWorldSetupBuilder worldSetupBuilder = new MRVMWorldSetup.MRVMWorldSetupBuilder();
 
@@ -75,7 +73,7 @@ public class CustomizedExamples {
         );
 
         // Create the world configured by the world setup
-        MRVMWorld world = new MRVMWorld(worldSetupBuilder.build(), new JavaUtilRNGSupplier());
+        MRVMWorld world = new MRVMWorld(worldSetupBuilder.build(), new JavaUtilRNGSupplier(123456789L));
 
         // Add standard bidders
         Collection<MRVMBidder> bidders = world.createPopulation(
@@ -85,15 +83,14 @@ public class CustomizedExamples {
                 new JavaUtilRNGSupplier()
         );
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
-        MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
-        logger.info("Result:\n" + result);                                            // Show the allocation
+        Allocation result = mip.getAllocation();                        // Solve the MIP
+        logger.info("Result:\n" + result);                           // Show the allocation
     }
 
     /**
      * To customize the bidders, the different {@link MRVMBidderSetup} and the available builders can be used
      */
     @Test
-    @Ignore
     public void customizedBiddersMRVMExample() {
         MRVMLocalBidderSetup.Builder localBuilder = new MRVMLocalBidderSetup.Builder();
         MRVMRegionalBidderSetup.Builder regionalBuilder = new MRVMRegionalBidderSetup.Builder();
@@ -117,8 +114,8 @@ public class CustomizedExamples {
         );
 
         MRVM_MIP mip = new MRVM_MIP(bidders);                           // Create the MIP
-        MRVMMipResult result = mip.calculateAllocation();               // Solve the MIP
-        logger.info("Result:\n" + result);                                            // Show the allocation
+        Allocation result = mip.getAllocation();                        // Solve the MIP
+        logger.info("Result:\n" + result);                           // Show the allocation
     }
 
 }

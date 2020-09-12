@@ -6,10 +6,8 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeOrdered;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SimpleRandomOrder.XORQRandomOrderSimple;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
@@ -25,62 +23,31 @@ import java.util.List;
 public class RandomOrderXORQFactory implements Serializable {
 
     private static final long serialVersionUID = 3752749595977909372L;
-    static BandComparator comparator = new BandComparator();
 
-    public static XORQRandomOrderSimple<BMBand, BMLicense> getXORQRandomOrderSimpleLang(BMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple getXORQRandomOrderSimpleLang(BMBidder bidder, RNGSupplier rngSupplier) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, rngSupplier);
     }
 
-    public static XORQRandomOrderSimple<BMBand, BMLicense> getXORQRandomOrderSimpleLang(BMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static XORQRandomOrderSimple getXORQRandomOrderSimpleLang(BMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         return new SimpleRandomOrder(bands, bidder, new JavaUtilRNGSupplier());
     }
 
 
-    private static final class SimpleRandomOrder extends XORQRandomOrderSimple<BMBand, BMLicense> {
-
+    private static final class SimpleRandomOrder extends XORQRandomOrderSimple {
 
         private final BMBidder bidder;
 
-        SimpleRandomOrder(Collection<BMBand> allPossibleGenericDefinitions, BMBidder bidder, RNGSupplier rngSupplier)
+        SimpleRandomOrder(List<BMBand> allPossibleGenericDefinitions, BMBidder bidder, RNGSupplier rngSupplier)
                 throws UnsupportedBiddingLanguageException {
             super(allPossibleGenericDefinitions, rngSupplier);
             this.bidder = bidder;
         }
 
         @Override
-        public Bidder<? extends Good> getBidder() {
+        public SATSBidder getBidder() {
             return bidder;
-        }
-
-        /**
-         * @see GenericSizeOrdered#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<BMBand> getGenericBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericSizeOrdered#getDefComparator()
-         */
-        @Override
-        protected Comparator<BMBand> getDefComparator() {
-            return comparator;
-        }
-    }
-
-    private static class BandComparator implements Comparator<BMBand>, Serializable {
-
-        private static final long serialVersionUID = -1063512022491891006L;
-
-        /**
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
-        @Override
-        public int compare(BMBand o1, BMBand o2) {
-            return o1.getName().compareTo(o2.getName());
         }
 
     }

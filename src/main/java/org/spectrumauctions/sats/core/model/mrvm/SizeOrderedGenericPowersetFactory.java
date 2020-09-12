@@ -5,12 +5,10 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowerset;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.ArrayList;
@@ -22,7 +20,7 @@ import java.util.List;
  */
 public class SizeOrderedGenericPowersetFactory {
 
-    public static GenericPowerset<MRVMGenericDefinition, MRVMLicense> getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericPowerset getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<MRVMGenericDefinition> bands = new ArrayList<>();
         for (MRVMBand band : bidder.getWorld().getBands()) {
             for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -36,7 +34,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
     }
 
-    private static final class Increasing extends GenericPowersetIncreasing<MRVMGenericDefinition, MRVMLicense> {
+    private static final class Increasing extends GenericPowersetIncreasing {
 
         private MRVMBidder bidder;
 
@@ -49,18 +47,9 @@ public class SizeOrderedGenericPowersetFactory {
         public MRVMBidder getBidder() {
             return bidder;
         }
-
-        /**
-         * @see GenericPowerset#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<MRVMGenericDefinition> getGenericBidder() {
-            return bidder;
-        }
-
     }
 
-    private static final class Decreasing extends GenericPowersetDecreasing<MRVMGenericDefinition, MRVMLicense> {
+    private static final class Decreasing extends GenericPowersetDecreasing {
 
         private MRVMBidder bidder;
 
@@ -70,15 +59,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
 
         @Override
-        public Bidder<? extends Good> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericPowerset#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<MRVMGenericDefinition> getGenericBidder() {
+        public SATSBidder getBidder() {
             return bidder;
         }
 

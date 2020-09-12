@@ -6,10 +6,12 @@
 package org.spectrumauctions.sats.core.bidlang.xor;
 
 import com.google.common.math.BigIntegerMath;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.MissingInformationException;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Bundle;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.License;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.util.random.GaussianDistributionRNG;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -19,28 +21,28 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> {
+public class SizeBasedUniqueRandomXOR implements BiddingLanguage {
     private int meanBundleSize = -1;
     private double standardDeviation = -1;
-    private Collection<T> goods;
+    private Collection<? extends License> goods;
     private long seed;
     private final RNGSupplier rngSupplier;
     private int iterations = -1;
-    private Bidder<T> bidder;
+    private SATSBidder bidder;
 
-    public SizeBasedUniqueRandomXOR(Collection<T> goods, RNGSupplier rngSupplier, Bidder<T> bidder) {
+    public SizeBasedUniqueRandomXOR(Collection<? extends License> goods, RNGSupplier rngSupplier, SATSBidder bidder) {
         this.goods = goods;
         this.seed = rngSupplier.getUniformDistributionRNG().nextLong();
         this.rngSupplier = rngSupplier;
         this.bidder = bidder;
     }
 
-    protected BigDecimal getValue(Bundle<T> goods) {
+    protected BigDecimal getValue(Bundle goods) {
         return bidder.calculateValue(goods);
     }
 
     @Override
-    public Bidder<T> getBidder() {
+    public SATSBidder getBidder() {
         return bidder;
     }
 
@@ -92,7 +94,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
      * {@link #setDistribution(int, double, int)} was not called before this operation.
      */
     @Override
-    public Iterator<XORValue<T>> iterator() {
+    public Iterator<BundleValue> iterator() {
         if (meanBundleSize < 0 || standardDeviation < 0) {
             setDefaultDistribution();
         }
@@ -123,7 +125,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
         return random;
     }
 
-    private class ValueIterator implements Iterator<XORValue<T>> {
+    private class ValueIterator implements Iterator<BundleValue> {
         final Map<Integer, SortedSet<BigInteger>> generatedBundleNumbers = new HashMap<>();
         final List<BigInteger> remainingBundles;
         final int numberOfGoods;
@@ -163,7 +165,7 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
         }
 
         @Override
-        public XORValue<T> next() {
+        public BundleValue next() {
             // Check if bundles available and update remaining number of bundles
             if (!hasNext())
                 throw new NoSuchElementException();
@@ -172,16 +174,16 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             return recNext();
         }
 
-        private XORValue<T> recNext() {
+        private BundleValue recNext() {
 
-            // Determine Bundle Size. TODO: This has to be done nicer, avoiding picking a nonexisting/nonavailable size
+            // Determine LicenseBundle Size. TODO: This has to be done nicer, avoiding picking a nonexisting/nonavailable size
             int bundleSize = (int) Math.round(gaussRng.nextGaussian(meanBundleSize, standardDeviation));
             if (bundleSize < 1 || bundleSize > goods.size())
                 return recNext();
 
             BigInteger remainingBundlesOfThisSize = remainingBundles.get(bundleSize - 1);
 
-            // Check if Bundle out of feasible range (bigger than available items or size <= 0), If so, recurse.
+            // Check if LicenseBundle out of feasible range (bigger than available items or size <= 0), If so, recurse.
             if (remainingBundlesOfThisSize == null) {
                 return recNext();
             }
@@ -207,9 +209,9 @@ public class SizeBasedUniqueRandomXOR<T extends Good> implements XORLanguage<T> 
             remainingBundles.add(bundleSize - 1, newlyAvailable);
 
             // Return result
-            SizeOrderedXOR<T> sizeOrderedXOR = new IncreasingSizeOrderedXOR<>(new Bundle<>(goods), getBidder());
-            Bundle<T> bundle = sizeOrderedXOR.getBundle(bundleId, bundleSize);
-            return new XORValue<>(bundle, getValue(bundle));
+            SizeOrderedXOR sizeOrderedXOR = new IncreasingSizeOrderedXOR(goods, getBidder());
+            Bundle bundle = sizeOrderedXOR.getBundle(bundleId, bundleSize);
+            return new BundleValue(bidder.calculateValue(bundle), bundle);
         }
     }
 

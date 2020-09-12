@@ -1,35 +1,32 @@
 package org.spectrumauctions.sats.core.model.srvm;
 
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Fabio Isler
  */
 public class SRVMBidderTest {
 
-    private static Bundle<SRVMLicense> completeBundle;
+    private static Bundle completeBundle;
     private static SRVMLicense singleLicense;
-    private static Bundle<SRVMLicense> singleLicenseBundle;
+    private static Bundle singleLicenseBundle;
 
     @BeforeClass
     public static void setUpBeforeClass() {
         SingleRegionModel model = new SingleRegionModel();
         SRVMWorld world = model.createWorld(983742L);
-        completeBundle = new Bundle<>();
-        completeBundle.addAll(world.getLicenses());
+        completeBundle = Bundle.of(world.getLicenses());
         singleLicense = world.getLicenses().iterator().next();
-        singleLicenseBundle = new Bundle<>();
-        singleLicenseBundle.add(singleLicense);
+        singleLicenseBundle = Bundle.of(singleLicense);
     }
 
     /**
@@ -39,7 +36,7 @@ public class SRVMBidderTest {
     public void testDefaultCustomBidderSetup() {
         SingleRegionModel model = new SingleRegionModel();
         SRVMWorld world = model.createWorld(983742L);
-        List<SRVMBidder> defaultPopulation = model.createPopulation(world);
+        List<SRVMBidder> defaultPopulation = model.createNewPopulation(world);
         Assert.assertEquals(defaultPopulation.size(), 7);
     }
 
@@ -56,14 +53,14 @@ public class SRVMBidderTest {
 
         SRVMBidder bidder = customPopulation.get(0);
 
-        Map<SRVMBand, Integer> quantities = new HashMap<>();
+        Set<BundleEntry> quantities = new HashSet<>();
 
         double expectedValue = 0;
 
         int synergyCount = 0;
         for (SRVMBand band : world2.getBands()) {
-            int numberOfLicenses = band.getNumberOfLicenses();
-            quantities.put(band, numberOfLicenses);
+            int numberOfLicenses = band.getQuantity();
+            quantities.add(new BundleEntry(band, numberOfLicenses));
             double baseValue = bidder.getBaseValues().get(band.getName()).doubleValue();
             double synergyThreshold = bidder.getSynergyThreshold().get(band.getName());
             double synergyFactor = bidder.getIntrabandSynergyFactors().get(band.getName()).doubleValue();
@@ -83,7 +80,7 @@ public class SRVMBidderTest {
         if (synergyCount > 1) expectedValue *= bidder.getInterbandSynergyValue().doubleValue();
 
         BigDecimal value = bidder.calculateValue(completeBundle);
-        BigDecimal compareValue = bidder.calculateValue(quantities);
+        BigDecimal compareValue = bidder.calculateValue(new Bundle(quantities));
         Assert.assertEquals(value, compareValue);
 
         Assert.assertEquals(expectedValue, value.floatValue(), 1);

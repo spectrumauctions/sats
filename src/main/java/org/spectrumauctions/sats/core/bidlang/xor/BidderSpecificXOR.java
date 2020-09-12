@@ -5,8 +5,8 @@
  */
 package org.spectrumauctions.sats.core.bidlang.xor;
 
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 
-public interface BidderSpecificXOR<T extends Good> extends XORLanguage<T> {
+public interface BidderSpecificXOR extends BiddingLanguage {
 
 }

@@ -44,4 +44,8 @@ public class GlobalSynergyValueModel extends DefaultModel<GSVMWorld, GSVMBidder>
     public void setNumberOfRegionalBidders(int numberOfBidders) {
         regionalBidderBuilder.setNumberOfBidders(numberOfBidders);
     }
+
+    public void setLegacyGSVM(boolean legacyGSVM) {
+        worldSetupBuilder.setLegacyGSVM(legacyGSVM);
+    }
 }
