@@ -7,12 +7,9 @@ package org.spectrumauctions.sats.core.api;
 
 import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.bidfile.FileWriter;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericLang;
-import org.spectrumauctions.sats.core.bidlang.xor.XORLanguage;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.model.DefaultModel;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.util.file.FilePathUtils;
 
@@ -21,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.NoSuchElementException;
 
 /**
  * @author Michael Weiss
@@ -33,7 +31,7 @@ public abstract class ModelCreator {
     private final int bidsPerBidder;
     private final long worldSeed;
     private final long populationSeed;
-    private final BiddingLanguage lang;
+    private final BiddingLanguageEnum lang;
 
     private final boolean storeWorldSerialization;
     private SeedType seedType;
@@ -86,27 +84,27 @@ public abstract class ModelCreator {
 
     protected PathResult appendTopLevelParamsAndSolve(DefaultModel<?, ?> model, File outputFolder) throws UnsupportedBiddingLanguageException, IOException, IllegalConfigException {
 
-        Collection<? extends Bidder<? extends Good>> bidders;
+        Collection<? extends SATSBidder> bidders;
         if (seedType == SeedType.INDIVIDUALSEED) {
-            bidders = model.createNewPopulation(worldSeed, populationSeed);
+            bidders = model.createNewWorldAndPopulation(worldSeed, populationSeed);
         } else if (seedType == SeedType.NOSEED) {
-            bidders = model.createNewPopulation();
+            bidders = model.createNewWorldAndPopulation();
         } else if (seedType == SeedType.SUPERSEED) {
-            bidders = model.createNewPopulation(superSeed);
+            bidders = model.createNewWorldAndPopulation(superSeed);
         } else {
             throw new IllegalConfigException("Seed type unknown");
         }
         FileWriter writer = FileType.getFileWriter(fileType, outputFolder);
 
         FilePathUtils filePathUtils = FilePathUtils.getInstance();
-        File instanceFolder = filePathUtils.worldFolderPath(bidders.stream().findAny().get().getWorldId());
+        File instanceFolder = filePathUtils.worldFolderPath(bidders.stream().findAny().orElseThrow(NoSuchElementException::new).getWorldId());
         PathResult result;
         if (generic) {
             @SuppressWarnings("unchecked")
-            Class<? extends GenericLang<GenericDefinition<? extends Good>, ?>> langClass = (Class<? extends GenericLang<GenericDefinition<? extends Good>, ?>>) BiddingLanguage.getXORQLanguage(lang);
+            Class<? extends BiddingLanguage> langClass = BiddingLanguageEnum.getXORQLanguage(lang);
             if (oneFile) {
-                Collection<GenericLang<GenericDefinition<? extends Good>, ?>> languages = new ArrayList<>();
-                for (Bidder<? extends Good> bidder : bidders) {
+                Collection<BiddingLanguage> languages = new ArrayList<>();
+                for (SATSBidder bidder : bidders) {
                     if (seedType == SeedType.SUPERSEED) {
                         languages.add(bidder.getValueFunction(langClass, superSeed));
                     } else {
@@ -118,12 +116,12 @@ public abstract class ModelCreator {
                 result.addValueFile(valueFile);
                 return result;
             } else {
-                Collection<GenericLang<GenericDefinition<? extends Good>, ?>> languages = new ArrayList<>();
+                Collection<BiddingLanguage> languages = new ArrayList<>();
                 String zipId = String.valueOf(new Date().getTime());
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();
-                for (Bidder<? extends Good> bidder : bidders) {
-                    GenericLang<GenericDefinition<? extends Good>, ?> valueFunction;
+                for (SATSBidder bidder : bidders) {
+                    BiddingLanguage valueFunction;
                     if (seedType == SeedType.SUPERSEED) {
                         valueFunction = bidder.getValueFunction(langClass, superSeed);
                     } else {
@@ -137,10 +135,10 @@ public abstract class ModelCreator {
             }
         } else {
             @SuppressWarnings("unchecked")
-            Class<? extends XORLanguage<Good>> langClass = (Class<? extends XORLanguage<Good>>) BiddingLanguage.getXORLanguage(lang);
+            Class<? extends BiddingLanguage> langClass = BiddingLanguageEnum.getXORLanguage(lang);
             if (oneFile) {
-                Collection<XORLanguage<? extends Good>> languages = new ArrayList<>();
-                for (Bidder<? extends Good> bidder : bidders) {
+                Collection<BiddingLanguage> languages = new ArrayList<>();
+                for (SATSBidder bidder : bidders) {
                     if (seedType == SeedType.SUPERSEED) {
                         languages.add(bidder.getValueFunction(langClass, superSeed));
                     } else {
@@ -155,8 +153,8 @@ public abstract class ModelCreator {
                 String zipId = String.valueOf(new Date().getTime());
                 File folder = new File(writer.getFolder().getAbsolutePath().concat(File.separator).concat(zipId));
                 folder.mkdir();
-                for (Bidder<? extends Good> bidder : bidders) {
-                    XORLanguage<Good> language;
+                for (SATSBidder bidder : bidders) {
+                    BiddingLanguage language;
                     if (seedType == SeedType.SUPERSEED) {
                         language = bidder.getValueFunction(langClass, superSeed);
                     } else {
@@ -174,7 +172,7 @@ public abstract class ModelCreator {
 
     public static abstract class Builder {
 
-        private BiddingLanguage lang;
+        private BiddingLanguageEnum lang;
         private boolean storeWorldSerialization;
         private long populationSeed;
         private long superSeed;
@@ -186,7 +184,7 @@ public abstract class ModelCreator {
         private boolean oneFile;
 
         public Builder() {
-            this.lang = BiddingLanguage.RANDOM;
+            this.lang = BiddingLanguageEnum.RANDOM;
             storeWorldSerialization = false;
             seedType = SeedType.NOSEED;
             bidsPerBidder = 100;
@@ -236,7 +234,7 @@ public abstract class ModelCreator {
             this.seedType = seedType;
         }
 
-        public void setLang(BiddingLanguage lang) {
+        public void setLang(BiddingLanguageEnum lang) {
             this.lang = lang;
         }
 

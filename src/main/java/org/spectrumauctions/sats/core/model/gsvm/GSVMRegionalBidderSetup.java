@@ -1,6 +1,9 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
+import org.marketdesignresearch.mechlib.core.allocationlimits.BundleSizeAllocationLimit;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -25,16 +28,27 @@ public class GSVMRegionalBidderSetup extends GSVMBidderSetup {
         // Add the national licenses
         for (GSVMLicense license : world.getNationalCircle().getLicenses()) {
             if (isInProximity(license.getPosition(), bidder.getBidderPosition(), world.getSize(), true)) {
-                values.put(license.getId(), getValueDependingOnRegion(rng, license.getPosition(), world.getSize()));
+                values.put(license.getLongId(), getValueDependingOnRegion(rng, license.getPosition(), world.getSize()));
             }
         }
         // Add the regional licenses
         for (GSVMLicense license : world.getRegionalCircle().getLicenses()) {
             if (isInProximity(license.getPosition(), bidder.getBidderPosition(), world.getSize(), false)) {
-                values.put(license.getId(), rng.nextBigDecimal(getRegionalValueInterval()));
+                values.put(license.getLongId(), rng.nextBigDecimal(getRegionalValueInterval()));
             }
         }
         return values;
+    }
+
+    @Override
+    public AllocationLimit getAllocationLimit(GSVMBidder bidder) {
+    	if(bidder.getWorld().isLegacyGSVM()) {
+    		return AllocationLimit.NO;
+    	}
+        if (getActivityLimitOverride() > -1) {
+        	return new BundleSizeAllocationLimit(getActivityLimitOverride(), bidder.getWorld().getLicenses());
+        }
+        return new BundleSizeAllocationLimit((int) Math.round(bidder.getBaseValues().size() * 2d/3), bidder.getWorld().getLicenses());
     }
 
     private boolean isInProximity(int licensePosition, int bidderPosition, int size, boolean isNationalCircle) {

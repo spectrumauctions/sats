@@ -1,13 +1,13 @@
 package org.spectrumauctions.sats.core.model.lsvm;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.World;
 
 /**
  * @author Fabio Isler
  */
-public class LSVMLicense extends Good {
+public class LSVMLicense extends License {
 
     private static final long serialVersionUID = 2814831251672586420L;
     private final int rowPosition;
@@ -51,7 +51,7 @@ public class LSVMLicense extends Good {
     }
 
     /* (non-Javadoc)
-     * @see Good#getWorld()
+     * @see License#getWorld()
      */
     @Override
     public LSVMWorld getWorld() {

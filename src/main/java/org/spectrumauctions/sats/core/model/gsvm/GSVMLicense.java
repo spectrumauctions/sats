@@ -1,7 +1,7 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.World;
 
 import java.util.Objects;
@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * @author Fabio Isler
  */
-public class GSVMLicense extends Good {
+public class GSVMLicense extends License {
 
     private static final long serialVersionUID = 5732211251672586420L;
     private final int position;
@@ -23,7 +23,7 @@ public class GSVMLicense extends Good {
     }
 
     /* (non-Javadoc)
-    * @see Good#getWorld()
+    * @see License#getWorld()
     */
     @Override
     public GSVMWorld getWorld() {
@@ -38,7 +38,7 @@ public class GSVMLicense extends Good {
         Preconditions.checkArgument(circle.getWorld().getId() == this.worldId);
         this.world = circle.getWorld();
         // TODO: Refresh circle?
-        // Preconditions.checkArgument(circle.getId() == this.circleId);
+        // Preconditions.checkArgument(circle.getLongId() == this.circleId);
     }
 
     @Override

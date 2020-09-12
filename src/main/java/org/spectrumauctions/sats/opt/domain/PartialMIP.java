@@ -5,6 +5,7 @@
  */
 package org.spectrumauctions.sats.opt.domain;
 
+import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.mip.Constraint;
 import edu.harvard.econcs.jopt.solver.mip.MIP;
 import edu.harvard.econcs.jopt.solver.mip.Variable;
@@ -54,12 +55,12 @@ public class PartialMIP {
      * Adds the generated variables and constraints to an existing {@link MIP} instance.
      * @param mip
      */
-    public void appendToMip(MIP mip) {
+    public void appendToMip(IMIP mip) {
         appendVariablesToMip(mip);
         appendConstraintsToMip(mip);
     }
 
-    public void appendVariablesToMip(MIP mip) {
+    public void appendVariablesToMip(IMIP mip) {
         for (Variable var : getVariables()) {
             mip.add(var);
         }
@@ -71,7 +72,7 @@ public class PartialMIP {
         return vars;
     }
 
-    public void appendConstraintsToMip(MIP mip) {
+    public void appendConstraintsToMip(IMIP mip) {
         for (Constraint constraint : manuallyAddedConstraints) {
             mip.add(constraint);
         }

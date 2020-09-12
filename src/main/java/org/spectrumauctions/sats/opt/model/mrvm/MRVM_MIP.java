@@ -6,39 +6,46 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
-import edu.harvard.econcs.jopt.solver.IMIPResult;
-import edu.harvard.econcs.jopt.solver.SolveParam;
-import edu.harvard.econcs.jopt.solver.client.SolverClient;
-import edu.harvard.econcs.jopt.solver.mip.*;
+import com.google.common.collect.Sets;
+import com.google.common.math.DoubleMath;
+import edu.harvard.econcs.jopt.solver.ISolution;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.MIP;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.marketdesignresearch.mechlib.core.Allocation;
+import org.marketdesignresearch.mechlib.core.BidderAllocation;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.BundleEntry;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint.AllocationLimitLinearTerm;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint.LinearGoodTerm;
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimitConstraint.LinearVarTerm;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleExactValueBids;
+import org.marketdesignresearch.mechlib.core.bid.bundle.BundleValueBids;
+import org.marketdesignresearch.mechlib.core.bidder.Bidder;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
+import org.marketdesignresearch.mechlib.metainfo.MetaInfo;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.mrvm.*;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
-import org.spectrumauctions.sats.opt.domain.WinnerDeterminator;
 import org.spectrumauctions.sats.opt.model.ModelMIP;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static edu.harvard.econcs.jopt.solver.mip.MIP.MAX_VALUE;
 
 /**
  * @author Michael Weiss
- *
  */
-public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense> {
+public class MRVM_MIP extends ModelMIP {
 
     private static final Logger logger = LogManager.getLogger(MRVM_MIP.class);
-    private static final double DEFAULT_EPSILON = 0.00001;
 
     public static boolean PRINT_SOLVER_RESULT = false;
-
-    private static SolverClient SOLVER = new SolverClient();
 
     /**
      * If the highest possible value any bidder can have is higher than {@link MIP#MAX_VALUE} - MAXVAL_SAFETYGAP}
@@ -48,7 +55,6 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
     private Map<MRVMBidder, MRVMBidderPartialMIP> bidderPartialMips;
     private MRVMWorld world;
     private Collection<MRVMBidder> bidders;
-    private double epsilon = DEFAULT_EPSILON;
     private double scalingFactor;
 
     public MRVM_MIP(Collection<MRVMBidder> bidders) {
@@ -61,7 +67,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
         this.worldPartialMip = new MRVMWorldPartialMip(
                 bidders,
                 biggestPossibleValue);
-        worldPartialMip.appendToMip(getMip());
+        worldPartialMip.appendToMip(getMIP());
         bidderPartialMips = new HashMap<>();
         for (MRVMBidder bidder : bidders) {
             MRVMBidderPartialMIP bidderPartialMIP;
@@ -75,74 +81,137 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
                 MRVMRegionalBidder globalBidder = (MRVMRegionalBidder) bidder;
                 bidderPartialMIP = new MRVMRegionalBidderPartialMip(globalBidder, scalingFactor, worldPartialMip);
             }
-            bidderPartialMIP.appendToMip(getMip());
+            bidderPartialMIP.appendToMip(getMIP());
             bidderPartialMips.put(bidder, bidderPartialMIP);
+            
+            addAllocationLimit(bidder);
         }
     }
 
+	private void addAllocationLimit(MRVMBidder bidder) {
+		bidder.getAllocationLimit().getAdditionalVariables().forEach(this::addVariable);
+		for(AllocationLimitConstraint constraint : bidder.getAllocationLimit().getConstraints()) {
+			Constraint allocationConstraint = new Constraint(constraint.getType(), constraint.getConstant());
+			
+			Map<GenericGood,Double> alreadeAddedDefinitions = new HashMap<>();
+			
+			// Assume that a LinearTerm does not contain a mixure of Terms with GenericGoods and Licenses
+			// Do not check this here. The AlloctionLimit needs to take care of this.
+			for(AllocationLimitLinearTerm term : constraint.getLinearTerms()) {
+				if(term instanceof LinearGoodTerm) {
+					LinearGoodTerm lgt = (LinearGoodTerm) term;
+					if(lgt.getGood() instanceof MRVMGenericDefinition) {
+						MRVMGenericDefinition mgd = (MRVMGenericDefinition) lgt.getGood();
+						allocationConstraint.addTerm(term.getCoefficient(), this.getWorldPartialMip().getXVariable(bidder, mgd.getRegion(), mgd.getBand()));
+					} else {
+						MRVMLicense license = (MRVMLicense) lgt.getGood();
+						GenericGood mgd = world.getGenericDefinitionOf(license);
+						if(alreadeAddedDefinitions.containsKey(mgd)) {
+							if(alreadeAddedDefinitions.get(mgd) != term.getCoefficient()) {
+								throw new IllegalStateException("Constraint with the same generic good but different coefficients detected. Therefore the Constraint cannot be transformed from MRVMLicence to MRVMGenericGood which would be necessary here.");
+							}
+						} else {
+							alreadeAddedDefinitions.put(mgd, term.getCoefficient());
+							allocationConstraint.addTerm(term.getCoefficient(), this.getWorldPartialMip().getXVariable(bidder, license.getRegion(), license.getBand()));
+						}
+					}
+				} else if(term instanceof LinearVarTerm) {
+					allocationConstraint.addTerm(((LinearVarTerm) term).getLinearTerm());
+				} else {
+					throw new IllegalStateException("Unkown Allocation Limit Linear Term type");
+				}
+			}
+         
+			this.addConstraint(allocationConstraint);
+		}
+	}
 
 
     public void addConstraint(Constraint constraint) {
-        getMip().add(constraint);
+        getMIP().add(constraint);
     }
 
     public void addVariable(Variable variable) {
-        getMip().add(variable);
+        getMIP().add(variable);
     }
 
     public void addObjectiveTerm(double coefficient, Variable variable) {
-        getMip().addObjectiveTerm(coefficient, variable);
+        getMIP().addObjectiveTerm(coefficient, variable);
     }
 
 
     @Override
-    public WinnerDeterminator<MRVMLicense> getWdWithoutBidder(Bidder<MRVMLicense> bidder) {
-        Preconditions.checkArgument(bidders.contains(bidder));
-        return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(bidder)).collect(Collectors.toSet()));
+    public MRVM_MIP getMIPWithout(Bidder bidder) {
+        MRVMBidder mrvmBidder = (MRVMBidder) bidder;
+        Preconditions.checkArgument(bidders.contains(mrvmBidder));
+        return new MRVM_MIP(bidders.stream().filter(b -> !b.equals(mrvmBidder)).collect(Collectors.toSet()));
     }
 
     /* (non-Javadoc)
      * @see EfficientAllocator#calculateEfficientAllocation()
      */
     @Override
-    public MRVMMipResult calculateAllocation() {
-        getMip().setSolveParam(SolveParam.RELATIVE_OBJ_GAP, epsilon);
-        IMIPResult mipResult = SOLVER.solve(getMip());
+    public Allocation adaptMIPResult(ISolution solution) {
         if (PRINT_SOLVER_RESULT) {
-            logger.info("Result:\n" + mipResult);
+            logger.info("Result:\n" + solution);
         }
-        MRVMMipResult.Builder resultBuilder = new MRVMMipResult.Builder(world, mipResult);
+        Map<Bidder, BidderAllocation> bidderAllocationMap = new HashMap<>();
         for (Map.Entry<MRVMBidder, MRVMBidderPartialMIP> bidder : bidderPartialMips.entrySet()) {
             Variable bidderValueVar = worldPartialMip.getValueVariable(bidder.getKey());
-            double mipUtilityResult = mipResult.getValue(bidderValueVar);
+            double mipUtilityResult = solution.getValue(bidderValueVar);
             double svScalingFactor = bidder.getValue().getScalingFactor();
 //            if (svScalingFactor != 1) {
 //                logger.info("Scaling SV Value with factor " + svScalingFactor);
 //            }
             double unscaledValue = mipUtilityResult * svScalingFactor;
-            GenericValue.Builder<MRVMGenericDefinition, MRVMLicense> valueBuilder = new GenericValue.Builder<>(BigDecimal.valueOf(unscaledValue));
+            Set<BundleEntry> bundleEntries = new HashSet<>();
             for (Region region : world.getRegionsMap().getRegions()) {
                 for (MRVMBand band : world.getBands()) {
                     Variable xVar = worldPartialMip.getXVariable(bidder.getKey(), region, band);
-                    double doubleQuantity = mipResult.getValue(xVar);
+                    double doubleQuantity = solution.getValue(xVar);
                     int quantity = (int) Math.round(doubleQuantity);
                     if (quantity > 0) {
-                        MRVMGenericDefinition def = new MRVMGenericDefinition(band, region);
-                        valueBuilder.putQuantity(def, quantity);
+                        MRVMGenericDefinition def = world.getAllGenericDefinitions().stream().filter(g -> g.getBand().equals(band) && g.getRegion().equals(region)).findFirst().get();
+                        bundleEntries.add(new BundleEntry(def, quantity));
                     }
                 }
             }
-            GenericValue<MRVMGenericDefinition, MRVMLicense> build = valueBuilder.build();
-            if (!build.getQuantities().isEmpty()) {
-                resultBuilder.putGenericValue(bidder.getKey(), build);
+            Bundle bundle = new Bundle(bundleEntries);
+            // ignore AllocationLimits as they are may formulated on non generic licences and therfore throw an error
+            // change this if the resulting allocation contains Licenses rather than GenericGoods for non generic settings
+            BigDecimal value = bidder.getKey().getValue(bundle,true);
+            if (!DoubleMath.fuzzyEquals(unscaledValue, value.doubleValue(), 1.0)) {
+                logger.warn("MIP value of bidder {}: {}; Actual value: {}. With very high numbers, a " +
+                                "deviation can happen. Make sure this is just a relatively small deviation, else check your MIP.",
+                        bidder.getKey().getName(),
+                        BigDecimal.valueOf(unscaledValue).setScale(4, RoundingMode.HALF_UP),
+                        value.setScale(4, RoundingMode.HALF_UP));
+            }
+
+            if (!Bundle.EMPTY.equals(bundle)) {
+                bidderAllocationMap.put(bidder.getKey(), new BidderAllocation(value, bundle, new HashSet<>()));
             }
         }
-        return resultBuilder.build();
+
+        MetaInfo metaInfo = new MetaInfo();
+        metaInfo.setNumberOfMIPs(1);
+        metaInfo.setMipSolveTime(solution.getSolveTime());
+
+        return new Allocation(bidderAllocationMap, new BundleExactValueBids(), metaInfo);
     }
 
     @Override
-    public WinnerDeterminator<MRVMLicense> copyOf() {
+    public ModelMIP copyOf() {
         return new MRVM_MIP(bidders);
+    }
+
+    @Override
+    protected Collection<Collection<Variable>> getVariablesOfInterest() {
+        Collection<Collection<Variable>> variablesOfInterest = new HashSet<>();
+        for (Variable variable : getXVariables()) {
+            variablesOfInterest.add(Sets.newHashSet(variable));
+        }
+        return variablesOfInterest;
     }
 
     public MRVMWorldPartialMip getWorldPartialMip() {
@@ -153,44 +222,7 @@ public class MRVM_MIP extends ModelMIP implements WinnerDeterminator<MRVMLicense
         return bidderPartialMips;
     }
 
-
-    @Override
-    public void adjustPayoffs(Map<Bidder<MRVMLicense>, Double> payoffs) {
-        for (Map.Entry<Bidder<MRVMLicense>, Double> entry : payoffs.entrySet()) {
-            MRVMBidder bidder = (MRVMBidder) entry.getKey();
-            double negativePayoff = -entry.getValue();
-            Variable x = new Variable("x_" + bidder.getId(), VarType.BOOLEAN, 0, 1);
-            addVariable(x);
-            addObjectiveTerm(negativePayoff, x);
-
-            Constraint xConstraint = new Constraint(CompareType.GEQ, 0);
-            xConstraint.addTerm(-1, x);
-            for (Variable var : worldPartialMip.getXVariables(bidder)) {
-                xConstraint.addTerm(1, var);
-            }
-            addConstraint(xConstraint);
-
-            Constraint xConstraint2 = new Constraint(CompareType.LEQ, 0);
-            xConstraint2.addTerm(-MAX_VALUE, x);
-            for (Variable var : worldPartialMip.getXVariables(bidder)) {
-                xConstraint2.addTerm(1, var);
-            }
-            addConstraint(xConstraint2);
-
-        }
-    }
-
-    @Override
-    public double getScale() {
-        return 1 / scalingFactor;
-    }
-
-    public void setEpsilon(double epsilon) {
-        this.epsilon = epsilon;
-    }
-
     public Collection<Variable> getXVariables() {
-
         return bidders
                 .stream()
                 .map(b -> worldPartialMip.getXVariables(b))

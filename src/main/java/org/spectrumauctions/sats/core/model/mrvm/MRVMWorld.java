@@ -6,7 +6,10 @@
 package org.spectrumauctions.sats.core.model.mrvm;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
+
+import lombok.Getter;
+
+import org.marketdesignresearch.mechlib.core.allocationlimits.AllocationLimit;
 import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
@@ -66,10 +69,10 @@ public final class MRVMWorld extends World implements GenericWorld {
      * @see World#getLicenses()
      */
     @Override
-    public Set<MRVMLicense> getLicenses() {
-        Set<MRVMLicense> licenses = new HashSet<>();
+    public List<MRVMLicense> getLicenses() {
+        List<MRVMLicense> licenses = new LinkedList<>();
         for (MRVMBand band : bands) {
-            licenses.addAll(band.getLicenses());
+            licenses.addAll(band.containedGoods());
         }
         return licenses;
     }
@@ -78,7 +81,7 @@ public final class MRVMWorld extends World implements GenericWorld {
      * @see World#restorePopulation(long)
      */
     @Override
-    public Collection<? extends Bidder<MRVMLicense>> restorePopulation(long populationId) {
+    public List<? extends SATSBidder> restorePopulation(long populationId) {
         return super.restorePopulation(MRVMBidder.class, populationId);
     }
 
@@ -103,7 +106,7 @@ public final class MRVMWorld extends World implements GenericWorld {
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      * @param bundle Must be nonempty
      */
-    public static Map<MRVMBand, Bundle<MRVMLicense>> getLicensesPerBand(Bundle<MRVMLicense> bundle) {
+    public static Map<MRVMBand, Set<MRVMLicense>> getLicensesPerBand(Set<MRVMLicense> bundle) {
         Preconditions.checkArgument(!bundle.isEmpty());
         MRVMWorld world = bundle.iterator().next().getWorld();
         return getLicensesPerBand(bundle, world);
@@ -114,10 +117,10 @@ public final class MRVMWorld extends World implements GenericWorld {
      * Sorts the licenses of a bundle into subbundles by their band.
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      */
-    public static Map<MRVMBand, Bundle<MRVMLicense>> getLicensesPerBand(Bundle<MRVMLicense> bundle, MRVMWorld world) {
-        Map<MRVMBand, Bundle<MRVMLicense>> licensesPerBand = new HashMap<>();
+    public static Map<MRVMBand, Set<MRVMLicense>> getLicensesPerBand(Set<MRVMLicense> bundle, MRVMWorld world) {
+        Map<MRVMBand, Set<MRVMLicense>> licensesPerBand = new HashMap<>();
         for (MRVMBand band : world.getBands()) {
-            licensesPerBand.put(band, new Bundle<>());
+            licensesPerBand.put(band, new HashSet<>());
         }
         for (MRVMLicense license : bundle) {
             licensesPerBand.get(license.getBand()).add(license);
@@ -130,9 +133,9 @@ public final class MRVMWorld extends World implements GenericWorld {
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      * @param bundle Must be nonempty
      */
-    public static Map<MRVMBand, Integer> quantitiesPerBand(Bundle<MRVMLicense> bundle) {
-        Preconditions.checkArgument(bundle.isEmpty()); // Ensure world to be defined
-        return quantitiesPerBand(bundle, (MRVMWorld) bundle.getWorld());
+    public static Map<MRVMBand, Integer> quantitiesPerBand(Set<MRVMLicense> bundle) {
+        Preconditions.checkArgument(!bundle.isEmpty()); // Ensure world to be defined
+        return quantitiesPerBand(bundle, bundle.iterator().next().getWorld());
     }
 
     /**
@@ -140,8 +143,8 @@ public final class MRVMWorld extends World implements GenericWorld {
      * The returned map contains all bands of the world as keys, even such which are not present with any licenses in the bundle.<br>
      * @param bundle Must be nonempty
      */
-    public static Map<MRVMBand, Integer> quantitiesPerBand(Bundle<MRVMLicense> bundle, MRVMWorld MRVMWorld) {
-        Map<MRVMBand, Bundle<MRVMLicense>> licensesPerBand = getLicensesPerBand(bundle, MRVMWorld);
+    public static Map<MRVMBand, Integer> quantitiesPerBand(Set<MRVMLicense> bundle, MRVMWorld MRVMWorld) {
+        Map<MRVMBand, Set<MRVMLicense>> licensesPerBand = getLicensesPerBand(bundle, MRVMWorld);
         Map<MRVMBand, Integer> quantities = new HashMap<>();
         for (MRVMBand band : MRVMWorld.getBands()) {
             try {
@@ -156,12 +159,12 @@ public final class MRVMWorld extends World implements GenericWorld {
     /**
      * Defines the c-function, i.e., c(r,x) = sum_{b\in B} cap(b,r,x) [as explained in the paper]
      */
-    public static BigDecimal c(MRVMRegionsMap.Region r, Bundle<MRVMLicense> bundle) {
+    public static BigDecimal c(MRVMRegionsMap.Region r, Set<MRVMLicense> bundle) {
         if (bundle.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        Bundle<MRVMLicense> regionalSubBundle = getLicensesPerRegion(bundle).get(r);
-        Map<MRVMBand, Integer> bandQuantities = quantitiesPerBand(regionalSubBundle, (MRVMWorld) bundle.getWorld());
+        Set<MRVMLicense> regionalSubBundle = getLicensesPerRegion(bundle).get(r);
+        Map<MRVMBand, Integer> bandQuantities = quantitiesPerBand(regionalSubBundle, bundle.iterator().next().getWorld());
         BigDecimal cap = BigDecimal.ZERO;
         for (Entry<MRVMBand, Integer> bandQuantityEntry : bandQuantities.entrySet()) {
             if (bandQuantityEntry.getValue() != 0) {
@@ -179,7 +182,7 @@ public final class MRVMWorld extends World implements GenericWorld {
     public BigDecimal getMaximumRegionalCapacity() {
         if (maximalRegionalCapacity == null) {
             MRVMRegionsMap.Region anyRegion = regionsMap.getRegions().iterator().next();
-            maximalRegionalCapacity = c(anyRegion, new Bundle<>(getLicenses()));
+            maximalRegionalCapacity = c(anyRegion, new HashSet<>(getLicenses()));
         }
         return maximalRegionalCapacity;
     }
@@ -206,12 +209,12 @@ public final class MRVMWorld extends World implements GenericWorld {
      * Sorts the licenses of a bundle into subbundles by their region.<br>
      * @return map that contains all regions of the world as keys, even such which are not present with any licenses in the bundle.<br>
      */
-    public static Map<MRVMRegionsMap.Region, Bundle<MRVMLicense>> getLicensesPerRegion(Bundle<MRVMLicense> bundle) {
+    public static Map<MRVMRegionsMap.Region, Set<MRVMLicense>> getLicensesPerRegion(Set<MRVMLicense> bundle) {
         Preconditions.checkArgument(!bundle.isEmpty());
         MRVMWorld world = bundle.iterator().next().getWorld();
-        Map<MRVMRegionsMap.Region, Bundle<MRVMLicense>> licensesPerRegion = new HashMap<>();
+        Map<MRVMRegionsMap.Region, Set<MRVMLicense>> licensesPerRegion = new HashMap<>();
         for (MRVMRegionsMap.Region region : world.getRegionsMap().getRegions()) {
-            licensesPerRegion.put(region, new Bundle<>());
+            licensesPerRegion.put(region, new HashSet<>());
         }
         for (MRVMLicense license : bundle) {
             licensesPerRegion.get(license.getRegion()).add(license);
@@ -253,21 +256,21 @@ public final class MRVMWorld extends World implements GenericWorld {
         if (localSetups != null) {
             for (MRVMLocalBidderSetup setup : localSetups) {
                 for (int i = 0; i < setup.getNumberOfBidders(); i++) {
-                    bidders.add(new MRVMLocalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG()));
+                    bidders.add(new MRVMLocalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG(), AllocationLimit.NO));
                 }
             }
         }
         if (regionalSetups != null) {
             for (MRVMRegionalBidderSetup setup : regionalSetups) {
                 for (int i = 0; i < setup.getNumberOfBidders(); i++) {
-                    bidders.add(new MRVMRegionalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG()));
+                    bidders.add(new MRVMRegionalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG(), AllocationLimit.NO));
                 }
             }
         }
         if (nationalSetups != null) {
             for (MRVMNationalBidderSetup setup : nationalSetups) {
                 for (int i = 0; i < setup.getNumberOfBidders(); i++) {
-                    bidders.add(new MRVMNationalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG()));
+                    bidders.add(new MRVMNationalBidder(idCount++, population, this, setup, rngSupplier.getUniformDistributionRNG(), AllocationLimit.NO));
                 }
             }
         }
@@ -276,8 +279,8 @@ public final class MRVMWorld extends World implements GenericWorld {
     }
 
     @Override
-    public Set<MRVMGenericDefinition> getAllGenericDefinitions() {
-        Set<MRVMGenericDefinition> defs = new HashSet<>();
+    public List<MRVMGenericDefinition> getAllGenericDefinitions() {
+        List<MRVMGenericDefinition> defs = new ArrayList<>();
         for (MRVMRegionsMap.Region region : getRegionsMap().getRegions()) {
             defs.addAll(genericDefinitions.get(region).values());
         }
@@ -285,7 +288,7 @@ public final class MRVMWorld extends World implements GenericWorld {
     }
 
     @Override
-    public GenericDefinition getGenericDefinitionOf(Good license) {
+    public GenericGood getGenericDefinitionOf(License license) {
         MRVMLicense mrvmLicense = (MRVMLicense) license;
         Preconditions.checkArgument(genericDefinitions.containsKey(mrvmLicense.getRegion()));
         Preconditions.checkArgument(genericDefinitions.get(mrvmLicense.getRegion()).containsKey(mrvmLicense.getBand()));

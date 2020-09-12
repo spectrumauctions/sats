@@ -5,15 +5,16 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author Michael Weiss
@@ -23,21 +24,17 @@ public class MRVMWorldTest {
 
     private static MRVMWorld world;
 
-    private static Bundle<MRVMLicense> completeBundle;
-
-
     @BeforeClass
     public static void setUpBeforeClass() {
         world = new MRVMWorld(MRMSimpleWorldGen.getSimpleWorldBuilder(), new JavaUtilRNGSupplier(983742L));
-        completeBundle = new Bundle<>(world.getLicenses());
     }
 
-    @Test
     /**
-     * Checks if the complete bundle is split correcly into regional bundles
+     * Checks if the complete bundle is split correctly into regional bundles
      */
+    @Test
     public void selectAllLicensesOfRegionOnCompleteBundle() {
-        Map<MRVMRegionsMap.Region, Bundle<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerRegion(completeBundle);
+        Map<MRVMRegionsMap.Region, Set<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerRegion(Sets.newHashSet(world.getLicenses()));
         int expectedNumberOfLicenses = 0;
         for (MRVMBand band : world.getBands()) {
             expectedNumberOfLicenses += band.getNumberOfLots();
@@ -56,14 +53,14 @@ public class MRVMWorldTest {
         int numberOfRegions = world.getRegionsMap().getRegions().size();
         for (MRVMBand band : world.getBands()) {
             int expectedNumberOfLicenses = band.getNumberOfLots() * numberOfRegions;
-            Assert.assertEquals(expectedNumberOfLicenses, band.getNumberOfLicenses());
-            Assert.assertEquals(expectedNumberOfLicenses, band.getLicenses().size());
+            Assert.assertEquals(expectedNumberOfLicenses, band.getQuantity());
+            Assert.assertEquals(expectedNumberOfLicenses, band.containedGoods().size());
         }
     }
 
     @Test
     public void selectAllLicensesOfBandOnCompleteBundle() {
-        Map<MRVMBand, Bundle<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerBand(completeBundle);
+        Map<MRVMBand, Set<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerBand(Sets.newHashSet(world.getLicenses()));
         for (MRVMBand band : world.getBands()) {
             Assert.assertTrue(regionalBundles.containsKey(band));
             int expectedNumberOfLicenses = band.getNumberOfLots() * world.getRegionsMap().getNumberOfRegions();
@@ -76,7 +73,7 @@ public class MRVMWorldTest {
 
     @Test
     public void capacityIsCorrectlyCalculatedCompleteRegionalBundle() {
-        Map<MRVMRegionsMap.Region, Bundle<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerRegion(new Bundle<>(world.getLicenses()));
+        Map<MRVMRegionsMap.Region, Set<MRVMLicense>> regionalBundles = MRVMWorld.getLicensesPerRegion(Sets.newHashSet(world.getLicenses()));
         BigDecimal expectedCapacity = BigDecimal.ZERO;
         for (MRVMBand band : world.getBands()) {
             int quantity = band.getNumberOfLots();
@@ -86,10 +83,10 @@ public class MRVMWorldTest {
             expectedCapacity = expectedCapacity.add(regionalCap);
         }
         BigDecimal manuallyCalculated = new BigDecimal(2 * 20 * 2 + 6 * 10 * 1);
-        Assert.assertTrue(expectedCapacity.compareTo(manuallyCalculated) == 0); //Checks if band values are instantated correctly
-        for (Entry<MRVMRegionsMap.Region, Bundle<MRVMLicense>> regionalBundle : regionalBundles.entrySet()) {
+        Assert.assertEquals(0, expectedCapacity.compareTo(manuallyCalculated)); //Checks if band values are instantated correctly
+        for (Entry<MRVMRegionsMap.Region, Set<MRVMLicense>> regionalBundle : regionalBundles.entrySet()) {
             BigDecimal bundleRegionalCapacity = MRVMWorld.c(regionalBundle.getKey(), regionalBundle.getValue());
-            Assert.assertTrue(expectedCapacity.compareTo(bundleRegionalCapacity) == 0);
+            Assert.assertEquals(0, expectedCapacity.compareTo(bundleRegionalCapacity));
         }
     }
 

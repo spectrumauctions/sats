@@ -7,6 +7,7 @@ package org.spectrumauctions.sats.core.model.bvm.bvm;
 
 import com.google.common.base.Preconditions;
 import org.spectrumauctions.sats.core.model.DefaultModel;
+import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.bvm.BMBidder;
 import org.spectrumauctions.sats.core.model.bvm.BMBidderSetup;
 import org.spectrumauctions.sats.core.model.bvm.BMWorld;

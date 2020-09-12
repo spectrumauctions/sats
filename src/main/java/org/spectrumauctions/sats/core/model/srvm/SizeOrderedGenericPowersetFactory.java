@@ -5,12 +5,9 @@
  */
 package org.spectrumauctions.sats.core.model.srvm;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowerset;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.ArrayList;
@@ -22,7 +19,7 @@ import java.util.List;
  */
 public class SizeOrderedGenericPowersetFactory {
 
-    public static GenericPowerset<SRVMBand, SRVMLicense> getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericPowerset getSizeOrderedGenericLang(boolean increasing, SRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<SRVMBand> bands = new ArrayList<>(bidder.getWorld().getBands());
         if (increasing) {
             return new Increasing(bands, bidder);
@@ -31,7 +28,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
     }
 
-    private static final class Increasing extends GenericPowersetIncreasing<SRVMBand, SRVMLicense> {
+    private static final class Increasing extends GenericPowersetIncreasing {
 
         private SRVMBidder bidder;
 
@@ -45,17 +42,9 @@ public class SizeOrderedGenericPowersetFactory {
             return bidder;
         }
 
-        /**
-         * @see GenericPowerset#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<SRVMBand> getGenericBidder() {
-            return bidder;
-        }
-
     }
 
-    private static final class Decreasing extends GenericPowersetDecreasing<SRVMBand, SRVMLicense> {
+    private static final class Decreasing extends GenericPowersetDecreasing {
 
         private SRVMBidder bidder;
 
@@ -65,15 +54,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
 
         @Override
-        public Bidder<? extends Good> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericPowerset#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<SRVMBand> getGenericBidder() {
+        public SRVMBidder getBidder() {
             return bidder;
         }
 

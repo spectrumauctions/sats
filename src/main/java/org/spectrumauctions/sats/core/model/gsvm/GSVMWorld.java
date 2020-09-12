@@ -1,8 +1,8 @@
 package org.spectrumauctions.sats.core.model.gsvm;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import org.spectrumauctions.sats.core.model.Bidder;
+import com.google.common.collect.ImmutableList;
+import lombok.Getter;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
@@ -22,7 +22,15 @@ public final class GSVMWorld extends World {
 
     private final GSVMCircle nationalCircle;
     private final GSVMCircle regionalCircle;
-    private transient ImmutableSet<GSVMLicense> licenseSet;
+    private transient ImmutableList<GSVMLicense> licenseList;
+    /**
+     *  In earlier versions of SATS (earlier than 0.7.0), the original model was interpreted differently than it is today.
+     *  Back then, when asking a bidder what her value is for bundle X, the synergy factor increased with any good in X.
+     *  Now, the synergy factor only increases with goods which the bidder has a positive value for.
+     *  This flag can be set to true in order to reproduce results of the old SATS versions.
+     */
+    @Getter
+    private final boolean isLegacyGSVM;
 
     public GSVMWorld(GSVMWorldSetup worldSetup, RNGSupplier rngSupplier) {
         super(MODEL_NAME);
@@ -30,6 +38,7 @@ public final class GSVMWorld extends World {
         this.size = worldSetup.drawSize(rng);
         this.nationalCircle = new GSVMCircle(this, size * 2, 0);
         this.regionalCircle = new GSVMCircle(this, size, size * 2);
+        this.isLegacyGSVM = worldSetup.isLegacyGSVM();
         store();
     }
 
@@ -46,7 +55,7 @@ public final class GSVMWorld extends World {
     }
 
     @Override
-    public Collection<? extends Bidder<GSVMLicense>> restorePopulation(long populationId) {
+    public List<GSVMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(GSVMBidder.class, populationId);
     }
 
@@ -56,14 +65,14 @@ public final class GSVMWorld extends World {
      * @return An immutable set containing all licenses.
      */
     @Override
-    public ImmutableSet<GSVMLicense> getLicenses() {
-        if (licenseSet == null) {
-            ImmutableSet.Builder<GSVMLicense> builder = ImmutableSet.builder();
+    public ImmutableList<GSVMLicense> getLicenses() {
+        if (licenseList == null) {
+            ImmutableList.Builder<GSVMLicense> builder = ImmutableList.builder();
             builder.add(nationalCircle.getLicenses());
             builder.add(regionalCircle.getLicenses());
-            licenseSet = builder.build();
+            licenseList = builder.build();
         }
-        return licenseSet;
+        return licenseList;
     }
 
     /* (non-Javadoc)

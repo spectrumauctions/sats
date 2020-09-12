@@ -6,9 +6,9 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.mip.*;
-import org.spectrumauctions.sats.core.bidlang.generic.Band;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
@@ -36,7 +36,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
 
     private Map<Region, Variable> omegaVariables;
     private Map<Region, Variable> cVariables;
-    private Map<Region, Map<Band, Variable>> capVariables;
+    private Map<Region, Map<MRVMBand, Variable>> capVariables;
     private Map<Region, Variable> svVariables;
     protected final MRVMWorldPartialMip worldPartialMip;
     private final MRVMBidder bidder;
@@ -87,10 +87,10 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         return result;
     }
 
-    private Map<Region, Map<Band, Variable>> createCapVariables() {
-        Map<Region, Map<Band, Variable>> result = new HashMap<>();
+    private Map<Region, Map<MRVMBand, Variable>> createCapVariables() {
+        Map<Region, Map<MRVMBand, Variable>> result = new HashMap<>();
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
-            Map<Band, Variable> bandCapacityVariables = new HashMap<>();
+            Map<MRVMBand, Variable> bandCapacityVariables = new HashMap<>();
             for (MRVMBand band : bidder.getWorld().getBands()) {
                 String varName = regionalCapacityPrefix.concat(createIndex(bidder, region, band));
                 Variable var = new Variable(varName, VarType.DOUBLE, 0, MIP.MAX_VALUE);
@@ -125,7 +125,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
      * @return
      * @throws NullPointerException if no variable is defined for this region
      */
-    Variable getCapVariable(Region region, Band band) {
+    Variable getCapVariable(Region region, MRVMBand band) {
         Variable var = capVariables.get(region).get(band);
         Preconditions.checkNotNull(var);
         return var;
@@ -137,30 +137,24 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         return var;
     }
 
-    static String createIndex(Bidder<?> bidder, Region region) {
-        StringBuilder builder = new StringBuilder("_b");
-        builder.append(bidder.getId());
-        builder.append(",r");
-        builder.append(region.getId());
-        return builder.toString();
+    static String createIndex(SATSBidder bidder, Region region) {
+        return "_b" + bidder.getLongId() +
+                ",r" +
+                region.getId();
     }
 
-    static String createIndex(Bidder<?> bidder, Band band) {
-        StringBuilder builder = new StringBuilder("_b");
-        builder.append(bidder.getId());
-        builder.append(",band_");
-        builder.append(band.getName());
-        return builder.toString();
+    static String createIndex(SATSBidder bidder, MRVMBand band) {
+        return "_b" + bidder.getLongId() +
+                ",band_" +
+                band.getName();
     }
 
-    static String createIndex(Bidder<?> bidder, Region region, Band band) {
-        StringBuilder builder = new StringBuilder("_b");
-        builder.append(bidder.getId());
-        builder.append(",r");
-        builder.append(region.getId());
-        builder.append(",band_");
-        builder.append(band.getName());
-        return builder.toString();
+    static String createIndex(SATSBidder bidder, Region region, MRVMBand band) {
+        return "_b" + bidder.getLongId() +
+                ",r" +
+                region.getId() +
+                ",band_" +
+                band.getName();
     }
 
     Set<PartialMIP> generateSVConstraints() {
@@ -170,7 +164,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
             Variable svInput = getCVariable(region);
             Variable svOutput = getSVVariable(region);
             ContinuousPiecewiseLinearFunction sv = bidder.svFunction(region);
-            String helperVariablesPrefix = new StringBuilder("sv_function").append("_helpervar").append(createIndex(bidder, region)).append("_").toString();
+            String helperVariablesPrefix = "sv_function_helpervar" + createIndex(bidder, region) + "_";
 
             PiecewiseLinearPartialMIP piecewiseLinearPartialMIP = new PiecewiseLinearPartialMIP(
                     sv,
@@ -221,7 +215,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
             Constraint regionalCConstraint = new Constraint(CompareType.EQ, 0);
             regionalCConstraint.addTerm(-1, getCVariable(region));
-            for (Band band : bidder.getWorld().getBands()) {
+            for (MRVMBand band : bidder.getWorld().getBands()) {
                 regionalCConstraint.addTerm(1, getCapVariable(region, band));
             }
             result.add(regionalCConstraint);
@@ -237,10 +231,9 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
             for (Region region : bidder.getWorld().getRegionsMap().getRegions()) {
                 Variable input = worldPartialMip.getXVariable(bidder, region, band);
                 Variable output = getCapVariable(region, band);
-                String auxiliaryVariableName = new StringBuilder("aux_cap_helper_")
-                        .append(createIndex(bidder, region, band))
-                        .append("_").
-                                toString();
+                String auxiliaryVariableName = "aux_cap_helper_" +
+                        createIndex(bidder, region, band) +
+                        "_";
                 PiecewiseLinearPartialMIP partialMip =
                         new PiecewiseLinearPartialMIP(func,
                                 input,
@@ -270,12 +263,13 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         return result;
     }
 
-    BigDecimal capAt(MRVMBand band, int quantity){
+    private BigDecimal capAt(MRVMBand band, int quantity){
         return MRVMWorld.capOfBand(band, quantity);
     }
 
 
-    public void appendVariablesToMip(MIP mip) {
+    @Override
+    public void appendVariablesToMip(IMIP mip) {
         super.appendVariablesToMip(mip);
         for (Variable var : omegaVariables.values()) {
             mip.add(var);
@@ -286,7 +280,7 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         for (Variable var : svVariables.values()) {
             mip.add(var);
         }
-        for (Map<Band, Variable> innerMap : capVariables.values()) {
+        for (Map<MRVMBand, Variable> innerMap : capVariables.values()) {
             for (Variable var : innerMap.values()) {
                 mip.add(var);
             }
@@ -299,7 +293,8 @@ public abstract class MRVMBidderPartialMIP extends PartialMIP {
         }
     }
 
-    public void appendConstraintsToMip(MIP mip) {
+    @Override
+    public void appendConstraintsToMip(IMIP mip) {
         super.appendConstraintsToMip(mip);
         for (Constraint constraint : generateOmegaConstraints()) {
             mip.add(constraint);

@@ -4,6 +4,9 @@ import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.random.IntegerInterval;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author Fabio Isler
  */
@@ -11,11 +14,14 @@ public class LSVMWorldSetup {
 
     private final IntegerInterval numberOfRowsInterval;
     private final IntegerInterval numberOfColumnsInterval;
+    @Getter
+    private final boolean isLegacyLSVM;
 
     private LSVMWorldSetup(LSVMWorldSetupBuilder builder) {
         super();
         this.numberOfRowsInterval = builder.numberOfRowsInterval;
         this.numberOfColumnsInterval = builder.numberOfColumnsInterval;
+        this.isLegacyLSVM = builder.isLegacyLSVM();
     }
 
     Integer drawRowNumber(UniformDistributionRNG rng) {
@@ -33,6 +39,9 @@ public class LSVMWorldSetup {
 
         private IntegerInterval numberOfRowsInterval;
         private IntegerInterval numberOfColumnsInterval;
+        
+        @Setter @Getter
+        private boolean isLegacyLSVM = false;
 
         public LSVMWorldSetupBuilder() {
             super();

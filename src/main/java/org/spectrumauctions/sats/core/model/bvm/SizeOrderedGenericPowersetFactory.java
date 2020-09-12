@@ -5,12 +5,10 @@
  */
 package org.spectrumauctions.sats.core.model.bvm;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowerset;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
-import org.spectrumauctions.sats.core.model.Bidder;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.List;
@@ -21,7 +19,7 @@ import java.util.List;
  */
 public class SizeOrderedGenericPowersetFactory {
 
-    public static GenericPowerset<BMBand, BMLicense> getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericPowerset getSizeOrderedGenericLang(boolean increasing, BMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<BMBand> bands = bidder.getWorld().getBands();
         if (increasing) {
             return new Increasing(bands, bidder);
@@ -30,7 +28,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
     }
 
-    private static final class Increasing extends GenericPowersetIncreasing<BMBand, BMLicense> {
+    private static final class Increasing extends GenericPowersetIncreasing {
 
         private BMBidder bidder;
 
@@ -44,17 +42,9 @@ public class SizeOrderedGenericPowersetFactory {
             return bidder;
         }
 
-        /**
-         * @see GenericPowerset#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<BMBand> getGenericBidder() {
-            return bidder;
-        }
-
     }
 
-    private static final class Decreasing extends GenericPowersetDecreasing<BMBand, BMLicense> {
+    private static final class Decreasing extends GenericPowersetDecreasing {
 
         private BMBidder bidder;
 
@@ -64,15 +54,7 @@ public class SizeOrderedGenericPowersetFactory {
         }
 
         @Override
-        public Bidder<? extends Good> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericPowerset#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<BMBand> getGenericBidder() {
+        public SATSBidder getBidder() {
             return bidder;
         }
 

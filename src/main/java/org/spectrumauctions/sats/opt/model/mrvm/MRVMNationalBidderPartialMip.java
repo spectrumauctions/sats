@@ -6,8 +6,9 @@
 package org.spectrumauctions.sats.opt.model.mrvm;
 
 import com.google.common.base.Preconditions;
+import edu.harvard.econcs.jopt.solver.IMIP;
 import edu.harvard.econcs.jopt.solver.mip.*;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMBand;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMNationalBidder;
 import org.spectrumauctions.sats.core.model.mrvm.MRVMRegionsMap.Region;
@@ -67,7 +68,7 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
      * @return
      */
     private Variable createWIVariable() {
-        String name = W_i_VARIABLE_PREFIX.concat(String.valueOf(bidder.getId()));
+        String name = W_i_VARIABLE_PREFIX.concat(String.valueOf(bidder.getLongId()));
         int numberOfRegions = bidder.getWorld().getRegionsMap().getNumberOfRegions();
         return new Variable(name, VarType.INT, 0, numberOfRegions);
     }
@@ -84,12 +85,10 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
         return result;
     }
 
-    static String createIndex(Bidder<?> bidder, Integer k) {
-        StringBuilder builder = new StringBuilder("_i");
-        builder.append(bidder.getId());
-        builder.append(",k");
-        builder.append(k.toString());
-        return builder.toString();
+    private static String createIndex(SATSBidder bidder, Integer k) {
+        return "_i" + bidder.getLongId() +
+                ",k" +
+                k.toString();
     }
 
     /**
@@ -140,7 +139,7 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
         return psiVariables.get(k);
     }
 
-    Constraint valueConstraint() {
+    private Constraint valueConstraint() {
         Constraint constraint = new Constraint(CompareType.EQ, 0);
         constraint.addTerm(-1, worldPartialMip.getValueVariable(bidder));
         for (int k = 0; k <= bidder.getKMax(); k++) {
@@ -160,7 +159,7 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
         List<Constraint> constraints = new ArrayList<>();
         int bigM = 0;
         for (MRVMBand band : bidder.getWorld().getBands()) {
-            bigM += band.getNumberOfLicenses();
+            bigM += band.getQuantity();
         }
         double smallM = 1d / bigM;
 
@@ -286,7 +285,8 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
     }
 
 
-    public void appendVariablesToMip(MIP mip) {
+    @Override
+    public void appendVariablesToMip(IMIP mip) {
         super.appendVariablesToMip(mip);
         for (Variable var : psiVariables.values()) {
             mip.add(var);
@@ -300,7 +300,8 @@ public class MRVMNationalBidderPartialMip extends MRVMBidderPartialMIP {
         mip.add(wIVariable);
     }
 
-    public void appendConstraintsToMip(MIP mip) {
+    @Override
+    public void appendConstraintsToMip(IMIP mip) {
         super.appendConstraintsToMip(mip);
         mip.add(valueConstraint());
         for (Constraint constraint : constrainWIR()) {

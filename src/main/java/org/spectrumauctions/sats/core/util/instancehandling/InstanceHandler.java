@@ -5,10 +5,11 @@
  */
 package org.spectrumauctions.sats.core.util.instancehandling;
 
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Michael Weiss
@@ -20,7 +21,7 @@ public abstract class InstanceHandler {
 
     /**
      * Get the default instance handler. <br>
-     * The default instance handler is called on every {@link World}, <b>population</b> and {@link Bidder} creation
+     * The default instance handler is called on every {@link World}, <b>population</b> and {@link SATSBidder} creation
      * for id selection and default storing.
      * @return the default instance handler
      */
@@ -33,7 +34,7 @@ public abstract class InstanceHandler {
 
     /**
      * Set a new default instance handler.<br>
-     * The default instance handler is called on every {@link World}, <b>population</b> and {@link Bidder} creation
+     * The default instance handler is called on every {@link World}, <b>population</b> and {@link SATSBidder} creation
      * for id selection and default storing.
      * @param defaultHandler the new default instance handler
      */
@@ -58,7 +59,7 @@ public abstract class InstanceHandler {
      * If a bidder with the same world and population id already is stored, it might be overwritten.
      * @param bidder the bidder to be written
      */
-    public abstract void writeBidder(Bidder<?> bidder);
+    public abstract void writeBidder(SATSBidder bidder);
 
     /**
      * @return A collection containing all ids of the stored population for the requested world
@@ -73,7 +74,7 @@ public abstract class InstanceHandler {
      * @param bidderId the id of the bidder
      * @return the deserialized bidder
      */
-    public abstract <T extends Bidder<?>> T readBidder(Class<T> type, World world, long populationId, long bidderId);
+    public abstract <T extends SATSBidder> T readBidder(Class<T> type, World world, long populationId, long bidderId);
 
     /**
      * Used to deserialize a bidder, if its type is not exactly known,
@@ -84,7 +85,7 @@ public abstract class InstanceHandler {
      * @param bidderId the id of the bidder
      * @return the deserialized bidder
      */
-    public abstract <T extends Bidder<?>> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId, long bidderId);
+    public abstract <T extends SATSBidder> T readBidderWithUnknownType(Class<T> bidderSuperType, World world, long populationId, long bidderId);
 
     /**
      * Used to deserialize a set of bidders, if the implementing class of all bidders is known and the same 
@@ -93,7 +94,7 @@ public abstract class InstanceHandler {
      * @param populationId the id of the population
      * @return the deserialized bidders
      */
-    public abstract <T extends Bidder<?>> Collection<T> readPopulation(Class<T> type, World world, long populationId);
+    public abstract <T extends SATSBidder> Collection<T> readPopulation(Class<T> type, World world, long populationId);
 
     /**
      * Used to deserialize a set of bidders, if their type is not exactly known,
@@ -103,7 +104,7 @@ public abstract class InstanceHandler {
      * @param populationId the id of the population
      * @return the deserialized bidders
      */
-    public abstract <T extends Bidder<?>> Collection<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world, long populationId);
+    public abstract <T extends SATSBidder> List<T> readPopulationWithUnknownTypes(Class<T> bidderSuperType, World world, long populationId);
 
     /**
      * Returns an new unused world id.

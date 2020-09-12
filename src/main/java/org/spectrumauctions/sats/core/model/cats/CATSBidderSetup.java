@@ -27,7 +27,7 @@ public class CATSBidderSetup extends BidderSetup {
         CATSWorld world = bidder.getWorld();
         HashMap<Long, BigDecimal> values = new HashMap<>();
         for (CATSLicense license : world.getLicenses()) {
-            values.put(license.getId(), new BigDecimal(rng.nextGaussian(privateValueMean, privateValueStDev)));
+            values.put(license.getLongId(), new BigDecimal(rng.nextGaussian(privateValueMean, privateValueStDev)));
         }
         return values;
     }

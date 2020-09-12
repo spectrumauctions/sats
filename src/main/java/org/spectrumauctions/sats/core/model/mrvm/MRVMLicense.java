@@ -5,7 +5,7 @@
  */
 package org.spectrumauctions.sats.core.model.mrvm;
 
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
 
@@ -16,7 +16,7 @@ import java.util.List;
  * @author Michael Weiss
  *
  */
-public class MRVMLicense extends Good {
+public class MRVMLicense extends License {
 
     private static final long serialVersionUID = 2814831255330638720L;
 
@@ -79,7 +79,7 @@ public class MRVMLicense extends Good {
     }
 
     /* (non-Javadoc)
-     * @see Good#getWorld()
+     * @see License#getWorld()
      */
     @Override
     public MRVMWorld getWorld() {

@@ -217,7 +217,7 @@ public class SRVMBidderSetup extends BidderSetup {
     public static final class SmallBidderBuilder extends Builder {
 
         /**
-         * Create a BidderSetup Builder with Primary Bidder default values (see Kreoemer et. al (2014)).
+         * Create a BidderSetup Builder with Primary SATSBidder default values (see Kreoemer et. al (2014)).
          */
         public SmallBidderBuilder() {
             super("Small Bidder Setup", 2);
@@ -234,7 +234,7 @@ public class SRVMBidderSetup extends BidderSetup {
     public static final class HighFrequenceBidderBuilder extends Builder {
 
         /**
-         * Create a BidderSetup Builder with 2.6GHz Bidder default values (see Kreoemer et. al (2014)).
+         * Create a BidderSetup Builder with 2.6GHz SATSBidder default values (see Kreoemer et. al (2014)).
          */
         public HighFrequenceBidderBuilder() {
             super("2.6 Ghz Bidder (High Frequence Bidder) Setup", 1);
@@ -251,7 +251,7 @@ public class SRVMBidderSetup extends BidderSetup {
     public static final class SecondaryBidderBuilder extends Builder {
 
         /**
-         * Create a BidderSetup Builder with Secondary Bidder default values (see Kreoemer et. al (2014)).
+         * Create a BidderSetup Builder with Secondary SATSBidder default values (see Kreoemer et. al (2014)).
          */
         public SecondaryBidderBuilder() {
             super("Secondary Bidder Setup", 2);
@@ -269,7 +269,7 @@ public class SRVMBidderSetup extends BidderSetup {
     public static final class PrimaryBidderBuilder extends Builder {
 
         /**
-         * Create a BidderSetup Builder with Primary Bidder default values (see Kreoemer et. al (2014)).
+         * Create a BidderSetup Builder with Primary SATSBidder default values (see Kreoemer et. al (2014)).
          */
         public PrimaryBidderBuilder() {
             super("Primary Bidder Setup", 2);

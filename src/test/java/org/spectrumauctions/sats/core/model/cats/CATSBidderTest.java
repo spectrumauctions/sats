@@ -3,7 +3,8 @@ package org.spectrumauctions.sats.core.model.cats;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
@@ -15,14 +16,13 @@ import java.util.List;
  */
 public class CATSBidderTest {
 
-    private static Bundle<CATSLicense> completeBundle;
+    private static Bundle completeBundle;
 
     @BeforeClass
     public static void setUpBeforeClass() {
         CATSRegionModel model = new CATSRegionModel();
         CATSWorld world = model.createWorld(983742L);
-        completeBundle = new Bundle<>();
-        completeBundle.addAll(world.getLicenses());
+        completeBundle = Bundle.of(world.getLicenses());
     }
 
     /**
@@ -32,7 +32,7 @@ public class CATSBidderTest {
     public void testDefaultCustomBidderSetup() {
         CATSRegionModel model = new CATSRegionModel();
         CATSWorld world = model.createWorld(983742L);
-        List<CATSBidder> defaultPopulation = model.createPopulation(world);
+        List<CATSBidder> defaultPopulation = model.createNewPopulation(world);
         Assert.assertEquals(defaultPopulation.size(), 1);
         checkBidder(defaultPopulation.get(0), "CATS Bidder Setup");
     }
@@ -45,7 +45,7 @@ public class CATSBidderTest {
         CATSRegionModel model2 = new CATSRegionModel();
         CATSWorld world2 = model2.createWorld(983742L);
         model2.setNumberOfBidders(2);
-        List<CATSBidder> population2 = model2.createPopulation(world2);
+        List<CATSBidder> population2 = model2.createNewPopulation(world2);
         Assert.assertEquals(population2.size(), 2);
         checkBidder(population2.get(0), "CATS Bidder Setup");
         checkBidder(population2.get(1), "CATS Bidder Setup");
@@ -65,11 +65,12 @@ public class CATSBidderTest {
         BigDecimal value = customPopulation.get(0).calculateValue(completeBundle);
 
         float expectedValue = 0;
-        for (CATSLicense license : completeBundle) {
+        for (Good good : completeBundle.getSingleQuantityGoods()) {
+            CATSLicense license = (CATSLicense) good;
             expectedValue += license.getCommonValue();
-            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getId()).floatValue();
+            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();
         }
-        expectedValue += Math.pow(completeBundle.size(), 1.2);
+        expectedValue += Math.pow(completeBundle.getSingleQuantityGoods().size(), 1.2);
 
         Assert.assertEquals(value.floatValue(), expectedValue, 0.01f);
     }
@@ -86,13 +87,14 @@ public class CATSBidderTest {
         BigDecimal value = customPopulation.get(0).calculateValue(completeBundle);
 
         float expectedValue = 0;
-        for (CATSLicense license : completeBundle) {
+        for (Good good : completeBundle.getSingleQuantityGoods()) {
+            CATSLicense license = (CATSLicense) good;
             expectedValue += license.getCommonValue();
             expectedValue += Math.pow(license.getCommonValue(), 2);
-            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getId()).floatValue();
+            expectedValue += customPopulation.get(0).getPrivateValues().get(license.getLongId()).floatValue();
         }
 
-        Assert.assertEquals(value.floatValue(), expectedValue, 0.1);
+        Assert.assertEquals(value.floatValue(), expectedValue, 1);
     }
 
     // ------- Helpers ------- //

@@ -5,9 +5,8 @@
  */
 package org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset;
 
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValue;
-import org.spectrumauctions.sats.core.model.Good;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
+import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.util.Iterator;
@@ -18,18 +17,18 @@ import java.util.Map;
  * @author Michael Weiss
  *
  */
-public abstract class GenericPowersetDecreasing<T extends GenericDefinition<S>, S extends Good> extends GenericPowerset<T, S> {
+public abstract class GenericPowersetDecreasing extends GenericPowerset {
 
 
-    GenericPowersetDecreasing(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
+    GenericPowersetDecreasing(Map<? extends GenericGood, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
         super(maxQuantities, maxBundleSize);
     }
 
-    protected GenericPowersetDecreasing(List<T> genericDefinitions) throws UnsupportedBiddingLanguageException {
+    protected GenericPowersetDecreasing(List<? extends GenericGood> genericDefinitions) throws UnsupportedBiddingLanguageException {
         super(genericDefinitions);
     }
 
-    protected void isFeasibleSize(Map<T, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
+    protected void isFeasibleSize(Map<? extends GenericGood, Integer> maxQuantities, int maxBundleSize) throws UnsupportedBiddingLanguageException {
         if (maxQuantities.size() > 15) {
             //TODO Adjust this limit
             throw new UnsupportedBiddingLanguageException("GenericPowersetDecreasing is not suitable for big model instances");
@@ -41,12 +40,12 @@ public abstract class GenericPowersetDecreasing<T extends GenericDefinition<S>, 
      * @see GenericLang#iterator()
      */
     @Override
-    public Iterator<GenericValue<T, S>> iterator() {
+    public Iterator<BundleValue> iterator() {
         return new DecreasingIterator();
     }
 
 
-    private class DecreasingIterator extends GenericPowerset<T, S>.PowersetIterator {
+    private class DecreasingIterator extends GenericPowerset.PowersetIterator {
 
         public DecreasingIterator() {
             bundleSize = maxBundleSize;

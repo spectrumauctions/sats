@@ -8,8 +8,8 @@ package org.spectrumauctions.sats.core.model.mrvm;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeOrdered;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericValueBidder;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 
 import java.io.Serializable;
@@ -27,7 +27,7 @@ public class SizeOrderedGenericFactory implements Serializable {
     private static final long serialVersionUID = 4716571861676046858L;
     static BandComparator comparator = new BandComparator();
 
-    public static GenericSizeOrdered<MRVMGenericDefinition, MRVMLicense> getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
+    public static GenericSizeOrdered getSizeOrderedGenericLang(boolean increasing, MRVMBidder bidder) throws UnsupportedBiddingLanguageException {
         List<MRVMGenericDefinition> bands = new ArrayList<>();
         for (MRVMBand band : bidder.getWorld().getBands()) {
             for (MRVMRegionsMap.Region region : bidder.getWorld().getRegionsMap().getRegions()) {
@@ -42,7 +42,7 @@ public class SizeOrderedGenericFactory implements Serializable {
     }
 
 
-    private static final class Increasing extends GenericSizeIncreasing<MRVMGenericDefinition, MRVMLicense> {
+    private static final class Increasing extends GenericSizeIncreasing {
 
 
         private final MRVMBidder bidder;
@@ -54,15 +54,7 @@ public class SizeOrderedGenericFactory implements Serializable {
         }
 
         @Override
-        public Bidder<MRVMLicense> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericSizeOrdered#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<MRVMGenericDefinition> getGenericBidder() {
+        public SATSBidder getBidder() {
             return bidder;
         }
 
@@ -70,12 +62,12 @@ public class SizeOrderedGenericFactory implements Serializable {
          * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<MRVMGenericDefinition> getDefComparator() {
+        protected Comparator<GenericGood> getDefComparator() {
             return comparator;
         }
     }
 
-    private static final class Decreasing extends GenericSizeDecreasing<MRVMGenericDefinition, MRVMLicense> {
+    private static final class Decreasing extends GenericSizeDecreasing {
 
 
         private final MRVMBidder bidder;
@@ -87,15 +79,7 @@ public class SizeOrderedGenericFactory implements Serializable {
         }
 
         @Override
-        public Bidder<MRVMLicense> getBidder() {
-            return bidder;
-        }
-
-        /**
-         * @see GenericSizeOrdered#getGenericBidder()
-         */
-        @Override
-        protected GenericValueBidder<MRVMGenericDefinition> getGenericBidder() {
+        public SATSBidder getBidder() {
             return bidder;
         }
 
@@ -103,13 +87,13 @@ public class SizeOrderedGenericFactory implements Serializable {
          * @see GenericSizeOrdered#getDefComparator()
          */
         @Override
-        protected Comparator<MRVMGenericDefinition> getDefComparator() {
+        protected Comparator<GenericGood> getDefComparator() {
             return comparator;
         }
     }
 
 
-    private static class BandComparator implements Comparator<MRVMGenericDefinition>, Serializable {
+    private static class BandComparator implements Comparator<GenericGood>, Serializable {
 
         private static final long serialVersionUID = 6544631181558946919L;
 
@@ -117,8 +101,8 @@ public class SizeOrderedGenericFactory implements Serializable {
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
         @Override
-        public int compare(MRVMGenericDefinition o1, MRVMGenericDefinition o2) {
-            return o1.toString().compareTo(o2.toString());
+        public int compare(GenericGood o1, GenericGood o2) {
+            return o1.getName().compareTo(o2.getName());
         }
 
     }

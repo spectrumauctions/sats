@@ -6,6 +6,8 @@
 package org.spectrumauctions.sats.core.model.bvm;
 
 import com.google.common.base.Preconditions;
+import org.spectrumauctions.sats.core.model.GenericGood;
+import org.spectrumauctions.sats.core.model.GenericWorld;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.PreconditionUtils;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
@@ -19,7 +21,7 @@ import java.util.Map.Entry;
  * @author Michael Weiss
  *
  */
-public final class BMWorld extends World {
+public final class BMWorld extends World implements GenericWorld {
 
     public static final String MODEL_NAME = "Base and MultiBand Value Model";
     private static final long serialVersionUID = 8418773596929829197L;
@@ -65,10 +67,10 @@ public final class BMWorld extends World {
     }
 
     @Override
-    public Set<BMLicense> getLicenses() {
-        Set<BMLicense> licenses = new HashSet<>();
+    public List<BMLicense> getLicenses() {
+        List<BMLicense> licenses = new LinkedList<>();
         for (BMBand band : bands) {
-            licenses.addAll(band.getLicenses());
+            licenses.addAll(band.containedGoods());
         }
         return licenses;
     }
@@ -153,7 +155,7 @@ public final class BMWorld extends World {
      * @see World#restorePopulation(long)
      */
     @Override
-    public Collection<BMBidder> restorePopulation(long populationId) {
+    public List<BMBidder> restorePopulation(long populationId) {
         return super.restorePopulation(BMBidder.class, populationId);
     }
 
@@ -185,4 +187,8 @@ public final class BMWorld extends World {
     }
 
 
+    @Override
+    public List<? extends GenericGood> getAllGenericDefinitions() {
+        return bands;
+    }
 }

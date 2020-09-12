@@ -5,27 +5,24 @@
  */
 package org.spectrumauctions.sats.core.model.bvm;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.spectrumauctions.sats.core.bidlang.generic.Band;
-import org.spectrumauctions.sats.core.bidlang.generic.GenericDefinition;
-import org.spectrumauctions.sats.core.model.Good;
+import lombok.EqualsAndHashCode;
+import org.spectrumauctions.sats.core.model.GenericGood;
 import org.spectrumauctions.sats.core.model.IncompatibleWorldException;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Michael Weiss
  *
  */
-public class BMBand extends Band implements GenericDefinition<BMLicense>, Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class BMBand extends GenericGood {
 
     private static final long serialVersionUID = 1156082993361102068L;
     private final List<BMLicense> licenses;
-    private final long worldId;
 
     private transient BMWorld world;
 
@@ -35,9 +32,8 @@ public class BMBand extends Band implements GenericDefinition<BMLicense>, Serial
      * hence, the use of this constructor is not recommended.
      */
     public BMBand(BMWorld world, String name, int numberOfLicenses, int licenseCounter, RNGSupplier rngSupplier) {
-        super(name);
+        super(name, world.getId());
         this.world = world;
-        this.worldId = world.getId();
         this.licenses = new ArrayList<>();
         for (int i = 0; i < numberOfLicenses; i++) {
             licenses.add(new BMLicense(licenseCounter++, this, rngSupplier));
@@ -48,18 +44,14 @@ public class BMBand extends Band implements GenericDefinition<BMLicense>, Serial
         return world;
     }
 
-    public Collection<BMLicense> getLicenses() {
-        return Collections.unmodifiableCollection(licenses);
+    @Override
+    public List<BMLicense> containedGoods() {
+        return licenses;
     }
 
     @Override
-    public int getNumberOfLicenses() {
+    public int getQuantity() {
         return licenses.size();
-    }
-
-
-    public long getWorldId() {
-        return worldId;
     }
 
     /**
@@ -85,64 +77,8 @@ public class BMBand extends Band implements GenericDefinition<BMLicense>, Serial
         }
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((licenses == null) ? 0 : licenses.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        BMBand other = (BMBand) obj;
-        if (licenses == null) {
-            if (other.licenses != null)
-                return false;
-        } else if (!licenses.equals(other.licenses))
-            return false;
-        return true;
-    }
-
-    /**
-     * @see GenericDefinition#isPartOf(Good)
-     */
-    @Override
     public boolean isPartOf(BMLicense license) {
         return license != null && license.getBand().equals(this);
     }
-
-    /**
-     * @see GenericDefinition#numberOfLicenses()
-     */
-    @Override
-    public int numberOfLicenses() {
-        return getNumberOfLicenses();
-    }
-
-    /**
-     * @see GenericDefinition#allLicenses()
-     */
-    @Override
-    public Set<BMLicense> allLicenses() {
-        return new HashSet<>(getLicenses());
-    }
-
-    /**
-     * @see GenericDefinition#shortJson()
-     */
-    @Override
-    public JsonElement shortJson() {
-        JsonObject json = new JsonObject();
-        json.addProperty("band", getName());
-        return json;
-    }
-
 
 }

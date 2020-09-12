@@ -1,14 +1,14 @@
 package org.spectrumauctions.sats.core.model.cats;
 
 import com.google.common.base.Preconditions;
-import org.spectrumauctions.sats.core.model.Good;
+import org.spectrumauctions.sats.core.model.License;
 import org.spectrumauctions.sats.core.model.World;
 import org.spectrumauctions.sats.core.model.cats.graphalgorithms.Vertex;
 
 /**
  * @author Fabio Isler
  */
-public class CATSLicense extends Good {
+public class CATSLicense extends License {
 
     private static final long serialVersionUID = 5732211251618769420L;
     private final Vertex vertex;
@@ -29,7 +29,7 @@ public class CATSLicense extends Good {
     }
 
     /* (non-Javadoc)
-    * @see Good#getWorld()
+    * @see License#getWorld()
     */
     @Override
     public CATSWorld getWorld() {

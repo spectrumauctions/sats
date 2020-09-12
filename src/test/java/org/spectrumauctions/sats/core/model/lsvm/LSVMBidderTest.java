@@ -3,20 +3,23 @@ package org.spectrumauctions.sats.core.model.lsvm;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.spectrumauctions.sats.core.model.Bundle;
+import org.marketdesignresearch.mechlib.core.Bundle;
+import org.marketdesignresearch.mechlib.core.Good;
 import org.spectrumauctions.sats.core.util.random.DoubleInterval;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Fabio Isler
  */
 public class LSVMBidderTest {
 
-    private static Bundle<LSVMLicense> completeBundle;
+    private static Bundle completeBundle;
     private static List<LSVMBidder> standardPopulation;
 
     @BeforeClass
@@ -29,8 +32,7 @@ public class LSVMBidderTest {
         setups.add(regionalBidders);
         setups.add(nationalBidder);
         standardPopulation = world.createPopulation(setups, new JavaUtilRNGSupplier(983742L));
-        completeBundle = new Bundle<>();
-        completeBundle.addAll(world.getLicenses());
+        completeBundle = Bundle.of(world.getLicenses());
     }
 
     /**
@@ -42,12 +44,12 @@ public class LSVMBidderTest {
         LSVMWorld world2 = model2.createWorld(983742L);
         model2.setNumberOfNationalBidders(3);
         model2.setNumberOfRegionalBidders(2);
-        List<LSVMBidder> minimalPopulation = model2.createPopulation(world2);
+        List<LSVMBidder> minimalPopulation = model2.createNewPopulation(world2);
 
-        Assert.assertTrue(minimalPopulation.size() == 5);
+        Assert.assertEquals(5, minimalPopulation.size());
 
-        Assert.assertTrue(minimalPopulation.get(0).getSetupType().equals("National Bidder Setup"));
-        Assert.assertTrue(minimalPopulation.get(4).getSetupType().equals("Regional Bidder Setup"));
+        Assert.assertEquals("National Bidder Setup", minimalPopulation.get(0).getSetupType());
+        Assert.assertEquals("Regional Bidder Setup", minimalPopulation.get(4).getSetupType());
     }
 
     /**
@@ -76,20 +78,19 @@ public class LSVMBidderTest {
         setups.add(nationalBidderBuilder.build());
         List<LSVMBidder> customPopulation = world2.createPopulation(setups, new JavaUtilRNGSupplier(983742L));
 
-        Assert.assertTrue(customPopulation.size() == 10);
+        Assert.assertEquals(10, customPopulation.size());
 
-        Assert.assertTrue(customPopulation.get(0).getSetupType().equals("Test Regional Bidder"));
+        Assert.assertEquals("Test Regional Bidder", customPopulation.get(0).getSetupType());
 
-        Assert.assertTrue(customPopulation.get(9).getSetupType().equals("Test National Bidder"));
+        Assert.assertEquals("Test National Bidder", customPopulation.get(9).getSetupType());
 
-        Bundle<LSVMLicense> proximity = new Bundle<>();
-        proximity.addAll(customPopulation.get(0).getProximity());
+        Bundle proximity = Bundle.of(customPopulation.get(0).getProximity());
 
         BigDecimal valueRegionalBidderComplete = customPopulation.get(0).calculateValue(completeBundle);
         BigDecimal valueRegionalBidderProximity = customPopulation.get(0).calculateValue(proximity);
 
         // Value is the same because LSVM_A and therefore the whole factor is zero
-        Assert.assertTrue(valueRegionalBidderComplete.compareTo(valueRegionalBidderProximity) == 0);
+        Assert.assertEquals(0, valueRegionalBidderComplete.compareTo(valueRegionalBidderProximity));
     }
 
     /**
@@ -100,7 +101,7 @@ public class LSVMBidderTest {
         BigDecimal valueRegionalBidder = standardPopulation.get(0).calculateValue(completeBundle);
         BigDecimal valueNationalBidder = standardPopulation.get(5).calculateValue(completeBundle);
 
-        Assert.assertTrue(valueRegionalBidder.compareTo(valueNationalBidder) == -1);
+        Assert.assertEquals(-1, valueRegionalBidder.compareTo(valueNationalBidder));
     }
 
     /**
@@ -109,12 +110,11 @@ public class LSVMBidderTest {
      */
     @Test
     public void testProximityBundleValues() {
-        Bundle<LSVMLicense> proximity = new Bundle<>();
-        proximity.addAll(standardPopulation.get(0).getProximity());
+        Bundle proximity = Bundle.of(standardPopulation.get(0).getProximity());
         BigDecimal valueRegionalBidder = standardPopulation.get(0).calculateValue(proximity);
         BigDecimal valueNationalBidder = standardPopulation.get(5).calculateValue(proximity);
 
-        Assert.assertTrue(valueRegionalBidder.compareTo(valueNationalBidder) == 1);
+        Assert.assertEquals(1, valueRegionalBidder.compareTo(valueNationalBidder));
 
     }
 
@@ -124,12 +124,13 @@ public class LSVMBidderTest {
      */
     @Test
     public void testZeroValueForNonProximityLicenses() {
-        Bundle<LSVMLicense> nonProximity = new Bundle<>(completeBundle);
-        nonProximity.removeAll(standardPopulation.get(0).getProximity());
+        Set<Good> licenses = new HashSet<>(completeBundle.getSingleQuantityGoods());
+        licenses.removeAll(standardPopulation.get(0).getProximity());
+        Bundle nonProximity = Bundle.of(licenses);
 
         BigDecimal valueNonProximity = standardPopulation.get(0).calculateValue(nonProximity);
 
-        Assert.assertTrue(valueNonProximity.compareTo(BigDecimal.ZERO) == 0);
+        Assert.assertEquals(0, valueNonProximity.compareTo(BigDecimal.ZERO));
     }
 
 }

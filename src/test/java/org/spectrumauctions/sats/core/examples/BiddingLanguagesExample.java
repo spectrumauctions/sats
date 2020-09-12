@@ -3,14 +3,16 @@ package org.spectrumauctions.sats.core.examples;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
+import org.marketdesignresearch.mechlib.core.bidder.valuefunction.BundleValue;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.SizeOrderedPowerset.GenericPowersetIncreasing;
 import org.spectrumauctions.sats.core.bidlang.xor.*;
-import org.spectrumauctions.sats.core.model.Bidder;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.UnsupportedBiddingLanguageException;
 import org.spectrumauctions.sats.core.model.srvm.SRVMBidder;
 import org.spectrumauctions.sats.core.model.srvm.SingleRegionModel;
 
+import java.math.RoundingMode;
 import java.util.Iterator;
 
 /**
@@ -26,7 +28,7 @@ public class BiddingLanguagesExample {
      * See {@link SimpleModelAccessorsExample} and {@link ParameterizingModelsExample} for examples how bidders can be generated
      */
     private static SRVMBidder createAnyBidder() {
-        return new SingleRegionModel().createNewPopulation().stream().findAny().orElse(null);
+        return new SingleRegionModel().createNewWorldAndPopulation().stream().findAny().orElse(null);
     }
 
     /**
@@ -46,8 +48,8 @@ public class BiddingLanguagesExample {
      */
     @Test
     public void generateRandomOrderXORBids() {
-        Bidder bidder = createAnyBidder();
-        SizeBasedUniqueRandomXOR<?> valueFunction;
+        SATSBidder bidder = createAnyBidder();
+        SizeBasedUniqueRandomXOR valueFunction;
         try {
             // Get a SizeBaseUniqueRandom XOR Iterator from your bidder
             valueFunction = (SizeBasedUniqueRandomXOR) bidder.getValueFunction(SizeBasedUniqueRandomXOR.class);
@@ -58,10 +60,10 @@ public class BiddingLanguagesExample {
             int numberOfBids = 30; // More bids than specified here must not be requested.
             valueFunction.setIterations(numberOfBids);
             // Do something with the generated bids
-            Iterator<? extends XORValue<?>> xorBidIterator = valueFunction.iterator();
+            Iterator<BundleValue> xorBidIterator = valueFunction.iterator();
             while (xorBidIterator.hasNext()) {
-                XORValue bid = xorBidIterator.next();
-                logger.info(bid.getLicenses().toString() + "   " + bid.value().toString());
+                BundleValue bid = xorBidIterator.next();
+                logger.info(bid.getBundle().toString() + "   " + bid.getAmount().setScale(2, RoundingMode.HALF_UP));
             }
         } catch (UnsupportedBiddingLanguageException e) {
             // If the model does not support the specified value function, this exception is thrown.
