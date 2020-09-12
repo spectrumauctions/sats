@@ -23,9 +23,8 @@ import java.util.Iterator;
  * If trying to imitate a bidding behavior is the focus in a certain model, such an iterator is essential to the model.
  *
  * On the other hand, if you are less interested in a specific bidding behavior, but are more interested in getting
- * the "most profitable" bids of the bidder in a certain model, you can find those by using a demand query MIP
- * (see {@link org.spectrumauctions.sats.opt.domain.DemandQueryMIP} (and setting the prices to zero if you just want
- * to find the most valuable bids).
+ * the "most profitable" bids of the bidder in a certain model, you can find those by using a demand query
+ * (see {@link org.marketdesignresearch.mechlib.mechanism.auctions.interactions.DemandQuery}.
  */
 public interface BiddingLanguage {
 
