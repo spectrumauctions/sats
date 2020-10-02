@@ -23,7 +23,7 @@ public enum SupportVectorSetupFactory {
 			KernelType.Gaussian, new KernelGaussian(20d, 10d));
 	
 	private Map<KernelType,Kernel> lsvmDefaultKernels = Map.of(
-			KernelType.Linear, new KernelLinear(0d,0d),
+			KernelType.Linear, new KernelLinear(0d,80d),
 			KernelType.Quadratic, new KernelQuadratic(0d, 80d, 0.5d),
 			KernelType.Polynomial, new KernelDotProductPolynomial(new double[] {0d,80d,0.5d}),
 			KernelType.Exponential, new KernelDotProductExponential(5d, 10d),
