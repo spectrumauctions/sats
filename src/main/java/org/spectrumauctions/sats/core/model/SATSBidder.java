@@ -7,10 +7,8 @@ package org.spectrumauctions.sats.core.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.bidder.Bidder;
@@ -114,6 +112,17 @@ public abstract class SATSBidder implements Bidder, Serializable {
      * @return bidder specific value for this bundle
      */
     public abstract BigDecimal calculateValue(Bundle bundle);
+
+    /**
+     * Returns a list of values for a list of bundles, in the same
+     * order as the bundles were ordered in the input.
+     *
+     * @param bundles the bundles for which the value is asked
+     * @return a list of bidder specific values for these bundles
+     */
+    public List<BigDecimal> calculateValues(List<Bundle> bundles) {
+        return bundles.parallelStream().map(this::calculateValue).collect(Collectors.toList());
+    }
 
     @Override
     public BigDecimal getValue(Bundle bundle, boolean ignoreAllocationLimits) {
