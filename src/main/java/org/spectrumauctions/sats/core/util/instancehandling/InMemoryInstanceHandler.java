@@ -18,7 +18,7 @@ import java.util.List;
  * No files are written - all <i>write</i> methods are empty mocks.<br>
  * <br>
  * The use of this handler is only recommended if no instances are serialized or deserialized. <br>
- * Otherwise, id collisions may occure.
+ * Otherwise, id collisions may occur.
  * @author Michael Weiss
  *
  */

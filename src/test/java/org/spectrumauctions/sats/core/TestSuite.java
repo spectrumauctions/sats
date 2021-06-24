@@ -22,6 +22,7 @@ import org.spectrumauctions.sats.core.bidlang.xor.CatsXORTest;
 import org.spectrumauctions.sats.core.examples.BiddingLanguagesExample;
 import org.spectrumauctions.sats.core.examples.ParameterizingModelsExample;
 import org.spectrumauctions.sats.core.examples.SimpleModelAccessorsExample;
+import org.spectrumauctions.sats.core.instancehandling.InMemorySerializerTest;
 import org.spectrumauctions.sats.core.instancehandling.SerializerTest;
 import org.spectrumauctions.sats.core.model.DefaultModel;
 import org.spectrumauctions.sats.core.model.bvm.BMRandomnessTest;
@@ -59,6 +60,7 @@ import java.util.List;
         CatsWriterTest.class,
         JSONWriterTest.class,
         // Instance handling
+        InMemorySerializerTest.class,
         SerializerTest.class,
         // Bidlang
         SimpleRandomOrderTest.class,

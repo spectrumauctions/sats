@@ -11,36 +11,32 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.spectrumauctions.sats.core.TestSuite;
-import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.DefaultModel;
+import org.spectrumauctions.sats.core.model.SATSBidder;
 import org.spectrumauctions.sats.core.model.World;
+import org.spectrumauctions.sats.core.util.file.FilePathUtils;
+import org.spectrumauctions.sats.core.util.instancehandling.InMemoryInstanceHandler;
 import org.spectrumauctions.sats.core.util.instancehandling.InstanceHandler;
-import org.spectrumauctions.sats.core.util.instancehandling.JSONInstanceHandler;
 import org.spectrumauctions.sats.core.util.random.JavaUtilRNGSupplier;
 import org.spectrumauctions.sats.core.util.random.UniformDistributionRNG;
 
 import javax.management.RuntimeOperationsException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 /**
  * @author Michael Weiss
  *
  */
 @RunWith(Parameterized.class)
-public class SerializerTest {
-    UniformDistributionRNG rng = new JavaUtilRNGSupplier(35435434343L).getUniformDistributionRNG();
+public class InMemorySerializerTest {
+    UniformDistributionRNG rng = new JavaUtilRNGSupplier(1684231L).getUniformDistributionRNG();
 
     private final DefaultModel<?, ?> model;
 
-    @BeforeClass
-    public static void setUp() {
-        InstanceHandler.setDefaultHandler(JSONInstanceHandler.getInstance());
-    }
 
-    public SerializerTest(DefaultModel<?, ?> model) {
+    public InMemorySerializerTest(DefaultModel<?, ?> model) {
         super();
         this.model = model;
     }
@@ -56,6 +52,11 @@ public class SerializerTest {
         return testInput;
     }
 
+    @BeforeClass
+    public static void setUp() {
+        InstanceHandler.setDefaultHandler(InMemoryInstanceHandler.getInstance());
+    }
+
 
     @Test
     public void deserializedWorldShouldBeEqual() {
@@ -67,27 +68,10 @@ public class SerializerTest {
     }
 
     public <W extends World, B extends SATSBidder> void testWorldSerializability(DefaultModel<W, B> model) {
-        World original = model.createWorld(rng.nextLong());
-        World deserialized = InstanceHandler.getDefaultHandler().readWorld(original.getClass(), original.getId());
-        Assert.assertEquals("Model " + model.getClass().getSimpleName() + " changed after deserialization", original, deserialized);
-    }
-
-
-    @Test
-    public void deserializedBiddersShouldBeEqual() {
-        try {
-            testBidderSerializability(model);
-        } catch (RuntimeException e) {
-            throw new RuntimeOperationsException(e, "Error during Serialization-Test of " + model.getClass().getSimpleName() + " population : " + e.getMessage());
-        }
-    }
-
-    public <W extends World, B extends SATSBidder> void testBidderSerializability(DefaultModel<W, B> model) {
-        W world = model.createWorld(rng.nextLong());
-        List<B> originalPopulation = model.createNewPopulation(world, rng.nextLong());
-        long populationId = originalPopulation.iterator().next().getPopulation();
-        List<? extends SATSBidder> deserializedPopulation = new ArrayList<>(world.restorePopulation(populationId));
-        Assert.assertEquals(originalPopulation, deserializedPopulation);
+        int fileCountBefore = Objects.requireNonNull(FilePathUtils.FOLDER.list()).length;
+        model.createWorld(rng.nextLong());
+        int fileCountAfter = Objects.requireNonNull(FilePathUtils.FOLDER.list()).length;
+        Assert.assertEquals(fileCountBefore, fileCountAfter);
     }
 
 }

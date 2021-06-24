@@ -18,10 +18,7 @@ import org.spectrumauctions.sats.core.util.random.RNGSupplier;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /**
  * <p>This shows how to use the simple accessors provided for the models. </p>
@@ -112,10 +109,14 @@ public class SimpleModelAccessorsExample {
         Optional<? extends SATSBidder> anyBidder = bidders.stream().findAny();
         if (anyBidder.isPresent()) {
             World world = anyBidder.get().getWorld();
-            Bundle fullBundle = Bundle.of(world.getLicenses());
+            List<Bundle> bundles = new LinkedList<>();
+            bundles.add(Bundle.of(world.getLicenses())); // Full bundle
+            bundles.add(Bundle.of()); // Empty bundle
             for (SATSBidder bidder : bidders) {
-                BigDecimal val = bidder.calculateValue(fullBundle);
-                logger.info("bidder " + bidder.getLongId() + "has the following value for getting all licenses: " + val.setScale(2, RoundingMode.HALF_UP));
+                List<BigDecimal> values = bidder.calculateValues(bundles);
+                for (BigDecimal value : values) {
+                    logger.info("bidder " + bidder.getLongId() + "has the following value for getting all licenses: " + value.setScale(2, RoundingMode.HALF_UP));
+                }
             }
         } else {
             logger.info("No bidder created");
