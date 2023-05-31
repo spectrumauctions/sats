@@ -2,12 +2,20 @@ package org.spectrumauctions.sats.core.model.srvm;
 
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import edu.harvard.econcs.jopt.solver.mip.CompareType;
+import edu.harvard.econcs.jopt.solver.mip.Constraint;
+import edu.harvard.econcs.jopt.solver.mip.MIP;
+import edu.harvard.econcs.jopt.solver.mip.VarType;
+import edu.harvard.econcs.jopt.solver.mip.Variable;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.NotImplementedException;
+import org.marketdesignresearch.mechlib.core.Allocation;
 import org.marketdesignresearch.mechlib.core.Bundle;
 import org.marketdesignresearch.mechlib.core.BundleEntry;
 import org.marketdesignresearch.mechlib.core.Good;
 import org.marketdesignresearch.mechlib.core.price.Prices;
+import org.marketdesignresearch.mechlib.instrumentation.MipInstrumentation;
 import org.spectrumauctions.sats.core.bidlang.BiddingLanguage;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeDecreasing;
 import org.spectrumauctions.sats.core.bidlang.generic.FlatSizeIterators.GenericSizeIncreasing;
@@ -19,6 +27,7 @@ import org.spectrumauctions.sats.core.bidlang.xor.IncreasingSizeOrderedXOR;
 import org.spectrumauctions.sats.core.bidlang.xor.SizeBasedUniqueRandomXOR;
 import org.spectrumauctions.sats.core.model.*;
 import org.spectrumauctions.sats.core.util.random.RNGSupplier;
+import org.spectrumauctions.sats.opt.model.srvm.SRVM_MIP;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -29,7 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Michael Weiss
@@ -238,7 +247,34 @@ public final class SRVMBidder extends SATSBidder {
 
     @Override
     public LinkedHashSet<Bundle> getBestBundles(Prices prices, int maxNumberOfBundles, boolean allowNegative) {
-        throw new NotImplementedException("Demand Query to be implemented");
+    	SRVM_MIP mip = new SRVM_MIP(Lists.newArrayList(this));
+        mip.setMipInstrumentation(getMipInstrumentation());
+        mip.setPurpose(MipInstrumentation.MipPurpose.DEMAND_QUERY.name());
+        Variable priceVar = new Variable("p", VarType.DOUBLE, 0, MIP.MAX_VALUE);
+        mip.getMIP().add(priceVar);
+        mip.getMIP().addObjectiveTerm(-1, priceVar);
+        Constraint price = new Constraint(CompareType.EQ, 0);
+        price.addTerm(-1, priceVar);
+        for (SRVMBand band : world.getAllGenericDefinitions()) {
+        	Variable var = mip.getWorldPartialMip().getXVariable(this, band);
+        	price.addTerm(prices.getPrice(Bundle.of(band)).getAmount().doubleValue(), var);
+        }
+        mip.getMIP().add(price);
+        
+        mip.setEpsilon(DEFAULT_DEMAND_QUERY_EPSILON);
+        mip.setTimeLimit(DEFAULT_DEMAND_QUERY_TIME_LIMIT);
+        
+        maxNumberOfBundles = Math.min(maxNumberOfBundles, (int) Math.pow(2, this.getWorld().getNumberOfGoods()));
+        
+        List<Allocation> optimalAllocations = mip.getBestAllocations(maxNumberOfBundles, allowNegative);
+
+        LinkedHashSet<Bundle> result = optimalAllocations.stream()
+                .map(allocation -> allocation.allocationOf(this).getBundle())
+                .filter(bundle -> allowNegative || getUtility(bundle, prices).signum() > -1)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (result.isEmpty()) result.add(Bundle.EMPTY);
+        return result;
+
     }
 
 }
